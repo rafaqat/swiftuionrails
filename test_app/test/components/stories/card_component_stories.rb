@@ -7,6 +7,8 @@ class CardComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::DSL
   include SwiftUIRails::Helpers
   
+  control :title, as: :text, default: "Card Title"
+  control :content, as: :text, default: "This is a sample card content. Cards are great for organizing related information and creating visual hierarchy."
   control :elevation, as: :select, options: [0, 1, 2, 3, 4], default: 1
   control :padding, as: :select, options: ["", "4", "6", "8", "12", "16", "20"], default: "16"
   control :corner_radius, as: :select, options: ["none", "sm", "md", "lg", "xl", "2xl"], default: "lg"
@@ -15,6 +17,8 @@ class CardComponentStories < ViewComponent::Storybook::Stories
   control :hover_effect, as: :boolean, default: false
   
   def default(
+    title: "Card Title",
+    content: "This is a sample card content. Cards are great for organizing related information and creating visual hierarchy.",
     elevation: 1,
     padding: "16",
     corner_radius: "lg",
@@ -27,12 +31,12 @@ class CardComponentStories < ViewComponent::Storybook::Stories
         # Build card element with chained modifiers
         card_element = card(elevation: elevation) do
           vstack(spacing: 12) do
-            text("Card Title")
+            text(title)
               .font_size("lg")
               .font_weight("semibold")
               .text_color("gray-900")
             
-            text("This is a sample card content. Cards are great for organizing related information and creating visual hierarchy.")
+            text(content)
               .text_color("gray-600")
               .line_clamp(3)
             

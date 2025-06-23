@@ -90411,3 +90411,36 @@ Started GET "/.well-known/appspecific/com.chrome.devtools.json" for ::1 at 2025-
   
 ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
   
+Started GET "/storybook/show?story=card_component" for ::1 at 2025-06-23 17:46:17 +0100
+Processing by StorybookController#show as */*
+  Parameters: {"story" => "card_component"}
+  Rendering layout layouts/application.html.erb
+  Rendering storybook/show.html.erb within layouts/application
+  Rendered storybook/_component_preview.html.erb (Duration: 1.0ms | GC: 0.0ms)
+  Rendered storybook/show.html.erb within layouts/application (Duration: 3.1ms | GC: 0.0ms)
+  Rendered layout layouts/application.html.erb (Duration: 5.4ms | GC: 0.0ms)
+Completed 200 OK in 38ms (Views: 6.3ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started POST "/storybook/update_preview" for ::1 at 2025-06-23 17:46:29 +0100
+Processing by StorybookController#update_preview as TURBO_STREAM
+  Parameters: {"story" => "card_component", "story_variant" => "default", "session_id" => "test-session", "mode" => "interactive", "title" => "My Custom Title", "content" => "This is custom content for the card", "elevation" => "2", "padding" => "20", "corner_radius" => "xl", "background_color" => "blue-50", "border" => "true", "hover_effect" => "true"}
+  Rendered storybook/_live_component_preview.html.erb (Duration: 0.4ms | GC: 0.0ms)
+Completed 200 OK in 23ms (Views: 0.1ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/storybook/show?story=card_component" for ::1 at 2025-06-23 17:46:50 +0100
+Processing by StorybookController#show as HTML
+  Parameters: {"story" => "card_component"}
+  Rendering layout layouts/application.html.erb
+  Rendering storybook/show.html.erb within layouts/application
+  Rendered storybook/_component_preview.html.erb (Duration: 0.6ms | GC: 0.0ms)
+  Rendered storybook/show.html.erb within layouts/application (Duration: 3.0ms | GC: 0.0ms)
+  Rendered layout layouts/application.html.erb (Duration: 3.5ms | GC: 0.0ms)
+Completed 200 OK in 46ms (Views: 3.9ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/.well-known/appspecific/com.chrome.devtools.json" for ::1 at 2025-06-23 17:46:50 +0100
+  
+ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
+  

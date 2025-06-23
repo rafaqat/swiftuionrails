@@ -29799,3 +29799,24 @@ Processing by StorybookController#update_preview as TURBO_STREAM
   Rendered storybook/_live_component_preview.html.erb (Duration: 0.1ms | GC: 0.0ms)
 Completed 200 OK in 1ms (Views: 0.0ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
   [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+-------------------------------------------------------------------------------------
+StorybookFinalValidationTest: test_card_component_controls_work_correctly_after_fixes
+-------------------------------------------------------------------------------------
+Started GET "/storybook/show?story=card_component" for 127.0.0.1 at 2025-06-23 17:46:42 +0100
+Processing by StorybookController#show as HTML
+  Parameters: {"story" => "card_component"}
+  Rendering layout layouts/application.html.erb
+  Rendering storybook/show.html.erb within layouts/application
+  Rendered storybook/_component_preview.html.erb (Duration: 2.6ms | GC: 0.0ms)
+  Rendered storybook/show.html.erb within layouts/application (Duration: 7.3ms | GC: 0.0ms)
+  Rendered layout layouts/application.html.erb (Duration: 16.0ms | GC: 0.0ms)
+Completed 200 OK in 35ms (Views: 19.5ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+Started POST "/storybook/update_preview" for 127.0.0.1 at 2025-06-23 17:46:42 +0100
+Processing by StorybookController#update_preview as TURBO_STREAM
+  Parameters: {"story" => "card_component", "story_variant" => "default", "session_id" => "test-session", "mode" => "interactive", "background_color" => "blue-50", "elevation" => "2", "padding" => "20", "corner_radius" => "xl", "border" => "true", "hover_effect" => "true"}
+  Rendered storybook/_live_component_preview.html.erb (Duration: 0.4ms | GC: 0.0ms)
+Completed 200 OK in 5ms (Views: 0.1ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
