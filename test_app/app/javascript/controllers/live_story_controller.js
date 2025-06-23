@@ -1,0 +1,961 @@
+import { Controller } from "@hotwired/stimulus"
+
+// Enhanced interactive storybook controller for real-time prop updates
+export default class extends Controller {
+  static targets = [
+    "form", 
+    "preview", 
+    "control", 
+    "variantLink",
+    "modeToggle",
+    "stateInspector",
+    "usageCode"
+  ]
+  
+  static values = { 
+    story: String, 
+    variant: String,
+    sessionId: String,
+    mode: { type: String, default: "interactive" },
+    updateUrl: String
+  }
+
+  connect() {
+    console.log(`🎭 LiveStory controller connected for ${this.storyValue}/${this.variantValue}`)
+    
+    // Auto-generate session ID if not provided
+    if (!this.sessionIdValue) {
+      this.sessionIdValue = this.generateSessionId()
+    }
+    
+    // Setup form change listeners for real-time updates
+    this.setupFormListeners()
+    
+    // Setup variant switching
+    this.setupVariantSwitching()
+    
+    // Initialize mode toggle if present
+    this.initializeModeToggle()
+    
+    // Setup state inspector updates
+    this.initializeStateInspector()
+  }
+
+  disconnect() {
+    console.log(`🎭 LiveStory controller disconnected`)
+  }
+
+  // Real-time control updates with enhanced feedback
+  controlChanged(event) {
+    if (this.modeValue === "interactive") {
+      const fieldName = event.target.name
+      const newValue = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+      
+      console.log(`🔄 Control changed: ${fieldName} = ${newValue}`)
+      
+      // Add visual feedback to the control
+      this.addControlFeedback(event.target)
+      
+      // Update preview with debouncing
+      this.debounce(() => this.updatePreview(), 200)
+      
+      // Update current value display
+      this.updateValueDisplay(fieldName, newValue)
+    }
+  }
+
+  // Handle option selection from visual buttons
+  selectOption(event) {
+    event.preventDefault()
+    const field = event.currentTarget.dataset.field
+    const value = event.currentTarget.dataset.value
+    
+    // Find and update the corresponding select element
+    const selectElement = this.element.querySelector(`select[name="${field}"]`)
+    if (selectElement) {
+      selectElement.value = value
+      
+      // Trigger change event
+      selectElement.dispatchEvent(new Event('change', { bubbles: true }))
+      
+      // Update visual buttons
+      this.updateOptionButtons(field, value)
+    }
+  }
+
+  // Variant switching with Turbo
+  switchVariant(event) {
+    event.preventDefault()
+    const variantName = event.currentTarget.dataset.variant
+    
+    console.log(`🔀 Switching to variant: ${variantName}`)
+    
+    // Update active variant link styling
+    this.updateActiveVariant(variantName)
+    
+    // Update the preview with new variant
+    this.variantValue = variantName
+    this.updatePreview()
+  }
+
+  // Mode switching between static and interactive
+  toggleMode(event) {
+    const newMode = event.currentTarget.checked ? "interactive" : "static"
+    console.log(`🎛️ Switching to ${newMode} mode`)
+    
+    this.modeValue = newMode
+    this.toggleModeUI(newMode)
+    
+    if (newMode === "interactive") {
+      this.enableInteractiveMode()
+    } else {
+      this.disableInteractiveMode()
+    }
+  }
+
+  // Component action handlers (for button clicks, etc.)
+  handleComponentAction(event) {
+    event.preventDefault()
+    const action = event.currentTarget.dataset.action
+    const componentId = event.currentTarget.dataset.componentId
+    
+    console.log(`🎯 Component action: ${action} on ${componentId}`)
+    
+    if (this.modeValue === "interactive") {
+      this.executeComponentAction(action, componentId)
+    }
+  }
+
+  // State inspector refresh
+  refreshStateInspector() {
+    if (this.hasStateInspectorTarget && this.modeValue === "interactive") {
+      this.updateStateInspector()
+    }
+  }
+
+  // Private methods
+  
+  setupFormListeners() {
+    if (this.hasFormTarget) {
+      // Listen to all form controls
+      this.controlTargets.forEach(control => {
+        control.addEventListener('input', this.controlChanged.bind(this))
+        control.addEventListener('change', this.controlChanged.bind(this))
+      })
+    }
+  }
+
+  setupVariantSwitching() {
+    this.variantLinkTargets.forEach(link => {
+      link.addEventListener('click', this.switchVariant.bind(this))
+    })
+  }
+
+  initializeModeToggle() {
+    if (this.hasModeToggleTarget) {
+      this.modeToggleTarget.addEventListener('change', this.toggleMode.bind(this))
+      
+      // Set initial state
+      this.modeToggleTarget.checked = this.modeValue === "interactive"
+      this.toggleModeUI(this.modeValue)
+    }
+  }
+
+  initializeStateInspector() {
+    if (this.hasStateInspectorTarget) {
+      // Initial state load
+      this.updateStateInspector()
+      
+      // Setup periodic refresh for interactive mode
+      this.stateInspectorInterval = setInterval(() => {
+        if (this.modeValue === "interactive") {
+          this.updateStateInspector()
+        }
+      }, 1000)
+    }
+  }
+
+  updatePreview() {
+    if (!this.hasPreviewTarget) return
+
+    const formData = new FormData(this.formTarget)
+    formData.append('story', this.storyValue)
+    formData.append('story_variant', this.variantValue)  // Keep current story variant (like "default")
+    formData.append('session_id', this.sessionIdValue)
+    formData.append('mode', this.modeValue)
+    
+    // Form data already includes all component props from the form controls
+
+    console.log(`📡 Updating preview for ${this.storyValue}/${this.variantValue}`)
+
+    fetch(this.updateUrlValue || '/storybook/update_preview', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-Token': this.getCSRFToken()
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Handle Turbo Stream response with smooth morphing
+      if (html.includes('<turbo-stream')) {
+        console.log('🔀 Applying smooth morphing transition')
+        this.applySmoothMorphing(html)
+      } else {
+        // Fallback for non-stream responses
+        this.previewTarget.innerHTML = html
+      }
+      
+      // Refresh state inspector and usage code after update
+      setTimeout(() => {
+        this.refreshStateInspector()
+        this.updateUsageCode()
+      }, 100)
+    })
+    .catch(error => {
+      console.error('Preview update failed:', error)
+      this.showErrorMessage('Failed to update preview')
+    })
+  }
+
+  executeComponentAction(action, componentId) {
+    const formData = new FormData()
+    formData.append('story', this.storyValue)
+    formData.append('story_variant', this.variantValue)  // Use story_variant to avoid conflict
+    formData.append('session_id', this.sessionIdValue)
+    formData.append('action', action)
+    formData.append('component_id', componentId)
+
+    fetch('/storybook/component_action', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-Token': this.getCSRFToken()
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      if (html.includes('<turbo-stream')) {
+        Turbo.renderStreamMessage(html)
+      }
+      
+      // Refresh state inspector
+      setTimeout(() => this.refreshStateInspector(), 100)
+    })
+    .catch(error => {
+      console.error('Component action failed:', error)
+      this.showErrorMessage('Action failed')
+    })
+  }
+
+  updateStateInspector() {
+    if (!this.hasStateInspectorTarget) return
+
+    fetch(`/storybook/state_inspector?story=${this.storyValue}&story_variant=${this.variantValue}&session_id=${this.sessionIdValue}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-Token': this.getCSRFToken()
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      this.renderStateInspector(data)
+    })
+    .catch(error => {
+      console.error('State inspector update failed:', error)
+    })
+  }
+
+  renderStateInspector(stateData) {
+    if (!stateData) return
+
+    const html = `
+      <div class="bg-gray-50 p-3 rounded border text-sm">
+        <div class="font-semibold mb-2">🔍 Component State</div>
+        <div class="space-y-1">
+          ${Object.entries(stateData).map(([key, value]) => `
+            <div class="flex justify-between">
+              <span class="text-gray-600">${key}:</span>
+              <span class="font-mono">${JSON.stringify(value)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="text-xs text-gray-500 mt-2">
+          Session: ${this.sessionIdValue.substring(0, 8)}...
+        </div>
+      </div>
+    `
+    
+    this.stateInspectorTarget.innerHTML = html
+  }
+
+  updateActiveVariant(variantName) {
+    this.variantLinkTargets.forEach(link => {
+      if (link.dataset.variant === variantName) {
+        link.classList.add('bg-blue-100', 'text-blue-800')
+        link.classList.remove('text-gray-600', 'hover:text-gray-900')
+      } else {
+        link.classList.remove('bg-blue-100', 'text-blue-800')
+        link.classList.add('text-gray-600', 'hover:text-gray-900')
+      }
+    })
+  }
+
+  toggleModeUI(mode) {
+    const isInteractive = mode === "interactive"
+    
+    // Update form controls
+    if (this.hasFormTarget) {
+      this.formTarget.classList.toggle('border-green-300', isInteractive)
+      this.formTarget.classList.toggle('bg-green-50', isInteractive)
+    }
+    
+    // Show/hide state inspector
+    if (this.hasStateInspectorTarget) {
+      this.stateInspectorTarget.style.display = isInteractive ? 'block' : 'none'
+    }
+    
+    // Update preview container
+    if (this.hasPreviewTarget) {
+      this.previewTarget.classList.toggle('border-green-300', isInteractive)
+      this.previewTarget.classList.toggle('shadow-green-100', isInteractive)
+    }
+  }
+
+  enableInteractiveMode() {
+    console.log('🟢 Interactive mode enabled')
+    this.showSuccessMessage('Interactive mode enabled - controls now update in real-time!')
+    
+    // Setup real-time listeners
+    this.setupFormListeners()
+  }
+
+  disableInteractiveMode() {
+    console.log('⚪ Interactive mode disabled')
+    this.showInfoMessage('Static mode enabled - use "Update Preview" button to see changes')
+  }
+
+  generateSessionId() {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  }
+
+  updateUsageCode() {
+    if (!this.hasUsageCodeTarget) return
+
+    // Get current form data to generate component code
+    const formData = new FormData(this.formTarget)
+    const props = {}
+    
+    // Extract all form values
+    for (let [key, value] of formData.entries()) {
+      if (key !== 'story' && key !== 'story_variant' && key !== 'session_id' && key !== 'mode') {
+        props[key] = value
+      }
+    }
+    
+    // Get story name to determine which component we're showing
+    const storyName = formData.get('story') || ''
+    
+    // Generate appropriate code based on component type
+    const componentCode = this.generateComponentCode(storyName, props)
+    
+    // Update the code display
+    const codeElement = this.usageCodeTarget.querySelector('#chainable-code')
+    if (codeElement) {
+      codeElement.textContent = componentCode
+      
+      // Add visual feedback with smooth animation
+      this.usageCodeTarget.classList.add('ring-2', 'ring-green-300', 'transition-all', 'duration-300')
+      codeElement.classList.add('animate-pulse')
+      
+      setTimeout(() => {
+        this.usageCodeTarget.classList.remove('ring-2', 'ring-green-300')
+        codeElement.classList.remove('animate-pulse')
+      }, 800)
+    }
+  }
+
+  generateComponentCode(storyName, props) {
+    // Always generate SwiftUI DSL code with full examples
+    return this.generateSwiftUIDSLCode(storyName, props)
+  }
+
+  generateProductListCode(props) {
+    // Generate proper ProductListComponent creation code
+    const title = props.title || 'Products'
+    const columns = props.columns || 'auto'
+    const sortable = props.sortable === 'true' || props.sortable === true
+    const filterable = props.filterable === 'true' || props.filterable === true
+    const enableAnimations = props.enable_animations === 'true' || props.enable_animations === true
+    const showQuickActions = props.show_quick_actions === 'true' || props.show_quick_actions === true
+    const currencySymbol = props.currency_symbol || '$'
+    
+    return `render ProductListComponent.new(
+  products: @products,
+  title: "${title}",
+  columns: :${columns},
+  gap: "${props.gap || '6'}",
+  background_color: "${props.background_color || 'white'}",
+  container_padding: "${props.container_padding || '16'}",
+  max_width: "${props.max_width || '7xl'}",
+  image_aspect: "${props.image_aspect || 'square'}",
+  show_colors: ${props.show_colors !== 'false'},
+  currency_symbol: "${currencySymbol}"
+)`
+  }
+
+  generateSimpleButtonCode(props) {
+    // Generate proper SimpleButtonComponent creation code
+    const title = props.title || 'Click Me'
+    const variant = props.variant || 'primary'
+    const size = props.size || 'md'
+    const disabled = props.disabled === 'true'
+    
+    let propsArray = [
+      `title: "${title}"`,
+      `variant: :${variant}`,
+      `size: :${size}`,
+      `disabled: ${disabled}`
+    ]
+    
+    // Add optional props only if they have values
+    if (props.background_color && props.background_color.trim() !== '') {
+      propsArray.push(`background_color: "${props.background_color}"`)
+    }
+    if (props.text_color && props.text_color.trim() !== '') {
+      propsArray.push(`text_color: "${props.text_color}"`)
+    }
+    if (props.corner_radius && props.corner_radius !== 'md') {
+      propsArray.push(`corner_radius: "${props.corner_radius}"`)
+    }
+    if (props.padding_x && props.padding_x.trim() !== '') {
+      propsArray.push(`padding_x: "${props.padding_x}"`)
+    }
+    if (props.padding_y && props.padding_y.trim() !== '') {
+      propsArray.push(`padding_y: "${props.padding_y}"`)
+    }
+    if (props.font_weight && props.font_weight !== 'medium') {
+      propsArray.push(`font_weight: "${props.font_weight}"`)
+    }
+    if (props.font_size && props.font_size.trim() !== '') {
+      propsArray.push(`font_size: "${props.font_size}"`)
+    }
+    
+    return `render SimpleButtonComponent.new(
+  ${propsArray.join(',\n  ')}
+)`
+  }
+
+  generateSwiftUIDSLCode(storyName, props) {
+    // Generate complete SwiftUI-style DSL code with slots and data
+    if (storyName.includes('product_list')) {
+      return this.generateFullProductListDSL(props)
+    } else if (storyName.includes('simple_button')) {
+      return this.generateFullButtonDSL(props)
+    } else {
+      // Default chainable code
+      const chainableCode = this.generateChainableCode(props)
+      return `<%= swift_ui do
+  vstack(spacing: 16) do
+    ${chainableCode}
+  end
+end %>`
+    }
+  }
+
+  generateFullProductListDSL(props) {
+    const title = props.title || 'Products'
+    const columns = props.columns || 'auto'
+    const sortable = props.sortable === 'true' || props.sortable === true
+    const filterable = props.filterable === 'true' || props.filterable === true
+    const enableAnimations = props.enable_animations === 'true' || props.enable_animations === true
+    const currencySymbol = props.currency_symbol || '$'
+    
+    return `# In your Rails controller:
+# @products = [
+#   { id: 1, name: "Basic Tee", image_url: "...", color: "Black", price: 35 },
+#   { id: 2, name: "Premium Hoodie", image_url: "...", color: "Navy", price: 89 }
+# ]
+
+<%= swift_ui do
+  enhanced_product_list(products: @products, title: "${title}")
+    .grid_columns(:${columns})
+    .sortable(${sortable})
+    .filterable(${filterable})
+    .animated(${enableAnimations})
+    .currency("${currencySymbol}")
+    .hover_scale("${props.hover_scale || '105'}")
+    .quick_actions(${props.show_quick_actions !== 'false'})
+end %>
+
+# With slots for complete customization:
+<%= swift_ui do
+  enhanced_product_list(products: @products) do |component|
+    
+    # Custom header slot
+    component.with_header do
+      vstack(spacing: 8) do
+        text("${title}")
+          .font_size("3xl")
+          .font_weight("bold")
+          .text_color("gray-900")
+        
+        text("Discover our handpicked selection")
+          .font_size("lg")
+          .text_color("gray-600")
+      end
+    end
+    
+    # Custom product card slot
+    component.with_product_card do |product:, index:|
+      card(elevation: 2) do
+        vstack(spacing: 12) do
+          # Product image
+          image(product[:image_url])
+            .corner_radius("lg")
+            .aspect_ratio("square")
+          
+          # Product details
+          vstack(spacing: 4) do
+            text(product[:name])
+              .font_weight("semibold")
+              .text_color("gray-900")
+            
+            text(product[:color])
+              .font_size("sm")
+              .text_color("gray-500")
+            
+            text("${currencySymbol}#{product[:price]}")
+              .font_weight("bold")
+              .text_color("blue-600")
+          end
+          
+          # Action buttons
+          hstack(spacing: 8) do
+            button("Quick View")
+              .button_style(:secondary)
+              .button_size(:sm)
+              .on_tap { |product_id| quick_view(product_id) }
+            
+            button("Add to Cart")
+              .button_style(:primary)
+              .button_size(:sm)
+              .on_tap { |product_id| add_to_cart(product_id) }
+          end
+        end
+      end
+      .padding(16)
+      .background("white")
+      .hover_scale("105")
+      .animation
+    end
+    
+    # Custom filters slot
+    component.with_filters do
+      hstack(spacing: 16) do
+        # Sort controls
+        vstack(alignment: :start, spacing: 4) do
+          label("Sort by:")
+            .font_size("sm")
+            .font_weight("medium")
+          
+          # Custom sort dropdown would go here
+        end
+        
+        # Filter controls  
+        vstack(alignment: :start, spacing: 4) do
+          label("Filter by color:")
+            .font_size("sm")
+            .font_weight("medium")
+          
+          hstack(spacing: 8) do
+            button("All").filter_button
+            button("Black").filter_button
+            button("Navy").filter_button
+            button("Indigo").filter_button
+          end
+        end
+      end
+      .padding(16)
+      .background("gray-50")
+      .corner_radius("lg")
+    end
+    
+    # Custom empty state slot
+    component.with_empty_state do
+      vstack(spacing: 16) do
+        text("🛍️")
+          .font_size("6xl")
+        
+        text("No products found")
+          .font_size("xl")
+          .font_weight("semibold")
+          .text_color("gray-900")
+        
+        text("Try adjusting your filters")
+          .text_color("gray-500")
+        
+        button("Browse All Products")
+          .button_style(:primary)
+          .on_tap { navigate_to(products_path) }
+      end
+      .padding_vertical(64)
+      .text_align("center")
+    end
+    
+  end
+end %>`
+  }
+
+  generateFullButtonDSL(props) {
+    const title = props.title || 'Click Me'
+    const variant = props.variant || 'primary'
+    const size = props.size || 'md'
+    
+    return `<%= swift_ui do
+  vstack(spacing: 16) do
+    
+    # Basic button
+    button("${title}")
+      .button_style(:${variant})
+      .button_size(:${size})
+      ${props.background_color && props.background_color.trim() !== '' ? `.background("${props.background_color}")` : ''}
+      ${props.text_color && props.text_color.trim() !== '' ? `.foreground_color("${props.text_color}")` : ''}
+      ${props.corner_radius && props.corner_radius !== 'md' ? `.corner_radius("${props.corner_radius}")` : ''}
+      ${props.padding_x && props.padding_x.trim() !== '' ? `.padding_horizontal(${props.padding_x})` : ''}
+      ${props.padding_y && props.padding_y.trim() !== '' ? `.padding_vertical(${props.padding_y})` : ''}
+      ${props.font_weight && props.font_weight !== 'medium' ? `.font_weight("${props.font_weight}")` : ''}
+      ${props.font_size && props.font_size.trim() !== '' ? `.font_size("${props.font_size}")` : ''}
+      .animation
+      .focus_ring
+      .on_tap { handle_button_click }
+    
+    # Advanced button with state management
+    button("Interactive Button") do |btn|
+      btn.title = @button_text || "${title}"
+      btn.disabled = @loading
+      btn.style = @button_style || :${variant}
+    end
+      .button_style(:${variant})
+      .loading_state(@loading)
+      .success_feedback
+      .on_tap do |event|
+        @loading = true
+        # Perform action
+        handle_async_action.then do |result|
+          @loading = false
+          @button_text = "Success!"
+          show_success_message(result)
+        end
+      end
+    
+    # Button with icon and complex layout
+    button do
+      hstack(spacing: 8) do
+        if @loading
+          spinner(size: :sm)
+        else
+          icon("plus", size: 16)
+        end
+        
+        text(@loading ? "Processing..." : "${title}")
+          .font_weight("medium")
+      end
+    end
+      .button_style(:${variant})
+      .disabled(@loading)
+      .animation
+      
+  end
+end %>
+
+# Button state management in Rails controller:
+# @loading = false
+# @button_text = "${title}"
+# @button_style = :${variant}
+
+# Button action handler:
+def handle_button_click
+  # Your button logic here
+  redirect_to success_path, notice: "Action completed!"
+end`
+  }
+
+  generateChainableCode(props) {
+    // Start with the base DSL method
+    const title = props.title || 'Click Me'
+    let code = `simple_button("${title}")`
+    
+    const modifiers = []
+    
+    // Handle variant with button_style
+    if (props.variant && props.variant !== 'primary') {
+      modifiers.push(`.button_style(:${props.variant})`)
+    }
+    
+    // Handle size with button_size  
+    if (props.size && props.size !== 'md') {
+      modifiers.push(`.button_size(:${props.size})`)
+    }
+    
+    // Handle custom background color
+    if (props.background_color && props.background_color.trim() !== '') {
+      modifiers.push(`.background("${props.background_color}")`)
+    }
+    
+    // Handle custom text color
+    if (props.text_color && props.text_color.trim() !== '') {
+      modifiers.push(`.foreground_color("${props.text_color}")`)
+    }
+    
+    // Handle corner radius
+    if (props.corner_radius && props.corner_radius !== 'md') {
+      modifiers.push(`.corner_radius("${props.corner_radius}")`)
+    }
+    
+    // Handle custom padding
+    if (props.padding_x && props.padding_x.trim() !== '') {
+      modifiers.push(`.padding_horizontal(${props.padding_x})`)
+    }
+    if (props.padding_y && props.padding_y.trim() !== '') {
+      modifiers.push(`.padding_vertical(${props.padding_y})`)
+    }
+    
+    // Handle font weight
+    if (props.font_weight && props.font_weight !== 'medium') {
+      switch (props.font_weight) {
+        case 'bold':
+          modifiers.push('.font_bold')
+          break
+        case 'semibold':
+          modifiers.push('.font_semibold')
+          break
+        case 'light':
+          modifiers.push('.font_light')
+          break
+        default:
+          modifiers.push(`.font_weight("${props.font_weight}")`)
+      }
+    }
+    
+    // Handle font size
+    if (props.font_size && props.font_size.trim() !== '') {
+      modifiers.push(`.font_size("${props.font_size}")`)
+    }
+    
+    // Handle disabled state
+    if (props.disabled === 'true' || props.disabled === true) {
+      modifiers.push('.disabled')
+    }
+    
+    // Add default modifiers for better styling
+    if (modifiers.length === 0 || !modifiers.some(m => m.includes('animation'))) {
+      modifiers.push('.animation')
+      modifiers.push('.focus_ring')
+    }
+    
+    // Join everything together with proper formatting
+    if (modifiers.length > 0) {
+      return code + '\n      ' + modifiers.join('\n      ')
+    } else {
+      return code + '\n      .animation\n      .focus_ring'
+    }
+  }
+
+  debounce(func, wait) {
+    clearTimeout(this.debounceTimer)
+    this.debounceTimer = setTimeout(func, wait)
+  }
+
+  showSuccessMessage(message) {
+    this.showNotification(message, 'bg-green-100 text-green-800 border-green-300')
+  }
+
+  showErrorMessage(message) {
+    this.showNotification(message, 'bg-red-100 text-red-800 border-red-300')
+  }
+
+  showInfoMessage(message) {
+    this.showNotification(message, 'bg-blue-100 text-blue-800 border-blue-300')
+  }
+
+  showNotification(message, classes) {
+    const notification = document.createElement('div')
+    notification.className = `fixed top-4 right-4 p-3 rounded border z-50 ${classes}`
+    notification.textContent = message
+    
+    document.body.appendChild(notification)
+    
+    setTimeout(() => {
+      notification.remove()
+    }, 3000)
+  }
+
+  // Enhanced helper methods for interactive UI
+  
+  addControlFeedback(element) {
+    // Add pulse animation to show the control was changed
+    element.classList.add('ring-2', 'ring-blue-400', 'ring-opacity-50')
+    
+    setTimeout(() => {
+      element.classList.remove('ring-2', 'ring-blue-400', 'ring-opacity-50')
+    }, 500)
+  }
+
+  updateValueDisplay(fieldName, newValue) {
+    // Find the current value display for this field
+    const valueDisplay = this.element.querySelector(`[data-field="${fieldName}"] .font-mono`)
+    if (valueDisplay) {
+      valueDisplay.textContent = `Current: ${JSON.stringify(newValue)}`
+      
+      // Add highlight animation
+      valueDisplay.classList.add('bg-green-200')
+      setTimeout(() => {
+        valueDisplay.classList.remove('bg-green-200')
+        valueDisplay.classList.add('bg-gray-100')
+      }, 300)
+    }
+  }
+
+  updateOptionButtons(field, selectedValue) {
+    // Update visual option buttons
+    const buttons = this.element.querySelectorAll(`[data-field="${field}"]`)
+    buttons.forEach(button => {
+      if (button.dataset.value === selectedValue) {
+        button.classList.remove('bg-gray-100', 'text-gray-600')
+        button.classList.add('bg-blue-100', 'text-blue-800')
+      } else {
+        button.classList.remove('bg-blue-100', 'text-blue-800')
+        button.classList.add('bg-gray-100', 'text-gray-600')
+      }
+    })
+  }
+
+
+
+  applySmoothMorphing(streamHTML) {
+    // Extract the target element and new content from the Turbo stream
+    const tempContainer = document.createElement('div')
+    tempContainer.innerHTML = streamHTML
+    
+    const turboStream = tempContainer.querySelector('turbo-stream')
+    if (!turboStream || turboStream.getAttribute('target') !== 'component-preview') {
+      // Not our target, use standard Turbo processing
+      Turbo.renderStreamMessage(streamHTML)
+      return
+    }
+
+    const template = turboStream.querySelector('template')
+    if (!template) {
+      // No template content, use standard processing
+      Turbo.renderStreamMessage(streamHTML)
+      return
+    }
+
+    // Get the target element
+    const targetElement = document.getElementById('component-preview')
+    if (!targetElement) {
+      // Target not found, use standard processing
+      Turbo.renderStreamMessage(streamHTML)
+      return
+    }
+
+    // Apply smooth morphing transition
+    this.performSmoothTransition(targetElement, template.innerHTML)
+  }
+
+  performSmoothTransition(targetElement, newContent) {
+    // Enhanced anti-flash morphing specifically for product cards
+    const originalTransition = targetElement.style.transition
+    const originalOpacity = targetElement.style.opacity
+    
+    // Find all product cards in the current content
+    const currentProductCards = targetElement.querySelectorAll('[data-enhanced-product-list-target="productCard"]')
+    const cardPositions = new Map()
+    
+    // Store current card positions and content to prevent layout shift
+    currentProductCards.forEach((card, index) => {
+      const rect = card.getBoundingClientRect()
+      const productId = card.dataset.productId
+      cardPositions.set(productId, {
+        element: card,
+        rect: rect,
+        index: index,
+        content: card.innerHTML
+      })
+    })
+    
+    // Apply ultra-smooth transition with minimal visual disturbance
+    targetElement.style.transition = 'opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1)'
+    targetElement.style.opacity = '0.95'
+    
+    // Very short transition time to minimize flash
+    setTimeout(() => {
+      // Store scroll position
+      const scrollTop = targetElement.scrollTop
+      const scrollLeft = targetElement.scrollLeft
+      
+      // Temporarily disable all transitions in the container
+      targetElement.style.transition = 'none'
+      const allElements = targetElement.querySelectorAll('*')
+      allElements.forEach(el => {
+        el.style.transition = 'none'
+      })
+      
+      // Update content instantly
+      targetElement.innerHTML = newContent
+      
+      // Restore scroll position immediately
+      targetElement.scrollTop = scrollTop
+      targetElement.scrollLeft = scrollLeft
+      
+      // Force immediate reflow
+      targetElement.offsetHeight
+      
+      // Re-enable transitions with optimized timing
+      requestAnimationFrame(() => {
+        // Restore transitions on container
+        targetElement.style.transition = 'opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1)'
+        targetElement.style.opacity = '1'
+        
+        // Re-enable transitions on product cards with staggered timing
+        const newProductCards = targetElement.querySelectorAll('[data-enhanced-product-list-target="productCard"]')
+        newProductCards.forEach((card, index) => {
+          // Restore optimized transitions for each card
+          setTimeout(() => {
+            card.style.transition = 'transform 0.3s ease-out'
+            // Re-enable child element transitions
+            const cardElements = card.querySelectorAll('*')
+            cardElements.forEach(el => {
+              el.style.transition = ''
+            })
+          }, index * 10) // Minimal stagger to prevent flash
+        })
+        
+        // Clean up after animation with faster timing
+        setTimeout(() => {
+          targetElement.style.transition = originalTransition
+          targetElement.style.opacity = originalOpacity
+          
+          // Ensure all child elements have proper transitions restored
+          const allElements = targetElement.querySelectorAll('*')
+          allElements.forEach(el => {
+            el.style.transition = ''
+          })
+          
+          console.log('✅ Enhanced flash-free transition completed')
+        }, 150)
+      })
+    }, 150) // Reduced from 200ms to 150ms for faster updates
+  }
+
+  getCSRFToken() {
+    const token = document.querySelector('meta[name="csrf-token"]')
+    return token ? token.getAttribute('content') : ''
+  }
+}

@@ -1,0 +1,33 @@
+<div class="min-h-screen bg-gray-50">
+  <%= swift_ui { 
+    vstack(spacing: 24) { 
+      # Header
+      text("Welcome to SwiftUI Rails").text_size("4xl").font_weight("bold").text_color("gray-900")
+      text("Build beautiful Rails views with SwiftUI-inspired syntax").text_size("xl").text_color("gray-600")
+      
+      # Example component
+      card(elevation: 2) { 
+        vstack(spacing: 16) { 
+          text("Example Component").text_size("2xl").font_weight("semibold")
+          
+          hstack(spacing: 12) { 
+            button("Primary Button").bg("blue-600").text_color("white").px(4).py(2).rounded("md")
+            button("Secondary Button").border.text_color("gray-700").px(4).py(2).rounded("md")
+          }
+          
+          divider.my(4)
+          
+          text("This is a SwiftUI Rails component using our DSL!").text_color("gray-600")
+        }
+      }.p(6)  # Apply padding after the card block
+      
+      # Render the example component
+      div { 
+        render ExampleComponent.new(
+          title: "Interactive Example",
+          description: "Click the buttons to see state management in action!"
+        )
+      }.mt(8)  # Apply margin after the div block
+    }.p(8).max_w("4xl").mx("auto")  # Apply these after the vstack block
+  } %>
+</div>

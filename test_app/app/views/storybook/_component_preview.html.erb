@@ -1,0 +1,37 @@
+<% begin %>
+  <% if story_variant && available_stories.include?(story_variant) %>
+    <%# Use StoryRenderer to execute the story method %>
+    <% renderer = StoryRenderer.new(controller) %>
+    <% story_result = renderer.render_story(story_instance, story_variant, **component_props) %>
+    <% if story_result.respond_to?(:call) && story_result.is_a?(ViewComponent::Base) %>
+      <%= render story_result %>
+    <% else %>
+      <%= raw story_result %>
+    <% end %>
+  <% else %>
+    <%# Fallback: always try to render using the default story method with current props %>
+    <%# This handles cases where property updates should affect the default story %>
+    <% default_variant = available_stories.include?(:default) ? :default : available_stories.first %>
+    <% renderer = StoryRenderer.new(controller) %>
+    <% story_result = renderer.render_story(story_instance, default_variant, **component_props) %>
+    <% if story_result.respond_to?(:call) && story_result.is_a?(ViewComponent::Base) %>
+      <%= render story_result %>
+    <% else %>
+      <%= raw story_result %>
+    <% end %>
+  <% end %>
+  
+  <!-- Update indicator (hidden, shown briefly via JS) -->
+  <div id="update-indicator" class="absolute top-2 right-2 text-xs text-green-600 opacity-0 transition-opacity duration-300">
+    Updated!
+  </div>
+<% rescue => e %>
+  <div class="text-red-600">
+    <p class="font-semibold">Error rendering component:</p>
+    <p class="text-sm mt-2"><%= e.message %></p>
+    <details class="mt-2">
+      <summary class="cursor-pointer text-sm text-gray-600">Stack trace</summary>
+      <pre class="mt-2 text-xs bg-gray-900 text-gray-300 p-2 rounded overflow-x-auto"><%= e.backtrace.first(10).join("\n") %></pre>
+    </details>
+  </div>
+<% end %>

@@ -1,0 +1,2 @@
+module StorybookHelper
+end
