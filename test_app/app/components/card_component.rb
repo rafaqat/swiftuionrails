@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class CardComponent < SwiftUIRails::Component::Base
+  prop :title, type: String, default: "Card Title"
+  prop :content, type: String, default: "This is a sample card content. Cards are great for organizing related information and creating visual hierarchy."
   prop :elevation, type: Integer, default: 1
   prop :padding, type: String, default: "16"
   prop :corner_radius, type: String, default: "lg"
@@ -11,14 +13,14 @@ class CardComponent < SwiftUIRails::Component::Base
   swift_ui do
     card_element = card(elevation: elevation) do
       vstack(spacing: 12) do
-        text("Card Title")
+        text(title)
           .font_size("lg")
           .font_weight("semibold")
           .text_color("gray-900")
         
-        text("This is a sample card content. Cards are great for organizing related information and creating visual hierarchy.")
+        text(content)
           .text_color("gray-600")
-          .line_clamp("3")
+          .line_clamp(3)
         
         hstack(spacing: 8) do
           button("Primary Action")
@@ -32,7 +34,8 @@ class CardComponent < SwiftUIRails::Component::Base
       end
     end
     
-    card_element = card_element.padding(padding) if padding.present?
+    # Apply dynamic modifiers safely
+    card_element = card_element.padding(padding.to_i) if padding.present? && padding != "16"
     card_element = card_element.corner_radius(corner_radius) if corner_radius != "lg"
     card_element = card_element.background(background_color) if background_color != "white"
     card_element = card_element.border if border

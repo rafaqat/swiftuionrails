@@ -413,7 +413,7 @@ module SwiftUIRails
             content = @view_context.capture(&@block)
           end
           
-          @view_context.content_tag(@tag_name, (content || "").html_safe, @options)
+          @view_context.content_tag(@tag_name, (content || "").to_s.html_safe, @options)
         elsif @content
           @view_context.content_tag(@tag_name, @content, @options)
         else

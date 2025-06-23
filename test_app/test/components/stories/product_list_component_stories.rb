@@ -4,6 +4,8 @@ class ProductListComponentStories < ViewComponent::Storybook::Stories
   include ActionView::Helpers::TagHelper
   include ActionView::Helpers::TextHelper
   include ActionView::Context
+  include SwiftUIRails::DSL
+  include SwiftUIRails::Helpers
   
   # Basic properties
   control :title, as: :text, default: "Customers also purchased"
@@ -35,20 +37,69 @@ class ProductListComponentStories < ViewComponent::Storybook::Stories
     show_colors: true,
     currency_symbol: "$"
   )
-    render ProductListComponent.new(
-      products: sample_products,
-      title: title,
-      columns: columns,
-      gap: gap,
-      background_color: background_color,
-      title_size: title_size,
-      title_color: title_color,
-      container_padding: container_padding,
-      max_width: max_width,
-      image_aspect: image_aspect,
-      show_colors: show_colors,
-      currency_symbol: currency_symbol
-    )
+    content_tag(:div, class: "p-8") do
+      swift_ui do
+        # Create rich DSL-based product list with chained properties
+        product_list_element = vstack(spacing: 20) do
+          # Title with dynamic styling
+          text(title)
+            .font_size(title_size)
+            .font_weight("bold")
+            .text_color(title_color)
+            .margin_bottom(8)
+          
+          # Product grid with dynamic layout and styling
+          grid(columns: columns, spacing: gap.to_i) do
+            sample_products.each do |product|
+              # Individual product card with rich DSL
+              card(elevation: 1) do
+                vstack(spacing: 12) do
+                  # Product image with dynamic aspect ratio
+                  image(product[:image_url])
+                    .aspect_ratio(image_aspect)
+                    .object_fit("cover")
+                    .corner_radius("lg")
+                  
+                  # Product details
+                  vstack(spacing: 4) do
+                    text(product[:name])
+                      .font_size("sm")
+                      .font_weight("medium")
+                      .text_color("gray-900")
+                    
+                    if show_colors
+                      text(product[:color])
+                        .font_size("xs")
+                        .text_color("gray-500")
+                    end
+                    
+                    text("#{currency_symbol}#{product[:price]}")
+                      .font_size("sm")
+                      .font_weight("semibold")
+                      .text_color("gray-900")
+                  end
+                  .text_align("left")
+                end
+              end
+              .padding(12)
+              .corner_radius("lg")
+              .background("white")
+              .border
+              .hover_scale("102")
+              .transition
+            end
+          end
+        end
+        
+        # Apply container-level chained modifiers
+        product_list_element = product_list_element.padding(container_padding.to_i)
+        product_list_element = product_list_element.max_width(max_width)
+        product_list_element = product_list_element.background(background_color) if background_color != "white"
+        product_list_element = product_list_element.corner_radius("xl")
+        
+        product_list_element
+      end
+    end
   end
   
   def with_hash_products

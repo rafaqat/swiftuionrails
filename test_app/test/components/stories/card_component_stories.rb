@@ -10,7 +10,7 @@ class CardComponentStories < ViewComponent::Storybook::Stories
   control :title, as: :text, default: "Card Title"
   control :content, as: :text, default: "This is a sample card content. Cards are great for organizing related information and creating visual hierarchy."
   control :elevation, as: :select, options: [0, 1, 2, 3, 4], default: 1
-  control :padding, as: :select, options: ["", "4", "6", "8", "12", "16", "20"], default: "16"
+  control :padding, as: :select, options: ["4", "6", "8", "12", "16", "20"], default: "16"
   control :corner_radius, as: :select, options: ["none", "sm", "md", "lg", "xl", "2xl"], default: "lg"
   control :background_color, as: :select, options: ["white", "gray-50", "blue-50", "green-50"], default: "white"
   control :border, as: :boolean, default: false
@@ -28,7 +28,7 @@ class CardComponentStories < ViewComponent::Storybook::Stories
   )
     content_tag(:div, class: "p-8") do
       swift_ui do
-        # Build card element with chained modifiers
+        # Build card element with chained modifiers using DSL
         card_element = card(elevation: elevation) do
           vstack(spacing: 12) do
             text(title)
@@ -52,7 +52,7 @@ class CardComponentStories < ViewComponent::Storybook::Stories
           end
         end
         
-        # Apply dynamic modifiers based on controls
+        # Apply dynamic modifiers based on controls using chainable DSL
         card_element = card_element.padding(padding.to_i) if padding.present? && padding != "16"
         card_element = card_element.corner_radius(corner_radius) if corner_radius != "lg"
         card_element = card_element.background(background_color) if background_color != "white"

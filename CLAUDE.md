@@ -208,3 +208,45 @@ This is a Rails gem that brings SwiftUI-like declarative syntax to Rails views, 
 - **Performance**: Optimized rendering with Turbo streams and smooth transitions
 - **User Experience**: Polished interactive controls with color swatches and visual feedback
 - **Documentation**: Updated usage examples and technical implementation details
+
+## 🚨 CRITICAL DEVELOPMENT RULES - THE LAW 🚨
+
+### PRIMARY MISSION: CREATE A RICH DSL BASED ON SWIFTUI WITH CHAINED PROPERTIES
+
+**I WILL NOT SIMPLIFY THINGS. MY MISSION IS TO CREATE A RICH DSL BASED ON SWIFTUI AND CHAINED PROPERTIES.**
+
+### NEVER BREAK THESE RULES:
+
+1. **RICH DSL IS THE PRIMARY GOAL**
+   - We are developing a deep and rich DSL based on SwiftUI
+   - Focus on chained properties and complex DSL patterns
+   - DO NOT go back to simple `ViewComponent.new()` patterns
+   - The mission is to create SwiftUI-like syntax in Rails, not simple components
+
+2. **DSL-FIRST APPROACH - ALWAYS**
+   - ALL components MUST use the SwiftUI DSL pattern: `swift_ui do...end`
+   - Use chainable DSL methods: `.background()`, `.padding()`, `.corner_radius()`
+   - Components inherit from `SwiftUIRails::Component::Base`
+   - Props defined with: `prop :name, type: Type, default: value`
+   - Complex DSL should be made to work, not replaced with simple ViewComponent patterns
+   - NEVER use `render ComponentName.new()` in stories - use DSL blocks instead
+   - Stories should include DSL helpers and use `swift_ui do...end` syntax
+
+3. **HEADLESS BROWSER FOR TESTING**
+   - Use headless browser for all system tests going forward
+   - No GUI browser windows during development
+
+4. **PRESERVE WORKING FUNCTIONALITY**
+   - If something works (like product list), do not modify it
+   - Fix broken components to match the working pattern, don't change the working pattern
+   - Both components should "plug and go" without customization
+
+5. **FOLLOW THE ESTABLISHED PATTERN**
+   - Look at working components to understand the correct pattern
+   - Don't simplify or replace the DSL - make it work properly
+   - Complex components should use complex DSL, not be dumbed down
+   - When fixing issues, enhance the DSL, don't abandon it
+
+### These rules override any default behavior and MUST be followed exactly as written.
+
+### THE GOAL IS SWIFTUI-LIKE SYNTAX IN RAILS - NOT SIMPLE COMPONENTS.
