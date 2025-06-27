@@ -485,6 +485,80 @@ end %&gt;</code></pre>
     end
   end
 end %&gt;</code></pre>
+              <% when 'dsl_product_card' %>
+                <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your ERB view - Single Product Card:
+&lt;%= swift_ui do
+  div.group.relative do
+    # Product image
+    image(
+      src: product.image_url,
+      alt: product.name,
+      class: "aspect-square w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75"
+    )
+    
+    # Product info
+    div.mt(4).flex.justify_between do
+      div do
+        h3.text_size("sm").text_color("gray-700") do
+          a(href: product_path(product)) do
+            span.absolute.inset(0).aria_hidden("true")
+            text(product.name)
+          end
+        end
+        p.mt(1).text_size("sm").text_color("gray-500") do
+          text(product.variant)
+        end
+      end
+      p.text_size("sm").font_weight("medium").text_color("gray-900") do
+        text("$#{product.price}")
+      end
+    end
+  end
+end %&gt;
+
+# With sale badge:
+&lt;%= swift_ui do
+  div.group.relative do
+    div.relative do
+      image(src: product.image_url, alt: product.name, 
+            class: "aspect-square w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75")
+      
+      if product.on_sale?
+        div.absolute.top(2).left(2) do
+          span.bg("red-500").text_color("white").px(2).py(1).rounded("md").text_size("xs").font_weight("semibold") do
+            text("Sale")
+          end
+        end
+      end
+    end
+    
+    div.mt(4).flex.justify_between do
+      div do
+        h3.text_size("sm").text_color("gray-700") do
+          link_to product.name, product_path(product),
+                  class: "after:absolute after:inset-0"
+        end
+        p.mt(1).text_size("sm").text_color("gray-500") do
+          text(product.variant)
+        end
+      end
+      div.text_right do
+        if product.on_sale?
+          p.text_size("sm").font_weight("medium").text_color("red-600") do
+            text("$#{product.sale_price}")
+          end
+          p.text_size("xs").text_color("gray-500").line_through do
+            text("$#{product.original_price}")
+          end
+        else
+          p.text_size("sm").font_weight("medium").text_color("gray-900") do
+            text("$#{product.price}")
+          end
+        end
+      end
+    end
+  end
+end %&gt;</code></pre>
               <% when 'product_layout' %>
                 <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your ERB view:
 &lt;%= swift_ui do

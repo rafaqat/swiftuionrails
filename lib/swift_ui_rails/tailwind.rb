@@ -21,8 +21,9 @@ module SwiftUIRails
       end
 
       # Flexbox
-      def flex(value = nil)
+      def flex(value = nil, &block)
         add_class(value ? "flex-#{value}" : "flex")
+        @block = block if block_given?
         self
       end
 
@@ -112,23 +113,27 @@ module SwiftUIRails
       end
 
       # Position
-      def relative
+      def relative(&block)
         add_class("relative")
+        @block = block if block_given?
         self
       end
 
-      def absolute
+      def absolute(&block)
         add_class("absolute")
+        @block = block if block_given?
         self
       end
 
-      def fixed
+      def fixed(&block)
         add_class("fixed")
+        @block = block if block_given?
         self
       end
 
-      def sticky
+      def sticky(&block)
         add_class("sticky")
+        @block = block if block_given?
         self
       end
 
@@ -163,18 +168,21 @@ module SwiftUIRails
         self
       end
 
-      def group
+      def group(&block)
         add_class("group")
+        @block = block if block_given?
         self
       end
 
-      def block
+      def block(&block)
         add_class("block")
+        @block = block if block_given?
         self
       end
 
-      def inline
+      def inline(&block)
         add_class("inline")
+        @block = block if block_given?
         self
       end
 
@@ -213,8 +221,9 @@ module SwiftUIRails
         self
       end
 
-      def justify_between
+      def justify_between(&block)
         add_class("justify-between")
+        @block = block if block_given?
         self
       end
 
@@ -230,6 +239,16 @@ module SwiftUIRails
 
       def gap(value)
         add_class("gap-#{value}")
+        self
+      end
+
+      def gap_x(value)
+        add_class("gap-x-#{value}")
+        self
+      end
+
+      def gap_y(value)
+        add_class("gap-y-#{value}")
         self
       end
 
@@ -264,6 +283,13 @@ module SwiftUIRails
       def hover(classes)
         classes.split(' ').each do |cls|
           add_class("hover:#{cls}")
+        end
+        self
+      end
+      
+      def group_hover(classes)
+        classes.split(' ').each do |cls|
+          add_class("group-hover:#{cls}")
         end
         self
       end
@@ -362,8 +388,9 @@ module SwiftUIRails
         self
       end
 
-      def text_right
+      def text_right(&block)
         add_class("text-right")
+        @block = block if block_given?
         self
       end
 
@@ -418,6 +445,19 @@ module SwiftUIRails
         self
       end
 
+      # ARIA attributes
+      def aria_label(label)
+        @attributes ||= {}
+        @attributes[:"aria-label"] = label
+        self
+      end
+      
+      def aria_hidden(value)
+        @attributes ||= {}
+        @attributes[:"aria-hidden"] = value
+        self
+      end
+
       # Custom Tailwind classes
       def tw(classes)
         add_class(classes)
@@ -426,7 +466,7 @@ module SwiftUIRails
 
       private
 
-      def add_class(class_name)
+      def add_class(class_name, &block)
         # For Element class compatibility
         if defined?(@css_classes)
           @css_classes.concat(class_name.split(' '))
@@ -435,6 +475,9 @@ module SwiftUIRails
           @attributes ||= {}
           @attributes[:class] = [@attributes[:class], class_name].compact.join(" ")
         end
+        # If a block is provided, treat it as the element's content block
+        @block = block if block_given?
+        self
       end
     end
   end

@@ -29,6 +29,14 @@ module SwiftUIRails
         self
       end
       
+      # Core method for adding classes - used by Tailwind module
+      def add_class(class_name, &block)
+        Rails.logger.debug "Element.add_class: #{class_name}, block_given: #{block_given?}"
+        @css_classes << class_name
+        @block = block if block_given?
+        self
+      end
+      
       # Add margin-right utility
       def mr(size, &block)
         tw("mr-#{size}", &block)
@@ -757,6 +765,8 @@ module SwiftUIRails
       
       # Convert to HTML string
       def to_s
+        Rails.logger.debug "Element.to_s: tag=#{@tag_name}, has_block=#{!!@block}, dsl_context=#{@dsl_context.class.name if @dsl_context}"
+        
         # Merge CSS classes
         if @css_classes.any?
           existing_classes = @options[:class] || ""
@@ -776,6 +786,7 @@ module SwiftUIRails
         
         # Handle the content/block
         if @block
+          Rails.logger.debug "Element.to_s: Executing block for #{@tag_name}"
           # Execute the block and capture all content
           if @dsl_context
             # Save current pending elements
@@ -787,6 +798,7 @@ module SwiftUIRails
             
             # Get the rendered content from collected elements
             content = @dsl_context.flush_elements
+            Rails.logger.debug "Element.to_s: Flushed content for #{@tag_name}: #{content.to_s.length} chars"
             
             # Restore previous pending elements
             @dsl_context.instance_variable_set(:@pending_elements, old_pending)
@@ -795,7 +807,9 @@ module SwiftUIRails
             content = @view_context.capture(&@block)
           end
           
-          @view_context.content_tag(@tag_name, (content || "").to_s.html_safe, @options)
+          result = @view_context.content_tag(@tag_name, (content || "").to_s.html_safe, @options)
+          Rails.logger.debug "Element.to_s: Final HTML for #{@tag_name}: #{result.to_s[0..100]}..."
+          result
         elsif @content
           @view_context.content_tag(@tag_name, @content, @options)
         else

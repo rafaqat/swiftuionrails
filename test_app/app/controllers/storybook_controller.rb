@@ -3,7 +3,7 @@ class StorybookController < ApplicationController
   helper_method :tailwind_color_to_css
   def index
     # Only show DSL stories
-    dsl_stories = ["dsl_button", "dsl_card", "product_layout"]
+    dsl_stories = ["dsl_button", "dsl_card", "dsl_product_card", "product_layout"]
     
     @stories = dsl_stories.map do |story_name|
       file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
@@ -12,6 +12,7 @@ class StorybookController < ApplicationController
       display_name = case story_name
       when "dsl_button" then "DSL Button"
       when "dsl_card" then "DSL Card"
+      when "dsl_product_card" then "DSL Product Card"
       when "product_layout" then "DSL Product List"
       else story_name.titleize
       end

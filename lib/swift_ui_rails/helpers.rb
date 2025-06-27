@@ -86,8 +86,14 @@ module SwiftUIRails
       # Execute the block in the DSL context
       content = dsl_context.instance_eval(&block)
       
-      # Convert Element instances to HTML
-      if content.is_a?(SwiftUIRails::DSL::Element)
+      # Check if we have pending elements to flush
+      flushed_content = dsl_context.flush_elements
+      
+      # If we have flushed content, use that
+      if flushed_content.present?
+        raw(flushed_content)
+      # Otherwise, convert Element instances to HTML
+      elsif content.is_a?(SwiftUIRails::DSL::Element)
         # Set the view context on the element
         content.view_context = self
         raw(content.to_s)

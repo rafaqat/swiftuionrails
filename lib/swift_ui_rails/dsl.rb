@@ -222,7 +222,8 @@ module SwiftUIRails
     end
 
     # Media Components
-    def image(src, alt: "", **attrs)
+    def image(src: nil, alt: "", **attrs)
+      raise ArgumentError, "image requires src attribute" unless src
       attrs[:src] = src
       attrs[:alt] = alt
       create_element(:img, nil, **attrs)
@@ -249,6 +250,7 @@ module SwiftUIRails
     end
 
     def div(**attrs, &block)
+      Rails.logger.debug "DSL.div called with block: #{block_given?}"
       create_element(:div, nil, **attrs, &block)
     end
     
@@ -274,6 +276,18 @@ module SwiftUIRails
     
     def nav(**attrs, &block)
       create_element(:nav, nil, **attrs, &block)
+    end
+    
+    def a(**attrs, &block)
+      create_element(:a, nil, **attrs, &block)
+    end
+    
+    def h3(**attrs, &block)
+      create_element(:h3, nil, **attrs, &block)
+    end
+    
+    def p(**attrs, &block)
+      create_element(:p, nil, **attrs, &block)
     end
     
     # Loading Components
@@ -346,6 +360,8 @@ module SwiftUIRails
       if dsl_context && self.is_a?(SwiftUIRails::DSLContext)
         dsl_context.register_element(element)
       end
+      
+      Rails.logger.debug "Created element: #{tag_name}, has_block: #{block_given?}, dsl_context: #{dsl_context.class.name if dsl_context}"
       
       element
     end

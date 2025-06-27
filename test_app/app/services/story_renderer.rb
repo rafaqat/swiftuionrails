@@ -11,6 +11,10 @@ class StoryHtmlWrapperComponent < ViewComponent::Base
   end
   
   def inspect
+    Rails.logger.info "=== StoryHtmlWrapperComponent HTML Content ==="
+    Rails.logger.info "Length: #{@html_content&.length || 0}"
+    Rails.logger.info "Content: #{@html_content.inspect}"
+    Rails.logger.info "First 200 chars: #{@html_content.to_s[0..200]}"
     "#<StoryHtmlWrapperComponent content_length=#{@html_content&.length || 0}>"
   end
 end
