@@ -1,15 +1,30 @@
 Rails.application.routes.draw do
-  get "storybook/index"
-  get "storybook/show"
+  # Custom interactive storybook routes
+  get "rails/stories" => "storybook#index"
+  get "rails/stories/:story" => "storybook#show", as: :story
   post "storybook/update_preview"
   post "storybook/component_action"
   get "storybook/state_inspector"
-  get "home/index"
-  get "home/test_syntax"
-  get "home/simple_test"
-  if defined?(ViewComponent::Storybook::Engine)
-    mount ViewComponent::Storybook::Engine, at: "/rails/stories"
+  
+  # Legacy storybook routes
+  get "storybook/index"
+  get "storybook/show"
+  
+  # SwiftUI Rails action handling
+  namespace :swift_ui do
+    resources :actions, only: [:create]
   end
+  
+  
+  # Stateless components demo
+  get "stateless_demo", to: "stateless_demo#index"
+  
+  # Rails-first patterns demo
+  get "rails_first_demo", to: "rails_first_demo#index"
+  post "rails_first_demo/increment_counter", to: "rails_first_demo#increment_counter"
+  post "rails_first_demo/add_todo", to: "rails_first_demo#add_todo"
+  delete "rails_first_demo/delete_todo/:id", to: "rails_first_demo#delete_todo", as: :delete_todo
+  post "rails_first_demo/search", to: "rails_first_demo#search"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -20,6 +35,9 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Component showcase routes
+  get "counter", to: "home#counter", as: :counter
+  
   # Defines the root path route ("/")
   root "home#index"
 end

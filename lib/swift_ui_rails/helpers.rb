@@ -88,6 +88,8 @@ module SwiftUIRails
       
       # Convert Element instances to HTML
       if content.is_a?(SwiftUIRails::DSL::Element)
+        # Set the view context on the element
+        content.view_context = self
         raw(content.to_s)
       else
         raw(content)

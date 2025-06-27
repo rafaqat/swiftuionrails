@@ -178,7 +178,7 @@ class StorybookDslCoverageTest < ApplicationSystemTestCase
       "def #{method_name}(color, &block)\n  tw(\"#{$1}-\#{color}\", &block)\nend"
     when /^hover_(.+)$/
       # Hover methods
-      "def #{method_name}(value = nil, &block)\n  tw(\"hover:#{$1}#{value ? \"-#{value}\" : \"\"}\", &block)\nend"
+      "def #{method_name}(value = nil, &block)\n  tw(\"hover:#{$1}\#{value ? \"-\#{value}\" : \"\"}\", &block)\nend"
     when /^(.+)_(.+)$/
       # Compound methods like items_center, justify_between
       "def #{method_name}(&block)\n  tw(\"#{method_name.tr('_', '-')}\", &block)\nend"

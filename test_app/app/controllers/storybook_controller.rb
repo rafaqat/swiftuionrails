@@ -1,16 +1,27 @@
 class StorybookController < ApplicationController
   protect_from_forgery except: [:update_preview, :component_action] # Allow AJAX requests
-  helper_method :generate_chainable_example, :tailwind_color_to_css
+  helper_method :tailwind_color_to_css
   def index
-    @stories = Dir[Rails.root.join("test/components/stories/*_stories.rb")].map do |file|
-      story_name = File.basename(file, "_stories.rb")
-      component_name = story_name.gsub("_component", "").titleize
+    # Only show DSL stories
+    dsl_stories = ["dsl_button", "dsl_card", "product_layout"]
+    
+    @stories = dsl_stories.map do |story_name|
+      file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
+      next unless File.exist?(file)
+      
+      display_name = case story_name
+      when "dsl_button" then "DSL Button"
+      when "dsl_card" then "DSL Card"
+      when "product_layout" then "DSL Product List"
+      else story_name.titleize
+      end
+      
       { 
-        name: component_name,
+        name: display_name,
         path: story_name,
         file: file
       }
-    end
+    end.compact
   end
 
   def show
@@ -41,10 +52,18 @@ class StorybookController < ApplicationController
     @component_name = "#{base_name}_component"
     @component_class = @component_name.camelize.safe_constantize
     
+    # For DSL stories (like dsl_button), a backing component is not required
+    # DSL stories create elements directly using the DSL, not components
     unless @component_class
-      flash[:alert] = "Component not found for story: #{story_name}"
-      redirect_to storybook_index_path
-      return
+      if story_name.start_with?('dsl_')
+        # DSL stories don't need backing components - they use pure DSL elements
+        @component_class = nil
+        @component_name = story_name
+      else
+        flash[:alert] = "Component not found for story: #{story_name}"
+        redirect_to storybook_index_path
+        return
+      end
     end
     
     @story_name = base_name.titleize
@@ -60,6 +79,14 @@ class StorybookController < ApplicationController
     # Extract story configuration
     @story_config = extract_story_config(@story_class)
     @component_props = build_component_props(@story_config)
+    
+    # Read actual story source code for DSL stories
+    if !@component_class && @story_class
+      story_file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
+      if File.exist?(story_file)
+        @story_source_code = extract_story_method_source(story_file, @story_variant.to_s)
+      end
+    end
     
     
     # Handle AJAX and Turbo Stream requests for live updates
@@ -94,40 +121,66 @@ class StorybookController < ApplicationController
     story_class = story_class_name.safe_constantize
     return render json: { error: "Story class not found" }, status: 404 unless story_class
 
-    # Get component class
+    # Get component class (optional for DSL stories)
     base_name = story_name.gsub(/_component(_stories)?$/, "")
     component_name = "#{base_name}_component"
     component_class = component_name.camelize.safe_constantize
-    return render json: { error: "Component not found" }, status: 404 unless component_class
+    
+    # For DSL stories (like dsl_button), a backing component is not required
+    unless component_class
+      if story_name.start_with?('dsl_')
+        # DSL stories don't need backing components - they use pure DSL elements
+        component_class = nil
+      else
+        return render json: { error: "Component not found" }, status: 404
+      end
+    end
 
     # Build props from form parameters
     story_config = extract_story_config(story_class)
     component_props = build_component_props(story_config)
+    
+    # Debug: Log the actual props being passed
+    Rails.logger.info "Component props: #{component_props.inspect}"
 
-    # For interactive mode, use session-aware component
-    if mode == 'interactive' && session_id.present?
-      story_session = StorySession.find_or_create(story_name, variant_name, session_id)
-      
-      # Update session state with new props
-      story_session.update_props(component_props)
-      
-      # Get component instance with session context
-      component_instance = story_session.component_instance
+    # For DSL stories, we don't create component instances - we render the story directly
+    if component_class.nil?
+      # DSL story - render the story method directly with props
+      story_instance = story_class.new
+      component_instance = nil
     else
-      # Static mode - create normal component instance
-      component_instance = component_class.new(**component_props)
+      # Component story - create component instance
+      if mode == 'interactive' && session_id.present?
+        story_session = StorySession.find_or_create(story_name, variant_name, session_id)
+        
+        # Update session state with new props
+        story_session.update_props(component_props)
+        
+        # Get component instance with session context
+        component_instance = story_session.component_instance
+      else
+        # Static mode - create normal component instance
+        component_instance = component_class.new(**component_props)
+      end
     end
 
-    # Use update with custom smooth transition attributes
+    # Get current state for the inspector
+    state_data = {}
+    if mode == 'interactive' && session_id.present? && defined?(story_session) && story_session
+      state_data = story_session.current_state || {}
+    end
+    
+    # Use update with custom smooth transition attributes and state data
     render turbo_stream: turbo_stream.update(
       "component-preview",
-      partial: "storybook/live_component_preview",
+      partial: "storybook/component_preview",
       locals: {
-        component_instance: component_instance,
-        story_name: story_name,
-        variant_name: variant_name,
-        session_id: session_id,
-        mode: mode
+        component_class: component_class,
+        component_props: component_props,
+        story_instance: story_instance || story_class.new,
+        story_variant: variant_name,
+        available_stories: [variant_name],
+        state_data: state_data
       }
     )
   rescue => e
@@ -239,12 +292,29 @@ class StorybookController < ApplicationController
     props = {}
     story_config[:controls].each do |key, control|
       # Use params if provided, otherwise use default
-      props[key] = params[key] || control[:default]
+      param_value = params[key]
+      
+      # Handle empty strings properly for optional props
+      if param_value == ""
+        # For color props and optional props, nil means "not set" which allows smart defaults
+        optional_props = [:background_color, :text_color, :padding_x, :padding_y, :font_size, 
+                         :custom_background, :custom_text_color]
+        if optional_props.include?(key.to_sym)
+          props[key] = nil
+        else
+          props[key] = control[:default]
+        end
+      else
+        props[key] = param_value || control[:default]
+      end
       
       # Convert to appropriate type
       case control[:type]
       when :boolean
         props[key] = ActiveModel::Type::Boolean.new.cast(props[key])
+      when :number
+        # Convert string to integer or float
+        props[key] = props[key].to_i if props[key].present?
       when :select
         # Check if options are integers to determine if we should convert
         if control[:options] && control[:options].all? { |opt| opt.is_a?(Integer) }
@@ -262,85 +332,47 @@ class StorybookController < ApplicationController
     props
   end
   
-  # Generate chainable SwiftUI-style DSL example
-  def generate_chainable_example(base_method, props)
-    # Start with the base DSL method
-    example = "#{base_method}(\"#{props[:title] || 'Click Me'}\")"
+  
+  # Extract source code for a specific story method
+  def extract_story_method_source(file_path, method_name)
+    content = File.read(file_path)
+    lines = content.split("\n")
     
-    # Add chainable modifiers based on props
-    modifiers = []
+    # Find the method definition
+    method_start = nil
+    indent_level = nil
     
-    # Handle variant with button_style
-    if props[:variant] && props[:variant] != :primary
-      modifiers << ".button_style(:#{props[:variant]})"
-    end
-    
-    # Handle size with button_size  
-    if props[:size] && props[:size] != :md
-      modifiers << ".button_size(:#{props[:size]})"
-    end
-    
-    # Handle custom background color
-    if props[:background_color].present?
-      modifiers << ".background(\"#{props[:background_color]}\")"
-    end
-    
-    # Handle custom text color
-    if props[:text_color].present?
-      modifiers << ".foreground_color(\"#{props[:text_color]}\")"
-    end
-    
-    # Handle corner radius
-    if props[:corner_radius] && props[:corner_radius] != "md"
-      modifiers << ".corner_radius(\"#{props[:corner_radius]}\")"
-    end
-    
-    # Handle custom padding
-    if props[:padding_x].present? || props[:padding_y].present?
-      if props[:padding_x].present?
-        modifiers << ".padding_horizontal(#{props[:padding_x]})"
-      end
-      if props[:padding_y].present?
-        modifiers << ".padding_vertical(#{props[:padding_y]})"
+    lines.each_with_index do |line, index|
+      if line.match(/^\s*def\s+#{Regexp.escape(method_name)}(\s|\(|$)/)
+        method_start = index
+        indent_level = line[/^\s*/].length
+        break
       end
     end
     
-    # Handle font weight
-    if props[:font_weight] && props[:font_weight] != "medium"
-      case props[:font_weight]
-      when "bold"
-        modifiers << ".font_bold"
-      when "semibold"
-        modifiers << ".font_semibold"
-      when "light"
-        modifiers << ".font_light"
-      else
-        modifiers << ".font_weight(\"#{props[:font_weight]}\")"
+    return nil unless method_start
+    
+    # Find the method end
+    method_end = nil
+    current_indent = indent_level
+    
+    (method_start + 1...lines.length).each do |index|
+      line = lines[index]
+      next if line.strip.empty?
+      
+      line_indent = line[/^\s*/].length
+      
+      if line.strip == "end" && line_indent == indent_level
+        method_end = index
+        break
       end
     end
     
-    # Handle font size
-    if props[:font_size].present?
-      modifiers << ".font_size(\"#{props[:font_size]}\")"
-    end
+    return nil unless method_end
     
-    # Handle disabled state
-    if props[:disabled]
-      modifiers << ".disabled"
-    end
-    
-    # Add default modifiers for better styling
-    if modifiers.empty? || !modifiers.any? { |m| m.include?("animation") }
-      modifiers << ".animation"
-      modifiers << ".focus_ring"
-    end
-    
-    # Join everything together with proper formatting
-    if modifiers.any?
-      example + "\n      " + modifiers.join("\n      ")
-    else
-      example + "\n      .animation\n      .focus_ring"
-    end
+    # Extract and return the method source
+    method_lines = lines[method_start..method_end]
+    method_lines.join("\n")
   end
   
   # Convert Tailwind color names to CSS color values for color swatches

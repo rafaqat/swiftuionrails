@@ -57,6 +57,11 @@ class StoryRenderer
   
   # Execute a story method in this rendering context
   def render_story(story_instance, story_method, **kwargs)
+    # Ensure the story instance has access to the view context for swift_ui helper
+    if story_instance.respond_to?(:view_context=)
+      story_instance.view_context = controller.view_context
+    end
+    
     # Instead of copying methods, execute the story method directly
     # but make sure it uses our render method
     story_instance.define_singleton_method(:render) do |component, &block|
@@ -74,6 +79,17 @@ class StoryRenderer
     accepted_params = method_params.select { |type, name| [:key, :keyreq].include?(type) }.map(&:last)
     filtered_kwargs = kwargs.slice(*accepted_params)
     
+    # Make view context available to the story instance
+    view_context = controller.view_context
+    story_instance.define_singleton_method(:view_context) { view_context }
+    
+    # Ensure the story has access to swift_ui helper
+    unless story_instance.respond_to?(:swift_ui)
+      story_instance.define_singleton_method(:swift_ui) do |&block|
+        view_context.swift_ui(&block)
+      end
+    end
+    
     # Execute the story method
     result = if filtered_kwargs.any?
       story_instance.send(story_method, **filtered_kwargs)
@@ -85,9 +101,12 @@ class StoryRenderer
     # For complex stories that return HTML, wrap in a simple component
     if result.respond_to?(:call) && result.is_a?(ViewComponent::Base)
       result
-    else
-      # For HTML content, use the wrapper component
+    elsif result.is_a?(ActiveSupport::SafeBuffer) || result.is_a?(String)
+      # For HTML content (including swift_ui DSL output), use the wrapper component
       StoryHtmlWrapperComponent.new(html_content: result)
+    else
+      # Default case - convert to string
+      StoryHtmlWrapperComponent.new(html_content: result.to_s)
     end
   end
 end

@@ -2,9 +2,9 @@
 
 require_relative "swift_ui_rails/version"
 require_relative "swift_ui_rails/engine"
+require_relative "swift_ui_rails/tailwind"
 require_relative "swift_ui_rails/dsl"
 require_relative "swift_ui_rails/component"
-require_relative "swift_ui_rails/tailwind"
 require_relative "swift_ui_rails/helpers"
 require_relative "swift_ui_rails/storybook"
 

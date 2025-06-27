@@ -39,10 +39,22 @@ export default class extends Controller {
     
     // Setup state inspector updates
     this.initializeStateInspector()
+    
+    // Initialize usage code display
+    setTimeout(() => this.updateUsageCode(), 100)
   }
 
   disconnect() {
     console.log(`🎭 LiveStory controller disconnected`)
+    
+    // Clean up any debounce timers
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer)
+      this.debounceTimer = null
+    }
+    
+    // Remove event listeners
+    document.removeEventListener('turbo:before-stream-render', this.turboStreamHandler)
   }
 
   // Real-time control updates with enhanced feedback
@@ -126,12 +138,6 @@ export default class extends Controller {
     }
   }
 
-  // State inspector refresh
-  refreshStateInspector() {
-    if (this.hasStateInspectorTarget && this.modeValue === "interactive") {
-      this.updateStateInspector()
-    }
-  }
 
   // Private methods
   
@@ -166,12 +172,40 @@ export default class extends Controller {
       // Initial state load
       this.updateStateInspector()
       
-      // Setup periodic refresh for interactive mode
-      this.stateInspectorInterval = setInterval(() => {
-        if (this.modeValue === "interactive") {
+      // Setup event-driven updates instead of polling
+      this.setupStateChangeListeners()
+    }
+  }
+  
+  setupStateChangeListeners() {
+    // Listen for state changes via custom events
+    this.element.addEventListener('state:changed', (event) => {
+      if (this.modeValue === "interactive") {
+        this.handleStateChange(event.detail)
+      }
+    })
+    
+    // Create bound handler for proper cleanup
+    this.turboStreamHandler = (event) => {
+      // Update state inspector after stream renders
+      setTimeout(() => {
+        if (this.modeValue === "interactive" && this.hasStateInspectorTarget) {
           this.updateStateInspector()
         }
-      }, 1000)
+      }, 50)
+    }
+    
+    // Listen for Turbo Stream updates that might affect state
+    document.addEventListener('turbo:before-stream-render', this.turboStreamHandler)
+  }
+  
+  handleStateChange(detail) {
+    // Update state inspector with new state data
+    if (detail && detail.state) {
+      this.renderStateInspector(detail.state)
+    } else {
+      // Fallback to fetching current state
+      this.updateStateInspector()
     }
   }
 
@@ -208,9 +242,9 @@ export default class extends Controller {
         this.previewTarget.innerHTML = html
       }
       
-      // Refresh state inspector and usage code after update
+      // Emit state change event and update usage code
       setTimeout(() => {
-        this.refreshStateInspector()
+        this.element.dispatchEvent(new CustomEvent('state:changed'))
         this.updateUsageCode()
       }, 100)
     })
@@ -243,8 +277,10 @@ export default class extends Controller {
         Turbo.renderStreamMessage(html)
       }
       
-      // Refresh state inspector
-      setTimeout(() => this.refreshStateInspector(), 100)
+      // Emit state change event
+      setTimeout(() => {
+        this.element.dispatchEvent(new CustomEvent('state:changed'))
+      }, 100)
     })
     .catch(error => {
       console.error('Component action failed:', error)
@@ -253,45 +289,18 @@ export default class extends Controller {
   }
 
   updateStateInspector() {
+    // Only fetch initial state if needed
     if (!this.hasStateInspectorTarget) return
-
-    fetch(`/storybook/state_inspector?story=${this.storyValue}&story_variant=${this.variantValue}&session_id=${this.sessionIdValue}`, {
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRF-Token': this.getCSRFToken()
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      this.renderStateInspector(data)
-    })
-    .catch(error => {
-      console.error('State inspector update failed:', error)
-    })
-  }
-
-  renderStateInspector(stateData) {
-    if (!stateData) return
-
-    const html = `
-      <div class="bg-gray-50 p-3 rounded border text-sm">
-        <div class="font-semibold mb-2">🔍 Component State</div>
-        <div class="space-y-1">
-          ${Object.entries(stateData).map(([key, value]) => `
-            <div class="flex justify-between">
-              <span class="text-gray-600">${key}:</span>
-              <span class="font-mono">${JSON.stringify(value)}</span>
-            </div>
-          `).join('')}
-        </div>
-        <div class="text-xs text-gray-500 mt-2">
-          Session: ${this.sessionIdValue.substring(0, 8)}...
-        </div>
-      </div>
-    `
     
-    this.stateInspectorTarget.innerHTML = html
+    // Trigger state refresh on the state inspector controller
+    const stateInspectorController = this.application.getControllerForElementAndIdentifier(
+      this.stateInspectorTarget,
+      'state-inspector'
+    )
+    
+    if (stateInspectorController) {
+      stateInspectorController.refresh()
+    }
   }
 
   updateActiveVariant(variantName) {
@@ -687,10 +696,88 @@ end`
   }
 
   generateChainableCode(props) {
-    // Start with the base DSL method
-    const title = props.title || 'Click Me'
-    let code = `simple_button("${title}")`
+    // Determine component type and generate appropriate DSL
+    const storyName = this.storyValue || ''
     
+    if (storyName.includes('card')) {
+      return this.generateCardDSLCode(props)
+    } else {
+      // Default to button for other components
+      const title = props.title || 'Click Me'
+      let code = `simple_button("${title}")`
+      return this.generateButtonChainableCode(code, props)
+    }
+  }
+
+  generateCardDSLCode(props) {
+    const title = props.title || 'Card Title'
+    const content = props.content || 'This is a sample card content. Cards are great for organizing related information and creating visual hierarchy.'
+    const elevation = props.elevation || 1
+    
+    // Generate slot-based composition example
+    return `# Define reusable DSL component objects
+header_content = proc {
+  text("${title}")
+    .font_size("lg")
+    .font_weight("semibold")
+    .text_color("gray-900")
+}
+
+main_content = proc {
+  text("${content}")
+    .text_color("gray-600")
+    .line_clamp(3)
+}
+
+card_actions = [
+  proc { 
+    button("Primary Action")
+      .button_style(:primary)
+      .button_size(:sm)
+  },
+  proc {
+    button("Secondary")
+      .button_style(:secondary) 
+      .button_size(:sm)
+  }
+]
+
+# Use slot-based composition
+card(
+  header: header_content,
+  content: main_content, 
+  actions: card_actions,
+  elevation: ${elevation}
+)${this.generateCardModifiers(props)}`
+  }
+
+  generateCardModifiers(props) {
+    const modifiers = []
+    
+    if (props.background_color && props.background_color !== 'white') {
+      modifiers.push(`.background("${props.background_color}")`)
+    }
+    
+    if (props.corner_radius && props.corner_radius !== 'lg') {
+      modifiers.push(`.corner_radius("${props.corner_radius}")`)
+    }
+    
+    if (props.padding && props.padding !== '16') {
+      modifiers.push(`.padding(${props.padding})`)
+    }
+    
+    if (props.border === 'true' || props.border === true) {
+      modifiers.push('.border')
+    }
+    
+    if (props.hover_effect === 'true' || props.hover_effect === true) {
+      modifiers.push('.hover_scale("105")')
+    }
+    
+    return modifiers.length > 0 ? '\n' + modifiers.join('\n') : ''
+  }
+
+  generateButtonChainableCode(code, props) {
     const modifiers = []
     
     // Handle variant with button_style

@@ -1,10 +1,9 @@
 class HomeController < ApplicationController
   def index
+    # Component showcase page
   end
   
-  def test_syntax
-  end
-  
-  def simple_test
+  def counter
+    # Counter component demo page
   end
 end

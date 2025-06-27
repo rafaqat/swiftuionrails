@@ -1,10 +1,10 @@
 <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50" 
-     data-controller="live_story"
-     data-live_story-story-value="<%= params[:story] %>"
-     data-live_story-variant-value="<%= @story_variant %>"
-     data-live_story-session-id-value="<%= session.id %>-<%= Time.current.to_i %>"
-     data-live_story-update-url-value="/storybook/update_preview"
-     data-live_story-mode-value="interactive"
+     data-controller="live-story"
+     data-live-story-story-value="<%= params[:story] %>"
+     data-live-story-variant-value="<%= @story_variant %>"
+     data-live-story-session-id-value="<%= session.id %>-<%= Time.current.to_i %>"
+     data-live-story-update-url-value="/storybook/update_preview"
+     data-live-story-mode-value="interactive"
      data-turbo-permanent>
   
   <!-- Enhanced Header with Interactive Controls -->
@@ -39,7 +39,7 @@
             <span class="text-sm font-medium text-gray-700 mr-3">Interactive Mode</span>
             <div class="relative">
               <input type="checkbox" 
-                     data-live_story-target="modeToggle"
+                     data-live-story-target="modeToggle"
                      class="sr-only peer"
                      checked>
               <div class="w-16 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-600 peer-checked:to-purple-600"></div>
@@ -48,13 +48,13 @@
           
           <!-- Quick Actions -->
           <div class="flex gap-2">
-            <button class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <button>
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
               </svg>
               Export
             </button>
-            <button class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all">
+            <button>
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
               </svg>
@@ -69,14 +69,14 @@
   <div class="flex h-[calc(100vh-5rem)]">
     <!-- Enhanced Interactive Controls Panel -->
     <div class="w-96 bg-white shadow-xl overflow-y-auto border-r border-gray-200">
-      <div class="p-6" data-live_story-target="controls">
+      <div class="p-6" data-live-story-target="controls">
         <!-- Controls Header -->
         <div class="flex items-center justify-between mb-6">
           <div>
             <h2 class="text-xl font-bold text-gray-900">⚡ Live Controls</h2>
             <p class="text-sm text-gray-600">Real-time property updates</p>
           </div>
-          <button class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+          <button>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -88,7 +88,7 @@
           <%= form_with url: storybook_show_path, 
                         method: :get,
                         data: { 
-                          live_story_target: "form",
+                          "live-story-target": "form",
                           turbo: false 
                         },
                         class: "space-y-6" do |f| %>
@@ -118,8 +118,8 @@
                           class: "w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm",
                           placeholder: "Enter #{key.to_s.humanize.downcase}...",
                           data: { 
-                            live_story_target: "control",
-                            action: "input->live_story#controlChanged".html_safe
+                            "live-story-target": "control",
+                            action: "input->live-story#controlChanged".html_safe
                           } %>
                       <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,8 +134,8 @@
                           options_for_select(control[:options].map { |opt| [opt.to_s.humanize, opt] }, @component_props[key]), 
                           class: "w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm appearance-none",
                           data: { 
-                            live_story_target: "control",
-                            action: "change->live_story#controlChanged".html_safe
+                            "live-story-target": "control",
+                            action: "change->live-story#controlChanged".html_safe
                           } %>
                       <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +152,7 @@
                             <!-- Default/Empty option -->
                             <button type="button" 
                                     class="w-8 h-8 border-2 rounded-md transition-all <%= @component_props[key] == option ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 hover:border-gray-400' %> bg-gradient-to-br from-white to-gray-100 flex items-center justify-center"
-                                    data-action="click->live_story#selectOption"
+                                    data-action="click->live-story#selectOption"
                                     data-field="<%= key %>"
                                     data-value="<%= option %>"
                                     title="Default">
@@ -163,7 +163,7 @@
                             <button type="button" 
                                     class="w-8 h-8 border-2 rounded-md transition-all <%= @component_props[key] == option ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 hover:border-gray-400' %> text-<%= option %>"
                                     style="background-color: <%= tailwind_color_to_css(option) %>;"
-                                    data-action="click->live_story#selectOption"
+                                    data-action="click->live-story#selectOption"
                                     data-field="<%= key %>"
                                     data-value="<%= option %>"
                                     title="<%= option.humanize %>">
@@ -177,7 +177,7 @@
                         <% control[:options].each do |option| %>
                           <button type="button" 
                                   class="px-2 py-1 text-xs rounded-md transition-colors <%= @component_props[key] == option ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>"
-                                  data-action="click->live_story#selectOption"
+                                  data-action="click->live-story#selectOption"
                                   data-field="<%= key %>"
                                   data-value="<%= option %>">
                             <%= option.to_s.humanize %>
@@ -186,13 +186,31 @@
                       </div>
                     <% end %>
                   
+                  <% when :number %>
+                    <div class="relative">
+                      <%= number_field_tag key, @component_props[key], 
+                          class: "w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm",
+                          min: control[:min],
+                          max: control[:max],
+                          step: control[:step] || 1,
+                          data: { 
+                            "live-story-target": "control",
+                            action: "input->live-story#controlChanged".html_safe
+                          } %>
+                      <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  
                   <% when :boolean %>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <%= check_box_tag key, "1", @component_props[key], 
                           class: "sr-only peer",
                           data: { 
-                            live_story_target: "control",
-                            action: "change->live_story#controlChanged".html_safe
+                            "live-story-target": "control",
+                            action: "change->live-story#controlChanged".html_safe
                           } %>
                       <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-green-400 peer-checked:to-blue-500"></div>
                       <span class="ml-3 text-sm font-medium text-gray-700">
@@ -229,8 +247,8 @@
                     "#",
                     data: { 
                       variant: variant,
-                      live_story_target: "variantLink",
-                      action: "click->live_story#switchVariant".html_safe
+                      "live-story-target": "variantLink",
+                      action: "click->live-story#switchVariant".html_safe
                     },
                     class: "block px-3 py-2 text-sm rounded-md transition-colors duration-150 #{
                       variant == @story_variant ? 
@@ -244,9 +262,16 @@
         
         <!-- State Inspector (Interactive Mode Only) -->
         <div class="mt-6 pt-6 border-t border-gray-200" 
-             data-live_story-target="stateInspector" 
+             data-controller="state-inspector"
+             data-state-inspector-story-value="<%= @story_name %>"
+             data-state-inspector-variant-value="<%= @story_variant %>"
+             data-state-inspector-session-id-value="<%= @session_id %>"
+             data-live-story-target="stateInspector" 
              style="display: none;">
           <h3 class="text-sm font-medium text-gray-700 mb-3">Component State</h3>
+          <div data-state-inspector-target="display" class="bg-gray-50 p-3 rounded border text-sm">
+            <div class="text-gray-500 italic">Loading state...</div>
+          </div>
           <!-- Content will be populated by JavaScript -->
         </div>
       </div>
@@ -254,7 +279,7 @@
     
     <!-- Enhanced Component Preview Area -->
     <div class="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50 to-blue-50">
-      <div class="p-8" data-live_story-target="preview" id="preview-container">
+      <div class="p-8" data-live-story-target="preview" id="preview-container">
         
         <!-- Interactive Preview Card -->
         <div class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8 overflow-hidden">
@@ -272,17 +297,17 @@
               <div class="flex items-center gap-4">
                 <!-- Responsive Preview Controls -->
                 <div class="flex items-center gap-2">
-                  <button class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors" title="Mobile View">
+                  <button title="Mobile View">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"></path>
                     </svg>
                   </button>
-                  <button class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors" title="Tablet View">
+                  <button title="Tablet View">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                     </svg>
                   </button>
-                  <button class="p-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors" title="Desktop View">
+                  <button title="Desktop View">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 002 2z"></path>
                     </svg>
@@ -321,58 +346,237 @@
                              available_stories: @available_stories %>
                 </div>
                 
-                <!-- Interactive Overlay -->
-                <div class="absolute top-4 right-4 flex flex-col gap-2">
-                  <button class="p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-                    </svg>
-                  </button>
-                  <button class="p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                    </svg>
-                  </button>
-                </div>
+                <!-- Interactive Overlay REMOVED - should not inject buttons over component view -->
               </div>
             </turbo-frame>
           </div>
         </div>
         
-        <!-- Component Code Example -->
-        <div class="bg-white rounded-lg shadow-md p-8">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Usage Example</h2>
-          <div class="relative">
-            <button class="absolute top-2 right-2 px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-150"
-                    onclick="navigator.clipboard.writeText(this.nextElementSibling.querySelector('code').textContent); this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000)">
-              Copy
-            </button>
-            <div id="usage-code" data-live_story-target="usageCode">
-              <pre class="bg-gray-900 text-gray-300 p-4 rounded-lg overflow-x-auto text-sm"><code id="chainable-code">&lt;%= swift_ui do
-  vstack(spacing: 16) do
-    <%= generate_chainable_example(@component_class.name.underscore.gsub('_component', ''), @component_props) %>
-  end
-end %&gt;</code></pre>
-            </div>
-          </div>
-        </div>
         
         <!-- Component Source Info -->
         <div class="bg-white rounded-lg shadow-md p-8 mt-6">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Component Definition</h2>
+          <h2 class="text-lg font-semibold text-gray-900 mb-4"><%= @component_class ? "Component Definition" : "How to Use in Your Views" %></h2>
           <div class="text-sm text-gray-700">
-            <p class="mb-2">This component is defined as:</p>
-            <pre class="bg-gray-100 p-3 rounded"><code>class <%= @component_class.name %> < <%= @component_class.superclass.name %>
-  # Uses SwiftUI Rails DSL for component definition
+            <% if @component_class %>
+              <p class="mb-2">This component is defined as:</p>
+              <pre class="bg-gray-100 p-3 rounded"><code>class <%= @component_class.name %> < <%= @component_class.superclass.name %>
+  <% if @component_class.name == 'CounterComponent' %># Stateless component with client-side state management
+  prop :initial_count, type: Integer, default: 0
+  prop :step, type: Integer, default: 1
+  prop :label, type: String, default: "Counter"
+  
+  swift_ui do
+    vstack(spacing: 4) do
+      # Title
+      text("")
+        .font_size("2xl")
+        .font_weight("bold")
+        .data("counter-target": "label")
+      
+      # Count display
+      text("")
+        .font_size("6xl")
+        .font_weight("black")
+        .data("counter-target": "count")
+      
+      # Control buttons
+      hstack(spacing: 2) do
+        button("-")
+          .bg("red-500")
+          .text_color("white")
+          .px(4).py(2)
+          .rounded("lg")
+          .data(action: "click->counter#decrement")
+        
+        button("Reset")
+          .bg("gray-500")
+          .text_color("white")
+          .px(4).py(2)
+          .rounded("lg")
+          .data(action: "click->counter#reset")
+        
+        button("+")
+          .bg("green-500")
+          .text_color("white")
+          .px(4).py(2)
+          .rounded("lg")
+          .data(action: "click->counter#increment")
+      end
+    end
+    .p(6)
+    .bg("white")
+    .rounded("xl")
+    .shadow("lg")
+    .data(controller: "counter",
+          "counter-count-value": initial_count,
+          "counter-step-value": step,
+          "counter-label-value": label)
+  end<% else %>  # Uses SwiftUI Rails DSL for component definition
   <% if @component_class.ancestors.include?(SwiftUIRails::Component::Base) %>
   swift_ui do
     # Component implementation using Swift DSL
   end
-  <% end %>
+  <% end %><% end %>
 end</code></pre>
+            <% else %>
+              <p class="mb-2">How to use this DSL element in your ERB views:</p>
+              <% case params[:story] %>
+              <% when 'dsl_button' %>
+                <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your ERB view:
+&lt;%= swift_ui do
+  button("Click Me")
+    .bg("blue-600")
+    .text_color("white")
+    .px(4).py(2)
+    .rounded("md")
+    .font_weight("medium")
+    .hover("opacity-90")
+    .focus("ring-2 ring-blue-500")
+    .transition
+    .stimulus_controller("my-controller")
+    .stimulus_action("click->my-controller#handleClick")
+end %&gt;
+
+# Or with variables:
+&lt;%= swift_ui do
+  button(@button_text)
+    .bg(@primary_color || "blue-600")
+    .text_color("white")
+    .px(4).py(2)
+    .rounded("lg")
+    .disabled(@form.processing?)
+end %&gt;</code></pre>
+              <% when 'dsl_card' %>
+                <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your ERB view:
+&lt;%= swift_ui do
+  div
+    .bg("white")
+    .rounded("lg")
+    .shadow("md")
+    .p(6) do
+    
+    # Card header
+    div.pb(4).border_b.border_color("gray-200") do
+      text("Card Title")
+        .font_size("xl")
+        .font_weight("bold")
+        .text_color("gray-900")
+    end
+    
+    # Card content
+    div.py(4) do
+      text("Your card content goes here...")
+        .text_color("gray-700")
+    end
+    
+    # Card footer with actions
+    div.pt(4).flex.justify_end.gap(3) do
+      button("Cancel")
+        .px(4).py(2)
+        .text_color("gray-700")
+        .hover("text-gray-900")
+      
+      button("Save")
+        .bg("blue-600")
+        .text_color("white")
+        .px(4).py(2)
+        .rounded("md")
+        .hover("bg-blue-700")
+    end
+  end
+end %&gt;</code></pre>
+              <% when 'product_layout' %>
+                <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your ERB view:
+&lt;%= swift_ui do
+  section.bg("white").px(4).py(8) do
+    # Title
+    h2.text_size("2xl").font_weight("bold").mb(6) do
+      text("Featured Products")
+    end
+    
+    # Product grid
+    div.grid.grid_cols(1).sm("grid-cols-2").lg("grid-cols-4").gap(6) do
+      @products.each do |product|
+        # Product card
+        div
+          .bg("white")
+          .border.border_color("gray-200")
+          .rounded("lg")
+          .overflow("hidden")
+          .group
+          .hover("shadow-lg")
+          .transition("shadow") do
+          
+          # Product image
+          div.aspect("square").bg("gray-100").relative do
+            image(
+              src: product.image_url,
+              alt: product.name,
+              class: "w-full h-full object-cover"
+            )
+            
+            # Sale badge
+            if product.on_sale?
+              div.absolute.top(2).left(2) do
+                span.bg("red-500").text_color("white").px(2).py(1).rounded("md").text_size("xs") do
+                  text("Sale")
+                end
+              end
+            end
+          end
+          
+          # Product details
+          div.p(4) do
+            h3.font_weight("medium").text_color("gray-900") do
+              text(product.name)
+            end
+            
+            div.mt(2).flex.items_center.gap(2) do
+              span.text_size("lg").font_weight("bold").text_color("gray-900") do
+                text("$#{product.price}")
+              end
+              if product.original_price
+                span.text_size("sm").text_color("gray-500").line_through do
+                  text("$#{product.original_price}")
+                end
+              end
+            end
+            
+            # Add to cart button
+            button
+              .w_full
+              .mt(4)
+              .bg("blue-600")
+              .text_color("white")
+              .py(2)
+              .rounded("md")
+              .hover("bg-blue-700")
+              .transition do
+              text("Add to Cart")
+            end
+          end
+        end
+      end
+    end
+  end
+end %&gt;</code></pre>
+              <% else %>
+                <pre class="bg-gray-100 p-3 rounded"><code># Using DSL in your ERB views:
+&lt;%= swift_ui do
+  # Your DSL code here...
+end %&gt;</code></pre>
+              <% end %>
+            <% end %>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  // Set storybook context for component actions
+  window.storybookSessionId = '<%= session[:session_id] %>';
+  window.currentStoryName = '<%= params[:story] %>';
+  window.currentStoryVariant = '<%= @story_variant %>';
+</script>

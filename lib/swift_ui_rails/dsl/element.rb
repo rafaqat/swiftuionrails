@@ -6,6 +6,7 @@ module SwiftUIRails
     class Element
       include ActionView::Helpers::TagHelper
       include ActionView::Helpers::OutputSafetyHelper
+      include SwiftUIRails::Tailwind::Modifiers
       
       attr_reader :tag_name, :content, :options
       attr_accessor :view_context
@@ -158,7 +159,16 @@ module SwiftUIRails
       end
       
       def background(color, &block)
-        tw("bg-#{color}", &block)
+        if color.to_s.start_with?('#')
+          # Hex color - use inline style
+          @options[:style] = [@options[:style], "background-color: #{color}"].compact.join('; ')
+        else
+          # Tailwind class
+          tw("bg-#{color}")
+        end
+        # If a block is provided, treat it as the element's content block
+        @block = block if block_given?
+        self
       end
       
       # Border utilities
@@ -200,39 +210,19 @@ module SwiftUIRails
         tw(size.empty? ? "shadow" : "shadow-#{size}")
       end
       
-      # Button utilities
+      # Button utilities - REMOVED CSS injection per user request
+      # Storybook should passively render components without injecting its own CSS
       def button_style(style, &block)
-        case style
-        when :primary
-          tw("bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded", &block)
-        when :secondary
-          tw("bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded", &block)
-        when :success
-          tw("bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded", &block)
-        when :danger
-          tw("bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded", &block)
-        when :outline
-          tw("border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded", &block)
-        else
-          self
-        end
+        # No longer inject any CSS - let components handle their own styling
+        @block = block if block_given?
+        self
       end
       
+      # Button size utilities - REMOVED CSS injection per user request
       def button_size(size, &block)
-        case size
-        when :xs
-          tw("px-2 py-1 text-xs", &block)
-        when :sm
-          tw("px-3 py-1.5 text-sm", &block)
-        when :md
-          tw("px-4 py-2 text-sm", &block)
-        when :lg
-          tw("px-6 py-3 text-base", &block)
-        when :xl
-          tw("px-8 py-4 text-lg", &block)
-        else
-          self
-        end
+        # No longer inject any CSS - let components handle their own styling
+        @block = block if block_given?
+        self
       end
       
       # Hover effects
@@ -323,6 +313,111 @@ module SwiftUIRails
         tw("animate-spin", &block)
       end
       
+      # Event handlers
+      def on_tap(&block)
+        add_stimulus_action("click", &block)
+        self
+      end
+      
+      def on_click(&block)
+        on_tap(&block)
+      end
+      
+      def on_change(&block)
+        add_stimulus_action("change", &block)
+        self
+      end
+      
+      def on_input(&block)
+        add_stimulus_action("input", &block)
+        self
+      end
+      
+      def on_submit(&block)
+        add_stimulus_action("submit", &block)
+        self
+      end
+      
+      def on_keyup(&block)
+        add_stimulus_action("keyup", &block)
+        self
+      end
+      
+      def on_keydown(&block)
+        add_stimulus_action("keydown", &block)
+        self
+      end
+      
+      def on_focus(&block)
+        add_stimulus_action("focus", &block)
+        self
+      end
+      
+      def on_blur(&block)
+        add_stimulus_action("blur", &block)
+        self
+      end
+      
+      def on_hover(&block)
+        add_stimulus_action("mouseover", &block)
+        self
+      end
+      
+      def on_mouse_enter(&block)
+        add_stimulus_action("mouseenter", &block)
+        self
+      end
+      
+      def on_mouse_leave(&block)
+        add_stimulus_action("mouseleave", &block)
+        self
+      end
+      
+      def add_stimulus_action(event_type, &block)
+        # Generate a unique action identifier
+        @action_counter ||= 0
+        @action_counter += 1
+        action_id = "action_#{@tag_name}_#{@action_counter}_#{event_type}"
+        
+        # Store the action block for later processing
+        @action_blocks ||= {}
+        @action_blocks[action_id] = block
+        
+        # Add Stimulus controller if not already present
+        controller_name = "swift-ui-component"
+        existing_controller = @attributes["data-controller"] || ""
+        unless existing_controller.include?(controller_name)
+          @attributes["data-controller"] = [existing_controller, controller_name].reject(&:blank?).join(" ")
+        end
+        
+        # Add the action
+        existing_actions = @attributes["data-action"] || ""
+        new_action = "#{event_type}->#{controller_name}#handleAction"
+        @attributes["data-action"] = [existing_actions, new_action].reject(&:blank?).join(" ")
+        
+        # Store action data
+        @attributes["data-#{controller_name}-action-#{action_id}"] = action_id
+        
+        # If we're in a component context, add component metadata to the element
+        # Check for stored component first, then fall back to view_context
+        component = @component || (@view_context if @view_context.respond_to?(:component_id))
+        
+        if component
+          comp_id = component.component_id
+          comp_class = component.class.name
+          Rails.logger.debug "Adding component metadata to element: component_id=#{comp_id}, class=#{comp_class}"
+          @attributes["data-#{controller_name}-component-id-value"] = comp_id
+          @attributes["data-#{controller_name}-component-class-value"] = comp_class
+        else
+          Rails.logger.debug "No component metadata available. view_context=#{@view_context.class.name if @view_context}, component=#{@component.class.name if @component}"
+        end
+        
+        # Store the Ruby code to execute (this will be processed server-side)
+        if @view_context && @view_context.respond_to?(:register_component_action)
+          @view_context.register_component_action(action_id, block)
+        end
+      end
+      
       # Border utilities
       def border_color(color, &block)
         tw("border-#{color}", &block)
@@ -380,6 +475,286 @@ module SwiftUIRails
         self
       end
       
+      # ========================================
+      # Hotwire and Morphing Capabilities  
+      # ========================================
+      
+      # Turbo Frame support
+      def turbo_frame(id)
+        @attributes["data-turbo-frame"] = id
+        self
+      end
+      
+      def turbo_permanent
+        @attributes["data-turbo-permanent"] = true
+        self
+      end
+      
+      # Stimulus controller support
+      def stimulus_controller(controller_name)
+        existing = @attributes["data-controller"]
+        @attributes["data-controller"] = existing ? "#{existing} #{controller_name}" : controller_name
+        self
+      end
+      
+      def stimulus_target(target_name)
+        existing = @attributes["data-#{target_name.gsub('_', '-')}-target"]
+        @attributes["data-#{target_name.gsub('_', '-')}-target"] = target_name
+        self
+      end
+      
+      def stimulus_action(action)
+        existing = @attributes["data-action"]
+        @attributes["data-action"] = existing ? "#{existing} #{action}" : action
+        self
+      end
+      
+      def stimulus_param(param_name, value)
+        @attributes["data-#{param_name.gsub('_', '-')}-param"] = value
+        self
+      end
+      
+      # Data attributes
+      def data(attributes)
+        attributes.each do |key, value|
+          if key.is_a?(Symbol)
+            key_str = key.to_s.gsub('_', '-')
+          else
+            key_str = key.to_s
+          end
+          @attributes["data-#{key_str}"] = value
+        end
+        self
+      end
+      
+      # ID attribute
+      def id(id_value)
+        @attributes["id"] = id_value
+        self
+      end
+      
+      # DOM morphing support
+      def morph_id(id)
+        @attributes["id"] = id
+        @attributes["data-morph-id"] = id
+        self
+      end
+      
+      # Event handling for powerful interactions
+      def on_click(action = nil, &block)
+        if action
+          @attributes[:onclick] = action
+        elsif block_given?
+          # For more complex interactions, use Stimulus
+          stimulus_action("click->#{@tag_name}#handleClick")
+        end
+        self
+      end
+      
+      def on_submit(action)
+        @attributes[:onsubmit] = action
+        self
+      end
+      
+      def on_change(action)
+        @attributes[:onchange] = action
+        self
+      end
+      
+      # Accessibility enhancements
+      def aria_label(label)
+        @attributes["aria-label"] = label
+        self
+      end
+      
+      def aria_hidden(hidden = true)
+        @attributes["aria-hidden"] = hidden.to_s
+        self
+      end
+      
+      def role(role_name)
+        @attributes["role"] = role_name
+        self
+      end
+      
+      # Performance and loading states
+      def lazy_load
+        @attributes["loading"] = "lazy"
+        self
+      end
+      
+      def eager_load
+        @attributes["loading"] = "eager"
+        self
+      end
+      
+      # ========================================
+      # Advanced Layout and Animation
+      # ========================================
+      
+      # CSS Grid enhancements
+      def grid_area(area)
+        tw("grid-area-#{area}")
+        self
+      end
+      
+      def grid_template_columns(columns)
+        @options[:style] = [@options[:style], "grid-template-columns: #{columns}"].compact.join('; ')
+        self
+      end
+      
+      def grid_template_rows(rows)
+        @options[:style] = [@options[:style], "grid-template-rows: #{rows}"].compact.join('; ')
+        self
+      end
+      
+      # Advanced animations
+      def animate_in(animation = "fadeIn")
+        tw("animate-#{animation}")
+        self
+      end
+      
+      def animate_out(animation = "fadeOut")
+        tw("animate-#{animation}")
+        self
+      end
+      
+      def animate_on_hover(animation = "scale-105")
+        tw("hover:#{animation} transition-transform duration-200")
+        self
+      end
+      
+      def animate_on_focus(animation = "ring-2 ring-blue-500")
+        tw("focus:#{animation}")
+        self
+      end
+      
+      # Responsive design helpers
+      def responsive(&block)
+        # Allow chaining different breakpoint styles
+        yield(self) if block_given?
+        self
+      end
+      
+      def sm(utility)
+        tw("sm:#{utility}")
+        self
+      end
+      
+      def md(utility)
+        tw("md:#{utility}")
+        self
+      end
+      
+      def lg(utility)
+        tw("lg:#{utility}")
+        self
+      end
+      
+      def xl(utility)
+        tw("xl:#{utility}")
+        self
+      end
+      
+      # State-based styling
+      def hover(utilities)
+        utilities.split(' ').each { |util| tw("hover:#{util}") }
+        self
+      end
+      
+      def focus(utilities)
+        utilities.split(' ').each { |util| tw("focus:#{util}") }
+        self
+      end
+      
+      def active(utilities)
+        utilities.split(' ').each { |util| tw("active:#{util}") }
+        self
+      end
+      
+      def disabled_state(utilities)
+        utilities.split(' ').each { |util| tw("disabled:#{util}") }
+        self
+      end
+      
+      # Dark mode support
+      def dark(utilities)
+        utilities.split(' ').each { |util| tw("dark:#{util}") }
+        self
+      end
+      
+      # Transform utilities
+      def scale(value)
+        tw("scale-#{value}")
+        self
+      end
+      
+      def rotate(value)
+        tw("rotate-#{value}")
+        self
+      end
+      
+      def translate_x(value)
+        tw("translate-x-#{value}")
+        self
+      end
+      
+      def translate_y(value)
+        tw("translate-y-#{value}")
+        self
+      end
+      
+      # Advanced positioning
+      def sticky
+        tw("sticky")
+        self
+      end
+      
+      def fixed
+        tw("fixed")
+        self
+      end
+      
+      def absolute
+        tw("absolute")
+        self
+      end
+      
+      def relative
+        tw("relative")
+        self
+      end
+      
+      def top(value)
+        tw("top-#{value}")
+        self
+      end
+      
+      def bottom(value)
+        tw("bottom-#{value}")
+        self
+      end
+      
+      def left(value)
+        tw("left-#{value}")
+        self
+      end
+      
+      def right(value)
+        tw("right-#{value}")
+        self
+      end
+      
+      def inset(value)
+        tw("inset-#{value}")
+        self
+      end
+      
+      def z_index(value)
+        tw("z-#{value}")
+        self
+      end
+      
       # Convert to HTML string
       def to_s
         # Merge CSS classes
@@ -391,6 +766,13 @@ module SwiftUIRails
         
         # Merge other attributes
         @options.merge!(@attributes)
+        
+        # Register action blocks with the view context if they exist
+        if @action_blocks && @view_context && @view_context.respond_to?(:register_component_action)
+          @action_blocks.each do |action_id, block|
+            @view_context.register_component_action(action_id, block)
+          end
+        end
         
         # Handle the content/block
         if @block
@@ -426,7 +808,8 @@ module SwiftUIRails
         end
       rescue => e
         Rails.logger.error "Element.to_s failed: #{e.message} for tag #{@tag_name.inspect}"
-        ""
+        Rails.logger.error e.backtrace.join("\n")
+        raise e  # Re-raise to see the actual error
       end
       
       # Make it work with Rails rendering
@@ -444,16 +827,7 @@ module SwiftUIRails
       # ========================================
       
       # Background and Foreground Colors
-      def background(color)
-        if color.start_with?('#')
-          # Hex color - use inline style
-          @options[:style] = [@options[:style], "background-color: #{color}"].compact.join('; ')
-        else
-          # Tailwind class
-          tw("bg-#{color}")
-        end
-        self
-      end
+      # (background method is defined earlier with block support)
       
       def foreground_color(color)
         if color.start_with?('#')
@@ -530,20 +904,9 @@ module SwiftUIRails
         self
       end
       
-      # Button-specific modifiers
+      # Button-specific modifiers - REMOVED CSS injection per user request
       def button_style(style)
-        case style.to_sym
-        when :primary
-          tw("bg-blue-600 hover:bg-blue-700 text-white")
-        when :secondary  
-          tw("bg-gray-200 hover:bg-gray-300 text-gray-900")
-        when :danger
-          tw("bg-red-600 hover:bg-red-700 text-white")
-        when :success
-          tw("bg-green-600 hover:bg-green-700 text-white")
-        when :warning
-          tw("bg-yellow-500 hover:bg-yellow-600 text-white")
-        end
+        # No longer inject any CSS - let components handle their own styling
         self
       end
       
@@ -555,18 +918,9 @@ module SwiftUIRails
         self
       end
       
-      # Size modifiers for buttons
+      # Size modifiers for buttons - REMOVED CSS injection per user request
       def button_size(size)
-        case size.to_sym
-        when :sm
-          tw("px-3 py-2 text-sm")
-        when :md
-          tw("px-4 py-2 text-sm") 
-        when :lg
-          tw("px-6 py-3 text-base")
-        when :xl
-          tw("px-8 py-4 text-lg")
-        end
+        # No longer inject any CSS - let components handle their own styling
         self
       end
       
@@ -625,6 +979,8 @@ module SwiftUIRails
         @options[:currency_symbol] = symbol
         self
       end
+      
+      private
       
     end
   end

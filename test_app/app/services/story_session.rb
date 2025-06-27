@@ -102,6 +102,11 @@ class StorySession
     update_state!(current_state)
   end
   
+  # Alias for accessing current state - used by storybook controller
+  def current_state
+    state
+  end
+  
   def reset_state!
     self.state = {}
     save!

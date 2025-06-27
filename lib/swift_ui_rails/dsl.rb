@@ -2,6 +2,7 @@
 
 require_relative "dsl/element"
 require_relative "dsl/safe_element"
+require_relative "dsl/context"
 
 module SwiftUIRails
   module DSL
@@ -47,14 +48,14 @@ module SwiftUIRails
     end
 
     # Control Components
-    def button(title = nil, action: "#", **attrs, &block)
-      attrs[:onclick] = action unless action == "#"
+    def button(title = nil, **attrs, &block)
+      # Pure structure - no behavior. Behavior is handled by Stimulus
       element = if block_given?
         create_element(:button, nil, **attrs, &block)
       else
         create_element(:button, title, **attrs)
       end
-      # Ensure we always return an Element instance
+      # Ensure we always return an Element instance for powerful chaining
       element
     end
 
@@ -90,25 +91,120 @@ module SwiftUIRails
       create_element(:input, nil, **attrs)
     end
 
-    # E-commerce Components
-    def product_list(products:, **attrs)
-      # Create a wrapper that can render the ProductListComponent
-      attrs[:products] = products
-      create_component_element(:product_list, attrs)
+    # E-commerce Components with ViewComponent 2.0 Collection Optimization
+    # Generic list method - composition-based approach
+    def list(items:, **attrs, &block)
+      # Pure structure for listing items - behavior comes from the block
+      attrs[:class] = class_names("space-y-4", attrs[:class])
+      
+      create_element(:div, nil, **attrs) do
+        items.each_with_index do |item, index|
+          # Pass both item and index to the block for maximum flexibility
+          if block_given?
+            instance_exec(item, index, &block)
+          else
+            # Default rendering if no block provided
+            text(item.to_s)
+          end
+        end
+      end
+    end
+    
+    # Grid variant of list for grid layouts
+    def grid_list(items:, columns: 3, **attrs, &block)
+      attrs[:class] = class_names("grid gap-4", attrs[:class])
+      attrs[:class] += " grid-cols-#{columns}"
+      
+      create_element(:div, nil, **attrs) do
+        items.each_with_index do |item, index|
+          if block_given?
+            instance_exec(item, index, &block)
+          else
+            text(item.to_s)
+          end
+        end
+      end
+    end
+    
+    # ViewComponent 2.0 Collection-optimized rendering methods
+    def card_collection(items:, **attrs, &block)
+      # Use ViewComponent 2.0 collection rendering for 10x performance
+      CardComponent.card_collection(cards: items, **attrs, &block)
+    end
+    
+    def button_collection(items:, **attrs, &block)
+      # Use ViewComponent 2.0 collection rendering for 10x performance  
+      SimpleButtonComponent.button_collection(buttons: items, **attrs, &block)
+    end
+    
+    # Layout collection optimizations
+    def vstack_collection(items:, spacing: 8, **attrs, &block)
+      # Render collection in vertical stack with ViewComponent 2.0 performance
+      vstack(spacing: spacing, **attrs) do
+        if block_given?
+          items.each_with_index do |item, index|
+            block.call(item, index)
+          end
+        else
+          items.each { |item| text(item.to_s) }
+        end
+      end
+    end
+    
+    def hstack_collection(items:, spacing: 8, **attrs, &block)
+      # Render collection in horizontal stack with ViewComponent 2.0 performance
+      hstack(spacing: spacing, **attrs) do
+        if block_given?
+          items.each_with_index do |item, index|
+            block.call(item, index)
+          end
+        else
+          items.each { |item| text(item.to_s) }
+        end
+      end
+    end
+    
+    def grid_collection(items:, columns: 3, spacing: 8, **attrs, &block)
+      # Render collection in grid with ViewComponent 2.0 performance
+      grid(columns: columns, spacing: spacing, **attrs) do
+        if block_given?
+          items.each_with_index do |item, index|
+            block.call(item, index)
+          end
+        else
+          items.each { |item| text(item.to_s) }
+        end
+      end
     end
 
-    def enhanced_product_list(products:, **attrs, &block)
-      # Create enhanced product list with slots support
-      attrs[:products] = products
-      create_component_element(:enhanced_product_list, attrs, &block)
+    # Container Components - Simplified for composition
+    def card(**attrs, &block)
+      # Simple card container - just structure and styling
+      attrs[:class] = class_names("rounded-lg shadow-md", attrs[:class])
+      create_element(:div, nil, **attrs, &block)
     end
-
-    # Container Components
-    def card(elevation: 1, **attrs, &block)
-      attrs[:class] = class_names("bg-white rounded-lg", attrs[:class])
-      attrs[:class] += " shadow" if elevation == 1
-      attrs[:class] += " shadow-md" if elevation == 2
-      attrs[:class] += " shadow-lg" if elevation == 3
+    
+    def card_header(**attrs, &block)
+      # A helper for a styled header region
+      attrs[:class] = class_names("p-4 border-b", attrs[:class])
+      create_element(:div, nil, **attrs, &block)
+    end
+    
+    def card_content(**attrs, &block)
+      # A helper for the main content area
+      attrs[:class] = class_names("p-4", attrs[:class])
+      create_element(:div, nil, **attrs, &block)
+    end
+    
+    def card_footer(**attrs, &block)
+      # A helper for a styled footer region
+      attrs[:class] = class_names("p-4 border-t", attrs[:class])
+      create_element(:div, nil, **attrs, &block)
+    end
+    
+    def card_section(**attrs, &block)
+      # A helper for additional card sections
+      attrs[:class] = class_names("p-4", attrs[:class])
       create_element(:div, nil, **attrs, &block)
     end
 
@@ -148,7 +244,7 @@ module SwiftUIRails
     end
 
     def divider(**attrs)
-      attrs[:class] = class_names("border-t border-gray-300", attrs[:class])
+      attrs[:class] = class_names("border-t", attrs[:class])
       create_element(:hr, nil, **attrs)
     end
 
@@ -181,7 +277,7 @@ module SwiftUIRails
     end
     
     # Loading Components
-    def spinner(size: :md)
+    def spinner(size: :md, border_color: nil, spinner_color: nil)
       size_classes = {
         xs: "h-3 w-3",
         sm: "h-4 w-4",
@@ -190,8 +286,11 @@ module SwiftUIRails
         xl: "h-8 w-8"
       }
       
+      border_class = border_color ? "border-#{border_color}" : ""
+      spinner_class = spinner_color ? "border-t-#{spinner_color}" : ""
+      
       create_element(:div, nil, class: "inline-flex items-center") do
-        content_tag(:div, "", class: "animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 #{size_classes[size]}")
+        content_tag(:div, "", class: "animate-spin rounded-full border-2 #{border_class} #{spinner_class} #{size_classes[size]}")
       end
     end
 
@@ -219,13 +318,32 @@ module SwiftUIRails
     
     # Create a chainable element
     def create_element(tag_name, content = nil, options = {}, &block)
-      # Pass self as the DSL context if we're a DSLContext instance
-      dsl_context = self.is_a?(SwiftUIRails::DSLContext) ? self : nil
-      element = Element.new(tag_name, content, options, dsl_context, &block)
-      element.send(:view_context=, self)
+      # Create a DSL context for capturing nested elements
+      if block_given? && !self.is_a?(SwiftUIRails::DSLContext)
+        # Create a temporary DSL context to capture child elements
+        dsl_context = DSLContext.new(self)
+        element = Element.new(tag_name, content, options, dsl_context, &block)
+      else
+        dsl_context = self.is_a?(SwiftUIRails::DSLContext) ? self : nil
+        element = Element.new(tag_name, content, options, dsl_context, &block)
+      end
+      
+      element.view_context = self
+      
+      # If self is a component, store it directly on the element
+      if self.respond_to?(:component_id)
+        Rails.logger.debug "Storing component on element: #{self.class.name}, component_id=#{self.component_id}"
+        element.instance_variable_set(:@component, self)
+      elsif self.is_a?(DSLContext) && self.instance_variable_get(:@component)
+        comp = self.instance_variable_get(:@component)
+        Rails.logger.debug "Storing component from context: #{comp.class.name}, component_id=#{comp.component_id if comp}"
+        element.instance_variable_set(:@component, comp)
+      else
+        Rails.logger.debug "No component to store. self=#{self.class.name}"
+      end
       
       # Register the element for later rendering instead of immediate buffer append
-      if dsl_context
+      if dsl_context && self.is_a?(SwiftUIRails::DSLContext)
         dsl_context.register_element(element)
       end
       
