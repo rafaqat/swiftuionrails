@@ -56,7 +56,7 @@ class StorybookController < ApplicationController
     # For DSL stories (like dsl_button), a backing component is not required
     # DSL stories create elements directly using the DSL, not components
     unless @component_class
-      if story_name.start_with?('dsl_')
+      if story_name.start_with?('dsl_') || story_name == 'product_layout'
         # DSL stories don't need backing components - they use pure DSL elements
         @component_class = nil
         @component_name = story_name
@@ -82,7 +82,8 @@ class StorybookController < ApplicationController
     @component_props = build_component_props(@story_config)
     
     # Read actual story source code for DSL stories
-    if !@component_class && @story_class
+    is_dsl_story = story_name.start_with?('dsl_') || story_name == 'product_layout'
+    if is_dsl_story && @story_class
       story_file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
       if File.exist?(story_file)
         @story_source_code = extract_story_method_source(story_file, @story_variant.to_s)

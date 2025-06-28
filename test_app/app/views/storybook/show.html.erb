@@ -353,11 +353,13 @@
         </div>
         
         
-        <!-- Component Source Info -->
+        <!-- Component/Story Source Info -->
         <div class="bg-white rounded-lg shadow-md p-8 mt-6">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4"><%= @component_class ? "Component Definition" : "How to Use in Your Views" %></h2>
+          <% # For DSL stories, show story source even if a component class exists %>
+          <% is_dsl_story = params[:story].start_with?('dsl_') || params[:story] == 'product_layout' %>
+          <h2 class="text-lg font-semibold text-gray-900 mb-4"><%= is_dsl_story ? "DSL Story Source" : "Component Definition" %></h2>
           <div class="text-sm text-gray-700">
-            <% if @component_class %>
+            <% if !is_dsl_story && @component_class %>
               <p class="mb-2">This component is defined as:</p>
               <pre class="bg-gray-100 p-3 rounded"><code>class <%= @component_class.name %> < <%= @component_class.superclass.name %>
   <% if @component_class.name == 'CounterComponent' %># Stateless component with client-side state management
@@ -412,13 +414,16 @@
           "counter-step-value": step,
           "counter-label-value": label)
   end<% else %>  # Uses SwiftUI Rails DSL for component definition
-  <% if @component_class.ancestors.include?(SwiftUIRails::Component::Base) %>
   swift_ui do
     # Component implementation using Swift DSL
-  end
-  <% end %><% end %>
+  end<% end %>
 end</code></pre>
             <% else %>
+              <% # Show story source code if available %>
+              <% if @story_source_code %>
+                <p class="mb-2">Story implementation from <code class="bg-gray-100 px-1 py-0.5 rounded"><%= params[:story] %>_stories.rb</code>:</p>
+                <pre class="bg-gray-100 p-3 rounded overflow-x-auto mb-6"><code><%= @story_source_code %></code></pre>
+              <% end %>
               <p class="mb-2">How to use this DSL element in your ERB views:</p>
               <% case params[:story] %>
               <% when 'dsl_button' %>
@@ -560,6 +565,29 @@ end %&gt;
   end
 end %&gt;</code></pre>
               <% when 'product_layout' %>
+                <div class="mb-6">
+                  <p class="mb-3 font-medium">What is the Product Layout DSL Story?</p>
+                  <p class="mb-4">The Product Layout story is a comprehensive example of building flexible e-commerce layouts using pure SwiftUI Rails DSL. Unlike component-based stories, this uses only DSL elements to create complex, interactive layouts.</p>
+                  
+                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p class="text-blue-900 font-medium mb-2">Key Features:</p>
+                    <ul class="list-disc list-inside space-y-1 text-blue-800">
+                      <li>Dynamic grid layouts (1x, 2x, or 4x columns)</li>
+                      <li>Interactive filter systems with visible UI (not dropdowns)</li>
+                      <li>Top or sidebar filter positioning</li>
+                      <li>Price range filters with button groups</li>
+                      <li>Color swatches with visual selection</li>
+                      <li>Category filters with counts</li>
+                      <li>Integrated DSL product cards with CTA buttons</li>
+                      <li>Currency symbol customization</li>
+                      <li>Responsive design patterns</li>
+                    </ul>
+                  </div>
+                  
+                  <p class="mb-2 font-medium">Implementation Pattern:</p>
+                  <p class="mb-4 text-gray-600">This story creates the entire layout using DSL elements like <code class="bg-gray-100 px-1 py-0.5 rounded">div</code>, <code class="bg-gray-100 px-1 py-0.5 rounded">hstack</code>, <code class="bg-gray-100 px-1 py-0.5 rounded">vstack</code>, <code class="bg-gray-100 px-1 py-0.5 rounded">grid</code>, and <code class="bg-gray-100 px-1 py-0.5 rounded">card</code>. It demonstrates how complex interfaces can be built without creating custom ViewComponent classes.</p>
+                </div>
+                <p class="mb-2 font-medium">Example usage in your ERB view:</p>
                 <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your ERB view:
 &lt;%= swift_ui do
   section.bg("white").px(4).py(8) do
@@ -635,6 +663,11 @@ end %&gt;</code></pre>
   end
 end %&gt;</code></pre>
               <% else %>
+                <div class="mb-4">
+                  <p class="mb-3">This DSL story demonstrates how to use SwiftUI Rails DSL elements directly in your views.</p>
+                  <p class="mb-2">The story file is located at:</p>
+                  <code class="bg-gray-100 px-2 py-1 rounded text-sm">test/components/stories/<%= params[:story] %>_stories.rb</code>
+                </div>
                 <pre class="bg-gray-100 p-3 rounded"><code># Using DSL in your ERB views:
 &lt;%= swift_ui do
   # Your DSL code here...

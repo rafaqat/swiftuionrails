@@ -10,7 +10,7 @@ class ProductLayoutStories < ViewComponent::Storybook::Stories
   # Layout controls
   control :columns, as: :select, options: [1, 2, 4], default: 4
   control :show_filters, as: :boolean, default: true
-  control :filter_position, as: :select, options: ["sidebar", "top"], default: "sidebar"
+  control :filter_position, as: :select, options: ["sidebar", "top"], default: "top"
   
   # Filter controls
   control :show_price_filter, as: :boolean, default: true
@@ -24,7 +24,7 @@ class ProductLayoutStories < ViewComponent::Storybook::Stories
   control :currency, as: :select, options: ["$", "£", "€", "¥"], default: "$"
   control :card_elevation, as: :select, options: [0, 1, 2, 3], default: 1
   
-  def default(columns: 4, show_filters: true, filter_position: "sidebar",
+  def default(columns: 4, show_filters: true, filter_position: "top",
               show_price_filter: true, show_color_filter: true, show_category_filter: true,
               show_sort_dropdown: true, show_cta_button: true, cta_text: "Add to cart",
               currency: "$", card_elevation: 1)
@@ -70,12 +70,83 @@ class ProductLayoutStories < ViewComponent::Storybook::Stories
           if show_filters && filter_position == "top"
             # Top filters layout
             vstack(spacing: 6) do
-              # Inline top filters for now
-              div.bg("white").p(4).rounded("lg").shadow("sm").border.border_color("gray-200") do
-                hstack(spacing: 8, alignment: :center) do
-                  text("Top filters would go here")
-                  spacer
-                  text("24 Results").text_size("sm").text_color("gray-600")
+              # Horizontal filter bar with visible filter options
+              div.bg("white").p(6).rounded("lg").shadow("sm").border.border_color("gray-200") do
+                vstack(spacing: 6) do
+                  # Header row
+                  hstack(alignment: :center).mb(4) do
+                    text("Filters").font_weight("semibold").text_size("lg").text_color("gray-900")
+                    spacer
+                    text("24 Results").text_size("sm").text_color("gray-600")
+                  end
+                  
+                  # Filter sections in a horizontal layout
+                  hstack(spacing: 8, alignment: :start) do
+                    # Price filter section
+                    if show_price_filter
+                      vstack(spacing: 3).add_class("flex-1") do
+                        text("Price").font_weight("medium").text_color("gray-700").text_size("sm").mb(2)
+                        div.add_class("flex flex-wrap gap-2") do
+                          ["Under $50", "$50-$100", "$100-$200", "Over $200"].each do |price_range|
+                            button(price_range)
+                              .px(3).py(1).text_size("sm")
+                              .bg("gray-100").text_color("gray-700")
+                              .rounded("full").border.border_color("gray-300")
+                              .add_class("hover:bg-gray-200 hover:border-gray-400")
+                          end
+                        end
+                      end
+                    end
+                    
+                    # Color filter section
+                    if show_color_filter
+                      vstack(spacing: 3).add_class("flex-1") do
+                        text("Color").font_weight("medium").text_color("gray-700").text_size("sm").mb(2)
+                        div.add_class("flex flex-wrap gap-2") do
+                          # Color swatches
+                          [
+                            { name: "Black", color: "#000000" },
+                            { name: "White", color: "#FFFFFF", border: true },
+                            { name: "Gray", color: "#6B7280" },
+                            { name: "Brown", color: "#92400E" },
+                            { name: "Blue", color: "#3B82F6" }
+                          ].each do |color_option|
+                            div.relative.group do
+                              button
+                                .w(8).h(8).rounded("full")
+                                .add_class("hover:ring-2 hover:ring-offset-2 hover:ring-gray-400")
+                                .add_class(color_option[:border] ? "border-2 border-gray-300" : "")
+                                .style("background-color: #{color_option[:color]}")
+                                .title(color_option[:name])
+                              # Tooltip
+                              div.absolute.bottom("full").left("1/2").add_class("-translate-x-1/2")
+                                .mb(2).px(2).py(1).bg("gray-900").text_color("white")
+                                .text_size("xs").rounded.opacity(0).group_hover_opacity(100)
+                                .transition.add_class("pointer-events-none") do
+                                text(color_option[:name])
+                              end
+                            end
+                          end
+                        end
+                      end
+                    end
+                    
+                    # Category filter section
+                    if show_category_filter
+                      vstack(spacing: 3).add_class("flex-1") do
+                        text("Category").font_weight("medium").text_color("gray-700").text_size("sm").mb(2)
+                        div.add_class("flex flex-wrap gap-2") do
+                          ["Shirts", "Outerwear", "Accessories", "Home"].each do |category|
+                            button(category)
+                              .px(3).py(1).text_size("sm")
+                              .bg("gray-100").text_color("gray-700")
+                              .rounded("full").border.border_color("gray-300")
+                              .add_class("hover:bg-gray-200 hover:border-gray-400")
+                          end
+                        end
+                      end
+                    end
+                  end
                 end
               end
               
@@ -125,7 +196,7 @@ class ProductLayoutStories < ViewComponent::Storybook::Stories
                     # CTA Button
                     if show_cta_button
                       button(cta_text).w_full.mt(4).px(4).py(2).bg("black").text_color("white")
-                        .rounded("md").transition_colors.font_weight("medium")
+                        .rounded("md").transition.font_weight("medium")
                         .add_class("hover:bg-gray-800")
                     end
                   end.p(6).bg("white")
@@ -501,7 +572,7 @@ class ProductLayoutStories < ViewComponent::Storybook::Stories
       # CTA Button
       if show_cta_button
         button(cta_text).w_full.mt(4).px(4).py(2).bg("black").text_color("white")
-          .rounded("md").transition_colors.font_weight("medium")
+          .rounded("md").font_weight("medium").transition
           .add_class("hover:bg-gray-800")
       end
     end.p(6).bg("white")
