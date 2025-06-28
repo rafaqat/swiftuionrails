@@ -39,11 +39,14 @@ module SwiftUIRails
       create_element(:span, content, **attrs)
     end
 
-    def label(text_content, system_image: nil, **attrs, &block)
-      create_element(:label, nil, **attrs) do
-        concat(icon(system_image).to_s) if system_image
-        concat(text(text_content).to_s)
-        concat(capture(&block)) if block_given?
+    def label(text_content = nil, for_input: nil, **attrs, &block)
+      attrs[:for] = for_input if for_input
+      if block_given?
+        create_element(:label, nil, **attrs, &block)
+      elsif text_content
+        create_element(:label, text_content, **attrs)
+      else
+        create_element(:label, nil, **attrs)
       end
     end
 
@@ -89,6 +92,19 @@ module SwiftUIRails
       attrs[:max] = max
       attrs[:step] = step
       create_element(:input, nil, **attrs)
+    end
+
+    def select(name: nil, selected: nil, **attrs, &block)
+      attrs[:name] = name if name
+      attrs[:value] = selected if selected
+      create_element(:select, nil, **attrs, &block)
+    end
+
+    def option(value, text_content = nil, selected: false, **attrs)
+      attrs[:value] = value
+      attrs[:selected] = selected if selected
+      content = text_content || value
+      create_element(:option, content, **attrs)
     end
 
     # E-commerce Components with ViewComponent 2.0 Collection Optimization

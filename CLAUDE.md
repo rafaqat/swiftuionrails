@@ -306,6 +306,21 @@ This is a Rails gem that brings SwiftUI-like declarative syntax to Rails views, 
 - **Styling**: Tailwind utilities exposed as Ruby methods
 - **Testing**: Both unit tests (RSpec) and interactive visual tests (Storybook)
 
+### Recently Added DSL Methods (June 2025)
+
+#### Form Elements
+- `select(name: nil, selected: nil, **attrs, &block)` - Creates a select dropdown
+- `option(value, text_content = nil, selected: false, **attrs)` - Creates select options
+- `label(text_content = nil, for_input: nil, **attrs, &block)` - Creates form labels with flexible signatures
+
+#### Chainable Modifiers
+- `.break_inside(value = "avoid")` - Controls CSS break-inside property (avoid, auto, avoid-page, avoid-column)
+- `.ring_hover(width = 2, color = nil)` - Adds hover ring effects
+- `.group_hover_opacity(opacity)` - Sets opacity on group hover
+- `.flex_shrink(value = nil)` - Controls flex-shrink property
+- `.title(title_text)` - Sets the title attribute for tooltips
+- `.style(style_string)` - Adds inline styles
+
 ## Architectural Philosophy: The Rails-First Approach
 
 ### Core Principles

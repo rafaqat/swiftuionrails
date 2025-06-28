@@ -243,6 +243,22 @@ module SwiftUIRails
         tw("w-full", &block)
       end
       
+      # Break utilities
+      def break_inside(value = "avoid", &block)
+        case value
+        when "avoid"
+          tw("break-inside-avoid", &block)
+        when "auto"
+          tw("break-inside-auto", &block)
+        when "avoid-page"
+          tw("break-inside-avoid-page", &block)
+        when "avoid-column"
+          tw("break-inside-avoid-column", &block)
+        else
+          tw("break-inside-#{value}", &block)
+        end
+      end
+      
       # Flexbox utilities
       def items_center(&block)
         tw("items-center", &block)
@@ -440,6 +456,18 @@ module SwiftUIRails
         tw("hover:bg-#{color}", &block)
       end
       
+      # Ring hover effect
+      def ring_hover(width = 2, color = nil, &block)
+        ring_classes = ["hover:ring-#{width}"]
+        ring_classes << "hover:ring-#{color}" if color
+        tw(ring_classes.join(" "), &block)
+      end
+      
+      # Group hover opacity
+      def group_hover_opacity(opacity, &block)
+        tw("group-hover:opacity-#{opacity}", &block)
+      end
+      
       # Image utilities
       def aspect_ratio(ratio, &block)
         tw("aspect-#{ratio}", &block)
@@ -467,8 +495,12 @@ module SwiftUIRails
         tw("flex-grow", &block)
       end
       
-      def flex_shrink(&block)
-        tw("flex-shrink", &block)
+      def flex_shrink(value = nil, &block)
+        if value
+          tw("flex-shrink-#{value}", &block)
+        else
+          tw("flex-shrink", &block)
+        end
       end
       
       # Set disabled attribute
@@ -480,6 +512,19 @@ module SwiftUIRails
       # Set any attribute
       def attr(name, value)
         @attributes[name] = value
+        self
+      end
+      
+      # Set title attribute
+      def title(title_text)
+        @attributes[:title] = title_text
+        self
+      end
+      
+      # Set inline style
+      def style(style_string)
+        existing_style = @options[:style] || ""
+        @options[:style] = [existing_style, style_string].reject(&:blank?).join("; ")
         self
       end
       
