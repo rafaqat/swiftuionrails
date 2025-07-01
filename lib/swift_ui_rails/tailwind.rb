@@ -252,12 +252,9 @@ module SwiftUIRails
         self
       end
 
-      # Grid
-      def grid
-        add_class("grid")
-        self
-      end
-
+      # Grid - Removed grid() to avoid conflict with DSL grid method
+      # Use .add_class("grid") if you need the CSS class
+      
       def grid_cols(value)
         add_class("grid-cols-#{value}")
         self

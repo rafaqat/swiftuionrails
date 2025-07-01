@@ -25,14 +25,18 @@ module SwiftUIRails
       def tw(*classes, &block)
         @css_classes.concat(classes.flatten.compact)
         # If a block is provided, treat it as the element's content block
-        @block = block if block_given?
+        if block_given?
+          Rails.logger.debug "Element.tw: Block provided for #{@tag_name}"
+          @block = block
+        end
         self
       end
       
       # Core method for adding classes - used by Tailwind module
       def add_class(class_name, &block)
         Rails.logger.debug "Element.add_class: #{class_name}, block_given: #{block_given?}"
-        @css_classes << class_name
+        # Avoid duplicate classes
+        @css_classes << class_name unless @css_classes.include?(class_name)
         @block = block if block_given?
         self
       end
@@ -116,16 +120,16 @@ module SwiftUIRails
       end
       
       # Height utilities
-      def h(size)
-        tw("h-#{size}")
+      def h(size, &block)
+        tw("h-#{size}", &block)
       end
       
-      def max_h(size)
-        tw("max-h-#{size}")
+      def max_h(size, &block)
+        tw("max-h-#{size}", &block)
       end
       
-      def min_h(size)
-        tw("min-h-#{size}")
+      def min_h(size, &block)
+        tw("min-h-#{size}", &block)
       end
       
       # Text utilities
@@ -528,6 +532,12 @@ module SwiftUIRails
         self
       end
       
+      # Merge additional attributes
+      def merge_attributes(attrs)
+        @attributes.merge!(attrs)
+        self
+      end
+      
       # ========================================
       # Hotwire and Morphing Capabilities  
       # ========================================
@@ -810,12 +820,14 @@ module SwiftUIRails
       
       # Convert to HTML string
       def to_s
-        Rails.logger.debug "Element.to_s: tag=#{@tag_name}, has_block=#{!!@block}, dsl_context=#{@dsl_context.class.name if @dsl_context}"
+        Rails.logger.debug "Element.to_s: tag=#{@tag_name}, has_block=#{!!@block}, content=#{@content.inspect[0..50]}"
         
-        # Merge CSS classes
+        # Merge CSS classes - deduplicate to avoid repetition
         if @css_classes.any?
           existing_classes = @options[:class] || ""
-          all_classes = [existing_classes, @css_classes.join(" ")].reject(&:blank?).join(" ")
+          # Split existing classes and combine with new ones, then deduplicate
+          all_classes_array = existing_classes.split(' ') + @css_classes
+          all_classes = all_classes_array.uniq.reject(&:blank?).join(" ")
           @options[:class] = all_classes
         end
         
@@ -831,34 +843,37 @@ module SwiftUIRails
         
         # Handle the content/block
         if @block
-          Rails.logger.debug "Element.to_s: Executing block for #{@tag_name}"
-          # Execute the block and capture all content
+          Rails.logger.debug "Element.to_s: Processing block for #{@tag_name}"
+          
+          # If we already have a DSL context, use it directly
+          # This prevents creating nested contexts and duplicate rendering
           if @dsl_context
-            # Save current pending elements
-            old_pending = @dsl_context.instance_variable_get(:@pending_elements)
-            @dsl_context.instance_variable_set(:@pending_elements, [])
+            # Create a new sub-context to isolate child elements
+            sub_context = SwiftUIRails::DSLContext.new(@dsl_context.view_context)
             
-            # Execute the block to collect child elements
-            @dsl_context.instance_eval(&@block)
+            # Transfer component reference
+            if comp = @dsl_context.instance_variable_get(:@component)
+              sub_context.instance_variable_set(:@component, comp)
+            elsif @component
+              sub_context.instance_variable_set(:@component, @component)
+            end
             
-            # Get the rendered content from collected elements
-            content = @dsl_context.flush_elements
-            Rails.logger.debug "Element.to_s: Flushed content for #{@tag_name}: #{content.to_s.length} chars"
+            # Execute block in sub-context to collect child elements
+            result = sub_context.instance_eval(&@block)
             
-            # Restore previous pending elements
-            @dsl_context.instance_variable_set(:@pending_elements, old_pending)
+            # Flush to get rendered content
+            content = sub_context.flush_elements
           else
-            # Fallback to standard capture
+            # No DSL context - render block directly
+            # This happens for elements created outside the DSL
             content = @view_context.capture(&@block)
           end
           
-          result = @view_context.content_tag(@tag_name, (content || "").to_s.html_safe, @options)
-          Rails.logger.debug "Element.to_s: Final HTML for #{@tag_name}: #{result.to_s[0..100]}..."
-          result
+          @view_context.content_tag(@tag_name, (content || "").to_s.html_safe, @options)
         elsif @content
           @view_context.content_tag(@tag_name, @content, @options)
         else
-          # For text-like elements, use content_tag with empty string to get <span></span> instead of <span />
+          # For text-like elements, use content_tag with empty string
           if [:span, :p, :h1, :h2, :h3, :h4, :h5, :h6, :div, :label, :button].include?(@tag_name)
             @view_context.content_tag(@tag_name, "", @options)
           else
@@ -868,7 +883,7 @@ module SwiftUIRails
       rescue => e
         Rails.logger.error "Element.to_s failed: #{e.message} for tag #{@tag_name.inspect}"
         Rails.logger.error e.backtrace.join("\n")
-        raise e  # Re-raise to see the actual error
+        raise e
       end
       
       # Make it work with Rails rendering

@@ -3,7 +3,7 @@ class StorybookController < ApplicationController
   helper_method :tailwind_color_to_css
   def index
     # Only show DSL stories
-    dsl_stories = ["dsl_button", "dsl_card", "dsl_product_card", "product_layout"]
+    dsl_stories = ["dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple"]
     
     @stories = dsl_stories.map do |story_name|
       file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
@@ -13,7 +13,7 @@ class StorybookController < ApplicationController
       when "dsl_button" then "DSL Button"
       when "dsl_card" then "DSL Card"
       when "dsl_product_card" then "DSL Product Card"
-      when "product_layout" then "DSL Product List"
+      when "product_layout_simple" then "DSL Product List"
       else story_name.titleize
       end
       
@@ -29,6 +29,9 @@ class StorybookController < ApplicationController
     story_name = params[:story]
     story_file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
     
+    Rails.logger.info "Looking for story file: #{story_file}"
+    Rails.logger.info "File exists? #{File.exist?(story_file)}"
+    
     unless File.exist?(story_file)
       flash[:alert] = "Story not found: #{story_name}"
       redirect_to storybook_index_path
@@ -39,10 +42,12 @@ class StorybookController < ApplicationController
     load story_file
     
     @story_class_name = "#{story_name.camelize}Stories"
+    Rails.logger.info "Looking for story class: #{@story_class_name}"
     @story_class = @story_class_name.safe_constantize
+    Rails.logger.info "Story class found? #{@story_class.present?}"
     
     unless @story_class
-      flash[:alert] = "Story not found: #{story_name}"
+      flash[:alert] = "Story class not found: #{@story_class_name}"
       redirect_to storybook_index_path
       return
     end
@@ -56,7 +61,7 @@ class StorybookController < ApplicationController
     # For DSL stories (like dsl_button), a backing component is not required
     # DSL stories create elements directly using the DSL, not components
     unless @component_class
-      if story_name.start_with?('dsl_') || story_name == 'product_layout'
+      if story_name.start_with?('dsl_') || story_name.include?('product_layout')
         # DSL stories don't need backing components - they use pure DSL elements
         @component_class = nil
         @component_name = story_name

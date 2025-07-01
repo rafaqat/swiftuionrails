@@ -66009,3 +66009,294 @@ Story result: #<StoryHtmlWrapperComponent content_length=10439>
   Rendered layout layouts/application.html.erb (Duration: 5.3ms | GC: 0.0ms)
 Completed 200 OK in 9ms (Views: 5.5ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.1ms)
   [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+-------------------------------------------------------------
+ProductLayoutComponentUsageTest: test_works_with_hash_objects
+-------------------------------------------------------------
+Generating component_id: swift_ui_component_9136 for ProductLayoutComponent
+Storing component on element: ProductLayoutComponent, component_id=swift_ui_component_9136
+Created element: section, has_block: false, dsl_context: 
+Element.to_s: tag=section, has_block=false, dsl_context=
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+----------------------------------------------------------------------------
+ProductLayoutComponentUsageTest: test_works_with_Rails_Active_Record_objects
+----------------------------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+--------------------------------------------------------------------
+ProductLayoutComponentUsageTest: test_supports_Active_Storage_images
+--------------------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+-----------------------------------------------------------
+ProductLayoutComponentUsageTest: test_supports_custom_slots
+-----------------------------------------------------------
+Generating component_id: swift_ui_component_9152 for ProductLayoutComponent
+Storing component on element: ProductLayoutComponent, component_id=swift_ui_component_9152
+Created element: section, has_block: false, dsl_context: 
+Element.to_s: tag=section, has_block=false, dsl_context=
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+----------------------------------------------------------------
+ProductLayoutTest: test_product_layout_interactive_controls_work
+----------------------------------------------------------------
+Started GET "/storybook/show?story=product_layout" for 127.0.0.1 at 2025-06-28 17:15:47 +0100
+Processing by StorybookController#show as HTML
+  Parameters: {"story" => "product_layout"}
+Completed 500 Internal Server Error in 9ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 1.3ms)
+Started GET "/favicon.ico" for 127.0.0.1 at 2025-06-28 17:15:47 +0100
+  
+ActionController::RoutingError (No route matches [GET] "/favicon.ico"):
+  
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+---------------------------------------------------------------
+ProductLayoutTest: test_product_layout_renders_with_DSL_content
+---------------------------------------------------------------
+Started GET "/storybook/show?story=product_layout" for 127.0.0.1 at 2025-06-28 17:15:47 +0100
+Processing by StorybookController#show as HTML
+  Parameters: {"story" => "product_layout"}
+Completed 500 Internal Server Error in 1ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+---------------------------------------------------------------------------
+StorybookDslCoverageTest: test_DSL_method_usage_analysis_across_all_stories
+---------------------------------------------------------------------------
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+----------------------------------------------------------------------------------------
+StorybookDslCoverageTest: test_all_storybook_components_render_without_DSL_method_errors
+----------------------------------------------------------------------------------------
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+-------------------------------------------------------------------
+GridDslBasicTest: test_lazy_vgrid_renders_correctly_with_grid_items
+-------------------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+-------------------------------------------------------------------
+GridDslBasicTest: test_lazy_vgrid_renders_correctly_with_grid_items
+-------------------------------------------------------------------
+Started GET "/test/grid_test" for 127.0.0.1 at 2025-06-28 21:16:53 +0100
+  
+ActionController::RoutingError (uninitialized constant TestController)
+Caused by: ActionDispatch::MissingController (uninitialized constant TestController)
+Caused by: NameError (uninitialized constant TestController)
+
+Information for: ActionController::RoutingError (uninitialized constant TestController):
+  
+
+Information for cause: ActionDispatch::MissingController (uninitialized constant TestController):
+  
+actionpack (8.0.2) lib/action_dispatch/http/request.rb:102:in 'ActionDispatch::Request#controller_class_for'
+actionpack (8.0.2) lib/action_dispatch/http/request.rb:91:in 'ActionDispatch::Request#controller_class'
+actionpack (8.0.2) lib/action_dispatch/routing/route_set.rb:61:in 'ActionDispatch::Routing::RouteSet::Dispatcher#controller'
+actionpack (8.0.2) lib/action_dispatch/routing/route_set.rb:48:in 'ActionDispatch::Routing::RouteSet::Dispatcher#serve'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:53:in 'block in ActionDispatch::Journey::Router#serve'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:133:in 'block in ActionDispatch::Journey::Router#find_routes'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:126:in 'Array#each'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:126:in 'ActionDispatch::Journey::Router#find_routes'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:34:in 'ActionDispatch::Journey::Router#serve'
+actionpack (8.0.2) lib/action_dispatch/routing/route_set.rb:908:in 'ActionDispatch::Routing::RouteSet#call'
+railties (8.0.2) lib/rails/engine/lazy_route_set.rb:68:in 'Rails::Engine::LazyRouteSet#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/static.rb:27:in 'ActionDispatch::Static#call'
+rack (3.1.16) lib/rack/tempfile_reaper.rb:20:in 'Rack::TempfileReaper#call'
+rack (3.1.16) lib/rack/etag.rb:29:in 'Rack::ETag#call'
+rack (3.1.16) lib/rack/conditional_get.rb:31:in 'Rack::ConditionalGet#call'
+rack (3.1.16) lib/rack/head.rb:15:in 'Rack::Head#call'
+actionpack (8.0.2) lib/action_dispatch/http/permissions_policy.rb:38:in 'ActionDispatch::PermissionsPolicy::Middleware#call'
+actionpack (8.0.2) lib/action_dispatch/http/content_security_policy.rb:38:in 'ActionDispatch::ContentSecurityPolicy::Middleware#call'
+rack-session (2.1.1) lib/rack/session/abstract/id.rb:274:in 'Rack::Session::Abstract::Persisted#context'
+rack-session (2.1.1) lib/rack/session/abstract/id.rb:268:in 'Rack::Session::Abstract::Persisted#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/cookies.rb:706:in 'ActionDispatch::Cookies#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/callbacks.rb:31:in 'block in ActionDispatch::Callbacks#call'
+activesupport (8.0.2) lib/active_support/callbacks.rb:100:in 'ActiveSupport::Callbacks#run_callbacks'
+actionpack (8.0.2) lib/action_dispatch/middleware/callbacks.rb:30:in 'ActionDispatch::Callbacks#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/actionable_exceptions.rb:18:in 'ActionDispatch::ActionableExceptions#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/debug_exceptions.rb:31:in 'ActionDispatch::DebugExceptions#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/show_exceptions.rb:32:in 'ActionDispatch::ShowExceptions#call'
+railties (8.0.2) lib/rails/rack/logger.rb:41:in 'Rails::Rack::Logger#call_app'
+railties (8.0.2) lib/rails/rack/logger.rb:29:in 'Rails::Rack::Logger#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/remote_ip.rb:96:in 'ActionDispatch::RemoteIp#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/request_id.rb:34:in 'ActionDispatch::RequestId#call'
+rack (3.1.16) lib/rack/method_override.rb:28:in 'Rack::MethodOverride#call'
+rack (3.1.16) lib/rack/runtime.rb:24:in 'Rack::Runtime#call'
+activesupport (8.0.2) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in 'ActiveSupport::Cache::Strategy::LocalCache::Middleware#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/executor.rb:16:in 'ActionDispatch::Executor#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/static.rb:27:in 'ActionDispatch::Static#call'
+rack (3.1.16) lib/rack/sendfile.rb:114:in 'Rack::Sendfile#call'
+railties (8.0.2) lib/rails/engine.rb:535:in 'Rails::Engine#call'
+rack (3.1.16) lib/rack/urlmap.rb:76:in 'block in Rack::URLMap#call'
+rack (3.1.16) lib/rack/urlmap.rb:60:in 'Array#each'
+rack (3.1.16) lib/rack/urlmap.rb:60:in 'Rack::URLMap#call'
+rack (3.1.16) lib/rack/builder.rb:277:in 'Rack::Builder#call'
+capybara (3.40.0) lib/capybara/server/middleware.rb:60:in 'Capybara::Server::Middleware#call'
+puma (6.6.0) lib/puma/configuration.rb:279:in 'Puma::Configuration::ConfigMiddleware#call'
+puma (6.6.0) lib/puma/request.rb:99:in 'block in Puma::Request#handle_request'
+puma (6.6.0) lib/puma/thread_pool.rb:390:in 'Puma::ThreadPool#with_force_shutdown'
+puma (6.6.0) lib/puma/request.rb:98:in 'Puma::Request#handle_request'
+puma (6.6.0) lib/puma/server.rb:472:in 'Puma::Server#process_client'
+puma (6.6.0) lib/puma/server.rb:254:in 'block in Puma::Server#run'
+puma (6.6.0) lib/puma/thread_pool.rb:167:in 'block in Puma::ThreadPool#spawn_thread'
+
+Information for cause: NameError (uninitialized constant TestController):
+  
+activesupport (8.0.2) lib/active_support/inflector/methods.rb:290:in 'ActiveSupport::Inflector#constantize'
+activesupport (8.0.2) lib/active_support/core_ext/string/inflections.rb:74:in 'String#constantize'
+actionpack (8.0.2) lib/action_dispatch/http/request.rb:99:in 'ActionDispatch::Request#controller_class_for'
+actionpack (8.0.2) lib/action_dispatch/http/request.rb:91:in 'ActionDispatch::Request#controller_class'
+actionpack (8.0.2) lib/action_dispatch/routing/route_set.rb:61:in 'ActionDispatch::Routing::RouteSet::Dispatcher#controller'
+actionpack (8.0.2) lib/action_dispatch/routing/route_set.rb:48:in 'ActionDispatch::Routing::RouteSet::Dispatcher#serve'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:53:in 'block in ActionDispatch::Journey::Router#serve'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:133:in 'block in ActionDispatch::Journey::Router#find_routes'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:126:in 'Array#each'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:126:in 'ActionDispatch::Journey::Router#find_routes'
+actionpack (8.0.2) lib/action_dispatch/journey/router.rb:34:in 'ActionDispatch::Journey::Router#serve'
+actionpack (8.0.2) lib/action_dispatch/routing/route_set.rb:908:in 'ActionDispatch::Routing::RouteSet#call'
+railties (8.0.2) lib/rails/engine/lazy_route_set.rb:68:in 'Rails::Engine::LazyRouteSet#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/static.rb:27:in 'ActionDispatch::Static#call'
+rack (3.1.16) lib/rack/tempfile_reaper.rb:20:in 'Rack::TempfileReaper#call'
+rack (3.1.16) lib/rack/etag.rb:29:in 'Rack::ETag#call'
+rack (3.1.16) lib/rack/conditional_get.rb:31:in 'Rack::ConditionalGet#call'
+rack (3.1.16) lib/rack/head.rb:15:in 'Rack::Head#call'
+actionpack (8.0.2) lib/action_dispatch/http/permissions_policy.rb:38:in 'ActionDispatch::PermissionsPolicy::Middleware#call'
+actionpack (8.0.2) lib/action_dispatch/http/content_security_policy.rb:38:in 'ActionDispatch::ContentSecurityPolicy::Middleware#call'
+rack-session (2.1.1) lib/rack/session/abstract/id.rb:274:in 'Rack::Session::Abstract::Persisted#context'
+rack-session (2.1.1) lib/rack/session/abstract/id.rb:268:in 'Rack::Session::Abstract::Persisted#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/cookies.rb:706:in 'ActionDispatch::Cookies#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/callbacks.rb:31:in 'block in ActionDispatch::Callbacks#call'
+activesupport (8.0.2) lib/active_support/callbacks.rb:100:in 'ActiveSupport::Callbacks#run_callbacks'
+actionpack (8.0.2) lib/action_dispatch/middleware/callbacks.rb:30:in 'ActionDispatch::Callbacks#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/actionable_exceptions.rb:18:in 'ActionDispatch::ActionableExceptions#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/debug_exceptions.rb:31:in 'ActionDispatch::DebugExceptions#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/show_exceptions.rb:32:in 'ActionDispatch::ShowExceptions#call'
+railties (8.0.2) lib/rails/rack/logger.rb:41:in 'Rails::Rack::Logger#call_app'
+railties (8.0.2) lib/rails/rack/logger.rb:29:in 'Rails::Rack::Logger#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/remote_ip.rb:96:in 'ActionDispatch::RemoteIp#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/request_id.rb:34:in 'ActionDispatch::RequestId#call'
+rack (3.1.16) lib/rack/method_override.rb:28:in 'Rack::MethodOverride#call'
+rack (3.1.16) lib/rack/runtime.rb:24:in 'Rack::Runtime#call'
+activesupport (8.0.2) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in 'ActiveSupport::Cache::Strategy::LocalCache::Middleware#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/executor.rb:16:in 'ActionDispatch::Executor#call'
+actionpack (8.0.2) lib/action_dispatch/middleware/static.rb:27:in 'ActionDispatch::Static#call'
+rack (3.1.16) lib/rack/sendfile.rb:114:in 'Rack::Sendfile#call'
+railties (8.0.2) lib/rails/engine.rb:535:in 'Rails::Engine#call'
+rack (3.1.16) lib/rack/urlmap.rb:76:in 'block in Rack::URLMap#call'
+rack (3.1.16) lib/rack/urlmap.rb:60:in 'Array#each'
+rack (3.1.16) lib/rack/urlmap.rb:60:in 'Rack::URLMap#call'
+rack (3.1.16) lib/rack/builder.rb:277:in 'Rack::Builder#call'
+capybara (3.40.0) lib/capybara/server/middleware.rb:60:in 'Capybara::Server::Middleware#call'
+puma (6.6.0) lib/puma/configuration.rb:279:in 'Puma::Configuration::ConfigMiddleware#call'
+puma (6.6.0) lib/puma/request.rb:99:in 'block in Puma::Request#handle_request'
+puma (6.6.0) lib/puma/thread_pool.rb:390:in 'Puma::ThreadPool#with_force_shutdown'
+puma (6.6.0) lib/puma/request.rb:98:in 'Puma::Request#handle_request'
+puma (6.6.0) lib/puma/server.rb:472:in 'Puma::Server#process_client'
+puma (6.6.0) lib/puma/server.rb:254:in 'block in Puma::Server#run'
+puma (6.6.0) lib/puma/thread_pool.rb:167:in 'block in Puma::ThreadPool#spawn_thread'
+Started GET "/favicon.ico" for 127.0.0.1 at 2025-06-28 21:16:53 +0100
+  
+ActionController::RoutingError (No route matches [GET] "/favicon.ico"):
+  
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.5ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+----------------------------------------------------------------------------------------
+StorybookDslCoverageTest: test_all_storybook_components_render_without_DSL_method_errors
+----------------------------------------------------------------------------------------
+Started GET "/" for 127.0.0.1 at 2025-06-28 21:17:58 +0100
+Processing by HomeController#index as HTML
+  Rendering layout layouts/application.html.erb
+  Rendering home/index.html.erb within layouts/application
+  Rendered home/index.html.erb within layouts/application (Duration: 0.9ms | GC: 0.0ms)
+  Rendered layout layouts/application.html.erb (Duration: 19.2ms | GC: 2.0ms)
+Completed 200 OK in 44ms (Views: 23.8ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 5.1ms)
+Started GET "/assets/application-6ba01277.css" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/tailwind-680f19d5.css" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/stimulus.min-4b1e420e.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/stimulus-loading-1fc53fe7.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/actioncable.esm-e0ec9819.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/application-b61a9675.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/counter_controller-351842b4.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/enhanced_product_list_controller-2e719b7e.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/hello_controller-708796bd.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/index-ee64e1f1.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/live_story_controller-5e339276.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/modal_controller-c0459e12.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/search_controller-27b975d8.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/state_inspector_controller-d6c29f61.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/storybook_controller-a6d1b0a3.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/swift_ui_component_controller-b688cafe.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/swift_ui_controller-b76e1613.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/swift_ui_debug_controller-f3f785aa.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/swift_ui_inspector_controller-1c94c6b9.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/swift_ui_live_reload_controller-f140fe2d.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/controllers/swift_ui_reactive_controller-cdef0bbd.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/application-e98745be.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/assets/turbo.min-3a2e143f.js" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+Started GET "/storybook" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+  
+ActionController::RoutingError (No route matches [GET] "/storybook"):
+  
+Started GET "/favicon.ico" for 127.0.0.1 at 2025-06-28 21:17:59 +0100
+  
+ActionController::RoutingError (No route matches [GET] "/favicon.ico"):
+  
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TRANSACTION[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mBEGIN deferred TRANSACTION[0m
+-----------------------------------------------------------
+CardDslTest: test_card_component_DSL_renders_without_errors
+-----------------------------------------------------------
+Started GET "/storybook/show?story=card_component" for 127.0.0.1 at 2025-06-28 21:18:48 +0100
+Processing by StorybookController#show as HTML
+  Parameters: {"story" => "card_component"}
+Redirected to http://127.0.0.1:50080/storybook/index
+Completed 302 Found in 86ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 10.2ms)
+Started GET "/storybook/index" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Processing by StorybookController#index as HTML
+  Rendering layout layouts/application.html.erb
+  Rendering storybook/index.html.erb within layouts/application
+  Rendered storybook/index.html.erb within layouts/application (Duration: 17.9ms | GC: 0.0ms)
+  Rendered layout layouts/application.html.erb (Duration: 76.5ms | GC: 2.4ms)
+Completed 200 OK in 129ms (Views: 96.5ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 4.7ms)
+Started GET "/assets/tailwind-680f19d5.css" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/application-6ba01277.css" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/application-e98745be.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/turbo.min-3a2e143f.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/actioncable.esm-e0ec9819.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/application-b61a9675.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/counter_controller-351842b4.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/enhanced_product_list_controller-2e719b7e.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/hello_controller-708796bd.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/index-ee64e1f1.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/live_story_controller-5e339276.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/modal_controller-c0459e12.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/search_controller-27b975d8.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/state_inspector_controller-d6c29f61.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/storybook_controller-a6d1b0a3.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/swift_ui_component_controller-b688cafe.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/swift_ui_controller-b76e1613.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/swift_ui_debug_controller-f3f785aa.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/swift_ui_inspector_controller-1c94c6b9.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/swift_ui_live_reload_controller-f140fe2d.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/controllers/swift_ui_reactive_controller-cdef0bbd.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/stimulus.min-4b1e420e.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+Started GET "/assets/stimulus-loading-1fc53fe7.js" for 127.0.0.1 at 2025-06-28 21:18:49 +0100
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TRANSACTION[0m

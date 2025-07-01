@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+/* SwiftUI Rails Grid Isolation */
+@layer components {
+  /* Ensure grid items don't interfere with content */
+  .swift-ui-grid-item {
+    /* Reset any inherited grid properties */
+    display: block;
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Prevent grid from affecting nested components */
+  .swift-ui-grid > .grid > * {
+    /* Grid items maintain their natural sizing */
+    min-width: 0;
+    min-height: 0;
+  }
+  
+  /* Contents wrapper for proper grid item isolation */
+  .contents {
+    display: contents;
+  }
+}
+
 /* Ensure all color variants are available for SwiftUI Rails components */
 @layer utilities {
   /* Pink colors */

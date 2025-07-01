@@ -33,6 +33,48 @@ module SwiftUIRails
       attrs[:class] += " grid-cols-#{columns} gap-#{spacing}"
       create_element(:div, nil, **attrs, &block)
     end
+    
+    # SwiftUI-inspired grid components
+    def grid_item(size_type = :flexible, **options)
+      case size_type
+      when :fixed
+        { type: :fixed, size: options[:size] || 100 }
+      when :flexible
+        { type: :flexible, min: options[:min], max: options[:max] }
+      when :adaptive
+        { type: :adaptive, min: options[:min] || 80, max: options[:max] }
+      else
+        { type: :flexible }
+      end
+    end
+    
+    def lazy_vgrid(columns:, spacing: 20, **attrs, &block)
+      # Calculate responsive grid classes based on GridItem specs
+      grid_classes = calculate_grid_classes(columns)
+      
+      # Main grid container with isolation
+      attrs[:class] = class_names("swift-ui-grid", attrs[:class])
+      attrs[:data] ||= {}
+      attrs[:data][:grid_type] = "lazy-vgrid"
+      
+      div(**attrs) do
+        # Grid implementation with proper isolation
+        inner_attrs = { class: "grid gap-#{spacing} #{grid_classes}" }
+        div(**inner_attrs, &block)
+      end
+    end
+    
+    # Grid item wrapper for CSS isolation
+    def grid_item_wrapper(**attrs, &block)
+      # 'contents' makes wrapper invisible to grid layout
+      attrs[:class] = class_names("contents", attrs[:class])
+      
+      div(**attrs) do
+        # Inner container for actual content
+        div(class: "swift-ui-grid-item", &block)
+      end
+    end
+    
 
     # Text Components
     def text(content, **attrs)
@@ -107,6 +149,70 @@ module SwiftUIRails
       create_element(:option, content, **attrs)
     end
 
+    # DSL Product Card - Reusable product card following DSL-first pattern
+    def dsl_product_card(name:, price:, image_url: nil, variant: nil, currency: "$", 
+                         show_cta: true, cta_text: "Add to Cart", cta_style: "primary", 
+                         **attrs, &block)
+      # Build product card using pure DSL chaining
+      card do
+        # Product image container
+        if image_url
+          div.aspect("square").overflow("hidden").rounded("md").bg("gray-200") do
+            image(src: image_url, alt: name)
+              .w("full").h("full").object_fit("cover")
+              .hover_scale(105).transition.duration(300)
+          end
+        end
+        
+        # Product details
+        vstack(spacing: 2, alignment: :start) do
+          # Product name
+          text(name)
+            .font_weight("semibold")
+            .text_color("gray-900")
+            .text_size("lg")
+            .line_clamp(1)
+          
+          # Variant/color
+          if variant
+            text(variant)
+              .text_color("gray-600")
+              .text_size("sm")
+          end
+          
+          # Price
+          text("#{currency}#{price}")
+            .font_weight("bold")
+            .text_color("gray-900")
+            .text_size("xl")
+            .mt(2)
+        end.mt(4)
+        
+        # CTA Button
+        if show_cta
+          button_classes = case cta_style
+          when "primary"
+            "w-full mt-4 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+          when "outline"
+            "w-full mt-4 px-4 py-2 border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-900 hover:text-white transition-colors"
+          else # secondary
+            "w-full mt-4 px-4 py-2 bg-gray-200 text-gray-900 rounded-md hover:bg-gray-300 transition-colors"
+          end
+          
+          button(cta_text, class: button_classes).font_weight("medium")
+        end
+        
+        # Allow custom content via block
+        yield if block_given?
+      end
+      .p(6)
+      .bg("white")
+      .rounded("lg")
+      .shadow("md")
+      .overflow("hidden")
+      .merge_attributes(attrs)
+    end
+    
     # E-commerce Components with ViewComponent 2.0 Collection Optimization
     # Generic list method - composition-based approach
     def list(items:, **attrs, &block)
@@ -275,6 +381,7 @@ module SwiftUIRails
     end
     
     def section(**attrs, &block)
+      Rails.logger.debug "DSL.section called with block: #{block_given?}, attrs: #{attrs.inspect}"
       create_element(:section, nil, **attrs, &block)
     end
     
@@ -325,6 +432,34 @@ module SwiftUIRails
     end
 
     private
+    
+    def calculate_grid_classes(grid_items)
+      return "" unless grid_items.is_a?(Array)
+      
+      if grid_items.all? { |item| item[:type] == :flexible }
+        # Fixed number of columns
+        count = grid_items.size
+        case count
+        when 1 then "grid-cols-1"
+        when 2 then "grid-cols-1 sm:grid-cols-2"
+        when 3 then "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        when 4 then "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+        when 6 then "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
+        else "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+        end
+      elsif grid_items.any? { |item| item[:type] == :adaptive }
+        # Adaptive grid based on minimum size
+        min_size = grid_items.find { |i| i[:type] == :adaptive }[:min]
+        case min_size
+        when 0..150 then "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+        when 151..250 then "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        else "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        end
+      else
+        # Mixed or fixed - default responsive
+        "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+      end
+    end
 
     def alignment_class(alignment)
       case alignment
@@ -348,36 +483,34 @@ module SwiftUIRails
     
     # Create a chainable element
     def create_element(tag_name, content = nil, options = {}, &block)
-      # Create a DSL context for capturing nested elements
-      if block_given? && !self.is_a?(SwiftUIRails::DSLContext)
-        # Create a temporary DSL context to capture child elements
-        dsl_context = DSLContext.new(self)
-        element = Element.new(tag_name, content, options, dsl_context, &block)
+      # Always use the current DSL context if we're in one
+      dsl_context = self.is_a?(SwiftUIRails::DSLContext) ? self : nil
+      element = Element.new(tag_name, content, options, dsl_context, &block)
+      
+      # Set the view context for Rails helper access
+      if self.is_a?(SwiftUIRails::DSLContext)
+        element.view_context = @view_context
       else
-        dsl_context = self.is_a?(SwiftUIRails::DSLContext) ? self : nil
-        element = Element.new(tag_name, content, options, dsl_context, &block)
+        element.view_context = self
       end
       
-      element.view_context = self
-      
-      # If self is a component, store it directly on the element
+      # Store component reference for event handling
       if self.respond_to?(:component_id)
         Rails.logger.debug "Storing component on element: #{self.class.name}, component_id=#{self.component_id}"
         element.instance_variable_set(:@component, self)
-      elsif self.is_a?(DSLContext) && self.instance_variable_get(:@component)
-        comp = self.instance_variable_get(:@component)
-        Rails.logger.debug "Storing component from context: #{comp.class.name}, component_id=#{comp.component_id if comp}"
-        element.instance_variable_set(:@component, comp)
+      elsif self.is_a?(DSLContext) && @component
+        Rails.logger.debug "Storing component from context: #{@component.class.name}, component_id=#{@component.component_id if @component}"
+        element.instance_variable_set(:@component, @component)
+      end
+      
+      # Register the element only if we're in a DSL context
+      # This prevents double registration when blocks return elements
+      if self.is_a?(SwiftUIRails::DSLContext)
+        Rails.logger.debug "[DSL] Registering element #{tag_name} to context #{self.object_id}"
+        register_element(element)
       else
-        Rails.logger.debug "No component to store. self=#{self.class.name}"
+        Rails.logger.debug "[DSL] Created element #{tag_name} outside DSL context - not registering"
       end
-      
-      # Register the element for later rendering instead of immediate buffer append
-      if dsl_context && self.is_a?(SwiftUIRails::DSLContext)
-        dsl_context.register_element(element)
-      end
-      
-      Rails.logger.debug "Created element: #{tag_name}, has_block: #{block_given?}, dsl_context: #{dsl_context.class.name if dsl_context}"
       
       element
     end

@@ -25,6 +25,9 @@ Rails.application.routes.draw do
   post "rails_first_demo/add_todo", to: "rails_first_demo#add_todo"
   delete "rails_first_demo/delete_todo/:id", to: "rails_first_demo#delete_todo", as: :delete_todo
   post "rails_first_demo/search", to: "rails_first_demo#search"
+  # Test routes
+  get "test_grid", to: "application#test_grid"
+  
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -37,6 +40,13 @@ Rails.application.routes.draw do
 
   # Component showcase routes
   get "counter", to: "home#counter", as: :counter
+  
+  # Product layout examples
+  resources :products, only: [:index] do
+    collection do
+      get :catalog
+    end
+  end
   
   # Defines the root path route ("/")
   root "home#index"

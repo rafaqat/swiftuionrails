@@ -47,22 +47,19 @@ module SwiftUIRails
           @swift_ui_block = block
           
           define_method :call do
-            # ViewComponent expects the call method to return the rendered content
-            # Execute the block in the component instance context
-            result = instance_eval(&self.class.instance_variable_get(:@swift_ui_block))
+            # Create a DSL context for proper element management
+            dsl_context = SwiftUIRails::DSLContext.new(self)
             
-            # If the result is an Element, make sure it has the view context
-            rendered_content = if defined?(SwiftUIRails::DSL::Element) && result.is_a?(SwiftUIRails::DSL::Element)
-              # Ensure the element has access to the view context (the component itself)
-              result.view_context = self
-              result.to_s.html_safe
-            elsif defined?(SwiftUIRails::DSL::SafeElement) && result.is_a?(SwiftUIRails::DSL::SafeElement)
-              result.to_s.html_safe
-            elsif result.respond_to?(:html_safe?)
-              result.html_safe
-            else
-              result
-            end
+            # Store component reference in the context
+            dsl_context.instance_variable_set(:@component, self)
+            
+            # Execute the block in the DSL context
+            # The block execution will automatically register elements via create_element
+            result = dsl_context.instance_eval(&self.class.instance_variable_get(:@swift_ui_block))
+            
+            # Don't double-register the result - it was already registered during creation
+            # Just flush all collected elements
+            rendered_content = dsl_context.flush_elements
             
             # Wrap with reactive container if enabled
             if respond_to?(:reactive_rendering_enabled) && reactive_rendering_enabled
@@ -332,15 +329,6 @@ module SwiftUIRails
         @needs_rerender || false
       end
 
-      # Helper methods that components can use
-      def div(**attrs, &block)
-        content_tag(:div, **attrs, &block)
-      end
-
-      def span(**attrs, &block)
-        content_tag(:span, **attrs, &block)
-      end
-      
       # Make DSL methods available in components
       include SwiftUIRails::DSL
       

@@ -1,80 +1,296 @@
 # frozen_string_literal: true
 
 class ProductLayoutComponent < ApplicationComponent
-  # Main props
-  prop :title, type: String, default: "Products"
+  # Main props - accepts Rails AR objects or hashes
   prop :products, type: Array, required: true
-  prop :columns, type: Hash, default: { base: 1, sm: 2, md: 3, lg: 4 }
-  prop :show_variants, type: [TrueClass, FalseClass], default: true
+  prop :title, type: String, default: "Products"
+  prop :columns, type: Integer, default: 4 # 1, 2, 3, 4, 6
+  prop :gap, type: Integer, default: 6
   
-  # Action handlers - passed in for flexibility
-  prop :on_product_click, type: Proc, default: nil
-  prop :on_add_to_cart, type: Proc, default: nil
-  prop :on_variant_select, type: Proc, default: nil
-  prop :on_quick_view, type: Proc, default: nil
+  # Filter options
+  prop :show_filters, type: [TrueClass, FalseClass], default: true
+  prop :filter_position, type: String, default: "top" # top, sidebar
+  prop :filterable_attributes, type: Array, default: [:price, :color, :category]
   
-  # Layout options
-  prop :card_style, type: Symbol, default: :standard # :standard, :compact, :detailed
-  prop :show_quick_actions, type: [TrueClass, FalseClass], default: true
-  prop :image_aspect_ratio, type: String, default: "square" # square, video, auto
+  # Product card options
+  prop :show_image, type: [TrueClass, FalseClass], default: true
+  prop :show_price, type: [TrueClass, FalseClass], default: true
+  prop :show_description, type: [TrueClass, FalseClass], default: false
+  prop :currency, type: String, default: "$"
+  prop :image_aspect, type: String, default: "square" # square, video, portrait
   
-  # Pre-render product cards outside of DSL context
-  def rendered_products
-    @rendered_products ||= products.map.with_index do |product, index|
-      render ProductCardComponent.new(
-        product: product,
-        card_style: card_style,
-        show_variants: show_variants,
-        show_quick_actions: show_quick_actions,
-        image_aspect_ratio: image_aspect_ratio,
-        on_click: on_product_click,
-        on_add_to_cart: on_add_to_cart,
-        on_variant_select: on_variant_select,
-        on_quick_view: on_quick_view,
-        index: index
-      )
+  # CTA options
+  prop :show_cta, type: [TrueClass, FalseClass], default: true
+  prop :cta_text, type: String, default: "Add to Cart"
+  prop :cta_style, type: String, default: "primary" # primary, secondary, outline
+  
+  # Sort options
+  prop :show_sort, type: [TrueClass, FalseClass], default: true
+  prop :sort_options, type: Array, default: [
+    { value: "popular", label: "Most Popular" },
+    { value: "newest", label: "Newest" },
+    { value: "price_asc", label: "Price: Low to High" },
+    { value: "price_desc", label: "Price: High to Low" }
+  ]
+  
+  swift_ui do
+    section.bg("gray-50").min_h("screen") do
+      div.max_w("7xl").mx("auto").px(4).py(8).add_class("sm:px-6 lg:px-8") do
+        # Header with title and sort
+        if title.present? || show_sort || header_actions?
+          hstack(alignment: :center).mb(8) do
+            if title.present?
+              vstack(alignment: :start, spacing: 2) do
+                text(title)
+                  .text_size("3xl")
+                  .font_weight("bold")
+                  .text_color("gray-900")
+                
+                text("#{products.count} items")
+                  .text_size("base")
+                  .text_color("gray-600")
+              end
+            end
+            
+            spacer
+            
+            # Sort dropdown
+            if show_sort
+              render_sort_dropdown
+            end
+            
+            # Custom header actions slot
+            if header_actions?
+              div.ml(4) { header_actions }
+            end
+          end
+        end
+        
+        # Main layout based on filter position
+        if show_filters && filter_position == "top"
+          # Top filters layout
+          vstack(spacing: 6) do
+            render_top_filters if filters?
+            # Inline the grid rendering to ensure it's in DSL context
+            grid(columns: columns, spacing: gap) do
+              products.each_with_index do |product, index|
+                Rails.logger.debug "Rendering product #{index}: #{product[:name]}"
+                
+                # Use the reusable DSL product card method
+                dsl_product_card(
+                  name: product_name(product),
+                  price: product_price(product),
+                  image_url: show_image ? product_image_url(product) : nil,
+                  variant: product[:variant] || product[:color],
+                  currency: currency,
+                  show_cta: show_cta,
+                  cta_text: cta_text,
+                  cta_style: cta_style
+                )
+              end
+            end
+          end
+        elsif show_filters && filter_position == "sidebar"
+          # Sidebar layout
+          hstack(spacing: 8, alignment: :start) do
+            # Filters sidebar
+            if filters?
+              div.w(64).flex_shrink(0) do
+                div.sticky.top(8) { filters }
+              end
+            end
+            
+            # Product grid
+            div.flex_1 do
+              # Inline the grid rendering to ensure it's in DSL context
+              grid(columns: columns, spacing: gap) do
+                products.each_with_index do |product, index|
+                  Rails.logger.debug "Rendering product #{index}: #{product[:name]}"
+                  
+                  # Create product card - each DSL method call needs to be properly chained
+                  card do
+                    # Product image container with DSL chaining
+                    if show_image && product_image_url(product)
+                      div do
+                        image(
+                          src: product_image_url(product),
+                          alt: product_name(product)
+                        )
+                      end.aspect_ratio(image_aspect).overflow("hidden").bg("gray-200")
+                    end
+                    
+                    # Product details using vstack DSL
+                    vstack(spacing: 2, alignment: :start) do
+                      # Product name with full DSL chaining
+                      text(product_name(product))
+                        .font_weight("semibold")
+                        .text_color("gray-900")
+                        .text_size("lg")
+                        .line_clamp(1)
+                      
+                      # Product variant/color with DSL chaining
+                      if product[:variant] || product[:color]
+                        text(product[:variant] || product[:color])
+                          .text_color("gray-600")
+                          .text_size("sm")
+                      end
+                      
+                      # Price with DSL chaining
+                      if show_price
+                        text("#{currency}#{product_price(product)}")
+                          .font_weight("bold")
+                          .text_color("gray-900")
+                          .text_size("xl")
+                          .mt(2)
+                      end
+                      
+                      # CTA button with full DSL chaining
+                      if show_cta
+                        button(cta_text)
+                          .w("full")
+                          .px(4).py(2)
+                          .mt(4)
+                          .bg("black")
+                          .text_color("white")
+                          .rounded("md")
+                          .hover("bg-gray-800")
+                          .transition
+                          .font_weight("medium")
+                      end
+                    end.p(4)
+                  end.bg("white").rounded("lg").shadow("md").overflow("hidden")
+                end
+              end
+            end
+          end
+        else
+          # No filters - just grid
+          # Need to wrap in a div to ensure the element is captured
+          div do
+            # Inline the grid rendering to ensure it's in DSL context
+            grid(columns: columns, spacing: gap) do
+              products.each_with_index do |product, index|
+                Rails.logger.debug "Rendering product #{index}: #{product[:name]}"
+                
+                # Use the reusable DSL product card method
+                dsl_product_card(
+                  name: product_name(product),
+                  price: product_price(product),
+                  image_url: show_image ? product_image_url(product) : nil,
+                  variant: product[:variant] || product[:color],
+                  currency: currency,
+                  show_cta: show_cta,
+                  cta_text: cta_text,
+                  cta_style: cta_style
+                )
+              end
+            end
+          end
+        end
+        
+        # Footer slot
+        if footer?
+          div.mt(12) { footer }
+        end
+      end
     end
   end
   
-  swift_ui do
-    create_element(:section, nil, {
-      class: "bg-white px-4 py-16 sm:px-6 sm:py-24 max-w-7xl mx-auto"
-    }) do
-      # Header
-      if title.present?
-        hstack.mb(6) do
-          text(title)
-            .text_size("2xl")
-            .font_weight("bold")
-            .tw("tracking-tight")
-            .text_color("gray-900")
-          
-          spacer
-          
-          # Optional slot for header actions
-          # TODO: Implement slots in DSL context
-          # render header_actions if header_actions?
+  private
+  
+  
+  def render_sort_dropdown
+    div.relative do
+      select_element
+        .block.w("full").pl(3).pr(10).py(2)
+        .text_size("base").border("gray-300").rounded("md")
+        .add_class("focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") do
+        sort_options.each do |option|
+          option_element(option[:label], value: option[:value])
         end
       end
-      
-      # Product Grid
-      create_element(:div, nil, {
-        class: "grid grid-cols-#{columns[:base]} sm:grid-cols-#{columns[:sm]} md:grid-cols-#{columns[:md]} lg:grid-cols-#{columns[:lg]} gap-6 lg:gap-x-8"
-      }) do
-        
-        # Insert pre-rendered product cards
-        rendered_products.each do |product_html|
-          text(product_html.to_s.html_safe)
-        end
-      end
-      
-      # Optional footer slot
-      # TODO: Implement slots in DSL context
-      # render footer if footer?
+    end
+  end
+  
+  def render_top_filters
+    div.bg("white").p(6).rounded("lg").shadow("sm").border.border_color("gray-200") do
+      filters
+    end
+  end
+  
+  def cta_button_classes
+    case cta_style
+    when "primary"
+      "bg-black text-white rounded-md hover:bg-gray-800 transition-colors font-medium"
+    when "secondary"
+      "bg-gray-200 text-gray-900 rounded-md hover:bg-gray-300 transition-colors font-medium"
+    when "outline"
+      "border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-900 hover:text-white transition-colors font-medium"
+    else
+      "bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+    end
+  end
+  
+  # Helper methods to extract data from product objects/hashes
+  def product_id(product)
+    product.respond_to?(:id) ? product.id : product[:id]
+  end
+  
+  def product_name(product)
+    if product.respond_to?(:name)
+      product.name
+    elsif product.respond_to?(:title)
+      product.title
+    else
+      product[:name] || product[:title] || "Untitled Product"
+    end
+  end
+  
+  def product_description(product)
+    if product.respond_to?(:description)
+      product.description
+    elsif product.respond_to?(:summary)
+      product.summary
+    else
+      product[:description] || product[:summary]
+    end
+  end
+  
+  def product_price(product)
+    if product.respond_to?(:price)
+      product.price
+    elsif product.respond_to?(:amount)
+      product.amount
+    else
+      product[:price] || product[:amount] || 0
+    end
+  end
+  
+  def product_image_url(product)
+    if product.respond_to?(:image_url)
+      product.image_url
+    elsif product.respond_to?(:image) && product.image.respond_to?(:url)
+      product.image.url
+    elsif product.respond_to?(:photo) && product.photo.attached?
+      # Active Storage support
+      rails_blob_url(product.photo)
+    else
+      product[:image_url] || product[:image] || product[:photo_url]
     end
   end
   
   # Slots for customization
-  slot :header_actions
-  slot :footer
+  renders_one :header_actions
+  renders_one :filters
+  renders_one :footer
+  renders_many :product_cards
+  
+  # Helper methods for DSL elements
+  def select_element(**attrs, &block)
+    create_element(:select, nil, attrs, &block)
+  end
+  
+  def option_element(text, **attrs)
+    create_element(:option, text, attrs)
+  end
 end
