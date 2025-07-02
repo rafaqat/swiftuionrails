@@ -494,6 +494,10 @@ module SwiftUIRails
         tw("col-span-#{count}", &block)
       end
       
+      def row_span(count, &block)
+        tw("row-span-#{count}", &block)
+      end
+      
       # Flexbox utilities
       def flex_grow(&block)
         tw("flex-grow", &block)

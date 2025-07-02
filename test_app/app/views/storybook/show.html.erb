@@ -356,7 +356,7 @@
         <!-- Component/Story Source Info -->
         <div class="bg-white rounded-lg shadow-md p-8 mt-6">
           <% # For DSL stories, show story source even if a component class exists %>
-          <% is_dsl_story = params[:story].start_with?('dsl_') || params[:story] == 'product_layout' %>
+          <% is_dsl_story = params[:story].start_with?('dsl_') || params[:story].include?('product_layout') %>
           <h2 class="text-lg font-semibold text-gray-900 mb-4"><%= is_dsl_story ? "DSL Story Source" : "Component Definition" %></h2>
           <div class="text-sm text-gray-700">
             <% if !is_dsl_story && @component_class %>
@@ -564,6 +564,89 @@ end %&gt;
     end
   end
 end %&gt;</code></pre>
+              <% when 'product_layout_simple' %>
+                <div class="mb-6">
+                  <p class="mb-3 font-medium">What is the Product Layout Simple DSL Story?</p>
+                  <p class="mb-4">The Product Layout Simple story demonstrates building product grids using pure SwiftUI Rails DSL. It shows how to use the reusable <code class="bg-gray-100 px-1 py-0.5 rounded">dsl_product_card</code> method for consistent product displays.</p>
+                  
+                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p class="text-blue-900 font-medium mb-2">Key Features:</p>
+                    <ul class="list-disc list-inside space-y-1 text-blue-800">
+                      <li>Dynamic grid layouts (2x, 3x, or 4x columns)</li>
+                      <li>Reusable <code class="bg-gray-100 px-1 py-0.5 rounded">dsl_product_card</code> method</li>
+                      <li>Product image, name, variant, and price display</li>
+                      <li>Add to Cart CTA button</li>
+                      <li>Filter section in the "with_filters" variant</li>
+                      <li>Sort dropdown in the "four_column_grid" variant</li>
+                      <li>Responsive design with Tailwind utilities</li>
+                    </ul>
+                  </div>
+                  
+                  <p class="mb-2 font-medium">Available Variants:</p>
+                  <ul class="list-disc list-inside space-y-1 text-gray-600 mb-4">
+                    <li><strong>default</strong> - 2-column grid with basic product display</li>
+                    <li><strong>with_filters</strong> - 3-column grid with filter buttons</li>
+                    <li><strong>four_column_grid</strong> - 4-column grid with sort dropdown</li>
+                  </ul>
+                </div>
+                <p class="mb-2 font-medium">Example usage in your ERB view:</p>
+                <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your Rails controller:
+@products = [
+  { name: "Basic Tee", variant: "Black", price: 35, image: "..." },
+  { name: "Nomad Tumbler", variant: "White", price: 35, image: "..." }
+]
+
+# In your ERB view:
+&lt;%= swift_ui do
+  section.bg("gray-50").min_h("screen") do
+    div.max_w("7xl").mx("auto").px(4).py(8) do
+      # Header
+      hstack(alignment: :center).mb(8) do
+        vstack(alignment: :start, spacing: 2) do
+          text("Product Catalog")
+            .text_size("3xl")
+            .font_weight("bold")
+            .text_color("gray-900")
+          
+          text("#{@products.count} items")
+            .text_size("base")
+            .text_color("gray-600")
+        end
+        spacer
+      end
+      
+      # Product grid using reusable DSL method
+      grid(columns: 3, spacing: 6) do
+        @products.each do |product|
+          dsl_product_card(
+            name: product[:name],
+            price: product[:price],
+            image_url: product[:image],
+            variant: product[:variant],
+            currency: "$",
+            show_cta: true,
+            cta_text: "Add to Cart",
+            cta_style: "primary"
+          )
+        end
+      end
+    end
+  end
+end %&gt;
+
+# Using the dsl_product_card method directly:
+&lt;%= swift_ui do
+  dsl_product_card(
+    name: "Premium Hoodie",
+    price: 89,
+    image_url: "/images/hoodie.jpg",
+    variant: "Navy Blue",
+    currency: "$",
+    show_cta: true,
+    cta_text: "Add to Cart",
+    cta_style: "outline"
+  )
+end %&gt;</code></pre>
               <% when 'product_layout' %>
                 <div class="mb-6">
                   <p class="mb-3 font-medium">What is the Product Layout DSL Story?</p>
@@ -657,6 +740,87 @@ end %&gt;</code></pre>
               text("Add to Cart")
             end
           end
+        end
+      end
+    end
+  end
+end %&gt;</code></pre>
+              <% when 'product_layout_simple' %>
+                <div class="mb-6">
+                  <p class="mb-3 font-medium">Pure DSL Product Layout</p>
+                  <p class="mb-4">This story demonstrates building product grids using only SwiftUI Rails DSL methods - no component classes required!</p>
+                  
+                  <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <p class="text-green-900 font-medium mb-2">DSL-First Features:</p>
+                    <ul class="list-disc list-inside space-y-1 text-green-800">
+                      <li>Uses <code class="bg-green-100 px-1 rounded">dsl_product_card</code> method for consistent cards</li>
+                      <li>Pure DSL composition with <code class="bg-green-100 px-1 rounded">grid</code>, <code class="bg-green-100 px-1 rounded">section</code>, <code class="bg-green-100 px-1 rounded">div</code></li>
+                      <li>Chainable modifiers for styling</li>
+                      <li>No backing component class needed</li>
+                    </ul>
+                  </div>
+                </div>
+                <p class="mb-2 font-medium">Example usage with dsl_product_card:</p>
+                <pre class="bg-gray-100 p-3 rounded overflow-x-auto"><code># In your ERB view:
+&lt;%= swift_ui do
+  section.bg("gray-50").min_h("screen") do
+    div.max_w("7xl").mx("auto").px(4).py(8) do
+      # Header
+      hstack(alignment: :center).mb(8) do
+        vstack(alignment: :start, spacing: 2) do
+          text("Our Products")
+            .text_size("3xl")
+            .font_weight("bold")
+            .text_color("gray-900")
+          
+          text("#{@products.count} items")
+            .text_size("base")
+            .text_color("gray-600")
+        end
+        spacer
+      end
+      
+      # Product grid using dsl_product_card
+      grid(columns: 4, spacing: 6) do
+        @products.each do |product|
+          dsl_product_card(
+            name: product[:name],
+            price: product[:price],
+            image_url: product[:image],
+            variant: product[:variant],
+            currency: "$",
+            show_cta: true,
+            cta_text: "Add to Cart",
+            cta_style: "primary"
+          )
+        end
+      end
+    end
+  end
+end %&gt;
+
+# Or with filters:
+&lt;%= swift_ui do
+  section.bg("gray-50") do
+    div.container.mx_auto.p(6) do
+      # Filters
+      div.bg("white").p(4).rounded("lg").shadow.mb(6) do
+        hstack(spacing: 4) do
+          text("Filter:").font_weight("medium")
+          button("All").px(3).py(1).bg("blue-500").text_color("white").rounded
+          button("On Sale").px(3).py(1).bg("gray-200").rounded
+        end
+      end
+      
+      # Product grid
+      grid(columns: 3, spacing: 4) do
+        @products.each do |product|
+          dsl_product_card(
+            name: product.name,
+            price: product.price,
+            image_url: product.image_url,
+            variant: product.color
+          )
         end
       end
     end

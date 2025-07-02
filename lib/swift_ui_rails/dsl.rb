@@ -29,8 +29,133 @@ module SwiftUIRails
     end
 
     def grid(columns: 2, spacing: 8, **attrs, &block)
-      attrs[:class] = class_names("grid", attrs[:class])
-      attrs[:class] += " grid-cols-#{columns} gap-#{spacing}"
+      Rails.logger.debug "DSL.grid called with columns: #{columns}, spacing: #{spacing}"
+      
+      # Extract e-commerce specific properties
+      row_gap = attrs.delete(:row_gap) || spacing
+      column_gap = attrs.delete(:column_gap) || spacing
+      responsive = attrs.delete(:responsive) { true }
+      min_item_width = attrs.delete(:min_item_width)
+      max_columns = attrs.delete(:max_columns) || columns
+      align = attrs.delete(:align) || :stretch
+      justify = attrs.delete(:justify) || :start
+      auto_rows = attrs.delete(:auto_rows)
+      auto_flow = attrs.delete(:auto_flow)
+      masonry = attrs.delete(:masonry) { false }
+      
+      Rails.logger.debug "DSL.grid min_item_width: #{min_item_width.inspect}"
+      
+      # Build base grid classes
+      grid_classes = ["grid"]
+      
+      # Handle responsive columns
+      if min_item_width
+        # Auto-fit grid with minimum item width takes precedence
+        grid_classes << "grid-cols-[repeat(auto-fit,minmax(#{min_item_width}px,1fr))]"
+      elsif columns.is_a?(Hash)
+        # Support responsive object like { base: 1, sm: 2, lg: 3 }
+        columns.each do |breakpoint, cols|
+          if breakpoint == :base
+            grid_classes << "grid-cols-#{cols}"
+          else
+            grid_classes << "#{breakpoint}:grid-cols-#{cols}"
+          end
+        end
+      elsif responsive && columns.is_a?(Integer)
+        case columns
+        when 1
+          grid_classes << "grid-cols-1"
+        when 2
+          grid_classes << "grid-cols-1 sm:grid-cols-2"
+        when 3
+          grid_classes << "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        when 4
+          grid_classes << "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        when 5
+          grid_classes << "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+        when 6
+          grid_classes << "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+        else
+          grid_classes << "grid-cols-#{columns}"
+        end
+      else
+        grid_classes << "grid-cols-#{columns}"
+      end
+      
+      # Handle gap/spacing
+      if row_gap == column_gap
+        grid_classes << "gap-#{spacing}"
+      else
+        grid_classes << "gap-x-#{column_gap}" if column_gap > 0
+        grid_classes << "gap-y-#{row_gap}" if row_gap > 0
+      end
+      
+      # Alignment and justification
+      case align
+      when :start
+        grid_classes << "items-start"
+      when :center
+        grid_classes << "items-center"
+      when :end
+        grid_classes << "items-end"
+      when :stretch
+        grid_classes << "items-stretch"
+      end
+      
+      case justify
+      when :start
+        grid_classes << "justify-start"
+      when :center
+        grid_classes << "justify-center"
+      when :end
+        grid_classes << "justify-end"
+      when :between
+        grid_classes << "justify-between"
+      when :around
+        grid_classes << "justify-around"
+      when :evenly
+        grid_classes << "justify-evenly"
+      end
+      
+      # Auto rows for consistent heights
+      if auto_rows
+        case auto_rows
+        when :min
+          grid_classes << "auto-rows-min"
+        when :max
+          grid_classes << "auto-rows-max"
+        when :fr
+          grid_classes << "auto-rows-fr"
+        else
+          grid_classes << "auto-rows-[#{auto_rows}]" if auto_rows.is_a?(String)
+        end
+      end
+      
+      # Auto flow for grid item placement
+      if auto_flow
+        case auto_flow
+        when :row
+          grid_classes << "grid-flow-row"
+        when :column
+          grid_classes << "grid-flow-col"
+        when :dense
+          grid_classes << "grid-flow-dense"
+        when :row_dense
+          grid_classes << "grid-flow-row-dense"
+        when :column_dense
+          grid_classes << "grid-flow-col-dense"
+        end
+      end
+      
+      # Masonry layout hint (requires CSS/JS support)
+      if masonry
+        attrs[:data] ||= {}
+        attrs[:data][:masonry] = "true"
+        grid_classes << "masonry-grid"
+      end
+      
+      attrs[:class] = class_names(grid_classes.join(" "), attrs[:class])
+      Rails.logger.debug "DSL.grid final class: #{attrs[:class]}"
       create_element(:div, nil, **attrs, &block)
     end
     
@@ -102,6 +227,15 @@ module SwiftUIRails
       end
       # Ensure we always return an Element instance for powerful chaining
       element
+    end
+    
+    # Form elements
+    def form(**attrs, &block)
+      create_element(:form, nil, **attrs, &block)
+    end
+    
+    def input(**attrs, &block)
+      create_element(:input, nil, **attrs, &block)
     end
 
     def link(title = nil, destination: "#", **attrs, &block)

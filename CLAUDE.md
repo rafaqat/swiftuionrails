@@ -1272,6 +1272,12 @@ The home page (`/`) demonstrates a clean implementation of our Rails-first archi
    - Complex DSL should be made to work, not replaced with simple ViewComponent patterns
    - NEVER use `render ComponentName.new()` in stories - use DSL blocks instead
    - Stories should include DSL helpers and use `swift_ui do...end` syntax
+   - **CREATE A HIERARCHY OF RICH COMPONENTS**: Build powerful, reusable components by composing smaller building blocks
+     - Start with base DSL primitives like `text`, `div`, `span`, `image` (just like SwiftUI's Text, View)
+     - Compose these into mid-level components like `button`, `card`, `list_item`
+     - Build rich, feature-complete components like `dsl_product_card`, `nav_bar`, `data_table`
+     - Each level adds functionality while maintaining composability
+     - Example hierarchy: `text` → `label` → `form_field` → `validated_form`
 
 3. **HEADLESS BROWSER FOR TESTING**
    - Use headless browser for all system tests going forward

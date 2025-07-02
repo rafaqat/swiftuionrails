@@ -3,7 +3,7 @@ class StorybookController < ApplicationController
   helper_method :tailwind_color_to_css
   def index
     # Only show DSL stories
-    dsl_stories = ["dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple"]
+    dsl_stories = ["dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple", "enhanced_grid", "auth_form", "simple_auth"]
     
     @stories = dsl_stories.map do |story_name|
       file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
@@ -14,6 +14,9 @@ class StorybookController < ApplicationController
       when "dsl_card" then "DSL Card"
       when "dsl_product_card" then "DSL Product Card"
       when "product_layout_simple" then "DSL Product List"
+      when "enhanced_grid" then "Enhanced Grid Layouts"
+      when "auth_form" then "Authentication Forms"
+      when "simple_auth" then "Simple Auth Forms"
       else story_name.titleize
       end
       
@@ -61,7 +64,7 @@ class StorybookController < ApplicationController
     # For DSL stories (like dsl_button), a backing component is not required
     # DSL stories create elements directly using the DSL, not components
     unless @component_class
-      if story_name.start_with?('dsl_') || story_name.include?('product_layout')
+      if story_name.start_with?('dsl_') || story_name.include?('product_layout') || story_name == 'enhanced_grid' || story_name == 'auth_form' || story_name == 'simple_auth'
         # DSL stories don't need backing components - they use pure DSL elements
         @component_class = nil
         @component_name = story_name
@@ -79,15 +82,15 @@ class StorybookController < ApplicationController
     parent_methods = ViewComponent::Storybook::Stories.instance_methods
     @available_stories = @story_instance.public_methods(false) - parent_methods
     
-    # Get the requested story variant
-    @story_variant = (params[:story_variant] || :default).to_sym
+    # Get the requested story variant (support both :variant and :story_variant params)
+    @story_variant = (params[:variant] || params[:story_variant] || :default).to_sym
     
     # Extract story configuration
     @story_config = extract_story_config(@story_class)
     @component_props = build_component_props(@story_config)
     
     # Read actual story source code for DSL stories
-    is_dsl_story = story_name.start_with?('dsl_') || story_name == 'product_layout'
+    is_dsl_story = story_name.start_with?('dsl_') || story_name.include?('product_layout') || story_name == 'enhanced_grid' || story_name == 'auth_form' || story_name == 'simple_auth'
     if is_dsl_story && @story_class
       story_file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
       if File.exist?(story_file)
@@ -135,7 +138,7 @@ class StorybookController < ApplicationController
     
     # For DSL stories (like dsl_button), a backing component is not required
     unless component_class
-      if story_name.start_with?('dsl_')
+      if story_name.start_with?('dsl_') || story_name.include?('product_layout') || story_name == 'enhanced_grid' || story_name == 'auth_form' || story_name == 'simple_auth'
         # DSL stories don't need backing components - they use pure DSL elements
         component_class = nil
       else

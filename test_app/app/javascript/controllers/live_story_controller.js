@@ -466,6 +466,8 @@ export default class extends Controller {
       return this.generateFullProductListDSL(props)
     } else if (storyName.includes('simple_button')) {
       return this.generateFullButtonDSL(props)
+    } else if (storyName.includes('product_layout_simple')) {
+      return this.generateProductLayoutSimpleDSL(props)
     } else {
       // Default chainable code
       const chainableCode = this.generateChainableCode(props)
@@ -617,6 +619,102 @@ end %>
       .text_align("center")
     end
     
+  end
+end %>`
+  }
+
+  generateProductLayoutSimpleDSL(props) {
+    // Since product_layout_simple doesn't have interactive controls,
+    // we'll show the full DSL pattern with the dsl_product_card method
+    return `# Product Layout using pure SwiftUI Rails DSL
+    
+# Sample products data:
+@products = [
+  { name: "Basic Tee", variant: "Black", price: 35, 
+    image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg" },
+  { name: "Nomad Tumbler", variant: "White", price: 35,
+    image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg" }
+]
+
+<%= swift_ui do
+  section.bg("gray-50").min_h("screen") do
+    div.max_w("7xl").mx("auto").px(4).py(8) do
+      # Header section
+      hstack(alignment: :center).mb(8) do
+        vstack(alignment: :start, spacing: 2) do
+          text("Product Catalog")
+            .text_size("3xl")
+            .font_weight("bold")
+            .text_color("gray-900")
+          
+          text("#{@products.count} items")
+            .text_size("base")
+            .text_color("gray-600")
+        end
+        spacer
+      end
+      
+      # Product grid with DSL cards
+      grid(columns: 3, spacing: 6) do
+        @products.each do |product|
+          # Using the reusable dsl_product_card method
+          dsl_product_card(
+            name: product[:name],
+            price: product[:price],
+            image_url: product[:image],
+            variant: product[:variant],
+            currency: "$",
+            show_cta: true,
+            cta_text: "Add to Cart",
+            cta_style: "primary"
+          )
+        end
+      end
+    end
+  end
+end %>
+
+# Alternative: Create product cards manually with full DSL control
+<%= swift_ui do
+  grid(columns: 2, spacing: 4) do
+    @products.each do |product|
+      card do
+        # Product image
+        div.aspect("square").overflow("hidden").rounded("md").bg("gray-200") do
+          image(src: product[:image], alt: product[:name])
+            .w("full").h("full").object_fit("cover")
+            .hover_scale(105).transition.duration(300)
+        end
+        
+        # Product details
+        vstack(spacing: 2, alignment: :start) do
+          text(product[:name])
+            .font_weight("semibold")
+            .text_color("gray-900")
+            .text_size("lg")
+            .line_clamp(1)
+          
+          text(product[:variant])
+            .text_color("gray-600")
+            .text_size("sm")
+          
+          text("$#{product[:price]}")
+            .font_weight("bold")
+            .text_color("gray-900")
+            .text_size("xl")
+            .mt(2)
+        end.mt(4)
+        
+        # CTA Button
+        button("Add to Cart")
+          .w("full").mt(4).px(4).py(2)
+          .bg("black").text_color("white")
+          .rounded("md").font_weight("medium")
+          .hover("bg-gray-800").transition
+      end
+      .p(6).bg("white").rounded("lg")
+      .shadow("md").overflow("hidden")
+    end
   end
 end %>`
   }

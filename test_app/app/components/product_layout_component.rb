@@ -72,6 +72,7 @@ class ProductLayoutComponent < ApplicationComponent
           vstack(spacing: 6) do
             render_top_filters if filters?
             # Inline the grid rendering to ensure it's in DSL context
+            Rails.logger.debug "ProductLayoutComponent: Calling grid with columns: #{columns}, gap: #{gap}"
             grid(columns: columns, spacing: gap) do
               products.each_with_index do |product, index|
                 Rails.logger.debug "Rendering product #{index}: #{product[:name]}"
@@ -168,6 +169,7 @@ class ProductLayoutComponent < ApplicationComponent
           # Need to wrap in a div to ensure the element is captured
           div do
             # Inline the grid rendering to ensure it's in DSL context
+            Rails.logger.debug "ProductLayoutComponent: Calling grid with columns: #{columns}, gap: #{gap}"
             grid(columns: columns, spacing: gap) do
               products.each_with_index do |product, index|
                 Rails.logger.debug "Rendering product #{index}: #{product[:name]}"
