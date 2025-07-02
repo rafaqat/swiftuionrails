@@ -598,7 +598,7 @@ Check out the `examples/` directory for complete sample applications:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/yourusername/swift_ui_rails.
+Bug reports and pull requests are welcome on GitHub at https://github.com/rafaqat/swift_ui_rails.
 
 ## License
 
