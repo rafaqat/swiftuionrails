@@ -54,6 +54,31 @@ module SwiftUIRails
         self
       end
 
+      def text_sm
+        add_class("text-sm")
+        self
+      end
+
+      def text_xs
+        add_class("text-xs")
+        self
+      end
+
+      def text_lg
+        add_class("text-lg")
+        self
+      end
+
+      def text_xl
+        add_class("text-xl")
+        self
+      end
+
+      def text_2xl
+        add_class("text-2xl")
+        self
+      end
+
       def font_weight(weight)
         add_class("font-#{weight}")
         self
@@ -62,6 +87,26 @@ module SwiftUIRails
       # Borders
       def border(width = nil)
         add_class(width ? "border-#{width}" : "border")
+        self
+      end
+
+      def border_t(width = nil)
+        add_class(width ? "border-t-#{width}" : "border-t")
+        self
+      end
+
+      def border_b(width = nil)
+        add_class(width ? "border-b-#{width}" : "border-b")
+        self
+      end
+
+      def border_l(width = nil)
+        add_class(width ? "border-l-#{width}" : "border-l")
+        self
+      end
+
+      def border_r(width = nil)
+        add_class(width ? "border-r-#{width}" : "border-r")
         self
       end
 
@@ -75,9 +120,19 @@ module SwiftUIRails
         self
       end
 
+      def rounded_full
+        add_class("rounded-full")
+        self
+      end
+
       # Effects
       def shadow(size = nil)
         add_class(size ? "shadow-#{size}" : "shadow")
+        self
+      end
+
+      def hover_shadow(size)
+        add_class("hover:shadow-#{size}")
         self
       end
 
@@ -142,6 +197,16 @@ module SwiftUIRails
         self
       end
 
+      def inset_x(value)
+        add_class("inset-x-#{value}")
+        self
+      end
+
+      def inset_y(value)
+        add_class("inset-y-#{value}")
+        self
+      end
+
       def top(value)
         add_class("top-#{value}")
         self
@@ -201,6 +266,16 @@ module SwiftUIRails
         self
       end
 
+      def flex_col
+        add_class("flex-col")
+        self
+      end
+
+      def flex_row
+        add_class("flex-row")
+        self
+      end
+
       def items_center
         add_class("items-center")
         self
@@ -252,8 +327,21 @@ module SwiftUIRails
         self
       end
 
-      # Grid - Removed grid() to avoid conflict with DSL grid method
-      # Use .add_class("grid") if you need the CSS class
+      def space_x(value)
+        add_class("space-x-#{value}")
+        self
+      end
+
+      def space_y(value)
+        add_class("space-y-#{value}")
+        self
+      end
+
+      # Grid utilities
+      def grid_class
+        add_class("grid")
+        self
+      end
       
       def grid_cols(value)
         add_class("grid-cols-#{value}")
@@ -266,14 +354,34 @@ module SwiftUIRails
         self
       end
 
+      def transition_all
+        add_class("transition-all")
+        self
+      end
+
+      def transition_colors
+        add_class("transition-colors")
+        self
+      end
+
       def duration(value)
         add_class("duration-#{value}")
         self
       end
 
       # Transform
+      def transform
+        add_class("transform")
+        self
+      end
+
       def scale(value)
         add_class("scale-#{value}")
+        self
+      end
+
+      def hover_scale(value)
+        add_class("hover:scale-#{value}")
         self
       end
 
@@ -281,6 +389,16 @@ module SwiftUIRails
         classes.split(' ').each do |cls|
           add_class("hover:#{cls}")
         end
+        self
+      end
+
+      def hover_bg(color)
+        add_class("hover:bg-#{color}")
+        self
+      end
+
+      def hover_text_color(color)
+        add_class("hover:text-#{color}")
         self
       end
       
@@ -295,6 +413,37 @@ module SwiftUIRails
         classes.split(' ').each do |cls|
           add_class("focus:#{cls}")
         end
+        self
+      end
+
+      # Focus utilities
+      def focus_ring(width = nil)
+        add_class(width ? "focus:ring-#{width}" : "focus:ring")
+        self
+      end
+
+      def focus_ring_color(color)
+        add_class("focus:ring-#{color}")
+        self
+      end
+
+      def focus_ring_offset(width)
+        add_class("focus:ring-offset-#{width}")
+        self
+      end
+
+      def focus_ring_offset_color(color)
+        add_class("focus:ring-offset-#{color}")
+        self
+      end
+
+      def focus_border_color(color)
+        add_class("focus:border-#{color}")
+        self
+      end
+
+      def focus_outline_none
+        add_class("focus:outline-none")
         self
       end
 
@@ -334,9 +483,24 @@ module SwiftUIRails
         self
       end
 
-      # Cursor
+      # Cursor and pointer events
       def cursor(type)
         add_class("cursor-#{type}")
+        self
+      end
+
+      def cursor_pointer
+        add_class("cursor-pointer")
+        self
+      end
+
+      def pointer_events_none
+        add_class("pointer-events-none")
+        self
+      end
+
+      def pointer_events_auto
+        add_class("pointer-events-auto")
         self
       end
 
@@ -391,9 +555,29 @@ module SwiftUIRails
         self
       end
 
-      # Backgrounds
+      # Backgrounds and gradients
       def bg_gradient_to(direction)
         add_class("bg-gradient-to-#{direction}")
+        self
+      end
+
+      def bg_gradient_to_r
+        add_class("bg-gradient-to-r")
+        self
+      end
+
+      def bg_gradient_to_l
+        add_class("bg-gradient-to-l")
+        self
+      end
+
+      def bg_gradient_to_t
+        add_class("bg-gradient-to-t")
+        self
+      end
+
+      def bg_gradient_to_b
+        add_class("bg-gradient-to-b")
         self
       end
 

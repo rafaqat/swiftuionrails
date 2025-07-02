@@ -99,14 +99,14 @@ class AuthFormStories < ViewComponent::Storybook::Stories
   # Login form using DSL directly (without component)
   def pure_dsl_login(**kwargs)
     swift_ui do
-      div.flex.tw("min-h-full flex-col").justify_center.px(6).py(12).tw("lg:px-8").bg("gray-50") do
+      div.flex.min_h("full").flex_col.justify_center.px(6).py(12).lg("px-8").bg("gray-50") do
         # Logo section with animation
-        div.tw("sm:mx-auto sm:w-full sm:max-w-sm") do
-          div.tw("mx-auto").h(12).w(12).tw("rounded-full").bg("indigo-600").flex.items_center.justify_center do
+        div.sm("mx-auto w-full max-w-sm") do
+          div.mx("auto").h(12).w(12).rounded_full.bg("indigo-600").flex.items_center.justify_center do
             text("S").text_size("2xl").font_weight("bold").text_color("white")
           end
           
-          h2.mt(10).text_center.text_size("2xl").tw("leading-9").font_weight("bold").tw("tracking-tight").text_color("gray-900") do
+          h2.mt(10).text_center.text_size("2xl").leading("9").font_weight("bold").tracking("tight").text_color("gray-900") do
             text("Welcome back")
           end
           p.mt(2).text_center.text_size("sm").text_color("gray-600") do
@@ -115,16 +115,16 @@ class AuthFormStories < ViewComponent::Storybook::Stories
         end
         
         # Card container
-        div.mt(10).tw("sm:mx-auto sm:w-full sm:max-w-sm") do
-          div.bg("white").py(8).px(4).shadow.rounded("lg").tw("sm:px-10") do
-            form(action: "/login", method: "POST").tw("space-y-6") do
+        div.mt(10).sm("mx-auto w-full max-w-sm") do
+          div.bg("white").py(8).px(4).shadow.rounded("lg").sm("px-10") do
+            form(action: "/login", method: "POST").space_y(6) do
               # Email with icon
               div do
                 label(for: "email").block.text_size("sm").font_weight("medium").text_color("gray-700") do
                   text("Email")
                 end
                 div.mt(1).relative.rounded("md").shadow("sm") do
-                  div.absolute.tw("inset-y-0").left(0).pl(3).flex.items_center.pointer_events_none do
+                  div.absolute.inset_y(0).left(0).pl(3).flex.items_center.pointer_events_none do
                     # Email icon
                     text("✉️").text_color("gray-400")
                   end
@@ -134,8 +134,8 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     id: "email",
                     placeholder: "you@example.com",
                     required: true
-                  ).block.w_full.pl(10).tw("sm:text-sm").border_color("gray-300").rounded("md")
-                   .tw("focus:ring-indigo-500 focus:border-indigo-500")
+                  ).block.w_full.pl(10).sm("text-sm").border_color("gray-300").rounded("md")
+                   .focus_ring_color("indigo-500").focus_border_color("indigo-500")
                 end
               end
               
@@ -145,7 +145,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   text("Password")
                 end
                 div.mt(1).relative.rounded("md").shadow("sm") do
-                  div.absolute.tw("inset-y-0").left(0).pl(3).flex.items_center.pointer_events_none do
+                  div.absolute.inset_y(0).left(0).pl(3).flex.items_center.pointer_events_none do
                     # Lock icon
                     text("🔒").text_color("gray-400")
                   end
@@ -155,8 +155,8 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     id: "password",
                     placeholder: "••••••••",
                     required: true
-                  ).block.w_full.pl(10).tw("sm:text-sm").border_color("gray-300").rounded("md")
-                   .tw("focus:ring-indigo-500 focus:border-indigo-500")
+                  ).block.w_full.pl(10).sm("text-sm").border_color("gray-300").rounded("md")
+                   .focus_ring_color("indigo-500").focus_border_color("indigo-500")
                 end
               end
               
@@ -167,7 +167,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     type: "checkbox",
                     name: "remember_me",
                     id: "remember_me"
-                  ).h(4).w(4).text_color("indigo-600").tw("focus:ring-indigo-500")
+                  ).h(4).w(4).text_color("indigo-600").focus_ring_color("indigo-500")
                    .border_color("gray-300").rounded
                   label(for: "remember_me").ml(2).block.text_size("sm").text_color("gray-900") do
                     text("Remember me")
@@ -187,7 +187,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                 button("Sign in", type: "submit")
                   .flex.w_full.justify_center
                   .rounded("md")
-                  .bg("gradient-to-r from-indigo-500 to-purple-600")
+                  .bg_gradient_to_r.from("indigo-500").to("purple-600")
                   .px(4).py(2)
                   .text_size("sm").font_weight("medium")
                   .text_color("white")
@@ -195,16 +195,16 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   .hover_shadow("lg")
                   .transform.transition_all.duration("200")
                   .hover_scale("105")
-                  .tw("focus:outline-none")
-                  .tw("focus:ring-2")
-                  .tw("focus:ring-offset-2")
-                  .tw("focus:ring-indigo-500")
+                  .focus_outline_none
+                  .focus_ring("2")
+                  .focus_ring_offset("2")
+                  .focus_ring_color("indigo-500")
               end
               
               # Divider
               div.mt(6) do
                 div.relative do
-                  div.absolute.tw("inset-0").flex.items_center do
+                  div.absolute.inset(0).flex.items_center do
                     div.w_full.border_t.border_color("gray-300")
                   end
                   div.relative.flex.justify_center.text_size("sm") do
@@ -216,10 +216,10 @@ class AuthFormStories < ViewComponent::Storybook::Stories
               end
               
               # Social login buttons
-              div.mt(6).tw("grid grid-cols-2 gap-3") do
+              div.mt(6).grid_class.grid_cols(2).gap(3) do
                 button(type: "button")
                   .flex.w_full.justify_center
-                  .items_center.tw("gap-2")
+                  .items_center.gap(2)
                   .rounded("md")
                   .bg("white")
                   .px(4).py(2)
@@ -233,7 +233,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                 
                 button(type: "button")
                   .flex.w_full.justify_center
-                  .items_center.tw("gap-2")
+                  .items_center.gap(2)
                   .rounded("md")
                   .bg("white")
                   .px(4).py(2)
