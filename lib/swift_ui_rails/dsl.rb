@@ -741,8 +741,28 @@ module SwiftUIRails
       create_element(:a, nil, **attrs, &block)
     end
     
+    def h1(**attrs, &block)
+      create_element(:h1, nil, **attrs, &block)
+    end
+    
+    def h2(**attrs, &block)
+      create_element(:h2, nil, **attrs, &block)
+    end
+    
     def h3(**attrs, &block)
       create_element(:h3, nil, **attrs, &block)
+    end
+    
+    def h4(**attrs, &block)
+      create_element(:h4, nil, **attrs, &block)
+    end
+    
+    def h5(**attrs, &block)
+      create_element(:h5, nil, **attrs, &block)
+    end
+    
+    def h6(**attrs, &block)
+      create_element(:h6, nil, **attrs, &block)
     end
     
     def p(**attrs, &block)
