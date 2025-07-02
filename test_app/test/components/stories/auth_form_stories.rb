@@ -124,7 +124,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   text("Email")
                 end
                 div.mt(1).relative.rounded("md").shadow("sm") do
-                  div.absolute.inset_y(0).left(0).pl(3).flex.items_center.pointer_events_none do
+                  div.absolute.tw("inset-y-0").left(0).pl(3).flex.items_center.pointer_events_none do
                     # Email icon
                     text("✉️").text_color("gray-400")
                   end
@@ -135,7 +135,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     placeholder: "you@example.com",
                     required: true
                   ).block.w_full.pl(10).tw("sm:text-sm").border_color("gray-300").rounded("md")
-                   .focus_ring_color("indigo-500").focus_border_color("indigo-500")
+                   .tw("focus:ring-indigo-500 focus:border-indigo-500")
                 end
               end
               
@@ -145,7 +145,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   text("Password")
                 end
                 div.mt(1).relative.rounded("md").shadow("sm") do
-                  div.absolute.inset_y(0).left(0).pl(3).flex.items_center.pointer_events_none do
+                  div.absolute.tw("inset-y-0").left(0).pl(3).flex.items_center.pointer_events_none do
                     # Lock icon
                     text("🔒").text_color("gray-400")
                   end
@@ -156,7 +156,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     placeholder: "••••••••",
                     required: true
                   ).block.w_full.pl(10).tw("sm:text-sm").border_color("gray-300").rounded("md")
-                   .focus_ring_color("indigo-500").focus_border_color("indigo-500")
+                   .tw("focus:ring-indigo-500 focus:border-indigo-500")
                 end
               end
               
@@ -167,7 +167,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     type: "checkbox",
                     name: "remember_me",
                     id: "remember_me"
-                  ).h(4).w(4).text_color("indigo-600").focus_ring_color("indigo-500")
+                  ).h(4).w(4).text_color("indigo-600").tw("focus:ring-indigo-500")
                    .border_color("gray-300").rounded
                   label(for: "remember_me").ml(2).block.text_size("sm").text_color("gray-900") do
                     text("Remember me")
@@ -195,16 +195,16 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   .hover_shadow("lg")
                   .transform.transition_all.duration("200")
                   .hover_scale("105")
-                  .focus_outline_none
-                  .focus_ring("2")
-                  .focus_ring_offset("2")
-                  .focus_ring_color("indigo-500")
+                  .tw("focus:outline-none")
+                  .tw("focus:ring-2")
+                  .tw("focus:ring-offset-2")
+                  .tw("focus:ring-indigo-500")
               end
               
               # Divider
               div.mt(6) do
                 div.relative do
-                  div.absolute.inset(0).flex.items_center do
+                  div.absolute.tw("inset-0").flex.items_center do
                     div.w_full.border_t.border_color("gray-300")
                   end
                   div.relative.flex.justify_center.text_size("sm") do
@@ -216,10 +216,10 @@ class AuthFormStories < ViewComponent::Storybook::Stories
               end
               
               # Social login buttons
-              div.mt(6).grid.grid_cols(2).gap(3) do
+              div.mt(6).tw("grid grid-cols-2 gap-3") do
                 button(type: "button")
                   .flex.w_full.justify_center
-                  .items_center.gap(2)
+                  .items_center.tw("gap-2")
                   .rounded("md")
                   .bg("white")
                   .px(4).py(2)
@@ -233,7 +233,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                 
                 button(type: "button")
                   .flex.w_full.justify_center
-                  .items_center.gap(2)
+                  .items_center.tw("gap-2")
                   .rounded("md")
                   .bg("white")
                   .px(4).py(2)
