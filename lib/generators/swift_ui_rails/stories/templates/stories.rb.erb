@@ -1,0 +1,96 @@
+# frozen_string_literal: true
+
+class <%= component_class_name %>Stories < SwiftUIRails::Storybook::Stories
+  include SwiftUIRails::Storybook::Layouts
+  include SwiftUIRails::Storybook::Previews
+  include SwiftUIRails::Storybook::Documentation
+  
+  # Documentation story
+  story :docs do
+    component <%= component_class_name %>
+    
+    controls do
+<% component_props.each do |name, config| -%>
+<% if config[:type] == Symbol -%>
+      swift_select :<%= name %>, 
+        options: [:default, :primary, :secondary], 
+        default: <%= default_prop_value(config) %>
+<% elsif [TrueClass, FalseClass, "[TrueClass, FalseClass]"].include?(config[:type]&.to_s) -%>
+      swift_boolean :<%= name %>, default: <%= default_prop_value(config) %>
+<% elsif config[:type] == Integer || config[:type] == Float -%>
+      swift_number :<%= name %>, default: <%= default_prop_value(config) %>
+<% elsif config[:type] == Array -%>
+      swift_array :<%= name %>, default: <%= default_prop_value(config) %>
+<% elsif config[:type] == Hash -%>
+      swift_object :<%= name %>, default: <%= default_prop_value(config) %>
+<% else -%>
+      swift_text :<%= name %>, default: <%= default_prop_value(config) %>
+<% end -%>
+<% end -%>
+    end
+  end
+  
+<% story_names.each do |story_name| -%>
+  # <%= story_name.humanize %> story
+  story :<%= story_name %> do
+    component <%= component_class_name %>
+    
+    controls do
+<% component_props.each do |name, config| -%>
+<% next unless config[:required] || story_name == "playground" -%>
+<% if config[:type] == Symbol -%>
+      swift_select :<%= name %>, 
+        options: [:default, :primary, :secondary], 
+        default: <%= default_prop_value(config) %>
+<% elsif [TrueClass, FalseClass, "[TrueClass, FalseClass]"].include?(config[:type]&.to_s) -%>
+      swift_boolean :<%= name %>, default: <%= default_prop_value(config) %>
+<% elsif config[:type] == Integer || config[:type] == Float -%>
+      swift_number :<%= name %>, default: <%= default_prop_value(config) %>
+<% else -%>
+      swift_text :<%= name %>, default: <%= default_prop_value(config) %>
+<% end -%>
+<% end -%>
+    end
+  end
+  
+<% end -%>
+  # Layout variations
+  story :layout_examples do
+    component <%= component_class_name %>
+    
+    controls do
+      # Add minimal controls for layout demonstration
+<% component_props.select { |_, c| c[:required] }.each do |name, config| -%>
+      swift_text :<%= name %>, default: <%= default_prop_value(config) %>
+<% end -%>
+    end
+    
+    layout :layout_examples
+  end
+  
+  # Responsive preview
+  story :responsive do
+    component <%= component_class_name %>
+    
+    controls do
+<% component_props.select { |_, c| c[:required] }.each do |name, config| -%>
+      swift_text :<%= name %>, default: <%= default_prop_value(config) %>
+<% end -%>
+    end
+    
+    layout :responsive
+  end
+  
+  # Theme variations
+  story :themes do
+    component <%= component_class_name %>
+    
+    controls do
+<% component_props.select { |_, c| c[:required] }.each do |name, config| -%>
+      swift_text :<%= name %>, default: <%= default_prop_value(config) %>
+<% end -%>
+    end
+    
+    layout :themes
+  end
+end

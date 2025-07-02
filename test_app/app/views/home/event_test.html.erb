@@ -1,0 +1,24 @@
+<h1>Event Handler Test</h1>
+
+<%= swift_ui do
+  vstack(spacing: 4) do
+    text("Click the button below").font_size("lg")
+    
+    button("Click me!")
+      .on_tap { puts "Button clicked!" }
+      .bg("blue-500")
+      .text_color("white")
+      .px(4)
+      .py(2)
+      .rounded("lg")
+      
+    text("Hover over me")
+      .on_hover { puts "Hovered!" }
+      .p(4)
+      .bg("gray-100")
+      .rounded
+  end
+end %>
+
+<h2>Counter Component with Events</h2>
+<%= render CounterComponent.new(initial_count: 0, label: "Test Counter") %>
