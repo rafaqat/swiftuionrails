@@ -217,6 +217,39 @@ module SwiftUIRails
         tw("hidden")
       end
       
+      # Border utilities
+      def border_b(width = nil)
+        if width
+          tw("border-b-#{width}")
+        else
+          tw("border-b")
+        end
+      end
+      
+      def border_t(width = nil)
+        if width
+          tw("border-t-#{width}")
+        else
+          tw("border-t")
+        end
+      end
+      
+      def border_l(width = nil)
+        if width
+          tw("border-l-#{width}")
+        else
+          tw("border-l")
+        end
+      end
+      
+      def border_r(width = nil)
+        if width
+          tw("border-r-#{width}")
+        else
+          tw("border-r")
+        end
+      end
+      
       # Shadow utilities
       def shadow(size = "")
         tw(size.empty? ? "shadow" : "shadow-#{size}")
@@ -870,7 +903,31 @@ module SwiftUIRails
           else
             # No DSL context - render block directly
             # This happens for elements created outside the DSL
-            content = @view_context.capture(&@block)
+            # We need to capture the result properly
+            if @view_context.respond_to?(:capture)
+              content = @view_context.capture do
+                # Execute the block and collect any returned elements
+                result = @block.call
+                # If the result is an array of elements, join them
+                if result.is_a?(Array)
+                  result.map(&:to_s).join.html_safe
+                elsif result.respond_to?(:to_s)
+                  result.to_s.html_safe
+                else
+                  ""
+                end
+              end
+            else
+              # Fallback if capture is not available
+              result = @block.call
+              content = if result.is_a?(Array)
+                result.map(&:to_s).join.html_safe
+              elsif result.respond_to?(:to_s)
+                result.to_s.html_safe
+              else
+                ""
+              end
+            end
           end
           
           @view_context.content_tag(@tag_name, (content || "").to_s.html_safe, @options)

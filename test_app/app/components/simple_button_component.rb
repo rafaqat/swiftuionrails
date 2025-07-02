@@ -67,7 +67,7 @@ class SimpleButtonComponent < SwiftUIRails::Component::Base
     counter = simple_button_counter || collection_counter
     
     # Check if we have any ViewComponent 2.0 slots to render
-    has_slots = icon || loading_state || counter
+    has_slots = icon? || loading_state? || counter
     
     if has_slots
       button(

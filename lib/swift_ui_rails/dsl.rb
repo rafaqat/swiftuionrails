@@ -13,14 +13,80 @@ module SwiftUIRails
       attrs[:class] = class_names("flex flex-col", attrs[:class])
       attrs[:class] += " items-#{alignment_class(alignment)}"
       attrs[:class] += " space-y-#{spacing}" if spacing > 0
-      create_element(:div, nil, **attrs, &block)
+      
+      # Create element with special handling for collecting children
+      element = create_element(:div, nil, **attrs) do
+        if block_given?
+          # If we're in a DSL context, the block will be handled properly
+          # If not, we need to collect all elements created in the block
+          if self.is_a?(SwiftUIRails::DSLContext)
+            instance_eval(&block)
+          else
+            # Outside DSL context - collect all elements
+            elements = []
+            # Temporarily override create_element to collect elements
+            original_create = method(:create_element)
+            define_singleton_method(:create_element) do |*args, &inner_block|
+              elem = original_create.call(*args, &inner_block)
+              elements << elem
+              elem
+            end
+            
+            # Execute the block
+            instance_eval(&block)
+            
+            # Restore original method
+            define_singleton_method(:create_element, original_create)
+            
+            # Return all collected elements
+            elements
+          end
+        end
+      end
+      
+      element
     end
 
     def hstack(alignment: :center, spacing: 8, **attrs, &block)
       attrs[:class] = class_names("flex flex-row", attrs[:class])
       attrs[:class] += " items-#{alignment_class(alignment)}"
       attrs[:class] += " space-x-#{spacing}" if spacing > 0
-      create_element(:div, nil, **attrs, &block)
+      
+      # Create element with special handling for collecting children
+      element = create_element(:div, nil, **attrs) do
+        if block_given?
+          # If we're in a DSL context, the block will be handled properly
+          # If not, we need to collect all elements created in the block
+          if self.is_a?(SwiftUIRails::DSLContext)
+            instance_eval(&block)
+          else
+            # Outside DSL context - collect all elements
+            elements = []
+            # Temporarily override create_element to collect elements
+            original_create = method(:create_element)
+            define_singleton_method(:create_element) do |*args, &inner_block|
+              elem = original_create.call(*args, &inner_block)
+              elements << elem
+              elem
+            end
+            
+            # Execute the block
+            result = instance_eval(&block)
+            
+            # Restore original method
+            define_singleton_method(:create_element, original_create)
+            
+            # Return all collected elements or the block result if it's an array
+            if result.is_a?(Array)
+              result
+            else
+              elements
+            end
+          end
+        end
+      end
+      
+      element
     end
 
     def zstack(**attrs, &block)
@@ -347,6 +413,70 @@ module SwiftUIRails
       .merge_attributes(attrs)
     end
     
+    # Product list DSL method - renders ProductListComponent with DSL chaining
+    def product_list(products:, **attrs)
+      # Extract component props from attrs
+      columns = attrs.delete(:columns)
+      
+      # Convert integer columns to symbol
+      if columns.is_a?(Integer)
+        columns = case columns
+        when 1 then :one
+        when 2 then :two
+        when 3 then :three
+        when 4 then :four
+        when 5 then :five
+        when 6 then :six
+        else :auto
+        end
+      end
+      
+      component_props = {
+        products: products,
+        title: attrs.delete(:title),
+        columns: columns,
+        gap: attrs.delete(:gap),
+        background_color: attrs.delete(:background_color),
+        title_size: attrs.delete(:title_size),
+        title_color: attrs.delete(:title_color),
+        container_padding: attrs.delete(:container_padding),
+        max_width: attrs.delete(:max_width),
+        image_aspect: attrs.delete(:image_aspect),
+        show_colors: attrs.delete(:show_colors),
+        currency_symbol: attrs.delete(:currency_symbol)
+      }.compact
+      
+      # Create a wrapper element that can be chained
+      create_element(:div, nil, **attrs) do
+        if defined?(::ProductListComponent) && view_context.respond_to?(:render)
+          view_context.render(::ProductListComponent.new(**component_props))
+        else
+          # Fallback for testing or when component not available
+          # Render a simple product grid using pure DSL
+          # Convert symbol columns back to integer for grid
+          grid_columns = case columns
+          when :one then 1
+          when :two then 2
+          when :three then 3
+          when :four then 4
+          when :five then 5
+          when :six then 6
+          else 4
+          end
+          
+          grid(columns: grid_columns, spacing: component_props[:gap]&.to_i || 6) do
+            products.each do |product|
+              # Simplified product card for performance testing
+              div.p(4).bg("white").rounded("lg").shadow("md") do
+                text(product[:name] || product["name"] || "Product").font_weight("semibold")
+                text("#{component_props[:currency_symbol] || "$"}#{product[:price] || product["price"] || 0}").font_weight("bold")
+              end
+            end
+          end
+        end
+      end
+    end
+    
     # E-commerce Components with ViewComponent 2.0 Collection Optimization
     # Generic list method - composition-based approach
     def list(items:, **attrs, &block)
@@ -435,9 +565,81 @@ module SwiftUIRails
 
     # Container Components - Simplified for composition
     def card(**attrs, &block)
+      # Extract slot attributes
+      header_slot = attrs.delete(:header)
+      content_slot = attrs.delete(:content)
+      actions_slot = attrs.delete(:actions)
+      elevation = attrs.delete(:elevation) || 1
+      
+      # Apply elevation shadow
+      shadow_class = case elevation
+      when 0 then ""
+      when 1 then "shadow"
+      when 2 then "shadow-md"
+      when 3 then "shadow-lg"
+      when 4 then "shadow-xl"
+      else "shadow-2xl"
+      end
+      
       # Simple card container - just structure and styling
-      attrs[:class] = class_names("rounded-lg shadow-md", attrs[:class])
-      create_element(:div, nil, **attrs, &block)
+      attrs[:class] = class_names("rounded-lg", shadow_class, attrs[:class])
+      
+      # For slots, we need to ensure they render properly
+      if header_slot || content_slot || actions_slot
+        # Build content array first
+        content_parts = []
+        
+        if header_slot
+          header_content = if header_slot.is_a?(Proc)
+            result = instance_eval(&header_slot)
+            result.respond_to?(:to_s) ? result.to_s : ""
+          else
+            header_slot.to_s
+          end
+          content_parts << create_element(:div, header_content.html_safe, class: "p-4 border-b")
+        end
+        
+        if content_slot
+          content_content = if content_slot.is_a?(Proc)
+            result = instance_eval(&content_slot)
+            result.respond_to?(:to_s) ? result.to_s : ""
+          else
+            content_slot.to_s
+          end
+          content_parts << create_element(:div, content_content.html_safe, class: "p-4")
+        end
+        
+        if actions_slot
+          actions_content = if actions_slot.is_a?(Array)
+            create_element(:div, nil, class: "flex flex-row items-center space-x-2") do
+              actions_slot.map do |action|
+                if action.is_a?(Proc)
+                  result = instance_eval(&action)
+                  result.respond_to?(:to_s) ? result : ""
+                else
+                  action
+                end
+              end
+            end.to_s
+          else
+            if actions_slot.is_a?(Proc)
+              result = instance_eval(&actions_slot)
+              result.respond_to?(:to_s) ? result.to_s : ""
+            else
+              actions_slot.to_s
+            end
+          end
+          content_parts << create_element(:div, actions_content.html_safe, class: "p-4 border-t")
+        end
+        
+        # Return the element with all content parts
+        create_element(:div, nil, **attrs) do
+          content_parts
+        end
+      else
+        # No slots - use normal block handling
+        create_element(:div, nil, **attrs, &block)
+      end
     end
     
     def card_header(**attrs, &block)

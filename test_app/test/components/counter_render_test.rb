@@ -28,15 +28,24 @@ class CounterRenderTest < ActiveSupport::TestCase
     assert_match(/data-counter-target=["']incrementBtn["']/, output)
     assert_match(/data-counter-target=["']decrementBtn["']/, output)
     
-    # Check for Stimulus actions (HTML escaped)
-    assert_match(/data-action=["']click-&gt;counter#increment["']/, output)
-    assert_match(/data-action=["']click-&gt;counter#decrement["']/, output)
-    assert_match(/data-action=["']click-&gt;counter#reset["']/, output)
+    # Check for Stimulus actions (may be escaped in HTML)
+    assert(output.include?('data-action="click->counter#increment"') || output.include?('data-action="click-&gt;counter#increment"'), 
+           "Should contain increment action")
+    assert(output.include?('data-action="click->counter#decrement"') || output.include?('data-action="click-&gt;counter#decrement"'), 
+           "Should contain decrement action")
+    assert(output.include?('data-action="click->counter#reset"') || output.include?('data-action="click-&gt;counter#reset"'), 
+           "Should contain reset action")
   end
   
   test "DSL div method properly handles data attributes" do
+    # Create a view context for testing
+    view_context = ApplicationController.new.view_context
+    
+    # Create a DSL context with the view context
+    dsl_context = SwiftUIRails::DSLContext.new(view_context)
+    
     # Test the DSL directly
-    result = swift_ui do
+    result = dsl_context.instance_eval do
       div(data: { controller: "test", "test-value": "hello" }, id: "my-div") do
         text("Content")
       end

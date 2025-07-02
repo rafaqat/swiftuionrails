@@ -10,6 +10,7 @@ class CounterComponent < SwiftUIRails::Component::Base
   swift_ui do
     # Rails-first approach: Components are stateless view builders
     # State is managed by Stimulus controller on the client side
+    comp = @component
     vstack(spacing: 4) do
       # Title - bound to Stimulus values
       text("")
@@ -75,7 +76,7 @@ class CounterComponent < SwiftUIRails::Component::Base
       controller: "counter",
       "counter-count-value": initial_count,
       "counter-step-value": step,
-      "counter-label-value": label
+      "counter-label-value": comp.label
     })
     .attr("id", counter_id)
   end

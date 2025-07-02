@@ -23,10 +23,9 @@ class ProductCardComponent < ApplicationComponent
       create_element(:div, nil, {class: "relative"}) do
         # Main product image
         if product[:image_url].present?
-          image(product[:image_url])
+          image(src: product[:image_url], alt: product[:name])
             .tw("aspect-#{image_aspect_ratio} w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75")
             .tw(image_aspect_ratio == "auto" ? "lg:aspect-auto lg:h-80" : "")
-            .attr("alt", product[:name])
         else
           # Placeholder
           create_element(:div, nil, {

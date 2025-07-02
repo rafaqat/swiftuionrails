@@ -20,27 +20,25 @@ class SimpleCardComponent < SwiftUIRails::Component::Base
   }.freeze
   
   swift_ui do
-    content_tag(:div, class: card_classes) do
-      safe_join([
-        # Header
-        if header?
-          content_tag(:div, class: "pb-4 mb-4 border-b border-gray-200") do
-            header.to_s
-          end
-        end,
-        
-        # Content (from block)
-        content_tag(:div) do
-          content
-        end,
-        
-        # Footer
-        if footer?
-          content_tag(:div, class: "pt-4 mt-4 border-t border-gray-200") do
-            footer.to_s
-          end
+    div.tw(card_classes) do
+      # Header
+      if header?
+        div.pb(4).mb(4).border_b.border_color("gray-200") do
+          header
         end
-      ].compact)
+      end
+      
+      # Content (from block)
+      div do
+        content
+      end
+      
+      # Footer
+      if footer?
+        div.pt(4).mt(4).border_t.border_color("gray-200") do
+          footer
+        end
+      end
     end
   end
   
