@@ -131,7 +131,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
         end
         
         # Card container
-        div.mt(10).sm_mx_auto.sm_w_full.sm_max_w_sm do
+        div.mt(10).tw("sm:mx-auto sm:w-full sm:max-w-sm") do
           div.bg("white").py(8).px(4).shadow.rounded("lg").tw("sm:px-10") do
             form(action: "/login", method: "POST").tw("space-y-6") do
               # Email with icon
@@ -150,7 +150,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     id: "email",
                     placeholder: "you@example.com",
                     required: true
-                  ).block.w_full.pl(10).sm_text_size("sm").border_color("gray-300").rounded("md")
+                  ).block.w_full.pl(10).tw("sm:text-sm").border_color("gray-300").rounded("md")
                    .focus_ring_color("indigo-500").focus_border_color("indigo-500")
                 end
               end
@@ -171,7 +171,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     id: "password",
                     placeholder: "••••••••",
                     required: true
-                  ).block.w_full.pl(10).sm_text_size("sm").border_color("gray-300").rounded("md")
+                  ).block.w_full.pl(10).tw("sm:text-sm").border_color("gray-300").rounded("md")
                    .focus_ring_color("indigo-500").focus_border_color("indigo-500")
                 end
               end
