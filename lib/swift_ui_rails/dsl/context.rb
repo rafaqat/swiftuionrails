@@ -24,7 +24,7 @@ module SwiftUIRails
     def register_element(element)
       # Prevent duplicate registration
       unless @pending_elements.include?(element)
-        Rails.logger.debug "DSLContext: Registering element #{element.tag_name} (#{element.object_id})"
+        Rails.logger.debug "DSLContext: Registering element #{element.tag_name} (#{element.object_id}), class: #{element.class.name}"
         @pending_elements << element
       else
         Rails.logger.debug "DSLContext: Skipping duplicate registration of #{element.tag_name} (#{element.object_id})"

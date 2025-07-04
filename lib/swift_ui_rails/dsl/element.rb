@@ -251,8 +251,8 @@ module SwiftUIRails
       end
       
       # Shadow utilities
-      def shadow(size = "")
-        tw(size.empty? ? "shadow" : "shadow-#{size}")
+      def shadow(size = "", &block)
+        tw(size.empty? ? "shadow" : "shadow-#{size}", &block)
       end
       
       # Button utilities - REMOVED CSS injection per user request
@@ -270,10 +270,7 @@ module SwiftUIRails
         self
       end
       
-      # Hover effects
-      def hover_scale(scale, &block)
-        tw("hover:scale-#{scale} transition-transform", &block)
-      end
+      # Hover effects are now defined in Tailwind module
       
       # Layout utilities
       def w_full(&block)
@@ -736,23 +733,23 @@ module SwiftUIRails
         self
       end
       
-      def sm(utility)
-        tw("sm:#{utility}")
+      def sm(utility, &block)
+        tw("sm:#{utility}", &block)
         self
       end
       
-      def md(utility)
-        tw("md:#{utility}")
+      def md(utility, &block)
+        tw("md:#{utility}", &block)
         self
       end
       
-      def lg(utility)
-        tw("lg:#{utility}")
+      def lg(utility, &block)
+        tw("lg:#{utility}", &block)
         self
       end
       
-      def xl(utility)
-        tw("xl:#{utility}")
+      def xl(utility, &block)
+        tw("xl:#{utility}", &block)
         self
       end
       
@@ -897,6 +894,12 @@ module SwiftUIRails
             
             # Execute block in sub-context to collect child elements
             result = sub_context.instance_eval(&@block)
+            
+            # If the block returns an element that hasn't been registered, register it
+            if result.is_a?(Element) && !sub_context.instance_variable_get(:@pending_elements).include?(result)
+              Rails.logger.debug "Element.to_s: Block returned unregistered element #{result.tag_name}, registering it"
+              sub_context.register_element(result)
+            end
             
             # Flush to get rendered content
             content = sub_context.flush_elements
@@ -1105,10 +1108,6 @@ module SwiftUIRails
         self
       end
       
-      def hover_scale(scale)
-        @options[:hover_scale] = scale
-        self
-      end
       
       def currency(symbol)
         @options[:currency_symbol] = symbol

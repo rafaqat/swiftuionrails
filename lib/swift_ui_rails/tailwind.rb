@@ -5,17 +5,29 @@ module SwiftUIRails
     module Modifiers
       # Spacing utilities
       %i[p px py pt pr pb pl m mx my mt mr mb ml].each do |method|
-        define_method method do |value|
-          add_class("#{method}-#{value}")
+        define_method method do |value, &block|
+          add_class("#{method}-#{value}", &block)
           self
         end
+      end
+      
+      # Alias for padding
+      def padding(value, &block)
+        add_class("p-#{value}", &block)
+        self
+      end
+      
+      # Alias for margin
+      def margin(value, &block)
+        add_class("m-#{value}", &block)
+        self
       end
 
       # Width and height
       %i[w h min_w min_h max_w max_h].each do |method|
-        define_method method do |value|
+        define_method method do |value, &block|
           css_method = method.to_s.gsub("_", "-")
-          add_class("#{css_method}-#{value}")
+          add_class("#{css_method}-#{value}", &block)
           self
         end
       end
@@ -38,19 +50,24 @@ module SwiftUIRails
       end
 
       # Colors
-      def bg(color)
-        add_class("bg-#{color}")
+      def bg(color, &block)
+        add_class("bg-#{color}", &block)
+        self
+      end
+      
+      def background(color, &block)
+        add_class("bg-#{color}", &block)
         self
       end
 
-      def text_color(color)
-        add_class("text-#{color}")
+      def text_color(color, &block)
+        add_class("text-#{color}", &block)
         self
       end
 
       # Typography
-      def text_size(size)
-        add_class("text-#{size}")
+      def text_size(size, &block)
+        add_class("text-#{size}", &block)
         self
       end
 
@@ -79,8 +96,8 @@ module SwiftUIRails
         self
       end
 
-      def font_weight(weight)
-        add_class("font-#{weight}")
+      def font_weight(weight, &block)
+        add_class("font-#{weight}", &block)
         self
       end
 
@@ -110,24 +127,29 @@ module SwiftUIRails
         self
       end
 
-      def border_color(color)
-        add_class("border-#{color}")
+      def border_color(color, &block)
+        add_class("border-#{color}", &block)
         self
       end
 
-      def rounded(size = nil)
-        add_class(size ? "rounded-#{size}" : "rounded")
+      def rounded(size = nil, &block)
+        add_class(size ? "rounded-#{size}" : "rounded", &block)
         self
       end
 
-      def rounded_full
-        add_class("rounded-full")
+      def rounded_full(&block)
+        add_class("rounded-full", &block)
+        self
+      end
+      
+      def corner_radius(size = nil, &block)
+        add_class(size ? "rounded-#{size}" : "rounded", &block)
         self
       end
 
       # Effects
-      def shadow(size = nil)
-        add_class(size ? "shadow-#{size}" : "shadow")
+      def shadow(size = nil, &block)
+        add_class(size ? "shadow-#{size}" : "shadow", &block)
         self
       end
 
@@ -192,8 +214,8 @@ module SwiftUIRails
         self
       end
 
-      def inset(value)
-        add_class("inset-#{value}")
+      def inset(value, &block)
+        add_class("inset-#{value}", &block)
         self
       end
 
@@ -202,8 +224,8 @@ module SwiftUIRails
         self
       end
 
-      def inset_y(value)
-        add_class("inset-y-#{value}")
+      def inset_y(value, &block)
+        add_class("inset-y-#{value}", &block)
         self
       end
 
@@ -222,8 +244,8 @@ module SwiftUIRails
         self
       end
 
-      def left(value)
-        add_class("left-#{value}")
+      def left(value, &block)
+        add_class("left-#{value}", &block)
         self
       end
 
@@ -255,6 +277,11 @@ module SwiftUIRails
         add_class("inline-block")
         self
       end
+      
+      def inline_flex
+        add_class("inline-flex")
+        self
+      end
 
       def flex_1
         add_class("flex-1")
@@ -266,8 +293,8 @@ module SwiftUIRails
         self
       end
 
-      def flex_col
-        add_class("flex-col")
+      def flex_col(&block)
+        add_class("flex-col", &block)
         self
       end
 
@@ -276,8 +303,8 @@ module SwiftUIRails
         self
       end
 
-      def items_center
-        add_class("items-center")
+      def items_center(&block)
+        add_class("items-center", &block)
         self
       end
 
@@ -291,8 +318,8 @@ module SwiftUIRails
         self
       end
 
-      def justify_center
-        add_class("justify-center")
+      def justify_center(&block)
+        add_class("justify-center", &block)
         self
       end
 
@@ -312,8 +339,8 @@ module SwiftUIRails
         self
       end
 
-      def gap(value)
-        add_class("gap-#{value}")
+      def gap(value, &block)
+        add_class("gap-#{value}", &block)
         self
       end
 
@@ -332,12 +359,17 @@ module SwiftUIRails
         self
       end
 
-      def space_y(value)
-        add_class("space-y-#{value}")
+      def space_y(value, &block)
+        add_class("space-y-#{value}", &block)
         self
       end
 
       # Grid utilities
+      def grid(&block)
+        add_class("grid", &block)
+        self
+      end
+      
       def grid_class
         add_class("grid")
         self
@@ -380,8 +412,8 @@ module SwiftUIRails
         self
       end
 
-      def hover_scale(value)
-        add_class("hover:scale-#{value}")
+      def hover_scale(value, &block)
+        add_class("hover:scale-#{value} transition-transform", &block)
         self
       end
 
@@ -392,8 +424,13 @@ module SwiftUIRails
         self
       end
 
-      def hover_bg(color)
-        add_class("hover:bg-#{color}")
+      def hover_bg(color, &block)
+        add_class("hover:bg-#{color}", &block)
+        self
+      end
+      
+      def hover_background(color, &block)
+        add_class("hover:bg-#{color}", &block)
         self
       end
 
@@ -408,6 +445,11 @@ module SwiftUIRails
         end
         self
       end
+      
+      def group_hover_opacity(value)
+        add_class("group-hover:opacity-#{value}")
+        self
+      end
 
       def focus(classes)
         classes.split(' ').each do |cls|
@@ -416,6 +458,12 @@ module SwiftUIRails
         self
       end
 
+      # Placeholder
+      def placeholder(color)
+        add_class("placeholder-#{color}")
+        self
+      end
+      
       # Focus utilities
       def focus_ring(width = nil)
         add_class(width ? "focus:ring-#{width}" : "focus:ring")
@@ -493,9 +541,14 @@ module SwiftUIRails
         add_class("cursor-pointer")
         self
       end
+      
+      def cursor_not_allowed
+        add_class("cursor-not-allowed")
+        self
+      end
 
-      def pointer_events_none
-        add_class("pointer-events-none")
+      def pointer_events_none(&block)
+        add_class("pointer-events-none", &block)
         self
       end
 
@@ -511,14 +564,14 @@ module SwiftUIRails
       end
 
       # Line height
-      def leading(value)
-        add_class("leading-#{value}")
+      def leading(value, &block)
+        add_class("leading-#{value}", &block)
         self
       end
 
       # Letter spacing
-      def tracking(value)
-        add_class("tracking-#{value}")
+      def tracking(value, &block)
+        add_class("tracking-#{value}", &block)
         self
       end
 
@@ -530,6 +583,11 @@ module SwiftUIRails
 
       def underline
         add_class("underline")
+        self
+      end
+      
+      def line_clamp(lines = 1, &block)
+        add_class("line-clamp-#{lines}", &block)
         self
       end
 
@@ -552,6 +610,11 @@ module SwiftUIRails
       def text_right(&block)
         add_class("text-right")
         @block = block if block_given?
+        self
+      end
+      
+      def text_align(align)
+        add_class("text-#{align}")
         self
       end
 
@@ -601,6 +664,11 @@ module SwiftUIRails
         add_class("w-full")
         self
       end
+      
+      def full_width
+        add_class("w-full")
+        self
+      end
 
       def h_full
         add_class("h-full")
@@ -636,6 +704,33 @@ module SwiftUIRails
       def aria_hidden(value)
         @attributes ||= {}
         @attributes[:"aria-hidden"] = value
+        self
+      end
+
+      # Button styles (higher-level abstractions)
+      def button_style(style)
+        case style
+        when :primary
+          add_class("bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2")
+        when :secondary  
+          add_class("bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2")
+        when :danger
+          add_class("bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2")
+        when :ghost
+          add_class("text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2")
+        end
+        self
+      end
+      
+      def button_size(size)
+        case size
+        when :sm
+          add_class("px-3 py-1.5 text-sm")
+        when :md
+          add_class("px-4 py-2 text-base")
+        when :lg
+          add_class("px-6 py-3 text-lg")
+        end
         self
       end
 

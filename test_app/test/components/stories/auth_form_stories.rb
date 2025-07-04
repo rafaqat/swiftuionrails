@@ -4,6 +4,15 @@ class AuthFormStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
   include SwiftUIRails::DSL
   
+  # Simple DSL test
+  def simple_dsl_test(**kwargs)
+    swift_ui do
+      div.bg("blue-50").p(4) do
+        text("Simple DSL Test")
+      end
+    end
+  end
+  
   # Basic login form
   def login(**kwargs)
     render AuthFormComponent.new(
