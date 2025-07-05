@@ -6,7 +6,7 @@ require_relative "storybook/stories"
 
 module SwiftUIRails
   # A SwiftUI-like base class for component stories that uses the DSL directly
-  class Storybook < ViewComponent::Storybook::Stories
+  class StorybookStories < ViewComponent::Storybook::Stories
     include ActionView::Helpers::TagHelper
     include ActionView::Helpers::TextHelper
     include ActionView::Context

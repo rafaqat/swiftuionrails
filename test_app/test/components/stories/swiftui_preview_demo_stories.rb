@@ -2,7 +2,7 @@
 # Copyright 2025
 
 # This demonstrates the elegance of the SwiftUI-like preview DSL
-class SwiftuiPreviewDemoStories < SwiftUIRails::Storybook
+class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
   preview "Component Gallery" do
     scenario "Hero Section" do
       # Build complex UIs naturally with composition

@@ -13,11 +13,11 @@
   <% end %>
 
   <div class="prose max-w-none" 
-       data-controller="live-story"
-       data-live-story-story-value="<%= story_name || '' %>"
-       data-live-story-variant-value="<%= variant_name || '' %>"
-       data-live-story-session-id-value="<%= session_id || '' %>"
-       data-live-story-mode-value="<%= mode || 'static' %>">
+       data-controller="live_story"
+       data-live_story-story-value="<%= story_name || '' %>"
+       data-live_story-variant-value="<%= variant_name || '' %>"
+       data-live_story-session-id-value="<%= session_id || '' %>"
+       data-live_story-mode-value="<%= mode || 'static' %>">
     
     <%= render component_instance if component_instance %>
     

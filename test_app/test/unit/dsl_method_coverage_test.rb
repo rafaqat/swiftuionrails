@@ -7,6 +7,8 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
   def setup
     @story_files = Dir[Rails.root.join("test/components/stories/*_stories.rb")]
     @element_file = File.read(Rails.root.join("../lib/swift_ui_rails/dsl/element.rb"))
+    @tailwind_file = File.read(Rails.root.join("../lib/swift_ui_rails/tailwind.rb"))
+    @dsl_file = File.read(Rails.root.join("../lib/swift_ui_rails/dsl.rb"))
   end
 
   test "all DSL methods used in stories are implemented in Element class" do
@@ -97,8 +99,11 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
   end
 
   test "DSL method documentation is up to date" do
-    # Get all implemented methods from Element class
-    implemented_methods = @element_file.scan(/def ([a-z_]+)/).flatten.uniq
+    # Get all implemented methods from Element class, Tailwind module, and DSL module
+    element_methods = @element_file.scan(/def ([a-z_]+)/).flatten.uniq
+    tailwind_methods = @tailwind_file.scan(/def ([a-z_]+)/).flatten.uniq
+    dsl_methods = @dsl_file.scan(/def ([a-z_]+)/).flatten.uniq
+    implemented_methods = (element_methods + tailwind_methods + dsl_methods).uniq
     
     # Get all used methods from stories
     used_methods = find_all_used_methods
@@ -128,7 +133,10 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
 
   def find_missing_dsl_methods
     used_methods = find_all_used_methods
-    implemented_methods = @element_file.scan(/def ([a-z_]+)/).flatten
+    element_methods = @element_file.scan(/def ([a-z_]+)/).flatten
+    tailwind_methods = @tailwind_file.scan(/def ([a-z_]+)/).flatten
+    dsl_methods = @dsl_file.scan(/def ([a-z_]+)/).flatten
+    implemented_methods = (element_methods + tailwind_methods + dsl_methods).uniq
     
     missing = []
     used_methods.each do |method, count|

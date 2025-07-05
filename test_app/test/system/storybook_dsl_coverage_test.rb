@@ -154,7 +154,7 @@ class StorybookDslCoverageTest < ApplicationSystemTestCase
     end
     
     # Check if these methods exist in Element class
-    element_file = File.read(Rails.root.join("../../lib/swift_ui_rails/dsl/element.rb"))
+    element_file = File.read(Rails.root.join("../lib/swift_ui_rails/dsl/element.rb"))
     
     puts "\n🔧 Potentially missing methods:"
     method_usage.each do |method, count|

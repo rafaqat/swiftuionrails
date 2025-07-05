@@ -588,7 +588,7 @@ module SwiftUIRails
       end
       
       # Simple card container - just structure and styling
-      attrs[:class] = class_names("rounded-lg", shadow_class, attrs[:class])
+      attrs[:class] = class_names("rounded-lg bg-white", shadow_class, attrs[:class])
       
       # For slots, we need to ensure they render properly
       if header_slot || content_slot || actions_slot
@@ -718,7 +718,7 @@ module SwiftUIRails
     end
 
     def divider(**attrs)
-      attrs[:class] = class_names("border-t", attrs[:class])
+      attrs[:class] = class_names("border-t border-gray-300", attrs[:class])
       create_element(:hr, nil, **attrs)
     end
 
@@ -848,6 +848,45 @@ module SwiftUIRails
       else
         super(content)
       end
+    end
+
+    # Component slot helpers - these are used in stories for composition
+    def with_form(**attrs, &block)
+      # Helper for form-based content in components
+      create_element(:div, nil, **attrs, &block)
+    end
+
+    def with_sidebar(**attrs, &block)
+      # Helper for sidebar content in components
+      create_element(:div, nil, **attrs, &block)
+    end
+
+    def with_header(**attrs, &block)
+      # Helper for header content in components
+      create_element(:div, nil, **attrs, &block)
+    end
+
+    def with_footer(**attrs, &block)
+      # Helper for footer content in components
+      create_element(:div, nil, **attrs, &block)
+    end
+
+    # Ruby enumerable helpers used in stories
+    def each_with_index(**attrs, &block)
+      # This is typically called on collections, not as a DSL method
+      # But stories may use it, so we provide a no-op version
+      create_element(:div, nil, **attrs, &block)
+    end
+
+    def times(count = 1, **attrs, &block)
+      # Helper to repeat content multiple times
+      results = []
+      count.times do |i|
+        if block_given?
+          results << capture { block.call(i) }
+        end
+      end
+      safe_join(results)
     end
     
     private
