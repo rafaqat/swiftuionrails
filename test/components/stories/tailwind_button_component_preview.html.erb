@@ -1,0 +1,119 @@
+<% if layout == :variants_grid %>
+  <%= swift_story_layout(
+    title: "Button Variants",
+    description: "All available button style variants"
+  ) do %>
+    <%= swift_story_grid(columns: 4, gap: 4) do %>
+      <% [:primary, :secondary, :success, :danger, :warning, :info, :ghost, :link].each do |variant| %>
+        <div class="text-center">
+          <div class="mb-2">
+            <%= render component, **args.merge(variant: variant) %>
+          </div>
+          <p class="text-xs text-gray-600"><%= variant.to_s.capitalize %></p>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+<% elsif layout == :sizes_showcase %>
+  <%= swift_story_layout(
+    title: "Button Sizes",
+    description: "All available button sizes"
+  ) do %>
+    <div class="space-y-8">
+      <% [:primary, :secondary].each do |variant| %>
+        <div>
+          <h3 class="text-sm font-medium text-gray-700 mb-4"><%= variant.to_s.capitalize %> Variant</h3>
+          <div class="flex items-center space-x-4">
+            <% [:xs, :sm, :md, :lg, :xl].each do |size| %>
+              <%= render component, **args.merge(variant: variant, size: size) %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+<% elsif layout == :states_showcase %>
+  <%= swift_story_layout(
+    title: "Button States",
+    description: "Different button states and interactions"
+  ) do %>
+    <%= swift_story_grid(columns: 3, gap: 6) do %>
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Normal</h4>
+        <div class="space-y-3">
+          <%= render component, **args %>
+          <%= render component, **args.merge(variant: :secondary) %>
+          <%= render component, **args.merge(variant: :danger) %>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Disabled</h4>
+        <div class="space-y-3">
+          <%= render component, **args.merge(disabled: true) %>
+          <%= render component, **args.merge(variant: :secondary, disabled: true) %>
+          <%= render component, **args.merge(variant: :danger, disabled: true) %>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Loading</h4>
+        <div class="space-y-3">
+          <%= render component, **args.merge(loading: true) %>
+          <%= render component, **args.merge(variant: :secondary, loading: true) %>
+          <%= render component, **args.merge(variant: :danger, loading: true) %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+<% elsif layout == :icons_showcase %>
+  <%= swift_story_layout(
+    title: "Buttons with Icons",
+    description: "Icon placement and combinations"
+  ) do %>
+    <div class="space-y-6">
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Icon Left (Default)</h4>
+        <div class="flex items-center space-x-3">
+          <%= render component, **args.merge(icon_position: :left) %>
+          <%= render component, **args.merge(variant: :secondary, icon_position: :left) %>
+          <%= render component, **args.merge(variant: :ghost, icon_position: :left) %>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Icon Right</h4>
+        <div class="flex items-center space-x-3">
+          <%= render component, **args.merge(icon_position: :right) %>
+          <%= render component, **args.merge(variant: :secondary, icon_position: :right) %>
+          <%= render component, **args.merge(variant: :ghost, icon_position: :right) %>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Icon Only</h4>
+        <div class="flex items-center space-x-3">
+          <%= render component, **args.merge(title: "", icon: :star) %>
+          <%= render component, **args.merge(title: "", icon: :heart, variant: :secondary) %>
+          <%= render component, **args.merge(title: "", icon: :menu, variant: :ghost) %>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Full Width</h4>
+        <div class="max-w-sm">
+          <%= render component, **args.merge(full_width: true) %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+<% else %>
+  <!-- Default preview -->
+  <%= swift_preview_container do %>
+    <%= render component, **args %>
+  <% end %>
+<% end %>

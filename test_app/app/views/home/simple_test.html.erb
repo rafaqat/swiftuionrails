@@ -1,0 +1,19 @@
+<h1>Simple SwiftUI Test</h1>
+
+<h2>Test 1: Basic text</h2>
+<%= swift_ui { text("Hello World") } %>
+
+<h2>Test 2: Basic vstack</h2>
+<%= swift_ui { vstack { text("Line 1"); text("Line 2") } } %>
+
+<h2>Test 3: Vstack with padding</h2>
+<%= swift_ui { vstack.p(4) { text("Padded content") } } %>
+
+<h2>Test 4: Full example</h2>
+<%= swift_ui { 
+  vstack(spacing: 16).p(8).bg("gray-100").rounded("lg") { 
+    text("SwiftUI Rails").text_size("2xl").font_weight("bold")
+    text("This is a test").text_color("gray-600")
+    button("Click me").bg("blue-600").text_color("white").px(4).py(2).rounded
+  }
+} %>

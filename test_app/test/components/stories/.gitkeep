@@ -1,0 +1,4 @@
+# Keep this directory but only for the 3 core stories:
+# - dsl_button_stories.rb
+# - dsl_card_stories.rb  
+# - product_layout_stories.rb
