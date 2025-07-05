@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe <%= component_class_name %>, type: :component do
+  subject(:component) { described_class.new(**props) }
+  
+  let(:props) do
+    {
+<% parsed_props.each_with_index do |prop, index| -%>
+      <%= prop[:name] %>: <%= case prop[:type]
+        when "String" then '"value"'
+        when "Symbol" then ':default'
+        when "Integer" then '42'
+        when "Float" then '3.14'
+        when "Boolean", "[TrueClass, FalseClass]" then 'true'
+        when "Array" then '[]'
+        when "Hash" then '{}'
+        when "Date" then 'Date.current'
+        when "Time", "DateTime" then 'Time.current'
+        else 'nil'
+      end %><%= index < parsed_props.length - 1 ? ',' : '' %>
+<% end -%>
+    }
+  end
+  
+  it "renders successfully" do
+    # Test using DSL-first approach
+    component_html = component.to_s
+    
+    expect(component_html).to include("<%= class_name %>")
+    expect(component_html).to include("card")
+    expect(component_html).to include("vstack")
+  end
+  
+<% parsed_props.select { |p| p[:required] }.each do |prop| -%>
+  it "requires <%= prop[:name] %> prop" do
+    props.delete(:<%= prop[:name] %>)
+    
+    expect { described_class.new(**props) }.to raise_error(ArgumentError)
+  end
+  
+<% end -%>
+  # Add more specific tests for your component
+end

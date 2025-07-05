@@ -1,0 +1,39 @@
+# frozen_string_literal: true
+
+class <%= component_class_name %> < ApplicationComponent
+<% parsed_props.each do |prop| -%>
+  prop :<%= prop[:name] %>, type: <%= prop[:type] %><%= ", default: #{prop[:default]}" if prop[:default] %>
+<% end -%>
+  
+  # Define component states
+  # state :loading, false
+  
+  # Define computed properties
+  # computed :full_name do
+  #   "#{first_name} #{last_name}"
+  # end
+  
+  # Define effects
+  # effect :user_id do |new_id, old_id|
+  #   fetch_user_data(new_id) if new_id
+  # end
+  
+  swift_ui do
+    card(elevation: 1).p(6) do
+      vstack(spacing: 16) do
+        text("<%= class_name %>").text_size("xl").font_weight("semibold")
+        
+        # Add your component layout here
+        # Example:
+        # hstack(spacing: 12) do
+        #   icon(:star, size: 24).text_color("yellow-500")
+        #   text("Component content")
+        # end
+      end
+    end
+  end
+  
+  private
+  
+  # Add helper methods here
+end

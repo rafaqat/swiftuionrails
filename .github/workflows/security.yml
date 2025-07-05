@@ -1,0 +1,135 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  rubocop:
+    name: RuboCop Security Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Run RuboCop
+      run: bundle exec rubocop --format json --out rubocop-results.json
+    
+    - name: Upload RuboCop results
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: rubocop-results
+        path: rubocop-results.json
+
+  brakeman:
+    name: Brakeman Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Run Brakeman
+      run: |
+        bundle exec brakeman -f json -o brakeman-report.json
+        bundle exec brakeman -f html -o brakeman-report.html
+    
+    - name: Upload Brakeman results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: brakeman-results
+        path: |
+          brakeman-report.json
+          brakeman-report.html
+
+  bundler-audit:
+    name: Bundler Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Run bundler-audit
+      run: |
+        bundle exec bundle-audit update
+        bundle exec bundle-audit check
+
+  thread-safety:
+    name: Thread Safety Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Run thread safety checks
+      run: bundle exec rubocop --only ThreadSafety
+
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Run security tests
+      run: |
+        cd test_app
+        bundle exec rails test test/security/
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ruby
+    
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2

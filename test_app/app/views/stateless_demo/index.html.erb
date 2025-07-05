@@ -1,0 +1,155 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">Rails-First Stateless Components Demo</h1>
+  
+  <!-- Tab Navigation -->
+  <%= render TabNavigationComponent.new(
+    tabs: [
+      { name: "Products", path: stateless_demo_path(tab: "products") },
+      { name: "About", path: stateless_demo_path(tab: "about") },
+      { name: "Help", path: stateless_demo_path(tab: "help") }
+    ],
+    current_tab: @current_tab,
+    turbo_frame: "tab_content"
+  ) %>
+  
+  <!-- Tab Content -->
+  <%= turbo_frame_tag "tab_content" do %>
+    <div class="mt-6">
+      <% case @current_tab %>
+      <% when "products" %>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <!-- Filters Sidebar -->
+          <div class="lg:col-span-1">
+            <%= render ProductFilterComponent.new(
+              filter_options: @filter_options,
+              current_filters: @filters,
+              products_path: stateless_demo_path
+            ) %>
+          </div>
+          
+          <!-- Products List -->
+          <div class="lg:col-span-3">
+            <!-- Search Bar -->
+            <div class="mb-6">
+              <%= render SearchComponent.new(
+                query: @search_query,
+                results: @search_results || [],
+                search_path: stateless_demo_path,
+                placeholder: "Search products..."
+              ) %>
+            </div>
+            
+            <!-- Products Grid -->
+            <%= turbo_frame_tag "products" do %>
+              <div class="space-y-4">
+                <% if @products.any? %>
+                  <% @products.each do |product| %>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                      <div class="flex justify-between items-start">
+                        <div>
+                          <h3 class="text-lg font-semibold"><%= product[:name] %></h3>
+                          <p class="text-gray-600">
+                            <%= product[:brand].capitalize %> • 
+                            <%= product[:category].capitalize %> • 
+                            <%= product[:color].capitalize %>
+                          </p>
+                        </div>
+                        <p class="text-xl font-bold text-blue-600">$<%= product[:price] %></p>
+                      </div>
+                    </div>
+                  <% end %>
+                  
+                  <!-- Pagination -->
+                  <div class="mt-6">
+                    <%= render PaginationComponent.new(
+                      current_page: @page,
+                      total_pages: @total_pages,
+                      base_url: stateless_demo_path(filters: @filters),
+                      turbo_frame: "products"
+                    ) %>
+                  </div>
+                <% else %>
+                  <div class="text-center py-12 text-gray-500">
+                    No products found matching your filters.
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+      <% when "about" %>
+        <div class="bg-white rounded-lg shadow-sm p-8">
+          <h2 class="text-2xl font-semibold mb-4">About Rails-First Components</h2>
+          <p class="text-gray-700 mb-4">
+            This demo showcases stateless components that embrace Rails' HTTP request-response model.
+            All state is managed through URL parameters, forms, and sessions - not complex JavaScript state management.
+          </p>
+          <p class="text-gray-700 mb-4">
+            Key principles demonstrated:
+          </p>
+          <ul class="list-disc list-inside space-y-2 text-gray-700">
+            <li>URL-driven state (filters, pagination, tabs)</li>
+            <li>Form-based interactions with Turbo morphing</li>
+            <li>Progressive enhancement with Stimulus</li>
+            <li>Works without JavaScript, enhanced with it</li>
+          </ul>
+          
+          <div class="mt-6">
+            <%= link_to "Open Info Modal", 
+                stateless_demo_path(tab: @current_tab, modal: "info"),
+                class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" %>
+          </div>
+        </div>
+        
+      <% when "help" %>
+        <div class="bg-white rounded-lg shadow-sm p-8">
+          <h2 class="text-2xl font-semibold mb-4">How It Works</h2>
+          <div class="space-y-4 text-gray-700">
+            <div>
+              <h3 class="font-semibold mb-2">Filters</h3>
+              <p>Each filter selection updates the URL parameters. The page reloads with filtered results, but Turbo makes it feel instant.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-2">Pagination</h3>
+              <p>Page numbers are links that add ?page=N to the URL. Server renders the correct page.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-2">Search</h3>
+              <p>Works as a regular form submission. Enhanced with Stimulus for live search (debounced).</p>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-2">Tabs</h3>
+              <p>Each tab is a link with ?tab=name. Content changes based on URL state.</p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <!-- Modal -->
+  <%= render ModalComponent.new(
+    open: @show_modal,
+    title: "Stateless Modal Example",
+    close_path: stateless_demo_path(tab: @current_tab)
+  ) do |modal| %>
+    <% modal.with_body do %>
+      <p class="text-gray-700 mb-4">
+        This modal is controlled by URL parameters. When ?modal=info is present, the modal shows.
+        Clicking the backdrop or close button navigates back to remove the parameter.
+      </p>
+      <p class="text-gray-700">
+        No JavaScript state management needed - just links and URL parameters!
+      </p>
+    <% end %>
+    
+    <% modal.with_footer do %>
+      <div class="flex justify-end">
+        <%= link_to "Close", 
+            stateless_demo_path(tab: @current_tab),
+            class: "px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
