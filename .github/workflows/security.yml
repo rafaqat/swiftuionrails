@@ -28,7 +28,7 @@ jobs:
     
     - name: Upload RuboCop results
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: rubocop-results
         path: rubocop-results.json
@@ -53,7 +53,7 @@ jobs:
     
     - name: Upload Brakeman results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: brakeman-results
         path: |
