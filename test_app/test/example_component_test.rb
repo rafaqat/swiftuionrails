@@ -36,3 +36,4 @@ class ExampleComponentTest < ViewComponent::TestCase
     puts "Direct call result: #{result}"
   end
 end
+# Copyright 2025

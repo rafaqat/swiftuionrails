@@ -51,3 +51,4 @@ class ExampleComponentStories < ViewComponent::Storybook::Stories
     layout :interactive_demo
   end
 end
+# Copyright 2025

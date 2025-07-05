@@ -38,3 +38,4 @@ class StorybookControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Story not found: nonexistent_button", flash[:alert]
   end
 end
+# Copyright 2025

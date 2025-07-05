@@ -33,3 +33,4 @@ class SimpleDslTest < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

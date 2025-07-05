@@ -418,3 +418,4 @@ class StorybookInteractiveTest < ApplicationSystemTestCase
     puts "==================="
   end
 end
+# Copyright 2025

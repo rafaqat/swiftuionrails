@@ -23,3 +23,4 @@ class HomePageTest < ApplicationSystemTestCase
     assert_text "Click the buttons to see state management in action!"
   end
 end
+# Copyright 2025

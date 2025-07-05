@@ -5,3 +5,4 @@ module ViewComponent
     VERSION = "1.0.0"
   end
 end
+# Copyright 2025

@@ -144,3 +144,4 @@ class ComprehensiveButtonTest < ApplicationSystemTestCase
     assert true, "Stimulus controller test completed"
   end
 end
+# Copyright 2025

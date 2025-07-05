@@ -25,3 +25,4 @@ puts "Component message: #{component.message}"
 html = component.render_in(view_context)
 puts "\nRendered HTML:"
 puts html
+# Copyright 2025

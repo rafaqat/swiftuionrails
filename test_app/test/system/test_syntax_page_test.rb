@@ -14,3 +14,4 @@ class TestSyntaxPageTest < ApplicationSystemTestCase
     assert_text "Test 3: Single line"
   end
 end
+# Copyright 2025

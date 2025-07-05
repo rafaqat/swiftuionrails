@@ -81,3 +81,4 @@ class CounterComponent < SwiftUIRails::Component::Base
     .attr("id", counter_id)
   end
 end
+# Copyright 2025

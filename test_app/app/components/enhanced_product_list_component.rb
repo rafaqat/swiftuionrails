@@ -414,3 +414,4 @@ class EnhancedProductListComponent < SwiftUIRails::Component::Base
     products.to_json
   end
 end
+# Copyright 2025

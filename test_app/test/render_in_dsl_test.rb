@@ -42,3 +42,4 @@ class RenderInDslTest < ActiveSupport::TestCase
     end
   end
 end
+# Copyright 2025

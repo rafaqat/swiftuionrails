@@ -29,3 +29,4 @@ if defined?(ViewComponent::Storybook)
     # Instead, we'll handle layout in the controller or views
   end
 end
+# Copyright 2025

@@ -203,3 +203,4 @@ class AuthLayoutComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

@@ -318,3 +318,4 @@ class EnhancedGridStories < ViewComponent::Storybook::Stories
     ]
   end
 end
+# Copyright 2025

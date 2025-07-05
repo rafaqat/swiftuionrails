@@ -33,3 +33,4 @@ class VerifyDslStorySourceTest < ApplicationSystemTestCase
     assert_text "swift_ui do"
   end
 end
+# Copyright 2025

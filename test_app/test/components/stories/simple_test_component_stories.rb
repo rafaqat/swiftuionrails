@@ -7,3 +7,4 @@ class SimpleTestComponentStories < ViewComponent::Storybook::Stories
     SimpleTestComponent.new(message: message)
   end
 end
+# Copyright 2025

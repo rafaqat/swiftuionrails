@@ -60,3 +60,4 @@ class SwiftUIRailsDSLTest < ActiveSupport::TestCase
     assert respond_to?(:card)
   end
 end
+# Copyright 2025

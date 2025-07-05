@@ -117,3 +117,4 @@ class DeepCardDebug < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

@@ -53,3 +53,4 @@ class NestedBlocksTest < ActiveSupport::TestCase
     assert result.include?("shadow-md") # card with elevation 2
   end
 end
+# Copyright 2025

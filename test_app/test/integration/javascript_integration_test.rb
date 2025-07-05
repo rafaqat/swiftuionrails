@@ -55,3 +55,4 @@ class JavascriptIntegrationTest < ActionDispatch::IntegrationTest
     assert_match /catch|error|console/, response.body
   end
 end
+# Copyright 2025

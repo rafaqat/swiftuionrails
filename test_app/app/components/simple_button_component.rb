@@ -238,3 +238,4 @@ class SimpleButtonComponent < SwiftUIRails::Component::Base
     shade <= 400
   end
 end
+# Copyright 2025

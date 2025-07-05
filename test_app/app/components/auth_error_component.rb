@@ -181,3 +181,4 @@ class AuthErrorComponent < ApplicationComponent
     @request ||= helpers.request
   end
 end
+# Copyright 2025

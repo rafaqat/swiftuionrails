@@ -178,3 +178,4 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     assert card[:class].include?("p-8")
   end
 end
+# Copyright 2025

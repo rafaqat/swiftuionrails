@@ -90,3 +90,4 @@ class DebugTitleJsTest < ApplicationSystemTestCase
     assert true # This test is for debugging, not assertions
   end
 end
+# Copyright 2025

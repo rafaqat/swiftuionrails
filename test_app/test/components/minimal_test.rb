@@ -40,3 +40,4 @@ class MinimalTest < ViewComponent::TestCase
     assert_text "Swift UI Component"
   end
 end
+# Copyright 2025

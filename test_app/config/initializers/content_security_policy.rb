@@ -24,3 +24,4 @@ Rails.application.configure do
   # Report violations without enforcing the policy in development
   config.content_security_policy_report_only = Rails.env.development?
 end
+# Copyright 2025

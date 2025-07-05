@@ -26,3 +26,4 @@ class SimpleCounterTest < ApplicationSystemTestCase
     puts "✅ Counter is working correctly!"
   end
 end
+# Copyright 2025

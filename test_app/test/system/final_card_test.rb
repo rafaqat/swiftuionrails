@@ -77,3 +77,4 @@ class FinalCardTest < ApplicationSystemTestCase
     puts "\n🎉 Card background color testing completed!"
   end
 end
+# Copyright 2025

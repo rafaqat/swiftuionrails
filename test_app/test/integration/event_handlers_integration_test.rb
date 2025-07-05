@@ -33,3 +33,4 @@ class EventHandlersIntegrationTest < ActionDispatch::IntegrationTest
     assert json_response["component_id"] == "test_component"
   end
 end
+# Copyright 2025

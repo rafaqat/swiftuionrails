@@ -53,3 +53,4 @@ class SwiftUIRails::SimpleSlotsTest < ViewComponent::TestCase
     assert_selector "div.header"
   end
 end
+# Copyright 2025

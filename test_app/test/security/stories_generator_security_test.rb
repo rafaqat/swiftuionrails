@@ -158,3 +158,4 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     assert_equal "my_component", generator.send(:file_name)
   end
 end
+# Copyright 2025

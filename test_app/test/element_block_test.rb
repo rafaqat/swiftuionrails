@@ -43,3 +43,4 @@ class ElementBlockTest < ActiveSupport::TestCase
     puts "HTML: #{html3}"
   end
 end
+# Copyright 2025

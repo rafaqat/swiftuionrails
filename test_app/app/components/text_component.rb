@@ -24,3 +24,4 @@ class TextComponent < SwiftUIRails::Component::Base
     text_element
   end
 end
+# Copyright 2025

@@ -9,3 +9,4 @@ class SimpleCounterTest < ViewComponent::TestCase
     assert_text "Count: 5"
   end
 end
+# Copyright 2025

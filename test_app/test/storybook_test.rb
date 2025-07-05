@@ -50,3 +50,4 @@ class StorybookTest < ActionDispatch::IntegrationTest
     assert_match 'variant: :primary', response.body
   end
 end
+# Copyright 2025

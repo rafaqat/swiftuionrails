@@ -33,3 +33,4 @@ class VstackComponent < SwiftUIRails::Component::Base
     stack
   end
 end
+# Copyright 2025

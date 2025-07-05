@@ -51,3 +51,4 @@ class DebugDslTest < ViewComponent::TestCase
     assert_selector "div"  # Should have at least one div
   end
 end
+# Copyright 2025

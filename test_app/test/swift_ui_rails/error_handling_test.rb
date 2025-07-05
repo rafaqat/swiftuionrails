@@ -238,3 +238,4 @@ class SwiftUIRails::ErrorHandlingTest < ViewComponent::TestCase
     component.render_in(view_context, &block)
   end
 end
+# Copyright 2025

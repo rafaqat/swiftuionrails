@@ -76,3 +76,4 @@ class CssClassBuilder
     classes.join(" ")
   end
 end
+# Copyright 2025

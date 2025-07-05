@@ -296,3 +296,4 @@ class ProductLayoutComponent < ApplicationComponent
     create_element(:option, text, attrs)
   end
 end
+# Copyright 2025

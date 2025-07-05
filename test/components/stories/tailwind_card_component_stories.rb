@@ -112,3 +112,4 @@ class TailwindCardComponentStories < ViewComponent::Storybook::Stories
     layout :card_grid
   end
 end
+# Copyright 2025

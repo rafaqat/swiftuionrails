@@ -41,3 +41,4 @@ class ComplexNestingDebugTest < ActiveSupport::TestCase
     SwiftUIRails::DSL.define_method(:create_element, original_create_element)
   end
 end
+# Copyright 2025

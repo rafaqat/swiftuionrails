@@ -88,3 +88,4 @@ class StorybookTitleUpdateTest < ApplicationSystemTestCase
     puts "✅ Title input has correct Stimulus action: #{action_attr}"
   end
 end
+# Copyright 2025

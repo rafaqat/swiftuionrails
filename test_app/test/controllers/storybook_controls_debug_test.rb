@@ -51,3 +51,4 @@ class StorybookControlsDebugTest < ActionDispatch::IntegrationTest
     puts "=== END CONTROLS DEBUG ==="
   end
 end
+# Copyright 2025

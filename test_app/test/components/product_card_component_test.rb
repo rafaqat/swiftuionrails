@@ -31,3 +31,4 @@ class ProductCardComponentTest < ViewComponent::TestCase
     assert_text "Out of Stock"
   end
 end
+# Copyright 2025

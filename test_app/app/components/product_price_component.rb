@@ -69,3 +69,4 @@ class ProductPriceComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

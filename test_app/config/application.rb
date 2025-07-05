@@ -43,3 +43,4 @@ module TestApp
     config.generators.system_tests = nil
   end
 end
+# Copyright 2025

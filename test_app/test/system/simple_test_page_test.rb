@@ -31,3 +31,4 @@ class SimpleTestPageTest < ApplicationSystemTestCase
     assert_no_console_errors
   end
 end
+# Copyright 2025

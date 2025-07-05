@@ -75,3 +75,4 @@ class ManualCardTest < ApplicationSystemTestCase
     puts "📸 Final screenshot saved: card_final.png"
   end
 end
+# Copyright 2025

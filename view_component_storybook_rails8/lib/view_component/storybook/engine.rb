@@ -77,3 +77,4 @@ unless defined?(ViewComponent::Storybook::Stories)
   require "view_component/storybook"
 end
 # :nocov:
+# Copyright 2025

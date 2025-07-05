@@ -103,3 +103,4 @@ class RealCardTest < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

@@ -158,3 +158,4 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     end
   end
 end
+# Copyright 2025

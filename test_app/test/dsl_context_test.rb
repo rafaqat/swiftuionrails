@@ -43,3 +43,4 @@ class DSLContextTest < ActiveSupport::TestCase
     assert result.html_safe?
   end
 end
+# Copyright 2025

@@ -94,3 +94,4 @@ class RailsFirstDemoController < ApplicationController
     filtered
   end
 end
+# Copyright 2025

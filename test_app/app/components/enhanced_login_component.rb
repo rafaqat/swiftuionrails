@@ -188,3 +188,4 @@ class EnhancedLoginComponent < ApplicationComponent
     .sm("px-6 lg:px-8")
   end
 end
+# Copyright 2025

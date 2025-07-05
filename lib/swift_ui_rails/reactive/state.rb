@@ -192,3 +192,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

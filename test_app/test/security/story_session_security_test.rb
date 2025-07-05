@@ -167,3 +167,4 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
     end
   end
 end
+# Copyright 2025

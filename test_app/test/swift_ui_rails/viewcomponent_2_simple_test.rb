@@ -129,3 +129,4 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
     assert_not_nil result.to_s
   end
 end
+# Copyright 2025

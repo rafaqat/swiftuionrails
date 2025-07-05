@@ -325,3 +325,4 @@ class SwiftUIRails::ComponentFeaturesTest < ViewComponent::TestCase
     assert_equal "Base: base, Extended: extended", component.extended_computed
   end
 end
+# Copyright 2025

@@ -181,3 +181,4 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
     ]
   end
 end
+# Copyright 2025

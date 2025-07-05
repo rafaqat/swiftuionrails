@@ -131,3 +131,4 @@ class StorybookLiveUpdatesTest < ApplicationSystemTestCase
     assert_selector "button", text: "Copy"
   end
 end
+# Copyright 2025

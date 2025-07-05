@@ -49,3 +49,4 @@ class ElementDebugTest < ViewComponent::TestCase
     puts "Rendered HTML: #{html}"
   end
 end
+# Copyright 2025

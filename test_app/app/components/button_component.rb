@@ -13,3 +13,4 @@ class ButtonComponent < SimpleButtonComponent
     super
   end
 end
+# Copyright 2025

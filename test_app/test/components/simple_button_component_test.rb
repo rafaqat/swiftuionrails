@@ -115,3 +115,4 @@ class SimpleButtonComponentTest < ViewComponent::TestCase
     content.html_safe
   end
 end
+# Copyright 2025

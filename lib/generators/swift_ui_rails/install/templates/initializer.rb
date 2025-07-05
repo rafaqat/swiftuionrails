@@ -16,3 +16,4 @@ SwiftUIRails.configure do |config|
   # Stimulus controller suffix
   config.stimulus_controller_suffix = "component"
 end
+# Copyright 2025

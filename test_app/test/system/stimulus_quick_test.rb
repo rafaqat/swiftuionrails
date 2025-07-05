@@ -43,3 +43,4 @@ class StimulusQuickTest < ApplicationSystemTestCase
     assert has_method, "controlChanged method should be available"
   end
 end
+# Copyright 2025

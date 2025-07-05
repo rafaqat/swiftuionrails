@@ -3,3 +3,4 @@
 module SwiftUIRails
   VERSION = "0.0.1"
 end
+# Copyright 2025

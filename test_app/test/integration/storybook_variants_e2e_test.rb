@@ -194,3 +194,4 @@ class StorybookVariantsE2eTest < ActionDispatch::IntegrationTest
     end
   end
 end
+# Copyright 2025

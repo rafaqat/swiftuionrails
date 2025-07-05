@@ -115,3 +115,4 @@ class ProductLayoutComponentUsageTest < ActiveSupport::TestCase
     assert_selector "img[src='https://example.com/photo.jpg']"
   end
 end
+# Copyright 2025

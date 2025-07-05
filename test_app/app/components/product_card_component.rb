@@ -188,3 +188,4 @@ class ProductCardComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

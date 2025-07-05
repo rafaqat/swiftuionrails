@@ -87,3 +87,4 @@ class TailwindButtonComponentStories < ViewComponent::Storybook::Stories
     layout :icons_showcase
   end
 end
+# Copyright 2025

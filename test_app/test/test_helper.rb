@@ -50,3 +50,4 @@ class ViewComponent::TestCase
     @page ||= Capybara::Node::Simple.new(rendered_content)
   end
 end
+# Copyright 2025

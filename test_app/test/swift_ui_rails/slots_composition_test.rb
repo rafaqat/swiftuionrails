@@ -404,3 +404,4 @@ class SwiftUIRails::SlotsCompositionTest < ViewComponent::TestCase
     component.render_in(view_context)
   end
 end
+# Copyright 2025

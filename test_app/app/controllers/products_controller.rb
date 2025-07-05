@@ -184,3 +184,4 @@ class ProductsController < ApplicationController
     ]
   end
 end
+# Copyright 2025

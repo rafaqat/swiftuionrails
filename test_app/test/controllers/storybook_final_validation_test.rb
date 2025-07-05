@@ -116,3 +116,4 @@ class StorybookFinalValidationTest < ActionDispatch::IntegrationTest
     puts "✅ End-to-end storybook workflow validated"
   end
 end
+# Copyright 2025

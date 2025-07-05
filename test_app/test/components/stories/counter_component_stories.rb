@@ -18,3 +18,4 @@ class CounterComponentStories < ViewComponent::Storybook::Stories
     )
   end
 end
+# Copyright 2025

@@ -160,3 +160,4 @@ class ProductListComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

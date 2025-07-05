@@ -50,3 +50,4 @@ class ChainedBlocksTest < ActiveSupport::TestCase
     assert result.include?("p-8"), "Should include padding"
   end
 end
+# Copyright 2025

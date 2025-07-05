@@ -12,3 +12,4 @@ class SwiftUiLiveReloadChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
   end
 end
+# Copyright 2025

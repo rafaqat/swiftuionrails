@@ -204,3 +204,4 @@ class StorySession
     end
   end
 end
+# Copyright 2025

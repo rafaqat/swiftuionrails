@@ -35,3 +35,4 @@ class CounterDebugStories < ViewComponent::Storybook::Stories
     "<div>Simple HTML test</div>".html_safe
   end
 end
+# Copyright 2025

@@ -72,3 +72,4 @@ class BlockBindingTest < ActiveSupport::TestCase
     assert result.include?("max-w-4xl")
   end
 end
+# Copyright 2025

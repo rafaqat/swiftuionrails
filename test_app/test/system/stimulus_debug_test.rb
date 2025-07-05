@@ -75,3 +75,4 @@ class StimulusDebugTest < ApplicationSystemTestCase
     assert stimulus_debug['live_story_element'], "Live story element should be found"
   end
 end
+# Copyright 2025

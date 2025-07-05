@@ -7,3 +7,4 @@ class SimpleCounterComponent < SwiftUIRails::Component::Base
     text("Count: #{count}")
   end
 end
+# Copyright 2025

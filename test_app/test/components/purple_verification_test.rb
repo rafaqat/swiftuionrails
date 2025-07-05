@@ -28,3 +28,4 @@ class PurpleVerificationTest < ViewComponent::TestCase
     end
   end
 end
+# Copyright 2025

@@ -6,3 +6,4 @@ class ApplicationController < ActionController::Base
     render "application/test_grid"
   end
 end
+# Copyright 2025

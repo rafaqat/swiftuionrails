@@ -313,3 +313,4 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
     assert_includes result, '<div class="bg-blue-500 p-4"></div>'
   end
 end
+# Copyright 2025

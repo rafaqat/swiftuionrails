@@ -178,3 +178,4 @@ class ReactiveControllerSecurityTest < ActionDispatch::IntegrationTest
     Object.send(:remove_const, name) if Object.const_defined?(name)
   end
 end
+# Copyright 2025

@@ -12,3 +12,4 @@ if defined?(Rack::Timeout)
   # Log timeout errors
   Rack::Timeout::Logger.level = Logger::ERROR
 end
+# Copyright 2025

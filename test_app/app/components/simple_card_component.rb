@@ -52,3 +52,4 @@ class SimpleCardComponent < SwiftUIRails::Component::Base
     [base, variant_class, padding_class].compact.join(" ")
   end
 end
+# Copyright 2025

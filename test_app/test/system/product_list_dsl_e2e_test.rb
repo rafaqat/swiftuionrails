@@ -177,3 +177,4 @@ class ProductListDslE2eTest < ApplicationSystemTestCase
     puts "\n🎉 ALL DSL CHAINABLE MODIFIERS WORKING INDEPENDENTLY!"
   end
 end
+# Copyright 2025

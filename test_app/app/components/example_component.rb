@@ -88,3 +88,4 @@ class ExampleComponent < ApplicationComponent
     self.counter = 0
   end
 end
+# Copyright 2025

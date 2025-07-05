@@ -103,3 +103,4 @@ class ProductRatingComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

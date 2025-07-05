@@ -3,3 +3,4 @@ class TestController < ApplicationController
     render 'test/grid_test'
   end
 end
+# Copyright 2025

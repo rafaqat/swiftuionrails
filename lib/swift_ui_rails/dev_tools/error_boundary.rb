@@ -171,3 +171,4 @@ end
 if Rails.env.development?
   ViewComponent::Base.prepend(SwiftUIRails::DevTools::ViewComponentExtension)
 end
+# Copyright 2025

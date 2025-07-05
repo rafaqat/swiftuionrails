@@ -48,3 +48,4 @@ class SwiftUIDebugTest < ActiveSupport::TestCase
     puts "Direct DSL HTML: #{html}"
   end
 end
+# Copyright 2025

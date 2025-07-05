@@ -72,3 +72,4 @@ class ProductLayoutTopFilterTest < ApplicationSystemTestCase
     take_screenshot
   end
 end
+# Copyright 2025

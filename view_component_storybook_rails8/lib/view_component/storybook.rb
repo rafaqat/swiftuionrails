@@ -61,3 +61,4 @@ module ViewComponent
     ActiveSupport.run_load_hooks(:view_component_storybook, self)
   end
 end
+# Copyright 2025

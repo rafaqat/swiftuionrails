@@ -39,3 +39,4 @@ class ImageComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

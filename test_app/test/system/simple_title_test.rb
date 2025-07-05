@@ -80,3 +80,4 @@ class SimpleTitleTest < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

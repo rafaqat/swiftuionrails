@@ -53,3 +53,4 @@ class NewDslMethodsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style*='color: red']"
   end
 end
+# Copyright 2025

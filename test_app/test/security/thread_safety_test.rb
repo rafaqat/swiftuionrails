@@ -255,3 +255,4 @@ class ThreadSafetyTest < ActiveSupport::TestCase
     ObservableStore.singleton_class.define_method(:new, original_new)
   end
 end
+# Copyright 2025

@@ -153,3 +153,4 @@ class StatelessComponentsTest < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

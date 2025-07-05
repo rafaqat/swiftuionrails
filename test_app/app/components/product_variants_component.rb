@@ -109,3 +109,4 @@ class ProductVariantsComponent < ApplicationComponent
     (selected_variant[:type] == variant[:type] && selected_variant[:value] == variant[:value])
   end
 end
+# Copyright 2025

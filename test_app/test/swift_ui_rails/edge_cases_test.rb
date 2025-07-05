@@ -256,3 +256,4 @@ class SwiftUIRails::EdgeCasesTest < ActiveSupport::TestCase
     component.render_in(view_context, &block)
   end
 end
+# Copyright 2025

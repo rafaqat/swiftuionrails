@@ -7,3 +7,4 @@ class HomeController < ApplicationController
     # Counter component demo page
   end
 end
+# Copyright 2025

@@ -29,3 +29,4 @@ class DslProductCardTest < ApplicationSystemTestCase
     assert_text "$35", wait: 5
   end
 end
+# Copyright 2025

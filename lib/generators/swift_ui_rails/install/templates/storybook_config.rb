@@ -21,3 +21,4 @@ if defined?(ViewComponent::Storybook)
     ViewComponent::Storybook.stories_layout = "storybook"
   end
 end
+# Copyright 2025

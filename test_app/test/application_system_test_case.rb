@@ -45,3 +45,4 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     puts "=== End Console Output ===\n"
   end
 end
+# Copyright 2025

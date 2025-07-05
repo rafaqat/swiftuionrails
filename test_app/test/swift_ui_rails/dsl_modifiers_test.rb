@@ -313,3 +313,4 @@ class SwiftUIRails::DSLModifiersTest < ActiveSupport::TestCase
     assert_includes result, 'id="complex-div"'
   end
 end
+# Copyright 2025

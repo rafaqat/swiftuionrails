@@ -40,3 +40,4 @@ class HomePageRenderingTest < ActionDispatch::IntegrationTest
     end
   end
 end
+# Copyright 2025

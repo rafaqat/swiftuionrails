@@ -75,3 +75,4 @@ class HtmlSafetyTest < ActiveSupport::TestCase
     assert_equal original_content, component._content
   end
 end
+# Copyright 2025

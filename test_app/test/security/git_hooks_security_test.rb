@@ -171,3 +171,4 @@ class GitHooksSecurityTest < ActiveSupport::TestCase
       "SECURITY: Hook should send errors to stderr")
   end
 end
+# Copyright 2025

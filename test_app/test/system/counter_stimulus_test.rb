@@ -96,3 +96,4 @@ class CounterStimulusTest < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

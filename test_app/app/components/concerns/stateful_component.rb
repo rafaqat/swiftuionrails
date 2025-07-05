@@ -142,3 +142,4 @@ module StatefulComponent
     instance_variable_get("@_restoring_state") == true
   end
 end
+# Copyright 2025

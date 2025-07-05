@@ -88,3 +88,4 @@ class NewDslMethodsTest < ActionView::TestCase
     assert_includes html, 'style="min-height: 100px"'
   end
 end
+# Copyright 2025

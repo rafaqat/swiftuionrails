@@ -39,3 +39,4 @@ class ProductLayoutStoryTest < ApplicationSystemTestCase
     assert_no_text "Error"
   end
 end
+# Copyright 2025

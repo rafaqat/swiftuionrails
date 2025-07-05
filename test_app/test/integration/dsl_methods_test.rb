@@ -110,3 +110,4 @@ class DslMethodsTest < ActionDispatch::IntegrationTest
       "Should include line-clamp-2 CSS class in output"
   end
 end
+# Copyright 2025

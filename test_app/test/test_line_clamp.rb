@@ -16,3 +16,4 @@ class TestLineClamp < ActiveSupport::TestCase
     assert_includes html, "line-clamp-3", "Should include line-clamp-3 CSS class"
   end
 end
+# Copyright 2025

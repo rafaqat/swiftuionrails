@@ -11,3 +11,4 @@ class SpacerComponent < SwiftUIRails::Component::Base
     spacer_element
   end
 end
+# Copyright 2025

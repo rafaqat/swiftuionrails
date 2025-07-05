@@ -32,3 +32,4 @@ module ViewComponent
     end
   end
 end
+# Copyright 2025

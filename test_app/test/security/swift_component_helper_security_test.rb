@@ -166,3 +166,4 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
     end
   end
 end
+# Copyright 2025

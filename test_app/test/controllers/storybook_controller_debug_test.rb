@@ -100,3 +100,4 @@ class StorybookControllerDebugTest < ActionDispatch::IntegrationTest
     puts "=== END DEBUGGING ==="
   end
 end
+# Copyright 2025

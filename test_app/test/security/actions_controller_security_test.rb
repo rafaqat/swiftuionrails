@@ -167,3 +167,4 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
     ActionController::Base.allow_forgery_protection = false
   end
 end
+# Copyright 2025

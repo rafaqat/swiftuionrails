@@ -114,3 +114,4 @@ class StoryRenderer
     end
   end
 end
+# Copyright 2025

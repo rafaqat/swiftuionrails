@@ -46,3 +46,4 @@ class DslProductCardDebugTest < ActiveSupport::TestCase
     assert result.include?("Hello Combined")
   end
 end
+# Copyright 2025

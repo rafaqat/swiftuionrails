@@ -50,3 +50,4 @@ class CardDslTest < ApplicationSystemTestCase
     puts "✅ Card component DSL test completed successfully"
   end
 end
+# Copyright 2025
