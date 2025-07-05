@@ -1,4 +1,0 @@
-#!/bin/sh
-set -euo pipefail
-
-echo "Docker set up on ${KAMAL_HOSTS:-}..."
