@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "view_component"
 require_relative "component/collection_support"

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # @deprecated Use SimpleButtonComponent instead
 # This alias will be removed in version 2.0

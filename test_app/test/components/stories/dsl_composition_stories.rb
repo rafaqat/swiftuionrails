@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class DslCompositionStories < ViewComponent::Storybook::Stories
   include ActionView::Helpers::TagHelper

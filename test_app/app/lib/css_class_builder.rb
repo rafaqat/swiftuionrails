@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # Utility class to build CSS classes while avoiding conflicts
 # Specifically handles text-prefix conflicts (text-color vs text-size)

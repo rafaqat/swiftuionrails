@@ -1,3 +1,4 @@
+# Copyright 2025
 Rails.application.routes.draw do
   # Custom interactive storybook routes
   get "rails/stories" => "storybook#index"

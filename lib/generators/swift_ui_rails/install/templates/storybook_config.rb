@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 if defined?(ViewComponent::Storybook)
   ViewComponent::Storybook.configure do |config|

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 require "generators/swift_ui_rails/component/component_generator"
 

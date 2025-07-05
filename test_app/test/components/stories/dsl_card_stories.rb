@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class DslCardStories < ViewComponent::Storybook::Stories
   include ActionView::Helpers::TagHelper

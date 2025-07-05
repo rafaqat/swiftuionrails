@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ModalComponent < SwiftUIRails::Component::Base
   prop :open, type: [TrueClass, FalseClass], default: false

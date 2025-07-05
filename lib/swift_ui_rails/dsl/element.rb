@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require_relative '../security/css_validator'
 require_relative '../security/data_attribute_sanitizer'

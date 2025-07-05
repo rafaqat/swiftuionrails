@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # LiveStories extends ViewComponent::Storybook::Stories with interactive capabilities
 module LiveStories

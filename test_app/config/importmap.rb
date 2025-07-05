@@ -1,3 +1,4 @@
+# Copyright 2025
 # Pin npm packages by running ./bin/importmap
 
 pin "application"

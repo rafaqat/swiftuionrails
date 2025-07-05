@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 SwiftUIRails.configure do |config|
   # Default animation duration in milliseconds

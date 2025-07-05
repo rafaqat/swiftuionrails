@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # Updated to use our Rails 8 compatible fork
 if defined?(ViewComponent::Storybook)

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class PaginationComponent < SwiftUIRails::Component::Base
   include SwiftUIRails::Security::ComponentValidator

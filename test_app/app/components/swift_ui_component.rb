@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SwiftUIComponent < SwiftUIRails::Component::Base
   # Base component class for all SwiftUI Rails components

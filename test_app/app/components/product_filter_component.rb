@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductFilterComponent < SwiftUIRails::Component::Base
   prop :current_filters, type: Hash, default: {}

@@ -1,3 +1,4 @@
+# Copyright 2025
 # Load the Rails application.
 require_relative "application"
 

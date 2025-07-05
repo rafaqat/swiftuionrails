@@ -1,3 +1,4 @@
+# Copyright 2025
 require 'capybara/rails'
 require 'capybara/minitest'
 

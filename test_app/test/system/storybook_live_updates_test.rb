@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class StorybookLiveUpdatesTest < ApplicationSystemTestCase

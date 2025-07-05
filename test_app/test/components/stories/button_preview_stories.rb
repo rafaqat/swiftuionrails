@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # This demonstrates the new SwiftUI-like preview DSL
 class ButtonPreviewStories < SwiftUIRails::Storybook

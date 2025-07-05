@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductListComponent < ApplicationComponent
   prop :products, type: Array, required: true

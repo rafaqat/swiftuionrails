@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SimpleButtonComponent < SwiftUIRails::Component::Base
   # ViewComponent 2.0 Collection Support

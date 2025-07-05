@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 require "ostruct"

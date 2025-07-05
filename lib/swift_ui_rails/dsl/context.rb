@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 module SwiftUIRails
   # Context for executing DSL blocks and capturing elements

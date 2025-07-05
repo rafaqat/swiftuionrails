@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # Configure request timeouts to prevent resource exhaustion
 # Rack::Timeout stops processing requests that take too long

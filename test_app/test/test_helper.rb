@@ -1,3 +1,4 @@
+# Copyright 2025
 ENV["RAILS_ENV"] ||= "test"
 
 # Configure SimpleCov for code coverage - must be first!

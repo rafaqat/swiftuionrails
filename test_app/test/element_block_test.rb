@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ElementBlockTest < ActiveSupport::TestCase

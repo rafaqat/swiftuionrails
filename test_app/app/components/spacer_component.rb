@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SpacerComponent < SwiftUIRails::Component::Base
   prop :min_length, type: String, default: ""

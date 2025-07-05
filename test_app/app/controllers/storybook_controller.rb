@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class StorybookController < ApplicationController
   protect_from_forgery except: [:update_preview, :component_action] # Allow AJAX requests

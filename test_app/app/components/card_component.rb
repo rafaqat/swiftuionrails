@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class CardComponent < SwiftUIRails::Component::Base
   # Constants for repeated values

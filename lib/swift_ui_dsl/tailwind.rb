@@ -1,3 +1,4 @@
+# Copyright 2025
 module SwiftUIDSL
   module Tailwind
     # Tailwind-specific modifiers for SwiftUI DSL

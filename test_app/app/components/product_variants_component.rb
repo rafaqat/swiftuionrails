@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductVariantsComponent < ApplicationComponent
   prop :variants, type: Array, required: true

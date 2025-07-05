@@ -1,3 +1,4 @@
+# Copyright 2025
 require_relative "boot"
 
 require "rails"

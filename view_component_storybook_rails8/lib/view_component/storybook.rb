@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "active_model"
 require "active_support/dependencies/autoload"

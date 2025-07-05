@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # StorySession manages persistent state for interactive component stories
 # Enables real-time component state management in storybook

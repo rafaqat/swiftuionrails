@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class TailwindCardComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Storybook::Layouts
