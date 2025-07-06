@@ -23,6 +23,10 @@ module SwiftUIRails
         'i.imgur.com',
         'gravatar.com',
         
+        # Development and documentation services
+        'tailwindui.com',
+        'tailwindcss.com',
+        
         # Add your approved domains here
       ].freeze
       

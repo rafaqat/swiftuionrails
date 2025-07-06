@@ -58,8 +58,9 @@ class AuthFormComponent < SwiftUIRails::Component::Base
       
       # Form section
       div.mt(10).tw("sm:mx-auto sm:w-full sm:max-w-sm") do
+        form_action = action_path || (mode == :login ? "/login" : "/register")
         secure_form(
-          action: action_path || (mode == :login ? "/login" : "/register"), 
+          action: form_action, 
           method: "POST"
         ).tw("space-y-6") do
           

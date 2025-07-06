@@ -20,7 +20,7 @@ module SwiftUIRails
         return "" unless protect_against_forgery?
         
         # Get the token and parameter name from Rails
-        token = form_authenticity_token
+        token = get_form_authenticity_token
         param = request_forgery_protection_token
         
         # Return a hidden input element
@@ -43,7 +43,7 @@ module SwiftUIRails
           ),
           create_element(:meta, nil,
             name: "csrf-token", 
-            content: form_authenticity_token
+            content: get_form_authenticity_token
           )
         ]
       end
@@ -107,10 +107,9 @@ module SwiftUIRails
       
       # SECURITY: Check if forgery protection is enabled
       def protect_against_forgery?
-        if defined?(ActionController::Base)
-          ActionController::Base.protect_against_forgery? &&
-            !Rails.application.config.action_controller.allow_forgery_protection.nil? &&
-            Rails.application.config.action_controller.allow_forgery_protection
+        if defined?(ActionController::Base) && defined?(Rails)
+          # Check if forgery protection is configured and enabled
+          Rails.application.config.action_controller.allow_forgery_protection != false
         else
           false
         end
@@ -126,25 +125,31 @@ module SwiftUIRails
       end
       
       # SECURITY: Get the current CSRF token
-      def form_authenticity_token(form_options: {})
-        if respond_to?(:helpers) && helpers.respond_to?(:form_authenticity_token)
-          helpers.form_authenticity_token(form_options: form_options)
-        elsif defined?(ActionController::Base) && respond_to?(:session)
-          # Generate token using Rails internals
-          masked_authenticity_token(session, form_options: form_options)
-        else
-          # Fallback - should not happen in normal Rails apps
-          SecureRandom.base64(32)
+      # We use a different name to avoid conflicts with Rails' built-in method
+      def get_form_authenticity_token(form_options: {})
+        # Try to use Rails' built-in method if available
+        if respond_to?(:form_authenticity_token)
+          return form_authenticity_token(form_options)
         end
-      end
-      
-      private
-      
-      # Generate a masked authenticity token (Rails internal)
-      def masked_authenticity_token(session, form_options: {})
-        # This would use Rails' internal token generation
-        # For now, we'll rely on the helpers being available
-        raise "Cannot generate CSRF token without Rails helpers"
+        
+        # In view context, delegate to the view's form_authenticity_token
+        if defined?(@_view_context) && @_view_context && @_view_context.respond_to?(:form_authenticity_token)
+          return @_view_context.form_authenticity_token(form_options)
+        end
+        
+        # Try helpers
+        if respond_to?(:helpers) && helpers.respond_to?(:form_authenticity_token)
+          return helpers.form_authenticity_token(form_options: form_options)
+        end
+        
+        # If we're in a view/template context, try to get the token from there
+        if respond_to?(:controller) && controller.respond_to?(:form_authenticity_token)
+          return controller.form_authenticity_token(form_options)
+        end
+        
+        # If all else fails, return empty string
+        Rails.logger.warn "Unable to generate CSRF token in #{self.class.name}"
+        ""
       end
     end
   end

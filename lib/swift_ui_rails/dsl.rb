@@ -25,7 +25,14 @@ module SwiftUIRails
           # If we're in a DSL context, the block will be handled properly
           # If not, we need to collect all elements created in the block
           if self.is_a?(SwiftUIRails::DSLContext)
-            instance_eval(&block)
+            # Execute the block and capture any returned element
+            result = instance_eval(&block)
+            # If the block returns an element, ensure it's registered
+            if result.is_a?(Element)
+              register_element(result) unless @pending_elements.include?(result)
+            end
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
           else
             # Outside DSL context - collect all elements
             elements = []
@@ -38,13 +45,20 @@ module SwiftUIRails
             end
             
             # Execute the block
-            instance_eval(&block)
+            result = instance_eval(&block)
             
             # Restore original method
             define_singleton_method(:create_element, original_create)
             
-            # Return all collected elements
-            elements
+            # Return all collected elements or the block result if it's an array
+            if result.is_a?(Array)
+              result
+            elsif result.is_a?(Element) && !elements.include?(result)
+              elements << result
+              elements
+            else
+              elements
+            end
           end
         end
       end
@@ -63,7 +77,14 @@ module SwiftUIRails
           # If we're in a DSL context, the block will be handled properly
           # If not, we need to collect all elements created in the block
           if self.is_a?(SwiftUIRails::DSLContext)
-            instance_eval(&block)
+            # Execute the block and capture any returned element
+            result = instance_eval(&block)
+            # If the block returns an element, ensure it's registered
+            if result.is_a?(Element)
+              register_element(result) unless @pending_elements.include?(result)
+            end
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
           else
             # Outside DSL context - collect all elements
             elements = []
@@ -305,6 +326,58 @@ module SwiftUIRails
     def form(**attrs, &block)
       create_element(:form, nil, **attrs, &block)
     end
+
+    # Secure form with CSRF protection
+    def secure_form(action:, method: "POST", **attrs, &block)
+      # Create the form element
+      create_element(:form, nil, action: action, method: method.to_s.upcase == "GET" ? "GET" : "POST", **attrs) do
+        elements = []
+        
+        # Add CSRF token for non-GET requests if we can
+        if method.to_s.upcase != "GET" && respond_to?(:protect_against_forgery?) && protect_against_forgery?
+          if respond_to?(:get_form_authenticity_token)
+            token = get_form_authenticity_token
+            param = respond_to?(:request_forgery_protection_token) ? request_forgery_protection_token : :authenticity_token
+            elements << create_element(:input, nil,
+              type: "hidden",
+              name: param.to_s,
+              value: token,
+              autocomplete: "off"
+            )
+          end
+        end
+        
+        # Add method override for non-POST/GET methods
+        if %w[PUT PATCH DELETE].include?(method.to_s.upcase)
+          elements << create_element(:input, nil,
+            type: "hidden",
+            name: "_method",
+            value: method.to_s.downcase,
+            autocomplete: "off"
+          )
+        end
+        
+        # Add UTF-8 enforcer
+        elements << create_element(:input, nil,
+          type: "hidden",
+          name: "utf8",
+          value: "✓",
+          autocomplete: "off"
+        )
+        
+        # Add block content
+        if block_given?
+          block_result = yield
+          if block_result.is_a?(Array)
+            elements.concat(block_result)
+          elsif block_result
+            elements << block_result
+          end
+        end
+        
+        elements
+      end
+    end
     
     def input(**attrs, &block)
       create_element(:input, nil, **attrs, &block)
@@ -358,64 +431,67 @@ module SwiftUIRails
     # DSL Product Card - Reusable product card following DSL-first pattern
     def dsl_product_card(name:, price:, image_url: nil, variant: nil, currency: "$", 
                          show_cta: true, cta_text: "Add to Cart", cta_style: "primary", 
-                         **attrs, &block)
+                         elevation: 2, **attrs, &block)
       # Build product card using pure DSL chaining
-      card do
-        # Product image container
-        if image_url
-          div.aspect("square").overflow("hidden").rounded("md").bg("gray-200") do
-            image(src: image_url, alt: name)
-              .w("full").h("full").object_fit("cover")
-              .hover_scale(105).transition.duration(300)
+      # Main container with group and relative for hover effects
+      div(class: "group relative") do
+        card(elevation: elevation) do
+          # Product image container
+          if image_url
+            div.aspect("square").overflow("hidden").rounded("md").bg("gray-200") do
+              image(src: image_url, alt: "#{name}#{variant ? " in #{variant}" : ""}")
+                .w("full").h("full").object("cover")
+                .hover_scale(105).transition.duration(300)
+            end
           end
+          
+          # Product details
+          vstack(spacing: 2, alignment: :start) do
+            # Product name
+            text(name)
+              .font_weight("semibold")
+              .text_color("gray-900")
+              .text_size("lg")
+              .line_clamp(1)
+            
+            # Variant/color
+            if variant
+              text(variant)
+                .text_color("gray-600")
+                .text_size("sm")
+            end
+            
+            # Price with flex layout for better alignment
+            div(class: "flex justify-between items-baseline") do
+              text("#{currency}#{price}")
+                .font_weight("bold")
+                .text_color("gray-900")
+                .text_size("xl")
+            end.mt(2)
+          end.mt(4)
+          
+          # CTA Button
+          if show_cta
+            button_classes = case cta_style
+            when "primary"
+              "w-full mt-4 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+            when "outline"
+              "w-full mt-4 px-4 py-2 border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-900 hover:text-white transition-colors"
+            else # secondary
+              "w-full mt-4 px-4 py-2 bg-gray-200 text-gray-900 rounded-md hover:bg-gray-300 transition-colors"
+            end
+            
+            button(cta_text, class: button_classes).font_weight("medium")
+          end
+          
+          # Allow custom content via block
+          yield if block_given?
         end
-        
-        # Product details
-        vstack(spacing: 2, alignment: :start) do
-          # Product name
-          text(name)
-            .font_weight("semibold")
-            .text_color("gray-900")
-            .text_size("lg")
-            .line_clamp(1)
-          
-          # Variant/color
-          if variant
-            text(variant)
-              .text_color("gray-600")
-              .text_size("sm")
-          end
-          
-          # Price
-          text("#{currency}#{price}")
-            .font_weight("bold")
-            .text_color("gray-900")
-            .text_size("xl")
-            .mt(2)
-        end.mt(4)
-        
-        # CTA Button
-        if show_cta
-          button_classes = case cta_style
-          when "primary"
-            "w-full mt-4 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
-          when "outline"
-            "w-full mt-4 px-4 py-2 border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-900 hover:text-white transition-colors"
-          else # secondary
-            "w-full mt-4 px-4 py-2 bg-gray-200 text-gray-900 rounded-md hover:bg-gray-300 transition-colors"
-          end
-          
-          button(cta_text, class: button_classes).font_weight("medium")
-        end
-        
-        # Allow custom content via block
-        yield if block_given?
+        .p(6)
+        .bg("white")
+        .hover_shadow("lg")
+        .transition
       end
-      .p(6)
-      .bg("white")
-      .rounded("lg")
-      .shadow("md")
-      .overflow("hidden")
       .merge_attributes(attrs)
     end
     

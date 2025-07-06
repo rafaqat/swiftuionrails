@@ -884,13 +884,20 @@ module SwiftUIRails
             end
           end
           
-          # Sanitize the content before marking as html_safe
-          sanitized_content = if @view_context.respond_to?(:sanitize)
-            @view_context.sanitize((content || "").to_s)
+          # Content from DSL context is already safe, don't re-sanitize
+          # Otherwise we lose nested HTML elements like buttons inside hstacks
+          if content.is_a?(ActiveSupport::SafeBuffer)
+            # Already marked as safe by DSL context flush
+            @view_context.content_tag(@tag_name, content, @options)
           else
-            ERB::Util.html_escape((content || "").to_s)
+            # Sanitize the content before marking as html_safe
+            sanitized_content = if @view_context.respond_to?(:sanitize)
+              @view_context.sanitize((content || "").to_s)
+            else
+              ERB::Util.html_escape((content || "").to_s)
+            end
+            @view_context.content_tag(@tag_name, sanitized_content.html_safe, @options)
           end
-          @view_context.content_tag(@tag_name, sanitized_content.html_safe, @options)
         elsif @content
           # Sanitize content to prevent XSS
           sanitized_content = if @view_context.respond_to?(:sanitize)

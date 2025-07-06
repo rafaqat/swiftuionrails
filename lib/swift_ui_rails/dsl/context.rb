@@ -78,12 +78,19 @@ module SwiftUIRails
     end
     
     # Delegate view helpers to the view context
-    def method_missing(method, *args, &block)
+    def method_missing(method, *args, **kwargs, &block)
       # Check for both public and private methods since component methods are often private
       Rails.logger.debug "DSLContext.method_missing: #{method}, view_context: #{@view_context.class.name}"
       if @view_context.respond_to?(method, true)
         Rails.logger.debug "DSLContext.method_missing: Delegating #{method} to view_context"
-        @view_context.send(method, *args, &block)
+        # Handle both positional and keyword arguments
+        if kwargs.empty?
+          @view_context.send(method, *args, &block)
+        elsif args.empty?
+          @view_context.send(method, **kwargs, &block)
+        else
+          @view_context.send(method, *args, **kwargs, &block)
+        end
       else
         Rails.logger.debug "DSLContext.method_missing: #{method} not found on view_context"
         super

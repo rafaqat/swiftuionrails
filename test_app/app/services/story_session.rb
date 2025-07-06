@@ -15,6 +15,7 @@ class StorySession
     CounterComponentStories
     ProductCardComponentStories
     ProductListComponentStories
+    AuthFormStories
     AuthFormComponentStories
     EnhancedLoginComponentStories
     EnhancedRegisterComponentStories
@@ -25,6 +26,21 @@ class StorySession
     ImageComponentStories
     ListComponentStories
     SimpleButtonComponentStories
+    DslButtonStories
+    DslCardStories
+    DslCompositionStories
+    DslProductCardStories
+    DslSimpleTestStories
+    ButtonPreviewStories
+    CounterDebugStories
+    EnhancedAuthStories
+    EnhancedGridStories
+    NewDslMethodsStories
+    ProductLayoutSimpleStories
+    SimpleAuthStories
+    SimpleTestComponentStories
+    SwiftuiPreviewDemoStories
+    TestGridStories
   ].freeze
   
   attribute :story_name, :string
