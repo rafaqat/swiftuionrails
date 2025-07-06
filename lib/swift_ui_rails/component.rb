@@ -2,6 +2,7 @@
 # Copyright 2025
 
 require "view_component"
+require "digest"
 require_relative "component/collection_support"
 require_relative "component/slots"
 require_relative "component/caching"
@@ -24,7 +25,15 @@ module SwiftUIRails
       class_attribute :swift_effects, default: {}
       class_attribute :swift_slots, default: {}
 
+      # Memoization support for swift_ui content
+      class_attribute :swift_ui_memoization_enabled, default: true
+      
       class << self
+        # Enable or disable memoization for this component
+        def enable_memoization(enabled = true)
+          self.swift_ui_memoization_enabled = enabled
+        end
+        
         # ViewComponent 2.0 Collection Support
         def with_collection(collection, *args, **kwargs, &block)
           # Leverage ViewComponent 2.0's optimized collection rendering
@@ -50,6 +59,11 @@ module SwiftUIRails
           @swift_ui_block = block
           
           define_method :call do
+            # Check if memoization is enabled and we have a cached result
+            if self.class.swift_ui_memoization_enabled && memoized_content_valid?
+              return @memoized_swift_ui_content
+            end
+            
             # Create a DSL context for proper element management
             dsl_context = SwiftUIRails::DSLContext.new(self)
             
@@ -66,10 +80,16 @@ module SwiftUIRails
             
             # Wrap with reactive container if enabled
             if respond_to?(:reactive_rendering_enabled) && reactive_rendering_enabled
-              wrap_with_reactive_container(rendered_content)
-            else
-              rendered_content
+              rendered_content = wrap_with_reactive_container(rendered_content)
             end
+            
+            # Memoize the content if enabled
+            if self.class.swift_ui_memoization_enabled
+              @memoized_swift_ui_content = rendered_content
+              @memoization_key = calculate_memoization_key
+            end
+            
+            rendered_content
           end
         end
 
@@ -101,7 +121,7 @@ module SwiftUIRails
           # For ViewComponent 2.0 collection support, automatically add collection parameter
           # Only do this for properly named components
           if name.to_s == "title" && self.name && self.name.include?("Component")
-            collection_param = self.name.demodulize.underscore.gsub('_component', '').gsub('/', '_')
+            collection_param = self.name&.demodulize&.underscore&.gsub('_component', '')&.gsub('/', '_')
             
             # Only add if it's a valid Ruby identifier
             if collection_param =~ /\A[a-z_][a-z0-9_]*\z/
@@ -162,10 +182,15 @@ module SwiftUIRails
         
         @state_values = self.class.swift_states.dup
         
+        # Initialize memoization cache
+        @memoized_swift_ui_content = nil
+        @memoization_key = nil
+        
         # Handle ViewComponent 2.0 collection parameters
         # Convert collection item to our props if present
-        collection_param_name = self.class.name.underscore.gsub('_component', '')
-        if props[collection_param_name.to_sym]
+        if self.class.name
+          collection_param_name = self.class.name.underscore.gsub('_component', '')
+          if props[collection_param_name.to_sym]
           collection_item = props[collection_param_name.to_sym]
           collection_counter = props["#{collection_param_name}_counter".to_sym]
           
@@ -177,6 +202,7 @@ module SwiftUIRails
           else
             our_props[collection_param_name.to_sym] = collection_item
             our_props["#{collection_param_name}_counter".to_sym] = collection_counter if collection_counter
+          end
           end
         end
         
@@ -370,6 +396,65 @@ module SwiftUIRails
       
       # Ensure Element class is accessible
       Element = SwiftUIRails::DSL::Element
+      
+      # Memoization helpers (public for testing)
+      def calculate_memoization_key
+        # Create a cache key based on props and state
+        key_parts = []
+        
+        # Include all prop values in the key
+        self.class.swift_props.each_key do |prop_name|
+          value = instance_variable_get("@#{prop_name}")
+          key_parts << "#{prop_name}:#{memoization_value_key(value)}"
+        end
+        
+        # Include all state values in the key
+        @state_values.each do |state_name, state_value|
+          key_parts << "state_#{state_name}:#{memoization_value_key(state_value)}"
+        end
+        
+        # Include component class and version
+        key_parts.unshift("#{self.class.name}:#{self.class.object_id}")
+        
+        # Generate a hash of the key parts for efficiency
+        Digest::SHA256.hexdigest(key_parts.join("-"))
+      end
+      
+      def memoization_value_key(value)
+        case value
+        when NilClass
+          "nil"
+        when TrueClass, FalseClass
+          value.to_s
+        when Numeric, String, Symbol
+          value.to_s
+        when Array
+          # Create a hash of array contents
+          Digest::SHA256.hexdigest(value.map { |v| memoization_value_key(v) }.join(","))[0..16]
+        when Hash
+          # Create a hash of hash contents  
+          Digest::SHA256.hexdigest(value.map { |k, v| "#{k}:#{memoization_value_key(v)}" }.sort.join(","))[0..16]
+        when Time, DateTime, Date
+          value.to_i.to_s
+        else
+          # For complex objects, use object_id and class
+          "#{value.class.name}##{value.object_id}"
+        end
+      end
+      
+      def memoized_content_valid?
+        return false unless @memoized_swift_ui_content && @memoization_key
+        
+        # Check if the current state matches the memoized state
+        current_key = calculate_memoization_key
+        current_key == @memoization_key
+      end
+      
+      # Clear memoization cache (useful for testing or forced refresh)
+      def clear_memoization!
+        @memoized_swift_ui_content = nil
+        @memoization_key = nil
+      end
     end
   end
 end
