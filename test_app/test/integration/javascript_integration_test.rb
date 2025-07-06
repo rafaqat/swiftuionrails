@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class JavascriptIntegrationTest < ActionDispatch::IntegrationTest
@@ -55,3 +56,4 @@ class JavascriptIntegrationTest < ActionDispatch::IntegrationTest
     assert_match /catch|error|console/, response.body
   end
 end
+# Copyright 2025

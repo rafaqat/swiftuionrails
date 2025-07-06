@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductLayoutComponent < ApplicationComponent
   # Main props - accepts Rails AR objects or hashes
@@ -296,3 +297,4 @@ class ProductLayoutComponent < ApplicationComponent
     create_element(:option, text, attrs)
   end
 end
+# Copyright 2025

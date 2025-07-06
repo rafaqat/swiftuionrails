@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "active_support/dependencies/autoload"
 
@@ -21,3 +22,4 @@ module ViewComponent
     end
   end
 end
+# Copyright 2025

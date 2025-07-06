@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftUIDebugTest < ActiveSupport::TestCase
@@ -48,3 +49,4 @@ class SwiftUIDebugTest < ActiveSupport::TestCase
     puts "Direct DSL HTML: #{html}"
   end
 end
+# Copyright 2025

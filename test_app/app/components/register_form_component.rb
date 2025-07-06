@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class RegisterFormComponent < SwiftUIRails::Component::Base
   prop :action_path, type: String, default: "/register"
@@ -205,3 +206,4 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "application_system_test_case"
 
@@ -75,3 +76,4 @@ class ManualCardTest < ApplicationSystemTestCase
     puts "📸 Final screenshot saved: card_final.png"
   end
 end
+# Copyright 2025

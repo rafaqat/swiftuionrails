@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class NewDslMethodsSystemTest < ApplicationSystemTestCase
@@ -51,3 +52,4 @@ class NewDslMethodsSystemTest < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

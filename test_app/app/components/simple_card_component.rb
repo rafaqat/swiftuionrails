@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SimpleCardComponent < SwiftUIRails::Component::Base
   renders_one :header
@@ -52,3 +53,4 @@ class SimpleCardComponent < SwiftUIRails::Component::Base
     [base, variant_class, padding_class].compact.join(" ")
   end
 end
+# Copyright 2025

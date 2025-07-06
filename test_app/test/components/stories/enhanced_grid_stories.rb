@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class EnhancedGridStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
@@ -318,3 +319,4 @@ class EnhancedGridStories < ViewComponent::Storybook::Stories
     ]
   end
 end
+# Copyright 2025

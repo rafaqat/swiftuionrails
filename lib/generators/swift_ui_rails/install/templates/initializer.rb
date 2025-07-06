@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 SwiftUIRails.configure do |config|
   # Default animation duration in milliseconds
@@ -16,3 +17,4 @@ SwiftUIRails.configure do |config|
   # Stimulus controller suffix
   config.stimulus_controller_suffix = "component"
 end
+# Copyright 2025

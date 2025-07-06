@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductCardComponent < ApplicationComponent
   include SwiftUIRails::Helpers
@@ -188,3 +189,4 @@ class ProductCardComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

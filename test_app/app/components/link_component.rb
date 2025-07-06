@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class LinkComponent < SwiftUIRails::Component::Base
   # Default styling constants
@@ -40,3 +41,4 @@ class LinkComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

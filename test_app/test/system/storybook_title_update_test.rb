@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "application_system_test_case"
 
@@ -88,3 +89,4 @@ class StorybookTitleUpdateTest < ApplicationSystemTestCase
     puts "✅ Title input has correct Stimulus action: #{action_attr}"
   end
 end
+# Copyright 2025

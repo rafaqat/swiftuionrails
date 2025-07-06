@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class VstackComponent < SwiftUIRails::Component::Base
   prop :spacing, type: Integer, default: 8
@@ -33,3 +34,4 @@ class VstackComponent < SwiftUIRails::Component::Base
     stack
   end
 end
+# Copyright 2025

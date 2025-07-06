@@ -1,3 +1,4 @@
+# Copyright 2025
 ENV["RAILS_ENV"] ||= "test"
 
 # Configure SimpleCov for code coverage - must be first!
@@ -50,3 +51,4 @@ class ViewComponent::TestCase
     @page ||= Capybara::Node::Simple.new(rendered_content)
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "application_system_test_case"
 
@@ -50,3 +51,4 @@ class CardDslTest < ApplicationSystemTestCase
     puts "✅ Card component DSL test completed successfully"
   end
 end
+# Copyright 2025

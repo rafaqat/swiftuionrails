@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SimpleCardComponentTest < ViewComponent::TestCase
@@ -178,3 +179,4 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     assert card[:class].include?("p-8")
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class TextComponent < SwiftUIRails::Component::Base
   prop :content, type: String, required: true
@@ -24,3 +25,4 @@ class TextComponent < SwiftUIRails::Component::Base
     text_element
   end
 end
+# Copyright 2025

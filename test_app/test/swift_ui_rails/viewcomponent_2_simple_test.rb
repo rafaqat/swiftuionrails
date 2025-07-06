@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -129,3 +130,4 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
     assert_not_nil result.to_s
   end
 end
+# Copyright 2025

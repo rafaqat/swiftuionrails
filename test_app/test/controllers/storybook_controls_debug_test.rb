@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -51,3 +52,4 @@ class StorybookControlsDebugTest < ActionDispatch::IntegrationTest
     puts "=== END CONTROLS DEBUG ==="
   end
 end
+# Copyright 2025

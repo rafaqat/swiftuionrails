@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require_relative "swift_ui_rails/version"
 require_relative "swift_ui_rails/engine"
@@ -77,3 +78,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

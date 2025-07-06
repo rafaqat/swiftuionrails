@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class AuthErrorComponent < ApplicationComponent
   # Error configuration
@@ -181,3 +182,4 @@ class AuthErrorComponent < ApplicationComponent
     @request ||= helpers.request
   end
 end
+# Copyright 2025

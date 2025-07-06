@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class HstackComponent < SwiftUIRails::Component::Base
   # Props for layout configuration
@@ -37,3 +38,4 @@ class HstackComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

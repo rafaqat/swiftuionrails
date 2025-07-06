@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # This demonstrates the new SwiftUI-like preview DSL
-class ButtonPreviewStories < SwiftUIRails::Storybook
+class ButtonPreviewStories < SwiftUIRails::StorybookStories
   # Controls are still defined at the class level for interactive Storybook
   control :variant, as: :select, options: ["primary", "secondary", "danger", "success"], default: "primary"
   control :size, as: :select, options: ["sm", "md", "lg", "xl"], default: "md"
@@ -214,3 +215,4 @@ class ButtonPreviewStories < SwiftUIRails::Storybook
     end
   end
 end
+# Copyright 2025

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class HomePageRenderingTest < ActionDispatch::IntegrationTest
@@ -40,3 +41,4 @@ class HomePageRenderingTest < ActionDispatch::IntegrationTest
     end
   end
 end
+# Copyright 2025

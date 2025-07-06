@@ -1,3 +1,4 @@
+# Copyright 2025
 module SwiftUIDSL
   module Tailwind
     # Tailwind-specific modifiers for SwiftUI DSL
@@ -363,3 +364,4 @@ module SwiftUIDSL
     Component.include(Modifiers)
   end
 end
+# Copyright 2025

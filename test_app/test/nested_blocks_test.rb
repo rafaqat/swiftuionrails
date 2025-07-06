@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class NestedBlocksTest < ActiveSupport::TestCase
@@ -53,3 +54,4 @@ class NestedBlocksTest < ActiveSupport::TestCase
     assert result.include?("shadow-md") # card with elevation 2
   end
 end
+# Copyright 2025

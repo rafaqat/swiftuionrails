@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ApplicationComponent < SwiftUIRails::Component::Base
   # Common component configuration for your app
@@ -15,3 +16,4 @@ class ApplicationComponent < SwiftUIRails::Component::Base
   #   date.strftime("%B %d, %Y")
   # end
 end
+# Copyright 2025

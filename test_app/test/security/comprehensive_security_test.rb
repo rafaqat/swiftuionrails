@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ComprehensiveSecurityTest < ActiveSupport::TestCase
@@ -212,3 +213,4 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
     end
   end
 end
+# Copyright 2025

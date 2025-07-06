@@ -1,3 +1,4 @@
+# Copyright 2025
 # Be sure to restart your server when you modify this file.
 
 # Define an application-wide content security policy.
@@ -24,3 +25,4 @@ Rails.application.configure do
   # Report violations without enforcing the policy in development
   config.content_security_policy_report_only = Rails.env.development?
 end
+# Copyright 2025

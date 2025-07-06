@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class DebugDslTest < ViewComponent::TestCase
@@ -51,3 +52,4 @@ class DebugDslTest < ViewComponent::TestCase
     assert_selector "div"  # Should have at least one div
   end
 end
+# Copyright 2025

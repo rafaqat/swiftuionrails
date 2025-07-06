@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ExampleComponentTest < ViewComponent::TestCase
@@ -36,3 +37,4 @@ class ExampleComponentTest < ViewComponent::TestCase
     puts "Direct call result: #{result}"
   end
 end
+# Copyright 2025

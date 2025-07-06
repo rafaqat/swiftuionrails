@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class BlockBindingTest < ActiveSupport::TestCase
@@ -72,3 +73,4 @@ class BlockBindingTest < ActiveSupport::TestCase
     assert result.include?("max-w-4xl")
   end
 end
+# Copyright 2025

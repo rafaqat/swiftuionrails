@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class AuthLayoutComponent < ApplicationComponent
   # Layout configuration
@@ -203,3 +204,4 @@ class AuthLayoutComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

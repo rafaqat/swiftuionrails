@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # StorySession manages persistent state for interactive component stories
 # Enables real-time component state management in storybook
@@ -14,6 +15,7 @@ class StorySession
     CounterComponentStories
     ProductCardComponentStories
     ProductListComponentStories
+    AuthFormStories
     AuthFormComponentStories
     EnhancedLoginComponentStories
     EnhancedRegisterComponentStories
@@ -24,6 +26,21 @@ class StorySession
     ImageComponentStories
     ListComponentStories
     SimpleButtonComponentStories
+    DslButtonStories
+    DslCardStories
+    DslCompositionStories
+    DslProductCardStories
+    DslSimpleTestStories
+    ButtonPreviewStories
+    CounterDebugStories
+    EnhancedAuthStories
+    EnhancedGridStories
+    NewDslMethodsStories
+    ProductLayoutSimpleStories
+    SimpleAuthStories
+    SimpleTestComponentStories
+    SwiftuiPreviewDemoStories
+    TestGridStories
   ].freeze
   
   attribute :story_name, :string
@@ -204,3 +221,4 @@ class StorySession
     end
   end
 end
+# Copyright 2025

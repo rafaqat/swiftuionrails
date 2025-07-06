@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ElementBlockTest < ActiveSupport::TestCase
@@ -43,3 +44,4 @@ class ElementBlockTest < ActiveSupport::TestCase
     puts "HTML: #{html3}"
   end
 end
+# Copyright 2025

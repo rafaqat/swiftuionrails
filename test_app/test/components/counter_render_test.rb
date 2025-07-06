@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class CounterRenderTest < ActiveSupport::TestCase
@@ -60,3 +61,4 @@ class CounterRenderTest < ActiveSupport::TestCase
     assert_match(/id=["']my-div["']/, output)
   end
 end
+# Copyright 2025

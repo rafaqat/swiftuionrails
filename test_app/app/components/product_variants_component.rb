@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductVariantsComponent < ApplicationComponent
   prop :variants, type: Array, required: true
@@ -109,3 +110,4 @@ class ProductVariantsComponent < ApplicationComponent
     (selected_variant[:type] == variant[:type] && selected_variant[:value] == variant[:value])
   end
 end
+# Copyright 2025

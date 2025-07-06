@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 module SwiftUIRails
   module DevTools
@@ -171,3 +172,4 @@ end
 if Rails.env.development?
   ViewComponent::Base.prepend(SwiftUIRails::DevTools::ViewComponentExtension)
 end
+# Copyright 2025

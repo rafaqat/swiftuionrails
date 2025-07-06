@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class DockerfileSecurityTest < ActiveSupport::TestCase
@@ -173,3 +174,4 @@ class DockerfileSecurityTest < ActiveSupport::TestCase
     end
   end
 end
+# Copyright 2025

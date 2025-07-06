@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class TestSyntaxPageTest < ApplicationSystemTestCase
@@ -14,3 +15,4 @@ class TestSyntaxPageTest < ApplicationSystemTestCase
     assert_text "Test 3: Single line"
   end
 end
+# Copyright 2025

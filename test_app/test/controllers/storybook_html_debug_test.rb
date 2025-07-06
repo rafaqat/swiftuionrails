@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -46,3 +47,4 @@ class StorybookHtmlDebugTest < ActionDispatch::IntegrationTest
     puts "\n=== END HTML DEBUG ==="
   end
 end
+# Copyright 2025

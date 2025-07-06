@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class HomeCounterTest < ApplicationSystemTestCase
@@ -33,3 +34,4 @@ class HomeCounterTest < ApplicationSystemTestCase
     take_screenshot
   end
 end
+# Copyright 2025

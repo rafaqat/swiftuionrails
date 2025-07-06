@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class CounterComponent < SwiftUIRails::Component::Base
   # Props - components are stateless view builders
@@ -81,3 +82,4 @@ class CounterComponent < SwiftUIRails::Component::Base
     .attr("id", counter_id)
   end
 end
+# Copyright 2025

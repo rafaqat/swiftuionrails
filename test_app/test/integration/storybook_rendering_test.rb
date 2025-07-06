@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -138,3 +139,4 @@ class StorybookRenderingTest < ActionDispatch::IntegrationTest
     end
   end
 end
+# Copyright 2025

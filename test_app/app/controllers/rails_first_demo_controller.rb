@@ -1,3 +1,4 @@
+# Copyright 2025
 class RailsFirstDemoController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:increment_counter, :add_todo, :delete_todo, :search]
   
@@ -94,3 +95,4 @@ class RailsFirstDemoController < ApplicationController
     filtered
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductPriceComponent < ApplicationComponent
   prop :price, type: [Integer, Float, String], required: true
@@ -69,3 +70,4 @@ class ProductPriceComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

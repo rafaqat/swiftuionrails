@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require 'swift_ui_rails/security/url_validator'
 
@@ -39,3 +40,4 @@ class ImageComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

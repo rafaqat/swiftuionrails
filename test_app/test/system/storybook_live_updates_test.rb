@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class StorybookLiveUpdatesTest < ApplicationSystemTestCase
@@ -131,3 +132,4 @@ class StorybookLiveUpdatesTest < ApplicationSystemTestCase
     assert_selector "button", text: "Copy"
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "application_system_test_case"
 
@@ -117,3 +118,4 @@ class DeepCardDebug < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

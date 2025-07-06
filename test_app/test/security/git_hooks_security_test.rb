@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 require "open3"
 
@@ -171,3 +172,4 @@ class GitHooksSecurityTest < ActiveSupport::TestCase
       "SECURITY: Hook should send errors to stderr")
   end
 end
+# Copyright 2025

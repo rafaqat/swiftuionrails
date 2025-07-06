@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class CounterDebugStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::DSL
@@ -35,3 +36,4 @@ class CounterDebugStories < ViewComponent::Storybook::Stories
     "<div>Simple HTML test</div>".html_safe
   end
 end
+# Copyright 2025

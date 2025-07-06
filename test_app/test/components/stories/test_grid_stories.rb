@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class TestGridStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::DSL
@@ -67,3 +68,4 @@ class TestGridStories < ViewComponent::Storybook::Stories
     end
   end
 end
+# Copyright 2025

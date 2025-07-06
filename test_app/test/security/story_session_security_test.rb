@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class StorySessionSecurityTest < ActiveSupport::TestCase
@@ -167,3 +168,4 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
     end
   end
 end
+# Copyright 2025

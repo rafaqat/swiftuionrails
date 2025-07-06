@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class DeploymentSecretsSecurityTest < ActiveSupport::TestCase
@@ -169,3 +170,4 @@ class DeploymentSecretsSecurityTest < ActiveSupport::TestCase
     end
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class AuthFormStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
@@ -270,3 +271,4 @@ class AuthFormStories < ViewComponent::Storybook::Stories
     end
   end
 end
+# Copyright 2025

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class HomePageTest < ApplicationSystemTestCase
@@ -23,3 +24,4 @@ class HomePageTest < ApplicationSystemTestCase
     assert_text "Click the buttons to see state management in action!"
   end
 end
+# Copyright 2025

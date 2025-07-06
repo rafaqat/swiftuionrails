@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -65,3 +66,4 @@ class StateDebugTest < ViewComponent::TestCase
     end
   end
 end
+# Copyright 2025

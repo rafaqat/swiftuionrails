@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # StatefulComponent adds enhanced state management for interactive storybook
 module StatefulComponent
@@ -142,3 +143,4 @@ module StatefulComponent
     instance_variable_get("@_restoring_state") == true
   end
 end
+# Copyright 2025

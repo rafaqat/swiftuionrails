@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # Configure request timeouts to prevent resource exhaustion
 # Rack::Timeout stops processing requests that take too long
@@ -12,3 +13,4 @@ if defined?(Rack::Timeout)
   # Log timeout errors
   Rack::Timeout::Logger.level = Logger::ERROR
 end
+# Copyright 2025

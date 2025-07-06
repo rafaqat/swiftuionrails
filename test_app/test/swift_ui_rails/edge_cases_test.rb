@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftUIRails::EdgeCasesTest < ActiveSupport::TestCase
@@ -256,3 +257,4 @@ class SwiftUIRails::EdgeCasesTest < ActiveSupport::TestCase
     component.render_in(view_context, &block)
   end
 end
+# Copyright 2025

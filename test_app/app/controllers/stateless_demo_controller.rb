@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class StatelessDemoController < ApplicationController
   # Demo data
@@ -75,3 +76,4 @@ class StatelessDemoController < ApplicationController
     end
   end
 end
+# Copyright 2025

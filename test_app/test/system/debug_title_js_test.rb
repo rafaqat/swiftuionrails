@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "application_system_test_case"
 
@@ -90,3 +91,4 @@ class DebugTitleJsTest < ApplicationSystemTestCase
     assert true # This test is for debugging, not assertions
   end
 end
+# Copyright 2025

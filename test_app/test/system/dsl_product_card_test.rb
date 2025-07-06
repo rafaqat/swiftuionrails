@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class DslProductCardTest < ApplicationSystemTestCase
@@ -29,3 +30,4 @@ class DslProductCardTest < ApplicationSystemTestCase
     assert_text "$35", wait: 5
   end
 end
+# Copyright 2025

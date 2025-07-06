@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class CapybaraCheckTest < ApplicationSystemTestCase
@@ -21,3 +22,4 @@ class CapybaraCheckTest < ApplicationSystemTestCase
     end
   end
 end
+# Copyright 2025

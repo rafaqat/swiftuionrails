@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # Wrapper component for HTML content from stories
 class StoryHtmlWrapperComponent < ViewComponent::Base
@@ -114,3 +115,4 @@ class StoryRenderer
     end
   end
 end
+# Copyright 2025

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SimpleButtonComponentTest < ViewComponent::TestCase
@@ -115,3 +116,4 @@ class SimpleButtonComponentTest < ViewComponent::TestCase
     content.html_safe
   end
 end
+# Copyright 2025

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ChainedBlocksTest < ActiveSupport::TestCase
@@ -50,3 +51,4 @@ class ChainedBlocksTest < ActiveSupport::TestCase
     assert result.include?("p-8"), "Should include padding"
   end
 end
+# Copyright 2025

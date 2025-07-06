@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SimpleCounterComponent < SwiftUIRails::Component::Base
   prop :count, type: Integer, default: 0
@@ -7,3 +8,4 @@ class SimpleCounterComponent < SwiftUIRails::Component::Base
     text("Count: #{count}")
   end
 end
+# Copyright 2025

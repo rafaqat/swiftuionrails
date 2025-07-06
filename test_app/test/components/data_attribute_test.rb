@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class DataAttributeTest < ActiveSupport::TestCase
@@ -18,3 +19,4 @@ class DataAttributeTest < ActiveSupport::TestCase
     assert_match(/data-action="click->test#method"/, result)
   end
 end
+# Copyright 2025

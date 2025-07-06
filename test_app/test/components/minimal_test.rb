@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -40,3 +41,4 @@ class MinimalTest < ViewComponent::TestCase
     assert_text "Swift UI Component"
   end
 end
+# Copyright 2025

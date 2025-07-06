@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
@@ -45,3 +46,4 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     puts "=== End Console Output ===\n"
   end
 end
+# Copyright 2025

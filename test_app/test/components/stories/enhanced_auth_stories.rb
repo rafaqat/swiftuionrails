@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class EnhancedAuthStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::DSL
@@ -232,3 +233,4 @@ class EnhancedAuthStories < ViewComponent::Storybook::Stories
     end
   end
 end
+# Copyright 2025

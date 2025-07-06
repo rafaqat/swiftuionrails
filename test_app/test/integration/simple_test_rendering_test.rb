@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SimpleTestRenderingTest < ActionDispatch::IntegrationTest
@@ -36,3 +37,4 @@ class SimpleTestRenderingTest < ActionDispatch::IntegrationTest
     end
   end
 end
+# Copyright 2025

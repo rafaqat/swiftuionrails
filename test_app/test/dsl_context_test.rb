@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class DSLContextTest < ActiveSupport::TestCase
@@ -43,3 +44,4 @@ class DSLContextTest < ActiveSupport::TestCase
     assert result.html_safe?
   end
 end
+# Copyright 2025

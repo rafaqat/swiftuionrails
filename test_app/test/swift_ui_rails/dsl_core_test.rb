@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
@@ -231,7 +232,7 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
   
   test "image creates img element" do
     result = @view.swift_ui do
-      image("photo.jpg", alt: "Photo")
+      image(src: "photo.jpg", alt: "Photo")
     end
     
     assert_includes result, '<img'
@@ -268,7 +269,7 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
         
         card(elevation: 2).p(4) do
           hstack(spacing: 12) do
-            image("avatar.jpg").w(12).h(12).rounded("full")
+            image(src: "avatar.jpg", alt: "Avatar").w(12).h(12).rounded("full")
             vstack(alignment: :leading, spacing: 4) do
               text("John Doe").font_weight("semibold")
               text("john@example.com").text_size("sm").text_color("gray-600")
@@ -313,3 +314,4 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
     assert_includes result, '<div class="bg-blue-500 p-4"></div>'
   end
 end
+# Copyright 2025

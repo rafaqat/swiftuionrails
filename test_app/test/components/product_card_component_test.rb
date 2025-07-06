@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ProductCardComponentTest < ViewComponent::TestCase
@@ -31,3 +32,4 @@ class ProductCardComponentTest < ViewComponent::TestCase
     assert_text "Out of Stock"
   end
 end
+# Copyright 2025

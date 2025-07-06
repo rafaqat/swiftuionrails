@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SearchComponent < SwiftUIRails::Component::Base
   prop :query, type: String, default: ""
@@ -90,3 +91,4 @@ class SearchComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

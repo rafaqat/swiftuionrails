@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -111,3 +112,4 @@ class CounterComponentTest < ViewComponent::TestCase
     CounterComponent.state_debugging_enabled = false
   end
 end
+# Copyright 2025

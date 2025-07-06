@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 require "ostruct"
@@ -115,3 +116,4 @@ class ProductLayoutComponentUsageTest < ActiveSupport::TestCase
     assert_selector "img[src='https://example.com/photo.jpg']"
   end
 end
+# Copyright 2025

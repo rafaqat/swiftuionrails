@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class ComprehensiveButtonTest < ApplicationSystemTestCase
@@ -144,3 +145,4 @@ class ComprehensiveButtonTest < ApplicationSystemTestCase
     assert true, "Stimulus controller test completed"
   end
 end
+# Copyright 2025

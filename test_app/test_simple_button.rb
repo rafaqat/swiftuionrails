@@ -1,3 +1,4 @@
+# Copyright 2025
 #!/usr/bin/env ruby
 require_relative 'config/environment'
 
@@ -26,3 +27,4 @@ end
 
 puts "\n" + "=" * 60
 puts "Test completed!"
+# Copyright 2025

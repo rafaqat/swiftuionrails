@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "application_system_test_case"
 
@@ -43,3 +44,4 @@ class StimulusQuickTest < ApplicationSystemTestCase
     assert has_method, "controlChanged method should be available"
   end
 end
+# Copyright 2025

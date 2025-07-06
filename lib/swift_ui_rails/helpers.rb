@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require_relative "dsl/context"
 
@@ -57,3 +58,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -17,3 +18,4 @@ class SimpleReactiveTest < ViewComponent::TestCase
     assert_text "Test"
   end
 end
+# Copyright 2025

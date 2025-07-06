@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class SimpleCounterTest < ApplicationSystemTestCase
@@ -26,3 +27,4 @@ class SimpleCounterTest < ApplicationSystemTestCase
     puts "✅ Counter is working correctly!"
   end
 end
+# Copyright 2025

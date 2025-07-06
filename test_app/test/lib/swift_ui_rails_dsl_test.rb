@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftUIRailsDSLTest < ActiveSupport::TestCase
@@ -60,3 +61,4 @@ class SwiftUIRailsDSLTest < ActiveSupport::TestCase
     assert respond_to?(:card)
   end
 end
+# Copyright 2025

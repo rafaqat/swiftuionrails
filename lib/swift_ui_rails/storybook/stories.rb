@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require_relative 'layouts'
 require_relative 'previews'
@@ -13,3 +14,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

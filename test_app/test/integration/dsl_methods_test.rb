@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -110,3 +111,4 @@ class DslMethodsTest < ActionDispatch::IntegrationTest
       "Should include line-clamp-2 CSS class in output"
   end
 end
+# Copyright 2025

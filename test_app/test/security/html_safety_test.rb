@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class HtmlSafetyTest < ActiveSupport::TestCase
@@ -75,3 +76,4 @@ class HtmlSafetyTest < ActiveSupport::TestCase
     assert_equal original_content, component._content
   end
 end
+# Copyright 2025

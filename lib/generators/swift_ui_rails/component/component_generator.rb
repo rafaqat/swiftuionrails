@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 module SwiftUIRails
   module Generators
@@ -140,3 +141,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

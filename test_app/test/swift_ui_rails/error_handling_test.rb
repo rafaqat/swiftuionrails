@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftUIRails::ErrorHandlingTest < ViewComponent::TestCase
@@ -238,3 +239,4 @@ class SwiftUIRails::ErrorHandlingTest < ViewComponent::TestCase
     component.render_in(view_context, &block)
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -49,3 +50,4 @@ class ElementDebugTest < ViewComponent::TestCase
     puts "Rendered HTML: #{html}"
   end
 end
+# Copyright 2025

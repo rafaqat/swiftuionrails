@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class WebSocketSecurityTest < ActionCable::Channel::TestCase
@@ -185,3 +186,4 @@ class ReactiveRenderingSecurityTest < ActiveSupport::TestCase
     assert_nil registry["dir"]
   end
 end
+# Copyright 2025

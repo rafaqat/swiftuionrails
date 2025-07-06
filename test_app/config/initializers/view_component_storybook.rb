@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 # Updated to use our Rails 8 compatible fork
 if defined?(ViewComponent::Storybook)
@@ -29,3 +30,4 @@ if defined?(ViewComponent::Storybook)
     # Instead, we'll handle layout in the controller or views
   end
 end
+# Copyright 2025

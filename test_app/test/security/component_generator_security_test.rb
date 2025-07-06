@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 require "generators/swift_ui_rails/component/component_generator"
 
@@ -158,3 +159,4 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     end
   end
 end
+# Copyright 2025

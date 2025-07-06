@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftComponentHelperSecurityTest < ActionView::TestCase
@@ -166,3 +167,4 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
     end
   end
 end
+# Copyright 2025

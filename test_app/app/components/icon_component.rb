@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class IconComponent < SwiftUIRails::Component::Base
   # Type alias for better readability
@@ -18,3 +19,4 @@ class IconComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

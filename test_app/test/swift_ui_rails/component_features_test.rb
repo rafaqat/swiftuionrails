@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftUIRails::ComponentFeaturesTest < ViewComponent::TestCase
@@ -325,3 +326,4 @@ class SwiftUIRails::ComponentFeaturesTest < ViewComponent::TestCase
     assert_equal "Base: base, Extended: extended", component.extended_computed
   end
 end
+# Copyright 2025

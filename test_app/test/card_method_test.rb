@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class CardMethodTest < ActiveSupport::TestCase
@@ -40,3 +41,4 @@ class CardMethodTest < ActiveSupport::TestCase
     puts "Same object? #{card5a.object_id == card5b.object_id}"
   end
 end
+# Copyright 2025

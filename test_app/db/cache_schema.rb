@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 ActiveRecord::Schema[7.2].define(version: 1) do
   create_table "solid_cache_entries", force: :cascade do |t|
@@ -12,3 +13,4 @@ ActiveRecord::Schema[7.2].define(version: 1) do
     t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
   end
 end
+# Copyright 2025

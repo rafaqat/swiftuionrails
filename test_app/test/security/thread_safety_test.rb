@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 require "concurrent"
 
@@ -255,3 +256,4 @@ class ThreadSafetyTest < ActiveSupport::TestCase
     ObservableStore.singleton_class.define_method(:new, original_new)
   end
 end
+# Copyright 2025

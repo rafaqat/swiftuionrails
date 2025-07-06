@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SimpleButtonVariantsTest < ActionDispatch::IntegrationTest
@@ -93,3 +94,4 @@ class SimpleButtonVariantsTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#component-preview button.rounded-md", text: "Test Button"
   end
 end
+# Copyright 2025

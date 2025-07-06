@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class NewDslMethodsControllerTest < ActionDispatch::IntegrationTest
@@ -53,3 +54,4 @@ class NewDslMethodsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style*='color: red']"
   end
 end
+# Copyright 2025

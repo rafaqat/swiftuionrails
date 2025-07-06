@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 require "generators/swift_ui_rails/stories/stories_generator"
 
@@ -158,3 +159,4 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     assert_equal "my_component", generator.send(:file_name)
   end
 end
+# Copyright 2025

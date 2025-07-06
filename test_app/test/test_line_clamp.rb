@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class TestLineClamp < ActiveSupport::TestCase
@@ -16,3 +17,4 @@ class TestLineClamp < ActiveSupport::TestCase
     assert_includes html, "line-clamp-3", "Should include line-clamp-3 CSS class"
   end
 end
+# Copyright 2025

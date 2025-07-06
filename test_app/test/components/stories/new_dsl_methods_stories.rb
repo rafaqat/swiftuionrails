@@ -1,3 +1,4 @@
+# Copyright 2025
 class NewDslMethodsStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::DSL
   include SwiftUIRails::Helpers
@@ -141,3 +142,4 @@ class NewDslMethodsStories < ViewComponent::Storybook::Stories
     end
   end
 end
+# Copyright 2025

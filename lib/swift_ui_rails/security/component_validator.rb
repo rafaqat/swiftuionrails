@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 module SwiftUIRails
   module Security
@@ -19,17 +20,24 @@ module SwiftUIRails
         # Override prop setter to add validation
         class << self
           def prop(name, type: String, required: false, default: nil, **options)
-            super
+            # Extract validation options before passing to parent
+            validate = options.delete(:validate)
+            enum = options.delete(:enum)
+            pattern = options.delete(:pattern)
+            range = options.delete(:range)
+            
+            # Call parent with remaining options
+            super(name, type: type, required: required, default: default)
             
             # Add validation if specified
-            if options[:validate]
-              prop_validations[name] = options[:validate]
-            elsif options[:enum]
-              prop_validations[name] = { inclusion: { in: options[:enum] } }
-            elsif options[:pattern]
-              prop_validations[name] = { format: { with: options[:pattern] } }
-            elsif options[:range]
-              prop_validations[name] = { inclusion: { in: options[:range] } }
+            if validate
+              prop_validations[name] = validate
+            elsif enum
+              prop_validations[name] = { inclusion: { in: enum } }
+            elsif pattern
+              prop_validations[name] = { format: { with: pattern } }
+            elsif range
+              prop_validations[name] = { inclusion: { in: range } }
             end
           end
         end
@@ -189,3 +197,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

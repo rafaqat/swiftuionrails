@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class TailwindCardComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Storybook::Layouts
@@ -112,3 +113,4 @@ class TailwindCardComponentStories < ViewComponent::Storybook::Stories
     layout :card_grid
   end
 end
+# Copyright 2025

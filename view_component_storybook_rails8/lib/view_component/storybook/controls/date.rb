@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 module ViewComponent
   module Storybook
@@ -30,3 +31,4 @@ module ViewComponent
     end
   end
 end
+# Copyright 2025

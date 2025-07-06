@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require "test_helper"
 
@@ -116,3 +117,4 @@ class StorybookFinalValidationTest < ActionDispatch::IntegrationTest
     puts "✅ End-to-end storybook workflow validated"
   end
 end
+# Copyright 2025

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "application_system_test_case"
 
 class ComponentShowcaseTest < ApplicationSystemTestCase
@@ -104,3 +105,4 @@ class ComponentShowcaseTest < ApplicationSystemTestCase
     take_screenshot
   end
 end
+# Copyright 2025

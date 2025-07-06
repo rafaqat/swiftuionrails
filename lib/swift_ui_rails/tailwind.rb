@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 require_relative 'security/css_validator'
 
@@ -755,6 +756,212 @@ module SwiftUIRails
         self
       end
 
+      # Missing spacing methods
+      def p(value = nil)
+        add_class(value ? "p-#{value}" : "p")
+        self
+      end
+
+      def px(value = nil)
+        add_class(value ? "px-#{value}" : "px")
+        self
+      end
+
+      def py(value = nil)
+        add_class(value ? "py-#{value}" : "py")
+        self
+      end
+
+      def mt(value = nil)
+        add_class(value ? "mt-#{value}" : "mt")
+        self
+      end
+
+      def mb(value = nil)
+        add_class(value ? "mb-#{value}" : "mb")
+        self
+      end
+
+      def ml(value = nil)
+        add_class(value ? "ml-#{value}" : "ml")
+        self
+      end
+
+      def mr(value = nil)
+        add_class(value ? "mr-#{value}" : "mr")
+        self
+      end
+
+      def mx(value = nil)
+        add_class(value ? "mx-#{value}" : "mx")
+        self
+      end
+
+      def my(value = nil)
+        add_class(value ? "my-#{value}" : "my")
+        self
+      end
+
+      def pl(value = nil)
+        add_class(value ? "pl-#{value}" : "pl")
+        self
+      end
+
+      def pr(value = nil)
+        add_class(value ? "pr-#{value}" : "pr")
+        self
+      end
+
+      # Size methods
+      def w(value = nil)
+        add_class(value ? "w-#{value}" : "w")
+        self
+      end
+
+      def h(value = nil)
+        add_class(value ? "h-#{value}" : "h")
+        self
+      end
+
+      def min_h(value = nil)
+        add_class(value ? "min-h-#{value}" : "min-h")
+        self
+      end
+
+      def max_w(value = nil)
+        add_class(value ? "max-w-#{value}" : "max-w")
+        self
+      end
+
+      def h_full
+        add_class("h-full")
+        self
+      end
+
+      # Typography methods
+      def text_size(size)
+        add_class("text-#{size}")
+        self
+      end
+
+      def text_color(color)
+        add_class("text-#{color}")
+        self
+      end
+
+      def font_weight(weight)
+        add_class("font-#{weight}")
+        self
+      end
+
+      def leading(value = nil)
+        add_class(value ? "leading-#{value}" : "leading")
+        self
+      end
+
+      def tracking(value = nil)
+        add_class(value ? "tracking-#{value}" : "tracking")
+        self
+      end
+
+      def text_align(align = nil)
+        add_class(align ? "text-#{align}" : "text-align")
+        self
+      end
+
+      # Layout methods
+      def space_x(value = nil)
+        add_class(value ? "space-x-#{value}" : "space-x")
+        self
+      end
+
+      def space_y(value = nil)
+        add_class(value ? "space-y-#{value}" : "space-y")
+        self
+      end
+
+      def gap(value = nil)
+        add_class(value ? "gap-#{value}" : "gap")
+        self
+      end
+
+      def grid_cols(value = nil)
+        add_class(value ? "grid-cols-#{value}" : "grid-cols")
+        self
+      end
+
+      def aspect(ratio = nil)
+        add_class(ratio ? "aspect-#{ratio}" : "aspect")
+        self
+      end
+
+      def overflow(value = nil)
+        add_class(value ? "overflow-#{value}" : "overflow")
+        self
+      end
+
+      def object(value = nil)
+        add_class(value ? "object-#{value}" : "object")
+        self
+      end
+
+      # Interactive states
+      def pointer_events_none
+        add_class("pointer-events-none")
+        self
+      end
+
+      def hover_bg(color = nil)
+        add_class(color ? "hover:bg-#{color}" : "hover:bg")
+        self
+      end
+
+      def hover_shadow(value = nil)
+        add_class(value ? "hover:shadow-#{value}" : "hover:shadow")
+        self
+      end
+
+      def hover_scale(value = nil)
+        add_class(value ? "hover:scale-#{value}" : "hover:scale")
+        self
+      end
+
+      def focus_outline_none
+        add_class("focus:outline-none")
+        self
+      end
+
+      def focus_border_color(color)
+        add_class("focus:border-#{color}")
+        self
+      end
+
+      # Utility methods
+      def opacity(value = nil)
+        add_class(value ? "opacity-#{value}" : "opacity")
+        self
+      end
+
+      def duration(value = nil)
+        add_class(value ? "duration-#{value}" : "duration")
+        self
+      end
+
+      def inset_y(value = nil)
+        add_class(value ? "inset-y-#{value}" : "inset-y")
+        self
+      end
+
+      def from(color = nil)
+        add_class(color ? "from-#{color}" : "from")
+        self
+      end
+
+      def to(color = nil)
+        add_class(color ? "to-#{color}" : "to")
+        self
+      end
+
       private
 
       def add_class(class_name, &block)
@@ -773,3 +980,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

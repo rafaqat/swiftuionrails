@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ExampleComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Storybook::Layouts
@@ -51,3 +52,4 @@ class ExampleComponentStories < ViewComponent::Storybook::Stories
     layout :interactive_demo
   end
 end
+# Copyright 2025

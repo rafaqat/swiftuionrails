@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SimpleTestComponentStories < ViewComponent::Storybook::Stories
   control :message, as: :text, default: "Hello from Test Component"
@@ -7,3 +8,4 @@ class SimpleTestComponentStories < ViewComponent::Storybook::Stories
     SimpleTestComponent.new(message: message)
   end
 end
+# Copyright 2025

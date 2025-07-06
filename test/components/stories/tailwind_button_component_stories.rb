@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class TailwindButtonComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Storybook::Layouts
@@ -87,3 +88,4 @@ class TailwindButtonComponentStories < ViewComponent::Storybook::Stories
     layout :icons_showcase
   end
 end
+# Copyright 2025

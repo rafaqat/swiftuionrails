@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class DslProductCardStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::DSL
@@ -221,3 +222,4 @@ class DslProductCardStories < ViewComponent::Storybook::Stories
     end
   end
 end
+# Copyright 2025

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class PurpleVerificationTest < ViewComponent::TestCase
@@ -28,3 +29,4 @@ class PurpleVerificationTest < ViewComponent::TestCase
     end
   end
 end
+# Copyright 2025

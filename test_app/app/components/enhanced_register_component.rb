@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class EnhancedRegisterComponent < ApplicationComponent
   # Form configuration
@@ -280,3 +281,4 @@ class EnhancedRegisterComponent < ApplicationComponent
     .sm("px-6 lg:px-8")
   end
 end
+# Copyright 2025

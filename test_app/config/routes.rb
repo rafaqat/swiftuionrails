@@ -1,3 +1,4 @@
+# Copyright 2025
 Rails.application.routes.draw do
   # Custom interactive storybook routes
   get "rails/stories" => "storybook#index"
@@ -51,3 +52,4 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "home#index"
 end
+# Copyright 2025

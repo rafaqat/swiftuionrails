@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ButtonColorFixTest < ViewComponent::TestCase
@@ -54,3 +55,4 @@ class ButtonColorFixTest < ViewComponent::TestCase
     refute component.send(:is_light_background?, "green-800")
   end
 end
+# Copyright 2025

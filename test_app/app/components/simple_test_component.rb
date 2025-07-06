@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class SimpleTestComponent < SwiftUIRails::Component::Base
   prop :message, type: String, default: "Hello World"
@@ -12,3 +13,4 @@ class SimpleTestComponent < SwiftUIRails::Component::Base
     end
   end
 end
+# Copyright 2025

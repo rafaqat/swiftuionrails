@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ExampleComponent < ApplicationComponent
   prop :title, type: String, default: "Hello from SwiftUI Rails!"
@@ -88,3 +89,4 @@ class ExampleComponent < ApplicationComponent
     self.counter = 0
   end
 end
+# Copyright 2025

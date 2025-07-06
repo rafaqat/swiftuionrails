@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class DslButtonStories < ViewComponent::Storybook::Stories
   include ActionView::Helpers::TagHelper
@@ -63,35 +64,34 @@ class DslButtonStories < ViewComponent::Storybook::Stories
           
           # Main button with all properties
           hstack(spacing: 16, alignment: :center) do
-            # The button
-            btn = button(text)
+            # The button - create and render in one chain
+            button(text)
               .bg(background_color)
               .text_color(text_color)
-              .px(size == "sm" ? 3 : size == "md" ? 4 : size == "lg" ? 6 : 8)
-              .py(size == "sm" ? 1 : size == "md" ? 2 : size == "lg" ? 3 : 4)
-              .text_size(size == "sm" ? "sm" : size == "md" ? "base" : size == "lg" ? "lg" : "xl")
+              .px(size.to_s == "sm" ? 4 : size.to_s == "md" ? 6 : size.to_s == "lg" ? 8 : 10)
+              .py(size.to_s == "sm" ? 2 : size.to_s == "md" ? 3 : size.to_s == "lg" ? 4 : 5)
+              .text_size(size.to_s == "sm" ? "sm" : size.to_s == "md" ? "base" : size.to_s == "lg" ? "lg" : "xl")
               .rounded(rounded)
               .font_weight("medium")
               .disabled(disabled)
-            
-            # Apply hover effect
-            btn = btn.hover(hover_effect) if hover_effect != "none"
-            
-            # Apply focus ring
-            btn = btn.focus("ring-2 ring-#{focus_ring_color}")
-            
-            # Apply transition
-            btn = btn.transition if transition_enabled
-            
-            # Apply Stimulus properties if provided
-            btn = btn.stimulus_controller(stimulus_controller) if stimulus_controller.present?
-            btn = btn.stimulus_action(stimulus_action) if stimulus_action.present?
-            btn = btn.stimulus_target(stimulus_target) if stimulus_target.present?
-            
-            # Apply aria label if provided
-            btn = btn.aria_label(aria_label) if aria_label.present?
-            
-            btn
+              .tap do |btn|
+                # Apply hover effect
+                btn.hover(hover_effect) if hover_effect != "none"
+                
+                # Apply focus ring
+                btn.focus("ring-2 ring-#{focus_ring_color}")
+                
+                # Apply transition
+                btn.transition if transition_enabled
+                
+                # Apply Stimulus properties if provided
+                btn.stimulus_controller(stimulus_controller) if stimulus_controller.present?
+                btn.stimulus_action(stimulus_action) if stimulus_action.present?
+                btn.stimulus_target(stimulus_target) if stimulus_target.present?
+                
+                # Apply aria label if provided
+                btn.aria_label(aria_label) if aria_label.present?
+              end
           end
           
           # Properties display
@@ -333,3 +333,4 @@ class DslButtonStories < ViewComponent::Storybook::Stories
     end
   end
 end
+# Copyright 2025

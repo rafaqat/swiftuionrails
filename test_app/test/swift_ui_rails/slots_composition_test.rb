@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class SwiftUIRails::SlotsCompositionTest < ViewComponent::TestCase
@@ -404,3 +405,4 @@ class SwiftUIRails::SlotsCompositionTest < ViewComponent::TestCase
     component.render_in(view_context)
   end
 end
+# Copyright 2025

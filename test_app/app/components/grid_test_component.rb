@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class GridTestComponent < ApplicationComponent
   include SwiftUIRails::DSL
@@ -18,3 +19,4 @@ class GridTestComponent < ApplicationComponent
     end
   end
 end
+# Copyright 2025

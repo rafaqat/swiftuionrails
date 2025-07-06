@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class ProductLayoutComponentTest < ViewComponent::TestCase
@@ -62,3 +63,4 @@ class ProductLayoutComponentTest < ViewComponent::TestCase
     assert_selector ".lg\\:grid-cols-4"
   end
 end
+# Copyright 2025

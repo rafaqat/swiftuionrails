@@ -1,3 +1,4 @@
+# Copyright 2025
 #!/usr/bin/env ruby
 require_relative 'config/environment'
 
@@ -25,3 +26,4 @@ puts "Component message: #{component.message}"
 html = component.render_in(view_context)
 puts "\nRendered HTML:"
 puts html
+# Copyright 2025

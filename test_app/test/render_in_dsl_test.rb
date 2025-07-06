@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class RenderInDslTest < ActiveSupport::TestCase
@@ -42,3 +43,4 @@ class RenderInDslTest < ActiveSupport::TestCase
     end
   end
 end
+# Copyright 2025

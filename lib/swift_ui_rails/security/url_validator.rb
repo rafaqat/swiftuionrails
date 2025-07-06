@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 module SwiftUIRails
   module Security
@@ -21,6 +22,10 @@ module SwiftUIRails
         'images.unsplash.com',
         'i.imgur.com',
         'gravatar.com',
+        
+        # Development and documentation services
+        'tailwindui.com',
+        'tailwindcss.com',
         
         # Add your approved domains here
       ].freeze
@@ -172,3 +177,4 @@ module SwiftUIRails
     end
   end
 end
+# Copyright 2025

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class ProductsController < ApplicationController
   def index
@@ -184,3 +185,4 @@ class ProductsController < ApplicationController
     ]
   end
 end
+# Copyright 2025

@@ -1,3 +1,4 @@
+# Copyright 2025
 require "test_helper"
 
 class StorybookControllerTest < ActionDispatch::IntegrationTest
@@ -38,3 +39,4 @@ class StorybookControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Story not found: nonexistent_button", flash[:alert]
   end
 end
+# Copyright 2025

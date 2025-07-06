@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Copyright 2025
 
 class StorybookController < ApplicationController
   protect_from_forgery except: [:update_preview, :component_action] # Allow AJAX requests
@@ -452,3 +453,4 @@ class StorybookController < ApplicationController
     color_map[color_name] || '#6b7280' # Default to gray-500 if color not found
   end
 end
+# Copyright 2025
