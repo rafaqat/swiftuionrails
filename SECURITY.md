@@ -129,11 +129,11 @@ config.force_ssl = true
 Run security scans regularly:
 
 ```bash
-# Brakeman for Ruby security
-bundle exec brakeman
-
 # Check for vulnerable dependencies
 bundle audit
+
+# Run RuboCop with security cops
+bundle exec rubocop
 ```
 
 ## Reporting Security Issues
