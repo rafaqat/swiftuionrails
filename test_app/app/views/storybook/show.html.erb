@@ -352,6 +352,143 @@
           </div>
         </div>
         
+        <!-- Component Debug Tree -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8 overflow-hidden">
+          <details class="group">
+            <summary class="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6 cursor-pointer hover:from-gray-700 hover:to-gray-800 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <svg class="w-5 h-5 transform transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                  <h2 class="text-xl font-semibold">🔍 Component Debug Tree</h2>
+                </div>
+                <span class="text-sm text-gray-300">Click to expand</span>
+              </div>
+            </summary>
+            
+            <div class="p-8">
+              <% if @story_instance && @story_variant %>
+                <% begin %>
+                  <% # Render the story to get the component/element %>
+                  <% renderer = StoryRenderer.new(controller) %>
+                  <% story_result = renderer.render_story(@story_instance, @story_variant, **@component_props) %>
+                  
+                  <% # Try to capture DSL structure %>
+                  <% Rails.logger.info "[VIEW DEBUG] About to capture story structure for #{@story_variant}" %>
+                  <% captured_elements = capture_story_structure(@story_instance, @story_variant, @component_props) %>
+                  <% Rails.logger.info "[VIEW DEBUG] Captured elements: #{captured_elements&.class&.name} - count: #{captured_elements&.length}" %>
+                  
+                  <% # Generate debug tree based on result type %>
+                  <% if story_result.is_a?(StoryHtmlWrapperComponent) %>
+                    <% # It's wrapped HTML content %>
+                    <% html_content = story_result.instance_variable_get(:@html_content) %>
+                    
+                    <% if captured_elements && captured_elements.any? %>
+                      <% # We captured the DSL structure! %>
+                      <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">DSL Structure (ASCII Tree)</h3>
+                        <p class="text-gray-600 mb-3">This shows the SwiftUI Rails DSL elements used to build this story:</p>
+                        <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm"><%= render_dsl_element_tree(captured_elements.first) %></pre>
+                      </div>
+                    <% else %>
+                      <div class="mb-4">
+                        <p class="text-gray-600">No DSL structure captured.</p>
+                      </div>
+                    <% end %>
+                      
+                    <% if false # Disabled for now captured_elements&.first&.respond_to?(:debug_component_tree) %>
+                        <div class="mb-4">
+                          <h3 class="text-lg font-semibold text-gray-900 mb-2">Interactive Tree View</h3>
+                          <div class="bg-gray-50 p-4 rounded-lg">
+                            <%= SwiftUIRails::DevTools::ComponentTreeDebugger.debug_tree(captured_element, format: :html, include_props: true) %>
+                          </div>
+                        </div>
+                      <% end %>
+                    
+                    <div class="mb-4">
+                      <h3 class="text-lg font-semibold text-gray-900 mb-2">Generated HTML</h3>
+                      <p class="text-gray-600 mb-3">The final HTML output from the DSL:</p>
+                      
+                      <% # Pretty format the HTML with indentation %>
+                      <% pretty_html = html_content.to_s
+                           .gsub(/>\s*</, ">\n<")
+                           .split("\n")
+                           .map.with_index { |line, i| 
+                             indent = line.scan(/<\//).count - line.scan(/<[^\/]/).count
+                             "  " * [0, i - indent].max + line.strip
+                           }
+                           .join("\n") %>
+                      
+                      <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm"><%= h(pretty_html) %></pre>
+                    </div>
+                  <% elsif story_result.is_a?(ViewComponent::Base) %>
+                    <% # It's a ViewComponent %>
+                    <% if story_result.respond_to?(:debug_component_tree) %>
+                      <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Component Structure (ASCII Tree)</h3>
+                        <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm"><%= story_result.debug_component_tree(format: :ascii, include_props: true) %></pre>
+                      </div>
+                    <% else %>
+                      <div class="mb-4">
+                        <p class="text-red-600">This component (<%= story_result.class.name %>) doesn't have debug_component_tree method.</p>
+                        <p class="text-gray-600 text-sm mt-2">Make sure the component inherits from SwiftUIRails::Component::Base or ApplicationComponent.</p>
+                      </div>
+                    <% end %>
+                    
+                    <% if story_result.respond_to?(:debug_component_tree) %>
+                      <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Interactive Tree View</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                          <%= story_result.debug_component_tree(format: :html, include_props: true) %>
+                        </div>
+                      </div>
+                      
+                      <details class="mb-4">
+                        <summary class="text-lg font-semibold text-gray-900 mb-2 cursor-pointer hover:text-blue-600">JSON Structure</summary>
+                        <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-xs mt-2"><%= JSON.pretty_generate(JSON.parse(story_result.debug_component_tree(format: :json, include_props: true))) %></pre>
+                      </details>
+                    <% end %>
+                    
+                  <% elsif story_result.is_a?(String) && story_result.include?("<") %>
+                    <% # It's raw HTML/DSL output %>
+                    <div class="mb-4">
+                      <p class="text-gray-600 mb-2">This story renders DSL elements directly. The debug tree shows the HTML structure:</p>
+                      <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm"><%= h(story_result.gsub(/>\s*</, ">\n<")) %></pre>
+                    </div>
+                  <% else %>
+                    <p class="text-gray-600">Debug tree is not available for this story type.</p>
+                  <% end %>
+                  
+                <% rescue => e %>
+                  <div class="text-red-600">
+                    <p class="font-semibold">Error generating debug tree:</p>
+                    <p class="text-sm mt-2"><%= e.message %></p>
+                    <details class="mt-2">
+                      <summary class="cursor-pointer text-sm text-gray-600">Stack trace</summary>
+                      <pre class="mt-2 text-xs bg-gray-900 text-gray-300 p-2 rounded overflow-x-auto"><%= e.backtrace.first(5).join("\n") %></pre>
+                    </details>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-gray-600">No component instance available for debugging.</p>
+              <% end %>
+              
+              <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h4 class="font-semibold text-blue-900 mb-2">About the Debug Tree</h4>
+                <p class="text-sm text-blue-800 mb-2">
+                  The debug tree shows the hierarchical structure of SwiftUI Rails components and DSL elements. It helps you understand:
+                </p>
+                <ul class="list-disc list-inside text-sm text-blue-800 space-y-1">
+                  <li>Component nesting and composition</li>
+                  <li>Props passed to each component</li>
+                  <li>DSL element structure (vstack, hstack, text, etc.)</li>
+                  <li>CSS classes and attributes applied</li>
+                </ul>
+              </div>
+            </div>
+          </details>
+        </div>
         
         <!-- Component/Story Source Info -->
         <div class="bg-white rounded-lg shadow-md p-8 mt-6">

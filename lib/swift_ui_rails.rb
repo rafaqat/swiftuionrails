@@ -18,7 +18,9 @@ end
 
 require_relative "swift_ui_rails/security/content_security_policy"
 require_relative "swift_ui_rails/security/rate_limiter"
-require_relative "swift_ui_rails/dev_tools/error_boundary" if Rails.env.development?
+require_relative "swift_ui_rails/dev_tools/error_boundary" if Rails.env.development? || Rails.env.test?
+require_relative "swift_ui_rails/dev_tools/component_tree_debugger" if Rails.env.development? || Rails.env.test?
+require_relative "swift_ui_rails/dev_tools/debug_helpers" if Rails.env.development? || Rails.env.test?
 
 module SwiftUIRails
   class Error < StandardError; end

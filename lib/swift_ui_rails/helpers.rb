@@ -2,9 +2,11 @@
 # Copyright 2025
 
 require_relative "dsl/context"
+require_relative "dev_tools/debug_helpers" if Rails.env.development? || Rails.env.test?
 
 module SwiftUIRails
   module Helpers
+    include SwiftUIRails::DevTools::DebugHelpers if Rails.env.development? || Rails.env.test?
     # Helper for inline Swift DSL usage in views
     def swift_ui(&block)
       # Create a DSL context that delegates view helpers to the current view

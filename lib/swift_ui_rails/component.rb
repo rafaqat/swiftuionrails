@@ -8,6 +8,8 @@ require_relative "component/slots"
 require_relative "component/caching"
 require_relative "reactive"
 require_relative "security/component_validator"
+require_relative "dev_tools/component_tree_debugger" if Rails.env.development? || Rails.env.test?
+require_relative "dev_tools/debug_helpers" if Rails.env.development? || Rails.env.test?
 
 module SwiftUIRails
   module Component
@@ -18,6 +20,7 @@ module SwiftUIRails
       include SwiftUIRails::Component::Caching
       include SwiftUIRails::Reactive if defined?(SwiftUIRails::Reactive)
       include SwiftUIRails::Security::ComponentValidator
+      include SwiftUIRails::DevTools::DebugHelpers if Rails.env.development? || Rails.env.test?
 
       class_attribute :swift_states, default: {}
       class_attribute :swift_props, default: {}

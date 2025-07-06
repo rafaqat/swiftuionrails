@@ -4,6 +4,7 @@
 class StorybookController < ApplicationController
   protect_from_forgery except: [:update_preview, :component_action] # Allow AJAX requests
   helper_method :tailwind_color_to_css
+  helper StorybookDebugHelper
   def index
     # Only show DSL stories
     dsl_stories = ["dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple", "enhanced_grid", "auth_form", "simple_auth"]
