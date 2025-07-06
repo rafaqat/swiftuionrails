@@ -6,11 +6,20 @@ module SwiftUIRails
   class DSLContext
     include DSL
     
-    attr_reader :view_context, :component
+    attr_reader :view_context, :component, :depth
     
-    def initialize(view_context)
+    def initialize(view_context, parent_depth = 0)
       @view_context = view_context
       @pending_elements = []
+      @depth = parent_depth + 1
+      
+      # SECURITY: Check maximum component depth to prevent stack overflow
+      max_depth = SwiftUIRails.configuration.maximum_component_depth
+      if @depth > max_depth
+        Rails.logger.error "[SECURITY] Maximum component depth (#{max_depth}) exceeded at depth #{@depth}"
+        raise SwiftUIRails::SecurityError, "Maximum component nesting depth exceeded. This may indicate an infinite loop or attack."
+      end
+      
       # SECURITY: Use public API instead of private access
       # Store the original component if view_context is already a DSLContext
       @component = if view_context.is_a?(DSLContext) && view_context.respond_to?(:component)

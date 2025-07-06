@@ -2,17 +2,8 @@
 require "test_helper"
 
 class ReactiveControllerSecurityTest < ActionDispatch::IntegrationTest
-  include SwiftUIRails::Reactive::ReactiveController
-  
   setup do
-    # Mock a controller that includes ReactiveController
-    @controller = Class.new(ApplicationController) do
-      include SwiftUIRails::Reactive::ReactiveController
-      
-      def update_component
-        super
-      end
-    end
+    # Integration tests don't need controller setup
   end
   
   test "prevents RCE by rejecting arbitrary class names" do

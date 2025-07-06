@@ -6,6 +6,7 @@ module SwiftUIRails
     # SECURITY: Validates URLs to prevent loading from untrusted sources
     module URLValidator
       # List of approved external domains for resources
+      # This is now deprecated in favor of configuration
       APPROVED_DOMAINS = [
         # Development/placeholder services
         'picsum.photos',
@@ -94,6 +95,12 @@ module SwiftUIRails
           
           host_lower = host.downcase
           
+          # First check configuration if available
+          if SwiftUIRails.configuration.respond_to?(:domain_approved?)
+            return true if SwiftUIRails.configuration.domain_approved?(host)
+          end
+          
+          # Fall back to legacy APPROVED_DOMAINS constant
           APPROVED_DOMAINS.any? do |approved|
             # Exact match or subdomain match
             host_lower == approved || host_lower.end_with?(".#{approved}")
@@ -153,20 +160,8 @@ module SwiftUIRails
         
         # Add a domain to the approved list at runtime (for configuration)
         def add_approved_domain(domain)
-          return false if domain.nil? || domain.empty?
-          
-          # Validate domain format
-          unless domain.match?(/\A[a-z0-9\-\.]+\z/i)
-            Rails.logger.warn "Invalid domain format: #{domain}"
-            return false
-          end
-          
-          # Add to approved list if not already present
-          unless APPROVED_DOMAINS.include?(domain.downcase)
-            APPROVED_DOMAINS << domain.downcase
-          end
-          
-          true
+          # Delegate to configuration
+          SwiftUIRails.configuration.add_approved_domain(domain)
         end
         
         # Configuration helper for Rails apps

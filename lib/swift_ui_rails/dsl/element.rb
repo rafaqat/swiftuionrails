@@ -500,8 +500,20 @@ module SwiftUIRails
         self
       end
       
-      # Set inline style
+      # Set inline style with SECURITY validation
       def style(style_string)
+        # SECURITY: Validate style string to prevent CSS injection
+        if style_string =~ /javascript:|expression\(|@import|<script|behavior:|binding:|include-source:|moz-binding:|vbscript:/i
+          Rails.logger.warn "[SECURITY] Potentially dangerous style blocked: #{style_string}"
+          return self
+        end
+        
+        # Additional validation for common XSS patterns
+        if style_string =~ /data:(?!image\/(?:png|jpg|jpeg|gif|webp|svg\+xml))|javascript:|vbscript:|on\w+\s*=/i
+          Rails.logger.warn "[SECURITY] XSS pattern detected in style: #{style_string}"
+          return self
+        end
+        
         existing_style = @options[:style] || ""
         @options[:style] = [existing_style, style_string].reject(&:blank?).join("; ")
         self
@@ -834,7 +846,9 @@ module SwiftUIRails
           # This prevents creating nested contexts and duplicate rendering
           if @dsl_context
             # Create a new sub-context to isolate child elements
-            sub_context = SwiftUIRails::DSLContext.new(@dsl_context.view_context)
+            # Pass current depth to track nesting level
+            parent_depth = @dsl_context.respond_to?(:depth) ? @dsl_context.depth : 0
+            sub_context = SwiftUIRails::DSLContext.new(@dsl_context.view_context, parent_depth)
             
             # Transfer component reference
             if comp = @dsl_context.instance_variable_get(:@component)
