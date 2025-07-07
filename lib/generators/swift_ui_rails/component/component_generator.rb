@@ -17,6 +17,16 @@ module SwiftUIRails
                 "Invalid component name '#{name}'. Component names must start with a letter and contain only letters, numbers, and underscores."
         end
 
+        # Check for Ruby reserved words
+        reserved_words = %w[
+          alias and begin break case class def defined do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield
+          __FILE__ __LINE__ __ENCODING__ BEGIN END
+        ]
+        
+        if reserved_words.include?(name.downcase)
+          raise Thor::Error, "Component name '#{name}' is a Ruby reserved word."
+        end
+
         # Additional check for suspicious patterns
         if name.match?(/\b(system|exec|eval|constantize|send|public_send|instance_eval|class_eval|module_eval)\b/i)
           raise Thor::Error, "Component name '#{name}' contains forbidden keywords."
@@ -122,8 +132,8 @@ module SwiftUIRails
 
         all_allowed = allowed_types + rails_types
 
-        # Clean the type string first
-        cleaned_type = type.to_s.strip.gsub(/[^A-Za-z0-9:_]/, '')
+        # Clean the type string first - extract only the type name part
+        cleaned_type = type.to_s.strip.split(/[^A-Za-z0-9:_]/).first || 'String'
 
         # Check if it's an allowed type
         if all_allowed.include?(cleaned_type) || cleaned_type.match?(/\A[A-Z][A-Za-z0-9]*(::[A-Z][A-Za-z0-9]*)*\z/)
@@ -148,7 +158,7 @@ module SwiftUIRails
 
       def file_name
         # Override to ensure safe file names
-        @file_name ||= name.gsub(/[^a-z0-9_]/, '_').underscore
+        @file_name ||= name.gsub(/[^a-z0-9_]/i, '_').underscore
       end
     end
   end

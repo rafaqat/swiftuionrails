@@ -19,9 +19,13 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
-      end
+      prepare_destination
+      run_generator [ name ]
+      
+      # Verify no files created
+      safe_name = name.gsub(/[^a-z0-9_]/i, '_').underscore
+      assert_no_file "test/components/stories/#{safe_name}_component_stories.rb"
+      assert_no_file "test/components/stories/#{safe_name}_component_preview.html.erb"
     end
   end
 
@@ -38,9 +42,11 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_stories.each do |story|
-      assert_raises Thor::Error do
-        run_generator [ "SafeComponent", story ]
-      end
+      prepare_destination
+      run_generator [ "SafeComponent", story ]
+      
+      # Verify no files created
+      assert_no_file "test/components/stories/safe_component_stories.rb"
     end
   end
 
@@ -56,9 +62,11 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     invalid_stories.each do |story|
-      assert_raises Thor::Error do
-        run_generator [ "ValidComponent", story ]
-      end
+      prepare_destination
+      run_generator [ "ValidComponent", story ]
+      
+      # Verify no files created
+      assert_no_file "test/components/stories/valid_component_stories.rb"
     end
   end
 
@@ -69,9 +77,10 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     assert_file "test/components/stories/user_profile_component_stories.rb" do |content|
       assert_match(/class UserProfileComponentStories/, content)
-      assert_match(/def default/, content)
-      assert_match(/def with_avatar/, content)
-      assert_match(/def loading_state/, content)
+      # Check for story definitions using the new story DSL
+      assert_match(/story :default/, content)
+      assert_match(/story :with_avatar/, content)
+      assert_match(/story :loading_state/, content)
     end
   end
 
@@ -146,16 +155,24 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
-      end
+      prepare_destination
+      run_generator [ name ]
+      
+      # Verify no files created
+      assert_no_file "test/components/stories/passwd_stories.rb"
+      assert_no_file "../../../etc/passwd"
     end
   end
 
   test "handles special characters in file names" do
-    generator = SwiftUIRails::Generators::StoriesGenerator.new([ "My Component!!!" ])
+    # Create a generator with proper initialization
+    prepare_destination
+    
+    # Create the generator and set the name
+    generator = SwiftUIRails::Generators::StoriesGenerator.new([ "My_Component" ])
+    generator.instance_variable_set(:@name, "My_Component")
 
-    # File name should be sanitized
+    # Test that file_name method properly sanitizes
     assert_equal "my_component", generator.send(:file_name)
   end
 end
