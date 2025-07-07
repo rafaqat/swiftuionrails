@@ -9,7 +9,9 @@ module SwiftUIRails
 
       argument :props, type: :array, default: [], banner: 'prop:type prop:type'
 
-      # SECURITY: Validate component name to prevent code injection
+      ##
+      # Validates the component name to ensure it is safe and conforms to naming rules.
+      # Raises a Thor::Error if the name is invalid, contains forbidden keywords, or includes suspicious characters.
       def validate_component_name!
         unless name.match?(/\A[a-zA-Z][a-zA-Z0-9_]*\z/)
           raise Thor::Error,
@@ -27,6 +29,9 @@ module SwiftUIRails
         raise Thor::Error, "Component name '#{name}' contains suspicious characters."
       end
 
+      ##
+      # Generates a SwiftUI component Ruby file in the app/components directory using the provided name and properties.
+      # Skips file creation if the file already exists unless the force option is specified, in which case it overwrites the file.
       def create_component_file
         validate_component_name!
         validate_props!
@@ -46,6 +51,9 @@ module SwiftUIRails
         template 'component.rb.erb', component_path
       end
 
+      ##
+      # Generates a spec file for the component using the provided name and properties.
+      # The spec file is created under `spec/components` using a template.
       def create_component_spec
         validate_component_name!
         validate_props!
@@ -54,6 +62,10 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Parses the provided prop definitions into a list of hashes with validated names and sanitized types.
+      # Raises a Thor::Error if any prop is invalid.
+      # @return [Array<Hash>] An array of hashes, each containing :name and :type keys for a prop.
       def parsed_props
         props.map do |prop|
           parts = prop.split(':', 2)
@@ -71,6 +83,9 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Validates each property definition to ensure it does not contain suspicious characters or forbidden keywords.
+      # Raises a Thor::Error if any property is potentially unsafe.
       def validate_props!
         props.each do |prop|
           if prop.match?(/[;\|&`$(){}]/) || prop.match?(/\b(system|exec|eval)\b/i)
@@ -79,6 +94,10 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Validates that a prop name is a valid Ruby identifier and not a reserved word.
+      # Raises a Thor::Error if the name is invalid or reserved.
+      # @param [String] name The prop name to validate.
       def validate_prop_name!(name)
         unless name&.match?(/\A[a-z_][a-z0-9_]*\z/)
           raise Thor::Error,
@@ -96,6 +115,11 @@ module SwiftUIRails
         raise Thor::Error, "Prop name '#{name}' is a Ruby reserved word."
       end
 
+      ##
+      # Sanitizes and validates a property type, allowing only whitelisted or properly formatted types.
+      # Defaults to 'String' and issues a warning if the type is invalid.
+      # @param [String] type The property type to sanitize and validate.
+      # @return [String] The sanitized and validated type name.
       def sanitize_type(type)
         # SECURITY: Whitelist allowed types to prevent code injection
         allowed_types = %w[
@@ -124,17 +148,26 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Returns a sanitized class name for the component, ensuring it contains only alphanumeric characters and appends 'Component' to the end.
+      # @return [String] The safe component class name.
       def component_class_name
         # SECURITY: Ensure class name is safe (additional protection)
         sanitized_class_name = class_name.gsub(/[^A-Za-z0-9]/, '')
         "#{sanitized_class_name}Component"
       end
 
+      ##
+      # Returns a sanitized and camelized version of the component name suitable for use as a Ruby class name.
+      # Removes all non-alphanumeric and non-underscore characters before camelizing.
       def class_name
         # Override to ensure sanitization
         @class_name ||= name.gsub(/[^A-Za-z0-9_]/, '').camelize
       end
 
+      ##
+      # Returns a sanitized, underscored file name derived from the component name, replacing invalid characters with underscores.
+      # @return [String] The safe file name for the component.
       def file_name
         # Override to ensure safe file names
         @file_name ||= name.gsub(/[^a-z0-9_]/, '_').underscore

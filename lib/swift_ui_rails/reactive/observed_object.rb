@@ -17,7 +17,12 @@ module SwiftUIRails
       class_methods do
         # Define an observed object property
         # @observed_object :user_store
-        # @observed_object :app_state, type: AppState
+        ##
+        # Defines an observed object property with reactive store access and update methods.
+        # Registers the property for observation, creates getter and updater methods, and links it to an observable store.
+        # @param [Symbol] name - The name of the observed object property.
+        # @param [Class, nil] type - The expected type of the observed object, if specified.
+        # @param [Symbol, nil] store - The store identifier to use; defaults to the property name.
         def observed_object(name, type: nil, store: nil)
           observed_object_definitions[name] = {
             type: type,
@@ -47,6 +52,9 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Subscribes the instance to all defined observed object stores, registering callbacks to handle changes.
+      # Stores the resulting subscription handles for later management.
       def subscribe_to_observed_objects
         @observation_subscriptions = []
 
@@ -62,6 +70,11 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Records changes from an observed store for later processing.
+      # Stores the changes associated with the given store name in the @observed_changes hash.
+      # @param [String, Symbol] store_name - The name of the observed store.
+      # @param [Hash] changes - The changes detected in the observed store.
       def handle_observed_changes(store_name, changes)
         # This will be called when the observed object changes
         # In a real implementation, this would trigger a re-render
@@ -69,6 +82,11 @@ module SwiftUIRails
         @observed_changes[store_name] = changes
       end
 
+      ##
+      # Embeds observed changes as a `data-observed-changes` attribute in the root HTML element of the content.
+      #
+      # If no root element exists, wraps the content in a `<div>` with the attribute.
+      # Uses Nokogiri for safe HTML manipulation to prevent XSS vulnerabilities.
       def add_observation_metadata
         return unless @observed_changes&.any?
 
@@ -108,34 +126,51 @@ module SwiftUIRails
       @mutex = Mutex.new
 
       class << self
-        # SECURITY: Thread-safe find_or_create using compute_if_absent
+        ##
+        # Retrieves the observable store with the given ID, creating it if it does not exist.
+        # Ensures thread safety during retrieval and creation.
+        # @param [Object] id - The identifier for the store.
+        # @return [ObservableStore] The store instance associated with the given ID.
         def find_or_create(id)
           @stores.compute_if_absent(id) { new(id) }
         end
 
-        # SECURITY: Thread-safe find
+        ##
+        # Retrieves the observable store instance for the given ID in a thread-safe manner.
+        # @param [Object] id - The identifier of the store to retrieve.
+        # @return [ObservableStore, nil] The store instance if found, or nil if it does not exist.
         def find(id)
           @stores[id]
         end
 
-        # SECURITY: Thread-safe clear with mutex protection
+        ##
+        # Removes all observable stores in a thread-safe manner.
         def clear_all
           @mutex.synchronize do
             @stores.clear
           end
         end
 
-        # SECURITY: Thread-safe store count for monitoring
+        ##
+        # Returns the number of observable stores currently managed.
+        # @return [Integer] The total count of active stores.
         def store_count
           @stores.size
         end
 
-        # SECURITY: Thread-safe store listing
+        ##
+        # Returns an array of all observable store IDs.
+        # @return [Array] The list of store identifiers.
         def all_store_ids
           @stores.keys
         end
       end
 
+      ##
+      # Initializes a new observable store with the given ID and optional initial data.
+      # Sets up thread-safe data storage and observer management.
+      # @param [String, Symbol] id - The unique identifier for the store.
+      # @param [Hash] initial_data - The initial data for the store (default: empty hash).
       def initialize(id, initial_data = {})
         @id = id
         @data = initial_data.with_indifferent_access
@@ -145,7 +180,10 @@ module SwiftUIRails
         @subscriptions = Concurrent::Hash.new
       end
 
-      # SECURITY: Thread-safe update method
+      ##
+      # Atomically updates the store's data using the provided block and notifies observers of any changes.
+      # The block can either receive the mutable data hash or execute in the store's context for dynamic access.
+      # @return [Hash] The updated data hash.
       def update(&block)
         changes = nil
 
@@ -170,22 +208,35 @@ module SwiftUIRails
         @data
       end
 
-      # Set a specific value
+      ##
+      # Sets a specific key-value pair in the store's data.
+      # @param key The key to set.
+      # @param value The value to assign to the key.
       def set(key, value)
         update { |data| data[key] = value }
       end
 
-      # SECURITY: Thread-safe getter
+      ##
+      # Retrieves the value associated with the given key from the store in a thread-safe manner.
+      # @param key The key to look up in the store's data.
+      # @return The value corresponding to the key, or nil if the key does not exist.
       def get(key)
         @data_mutex.synchronize { @data[key] }
       end
 
-      # SECURITY: Thread-safe data snapshot
+      ##
+      # Returns a thread-safe deep copy of the store's current data.
+      # @return [Hash] A deep duplicate of the store's data at the time of invocation.
       def data_snapshot
         @data_mutex.synchronize { @data.deep_dup }
       end
 
-      # Subscribe to changes
+      ##
+      # Subscribes an observer to store changes with a callback.
+      # Returns a lambda that can be called to unsubscribe.
+      # @param observer The object subscribing to changes.
+      # @yield [changes] Block to be called when the store changes, receiving the changes hash.
+      # @return [Proc] A lambda that unsubscribes the observer when called.
       def subscribe(observer, &callback)
         subscription_id = SecureRandom.hex(8)
         @subscriptions[subscription_id] = {
@@ -198,14 +249,18 @@ module SwiftUIRails
         -> { unsubscribe(subscription_id) }
       end
 
-      # Unsubscribe from changes
+      ##
+      # Removes a subscription by its ID, stopping further notifications to the associated observer.
+      # @param [Object] subscription_id - The identifier of the subscription to remove.
       def unsubscribe(subscription_id)
         if (sub = @subscriptions.delete(subscription_id))
           @observers.delete(sub[:observer])
         end
       end
 
-      # Notify all observers of changes
+      ##
+      # Notifies all subscribed observers of changes to the store.
+      # @param [Hash] changes - A hash describing the changes to the store's data.
       def notify_observers(changes)
         run_callbacks :change do
           @subscriptions.each_value do |subscription|
@@ -214,13 +269,20 @@ module SwiftUIRails
         end
       end
 
-      # Reset store to initial state
+      ##
+      # Resets the store's data to the provided initial state.
+      # @param [Hash] initial_data The data to reset the store with. Defaults to an empty hash.
       def reset(initial_data = {})
         update { @data = initial_data.with_indifferent_access }
       end
 
       private
 
+      ##
+      # Computes the differences between two data hashes, identifying added, modified, and removed keys.
+      # @param [Hash] old_data The original data hash.
+      # @param [Hash] new_data The updated data hash.
+      # @return [Hash] A hash describing changes, where each key maps to a hash with :old, :new, and optionally :removed fields.
       def compute_changes(old_data, new_data)
         changes = {}
 
@@ -248,7 +310,10 @@ module SwiftUIRails
         changes
       end
 
-      # SECURITY: Thread-safe DSL for updating data
+      ##
+      # Provides dynamic getter and setter methods for store data keys with thread safety.
+      # If the method name ends with '=', sets the corresponding key; otherwise, retrieves the value if the key exists.
+      # Falls back to the default behavior if the key is not present.
       def method_missing(method, *args)
         if method.to_s.end_with?('=')
           # Setter method - use thread-safe update
@@ -262,6 +327,11 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Determines if the store responds to a dynamic getter or setter method for a data key.
+      # @param [Symbol, String] method - The method name being checked.
+      # @param [Boolean] include_private - Whether to include private methods.
+      # @return [Boolean] True if the method is a dynamic getter/setter for a data key or handled by the superclass.
       def respond_to_missing?(method, include_private = false)
         method.to_s.end_with?('=') || @data_mutex.synchronize { @data.key?(method) } || super
       end
@@ -275,17 +345,23 @@ module SwiftUIRails
         attr_reader :object_will_change_callbacks
       end
 
+      ##
+      # Initializes the publisher and sets up the callbacks array for change notifications.
       def initialize(*)
         super
         @object_will_change_callbacks = []
       end
 
-      # Call this before making changes
+      ##
+      # Invokes all registered callbacks to signal that the object is about to change.
       def object_will_change
         @object_will_change_callbacks.each(&:call)
       end
 
-      # Subscribe to changes
+      ##
+      # Registers a callback to be invoked when the object is about to change.
+      # @yield The block to be called before changes occur.
+      # @return [Proc] An unsubscribe lambda that removes the registered callback.
       def on_change(&block)
         @object_will_change_callbacks << block
         # Return unsubscribe function

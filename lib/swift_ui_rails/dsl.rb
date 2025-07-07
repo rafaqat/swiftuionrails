@@ -14,7 +14,11 @@ module SwiftUIRails
     extend ActiveSupport::Concern
     include Security::FormHelpers
 
-    # Layout Components
+    ##
+    # Creates a vertical stack container with configurable alignment and spacing.
+    # Renders child elements vertically, handling block execution differently depending on whether inside a DSL context or not.
+    # @param [Symbol] alignment - Vertical alignment of child elements (`:start`, `:center`, `:end`, etc.).
+    # @param [Integer] spacing - Vertical spacing (in pixels) between child elements.
     def vstack(alignment: :center, spacing: 8, **attrs, &block)
       attrs[:class] = class_names('flex flex-col', attrs[:class])
       attrs[:class] += " items-#{alignment_class(alignment)}"
@@ -63,6 +67,10 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Creates a horizontal stack container with configurable alignment and spacing.
+    # Renders child elements in a row, applying appropriate CSS classes for alignment and horizontal spacing.
+    # Handles child element collection differently depending on whether inside a DSL context.
     def hstack(alignment: :center, spacing: 8, **attrs, &block)
       attrs[:class] = class_names('flex flex-row', attrs[:class])
       attrs[:class] += " items-#{alignment_class(alignment)}"
@@ -108,11 +116,30 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Creates a container that stacks its child elements along the z-axis using relative positioning.
+    # @return [Element] The container element with stacked children.
     def zstack(**attrs, &block)
       attrs[:class] = class_names('relative', attrs[:class])
       create_element(:div, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a responsive CSS grid container with customizable columns, spacing, alignment, and advanced layout options.
+    # Supports responsive breakpoints, minimum item width, row and column gaps, alignment, justification, auto row sizing, auto flow, and optional masonry layout.
+    # @param [Hash, Integer] columns - Number of columns or a hash of breakpoints to column counts (e.g., { base: 1, sm: 2 }).
+    # @param [Integer] spacing - Default gap between grid items, used for both rows and columns unless overridden.
+    # @option attrs [Integer] :row_gap - Custom vertical gap between rows.
+    # @option attrs [Integer] :column_gap - Custom horizontal gap between columns.
+    # @option attrs [Boolean] :responsive - Enables responsive column classes when true (default: true).
+    # @option attrs [Integer] :min_item_width - Minimum width for grid items (enables auto-fit layout).
+    # @option attrs [Symbol] :align - Vertical alignment of grid items (:start, :center, :end, :stretch).
+    # @option attrs [Symbol] :justify - Horizontal justification of grid items (:start, :center, :end, :between, :around, :evenly).
+    # @option attrs [Symbol, String] :auto_rows - Sets grid auto-rows sizing (:min, :max, :fr, or custom string).
+    # @option attrs [Symbol] :auto_flow - Controls grid item placement (:row, :column, :dense, :row_dense, :column_dense).
+    # @option attrs [Boolean] :masonry - Enables masonry layout if supported.
+    # @yield Block for grid content.
+    # @return [Element] The grid container element.
     def grid(columns: 2, spacing: 8, **attrs, &block)
       Rails.logger.debug { "DSL.grid called with columns: #{columns}, spacing: #{spacing}" }
 
@@ -245,7 +272,10 @@ module SwiftUIRails
       create_element(:div, nil, **attrs, &block)
     end
 
-    # SwiftUI-inspired grid components
+    ##
+    # Returns a hash describing a grid item's sizing behavior for use in grid layouts.
+    # @param [Symbol] size_type The sizing strategy (:fixed, :flexible, or :adaptive).
+    # @return [Hash] A hash specifying the grid item's type and size constraints.
     def grid_item(size_type = :flexible, **options)
       case size_type
       when :fixed
@@ -259,6 +289,11 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Creates a vertically scrolling grid with responsive columns and spacing, optimized for lazy loading of items.
+    # @param columns [Array<Hash>] An array of grid item specifications (e.g., :flexible, :adaptive) used to determine responsive column layout.
+    # @param spacing [Integer] The gap between grid items, in pixels.
+    # @return [Element] The grid container element with nested grid content.
     def lazy_vgrid(columns:, spacing: 20, **attrs, &block)
       # Calculate responsive grid classes based on GridItem specs
       grid_classes = calculate_grid_classes(columns)
@@ -275,7 +310,10 @@ module SwiftUIRails
       end
     end
 
-    # Grid item wrapper for CSS isolation
+    ##
+    # Wraps grid item content in a container that is invisible to the grid layout for CSS isolation.
+    # The outer div uses the 'contents' class to avoid affecting grid structure, while the inner div provides a styling hook.
+    # @yield Block containing the grid item's content.
     def grid_item_wrapper(**attrs, &block)
       # 'contents' makes wrapper invisible to grid layout
       attrs[:class] = class_names('contents', attrs[:class])
@@ -286,11 +324,18 @@ module SwiftUIRails
       end
     end
 
-    # Text Components
+    ##
+    # Renders a span element containing the specified text content.
+    # @param [String] content - The text to display within the span.
     def text(content, **attrs)
       create_element(:span, content, **attrs)
     end
 
+    ##
+    # Creates a label element with optional text content or block content, and an optional 'for' attribute linking to an input.
+    # @param [String, nil] text_content - The text to display inside the label, if no block is given.
+    # @param [String, nil] for_input - The id of the input element this label is associated with.
+    # @return [Element] The constructed label element.
     def label(text_content = nil, for_input: nil, **attrs, &block)
       attrs[:for] = for_input if for_input
       if block
@@ -302,7 +347,11 @@ module SwiftUIRails
       end
     end
 
-    # Control Components
+    ##
+    # Creates a button element with optional content.
+    # If a block is given, its content is used inside the button; otherwise, the title is used as the button label.
+    # @param [String, nil] title - The button label if no block is provided.
+    # @return [Element] The created button element.
     def button(title = nil, **attrs, &block)
       # Pure structure - no behavior. Behavior is handled by Stimulus
       if block
@@ -313,12 +362,19 @@ module SwiftUIRails
       # Ensure we always return an Element instance for powerful chaining
     end
 
-    # Form elements
+    ##
+    # Creates a form element with the specified attributes and content.
+    # Yields block content inside the form if a block is provided.
     def form(**attrs, &block)
       create_element(:form, nil, **attrs, &block)
     end
 
-    # Secure form with CSRF protection
+    ##
+    # Creates a form element with CSRF protection and method override support for non-GET/POST HTTP methods.
+    # Automatically inserts hidden authenticity and UTF-8 inputs as needed.
+    # Yields to a block for form content, collecting and appending its result.
+    # @param action [String] The form submission URL.
+    # @param method [String] The HTTP method for the form (default: 'POST').
     def secure_form(action:, method: 'POST', **attrs)
       # Create the form element
       create_element(:form, nil, action: action, method: method.to_s.casecmp('GET').zero? ? 'GET' : 'POST', **attrs) do
@@ -365,10 +421,18 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Creates an input element with the specified attributes.
+    # Additional content or customization can be provided via a block.
     def input(**attrs, &block)
       create_element(:input, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an anchor element with the specified destination and content.
+    # If a block is given, the block's content is used inside the anchor; otherwise, the title is used as the link text.
+    # @param [String] title - The text to display for the link if no block is provided.
+    # @param [String] destination - The URL or path for the link's `href` attribute. Defaults to '#'.
     def link(title = nil, destination: '#', **attrs, &block)
       attrs[:href] = destination
       if block
@@ -378,6 +442,10 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Creates a text input field with the specified placeholder and value.
+    # @param [String] placeholder - The placeholder text to display when the input is empty.
+    # @param [String] value - The initial value of the input field.
     def textfield(placeholder: '', value: '', **attrs)
       attrs[:type] ||= 'text'
       attrs[:placeholder] = placeholder
@@ -385,6 +453,10 @@ module SwiftUIRails
       create_element(:input, nil, **attrs)
     end
 
+    ##
+    # Creates a labeled checkbox input with the specified label text and checked state.
+    # @param [String] label_text - The text to display next to the checkbox.
+    # @param [Boolean] is_on - Whether the checkbox is checked.
     def toggle(label_text, is_on: false, **attrs)
       create_element(:label, nil, **attrs) do
         concat(tag.input(type: 'checkbox', checked: is_on))
@@ -392,6 +464,12 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Creates a range slider input element with specified value, minimum, maximum, and step.
+    # @param [Numeric] value - The initial value of the slider.
+    # @param [Numeric] min - The minimum value allowed.
+    # @param [Numeric] max - The maximum value allowed.
+    # @param [Numeric] step - The increment between slider values.
     def slider(value: 50, min: 0, max: 100, step: 1, **attrs)
       attrs[:type] = 'range'
       attrs[:value] = value
@@ -407,6 +485,11 @@ module SwiftUIRails
       create_element(:select, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an HTML option element with the specified value and optional display text.
+    # Sets the option as selected if specified.
+    # @param value The value attribute for the option.
+    # @param text_content The text to display for the option. Defaults to the value if not provided.
     def option(value, text_content = nil, selected: false, **attrs)
       attrs[:value] = value
       attrs[:selected] = selected if selected
@@ -414,7 +497,20 @@ module SwiftUIRails
       create_element(:option, content, **attrs)
     end
 
-    # DSL Product Card - Reusable product card following DSL-first pattern
+    ##
+    # Renders a reusable product card component using the DSL, displaying product image, name, variant, price, and an optional call-to-action button.
+    # @param [String] name - The product name.
+    # @param [Numeric, String] price - The product price.
+    # @param [String, nil] image_url - Optional URL for the product image.
+    # @param [String, nil] variant - Optional product variant or description.
+    # @param [String] currency - Currency symbol to display with the price.
+    # @param [Boolean] show_cta - Whether to display the call-to-action button.
+    # @param [String] cta_text - Text for the call-to-action button.
+    # @param [String] cta_style - Style for the call-to-action button ('primary', 'outline', or 'secondary').
+    # @param [Integer] elevation - Elevation level for card shadow styling.
+    # @return [Element] The constructed product card element.
+    #
+    # The card supports custom content via an optional block, which is rendered inside the card.
     def dsl_product_card(name:, price:, image_url: nil, variant: nil, currency: '$',
                          show_cta: true, cta_text: 'Add to Cart', cta_style: 'primary',
                          elevation: 2, **attrs)
@@ -481,7 +577,12 @@ module SwiftUIRails
       .merge_attributes(attrs)
     end
 
-    # Product list DSL method - renders ProductListComponent with DSL chaining
+    ##
+    # Renders a product list as a grid or using a ProductListComponent if available.
+    #
+    # Displays a collection of products in a configurable grid layout. If a ProductListComponent is defined and rendering is supported, it delegates rendering to that component; otherwise, it falls back to a simple DSL-based grid. Supports customization of columns, spacing, appearance, and product display options.
+    # @param products [Array<Hash>] The list of products to display.
+    # @return [Element] The rendered product list container.
     def product_list(products:, **attrs)
       # Extract component props from attrs
       columns = attrs.delete(:columns)
@@ -546,7 +647,10 @@ module SwiftUIRails
     end
 
     # E-commerce Components with ViewComponent 2.0 Collection Optimization
-    # Generic list method - composition-based approach
+    ##
+    # Renders a vertical list of items, allowing custom rendering for each item via a block.
+    # If a block is provided, it receives each item and its index; otherwise, items are rendered as text.
+    # @param [Array] items The collection of items to display in the list.
     def list(items:, **attrs, &block)
       # Pure structure for listing items - behavior comes from the block
       attrs[:class] = class_names('space-y-4', attrs[:class])
@@ -564,7 +668,11 @@ module SwiftUIRails
       end
     end
 
-    # Grid variant of list for grid layouts
+    ##
+    # Renders a list of items in a grid layout with the specified number of columns.
+    # If a block is given, each item and its index are yielded to the block for custom rendering; otherwise, each item is rendered as text.
+    # @param items [Enumerable] The collection of items to display in the grid.
+    # @param columns [Integer] The number of columns in the grid layout.
     def grid_list(items:, columns: 3, **attrs, &block)
       attrs[:class] = class_names('grid gap-4', attrs[:class])
       attrs[:class] += " grid-cols-#{columns}"
@@ -580,18 +688,29 @@ module SwiftUIRails
       end
     end
 
-    # ViewComponent 2.0 Collection-optimized rendering methods
+    ##
+    # Renders a collection of card components using optimized ViewComponent 2.0 collection rendering.
+    # @param [Array] items - The items to be rendered as cards.
+    # @return [String] The rendered HTML for the card collection.
     def card_collection(items:, **attrs, &block)
       # Use ViewComponent 2.0 collection rendering for 10x performance
       CardComponent.card_collection(cards: items, **attrs, &block)
     end
 
+    ##
+    # Renders a collection of buttons using an optimized component-based approach.
+    # Delegates rendering to `SimpleButtonComponent.button_collection` for improved performance.
+    # @param items [Array] The collection of button data to render.
     def button_collection(items:, **attrs, &block)
       # Use ViewComponent 2.0 collection rendering for 10x performance
       SimpleButtonComponent.button_collection(buttons: items, **attrs, &block)
     end
 
-    # Layout collection optimizations
+    ##
+    # Renders a collection of items in a vertical stack layout.
+    # If a block is provided, each item is rendered using the block; otherwise, items are displayed as text.
+    # @param [Enumerable] items - The collection of items to render.
+    # @param [Integer] spacing - The vertical spacing between items.
     def vstack_collection(items:, spacing: 8, **attrs, &block)
       # Render collection in vertical stack with ViewComponent 2.0 performance
       vstack(spacing: spacing, **attrs) do
@@ -603,6 +722,11 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Renders a collection of items in a horizontal stack layout.
+    # If a block is provided, yields each item and its index to the block; otherwise, displays each item as text.
+    # @param [Enumerable] items - The collection of items to render.
+    # @param [Integer] spacing - The horizontal spacing between items.
     def hstack_collection(items:, spacing: 8, **attrs, &block)
       # Render collection in horizontal stack with ViewComponent 2.0 performance
       hstack(spacing: spacing, **attrs) do
@@ -614,6 +738,12 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Renders a collection of items in a grid layout with the specified number of columns and spacing.
+    # If a block is given, yields each item and its index to the block for custom rendering; otherwise, displays each item as text.
+    # @param items [Enumerable] The collection of items to render.
+    # @param columns [Integer] The number of columns in the grid.
+    # @param spacing [Integer] The spacing between grid items.
     def grid_collection(items:, columns: 3, spacing: 8, **attrs, &block)
       # Render collection in grid with ViewComponent 2.0 performance
       grid(columns: columns, spacing: spacing, **attrs) do
@@ -625,7 +755,14 @@ module SwiftUIRails
       end
     end
 
-    # Container Components - Simplified for composition
+    ##
+    # Creates a card container with optional header, content, and actions slots, applying elevation-based shadow styling.
+    # If slot attributes are provided, renders each slot in a styled section; otherwise, yields to the given block for custom content.
+    # @param [Object] header Optional header content or Proc for the card header slot.
+    # @param [Object] content Optional content or Proc for the card content slot.
+    # @param [Object] actions Optional actions content, Proc, or array of Procs for the card actions slot.
+    # @param [Integer] elevation Optional elevation level (0–4) for shadow styling; defaults to 1.
+    # @return [Element] The constructed card element with applied slots and styling.
     def card(**attrs, &block)
       # Extract slot attributes
       header_slot = attrs.delete(:header)
@@ -702,24 +839,39 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Creates a styled header section for a card component.
+    # Adds padding and a bottom border to visually separate the header from card content.
+    # @return [Element] The header container element.
     def card_header(**attrs, &block)
       # A helper for a styled header region
       attrs[:class] = class_names('p-4 border-b', attrs[:class])
       create_element(:div, nil, **attrs, &block)
     end
 
+    ##
+    # Creates the main content area of a card with padding.
+    # Adds the 'p-4' class for consistent spacing.
+    # @return [Element] The content container element.
     def card_content(**attrs, &block)
       # A helper for the main content area
       attrs[:class] = class_names('p-4', attrs[:class])
       create_element(:div, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a styled footer section for a card component.
+    # Adds padding and a top border to visually separate the footer from the card content.
+    # @return [Element] The rendered footer container.
     def card_footer(**attrs, &block)
       # A helper for a styled footer region
       attrs[:class] = class_names('p-4 border-t', attrs[:class])
       create_element(:div, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an additional section within a card component, applying padding and custom classes.
+    # Yields content for the section if a block is given.
     def card_section(**attrs, &block)
       # A helper for additional card sections
       attrs[:class] = class_names('p-4', attrs[:class])
@@ -730,16 +882,28 @@ module SwiftUIRails
       create_element(:ul, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a list item (`li`) element with optional attributes and content.
+    # @yield Content to be placed inside the list item.
     def list_item(**attrs, &block)
       create_element(:li, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a scrollable container div with overflow enabled.
+    # @return [Element] The scrollable div element.
     def scroll_view(**attrs, &block)
       attrs[:class] = class_names('overflow-auto', attrs[:class])
       create_element(:div, nil, **attrs, &block)
     end
 
-    # Media Components with SECURITY validation
+    ##
+    # Renders an image element with security validation on the source URL.
+    # If the provided source is invalid, a placeholder image is used instead.
+    # The image defaults to lazy loading for performance.
+    # @param [String] src - The image source URL. Must be present and valid.
+    # @param [String] alt - The alternative text for the image.
+    # @return [Element] The rendered image element.
     def image(src: nil, alt: '', **attrs)
       raise ArgumentError, 'image requires src attribute' unless src
 
@@ -756,6 +920,10 @@ module SwiftUIRails
       create_element(:img, nil, **attrs)
     end
 
+    ##
+    # Renders a placeholder span styled as an icon with the specified size.
+    # In a full implementation, this would render an SVG icon.
+    # @param size [Integer] The width and height of the icon in pixels. Default is 16.
     def icon(_name, size: 16, **attrs)
       # For now, just return a placeholder span
       # In a real implementation, this would render an SVG icon
@@ -764,81 +932,132 @@ module SwiftUIRails
       create_element(:span, '', **attrs)
     end
 
-    # Layout Helpers
+    ##
+    # Creates a flexible spacer div that expands to fill available space.
+    # Optionally sets a minimum height if `min_length` is provided.
+    # @param [Integer, nil] min_length The minimum height of the spacer in pixels.
     def spacer(min_length: nil)
       attrs = { class: 'flex-1' }
       attrs[:style] = "min-height: #{min_length}px" if min_length
       create_element(:div, '', **attrs)
     end
 
+    ##
+    # Creates a horizontal divider line with a gray border.
+    # Adds default styling for a top border and allows additional attributes to be merged.
     def divider(**attrs)
       attrs[:class] = class_names('border-t border-gray-300', attrs[:class])
       create_element(:hr, nil, **attrs)
     end
 
+    ##
+    # Creates a `div` element with the given attributes and optional block content.
     def div(**attrs, &block)
       Rails.logger.debug { "DSL.div called with block: #{block}" }
       create_element(:div, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a <span> element with the given attributes and optional content.
+    # Yields to a block for nested content if provided.
     def span(**attrs, &block)
       create_element(:span, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a section element with the given attributes and content.
+    # @yield Content to be placed inside the section.
+    # @return [Element] The generated section element.
     def section(**attrs, &block)
       Rails.logger.debug { "DSL.section called with block: #{block}, attrs: #{attrs.inspect}" }
       create_element(:section, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an article element with the given attributes and optional content block.
     def article(**attrs, &block)
       create_element(:article, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a header element with the given attributes and optional content.
+    # @yield Content to be placed inside the header element.
     def header(**attrs, &block)
       create_element(:header, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a footer element with the given attributes and optional content.
+    # @yield Content to be placed inside the footer element.
     def footer(**attrs, &block)
       create_element(:footer, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a navigation container element.
+    # Yields block content inside a <nav> element with the given attributes.
     def nav(**attrs, &block)
       create_element(:nav, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an anchor (`<a>`) element with the specified attributes and optional content provided by a block.
     def a(**attrs, &block)
       create_element(:a, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an <h1> heading element with optional attributes and content.
+    # Yields block content if provided.
     def h1(**attrs, &block)
       create_element(:h1, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an h2 heading element with optional attributes and content.
+    # @return [Element] The generated h2 element.
     def h2(**attrs, &block)
       create_element(:h2, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an h3 heading element with optional attributes and content.
+    # @return [Element] The generated h3 element.
     def h3(**attrs, &block)
       create_element(:h3, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an h4 heading element with optional attributes and content provided by a block.
     def h4(**attrs, &block)
       create_element(:h4, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an h5 heading element with optional attributes and content provided by a block.
     def h5(**attrs, &block)
       create_element(:h5, nil, **attrs, &block)
     end
 
+    ##
+    # Creates an h6 heading element with optional attributes and content.
+    # @yield Content to be placed inside the h6 element.
     def h6(**attrs, &block)
       create_element(:h6, nil, **attrs, &block)
     end
 
+    ##
+    # Creates a paragraph element with optional attributes and content.
+    # Yields block content to be placed inside the paragraph if provided.
     def p(**attrs, &block)
       create_element(:p, nil, **attrs, &block)
     end
 
-    # Loading Components
+    ##
+    # Renders a spinning loader indicator with customizable size and colors.
+    # @param [Symbol] size - The size of the spinner (:xs, :sm, :md, :lg, :xl).
+    # @param [String, nil] border_color - Optional border color class suffix.
+    # @param [String, nil] spinner_color - Optional spinner (top border) color class suffix.
     def spinner(size: :md, border_color: nil, spinner_color: nil)
       size_classes = {
         xs: 'h-3 w-3',
@@ -859,6 +1078,11 @@ module SwiftUIRails
 
     private
 
+    ##
+    # Determines responsive CSS grid column classes based on an array of grid item specifications.
+    # Returns a string of Tailwind CSS grid column classes that adapts to the types and sizes of the provided grid items.
+    # @param [Array<Hash>] grid_items - An array of grid item hashes, each specifying a type (`:flexible` or `:adaptive`) and optional sizing constraints.
+    # @return [String] A string of CSS classes for responsive grid columns, or an empty string if input is not an array.
     def calculate_grid_classes(grid_items)
       return '' unless grid_items.is_a?(Array)
 
@@ -887,6 +1111,10 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Maps an alignment symbol to its corresponding CSS alignment class.
+    # @param [Symbol] alignment The alignment value (:top, :start, :center, :bottom, or :end).
+    # @return [String] The CSS alignment class ('start', 'center', or 'end').
     def alignment_class(alignment)
       case alignment
       when :top, :start then 'start'
@@ -896,7 +1124,9 @@ module SwiftUIRails
       end
     end
 
-    # Override concat to handle Element instances
+    ##
+    # Appends content to the output buffer, converting Element instances to safe HTML strings before concatenation.
+    # @param content The content to append, which may be an Element or a standard string.
     def concat(content)
       if defined?(Element) && content.is_a?(Element)
         super(content.to_s.html_safe)
@@ -926,13 +1156,19 @@ module SwiftUIRails
       create_element(:div, nil, **attrs, &block)
     end
 
-    # Ruby enumerable helpers used in stories
+    ##
+    # Wraps content in a div and yields to the provided block, serving as a no-op enumerable helper for DSL usage in stories.
+    # @return [Element] The created div element containing the block content.
     def each_with_index(**attrs, &block)
       # This is typically called on collections, not as a DSL method
       # But stories may use it, so we provide a no-op version
       create_element(:div, nil, **attrs, &block)
     end
 
+    ##
+    # Repeats the given block a specified number of times, capturing and joining the results.
+    # @param [Integer] count - The number of times to execute the block.
+    # @return [ActiveSupport::SafeBuffer] The concatenated HTML-safe results of each block execution.
     def times(count = 1, **_attrs, &block)
       # Helper to repeat content multiple times
       results = []
@@ -942,7 +1178,14 @@ module SwiftUIRails
       safe_join(results)
     end
 
-    # Create a chainable element
+    ##
+    # Creates a new UI element with the specified tag, content, and options, associating it with the current DSL context if present.
+    # The element is configured with the appropriate view context and component reference for event handling.
+    # Registers the element within the DSL context when applicable.
+    # @param [String, Symbol] tag_name The HTML tag name for the element.
+    # @param [Object, nil] content Optional content for the element.
+    # @param [Hash] options Optional HTML attributes and options for the element.
+    # @return [Element] The constructed UI element instance.
     def create_element(tag_name, content = nil, options = {}, &block)
       # Always use the current DSL context if we're in one
       dsl_context = is_a?(SwiftUIRails::DSLContext) ? self : nil

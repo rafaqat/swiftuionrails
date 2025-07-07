@@ -16,7 +16,9 @@ module SwiftUIRails
       end
 
       class_methods do
-        # Enable/disable reactive rendering
+        ##
+        # Enables or disables reactive rendering for the component class.
+        # @param [Boolean] enabled - Whether reactive rendering should be enabled (default: true).
         def reactive_rendering(enabled = true)
           self.reactive_rendering_enabled = enabled
         end
@@ -24,6 +26,8 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Sets up the component for reactive updates by wrapping its content in a reactive container and registering update triggers if reactive rendering is enabled.
       def setup_reactive_updates
         return unless reactive_rendering_enabled
 
@@ -37,6 +41,11 @@ module SwiftUIRails
         add_reactive_triggers(component_id)
       end
 
+      ##
+      # Wraps the given HTML content in a div with data attributes for reactive identification and controller binding.
+      # @param [String] content - The HTML content to be wrapped.
+      # @param [String] component_id - The unique identifier for the reactive component.
+      # @return [ActiveSupport::SafeBuffer] The HTML-safe div containing the content and reactive metadata.
       def wrap_with_reactive_container(content, component_id)
         <<~HTML.html_safe
           <div data-swift-ui-reactive="true"#{' '}
@@ -48,6 +57,10 @@ module SwiftUIRails
         HTML
       end
 
+      ##
+      # Appends an inline script to the component's HTML to register it with the client-side reactive system.
+      # The script provides metadata such as component ID, class, update URL, serialized props, and a state fingerprint for real-time updates.
+      # @param [String] component_id The unique identifier for the component instance.
       def add_reactive_triggers(component_id)
         triggers = {
           component_id: component_id,
@@ -72,12 +85,19 @@ module SwiftUIRails
         @_content = (@_content + script).html_safe
       end
 
+      ##
+      # Returns the URL endpoint for updating this component via the reactive controller.
+      # @return [String] The update URL for the component.
       def update_url_for_component
         # Generate URL for component updates
         # This would be handled by a controller action
         "/swift_ui/components/#{self.class.name.underscore}/update"
       end
 
+      ##
+      # Serializes the component's current props into a hash suitable for comparison or transmission.
+      # Recursively converts prop values, including nested arrays and hashes, into serializable forms.
+      # @return [Hash] The serialized props keyed by prop name.
       def serialize_props
         # Serialize current props for comparison
         props = {}
@@ -90,6 +110,10 @@ module SwiftUIRails
         props
       end
 
+      ##
+      # Recursively serializes a value for safe transmission, converting ActiveRecord objects to hashes with ID and type, and processing arrays and hashes deeply.
+      # @param value The value to serialize, which may be an ActiveRecord object, array, hash, or primitive.
+      # @return The serialized representation suitable for JSON or transport.
       def serialize_value(value)
         case value
         when ActiveRecord::Base
@@ -103,6 +127,9 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Generates a SHA256 fingerprint representing the current component state, including state, binding, and observed object values, for change detection.
+      # @return [String] The SHA256 hash of the serialized state data.
       def generate_state_fingerprint
         # Create a fingerprint of current state for change detection
         state_data = {}
@@ -159,6 +186,11 @@ module SwiftUIRails
         before_action :verify_component_security, only: [:update_component]
       end
 
+      ##
+      # Handles secure updates of reactive components via HTTP requests.
+      #
+      # Validates the requested component class against a whitelist, sanitizes incoming props, instantiates the component, and renders its updated HTML. Responds with either a Turbo Stream or JSON containing the rendered HTML and a state fingerprint. Logs security events and audit trails for both unauthorized and successful updates. Returns a 403 error for unauthorized components and a 500 error for unexpected failures.
+      # @return [void]
       def update_component
         # SECURITY: Validate component class against whitelist
         component_class_name = params[:component_class]
@@ -216,7 +248,15 @@ module SwiftUIRails
         render json: { error: 'Component update failed' }, status: :internal_server_error
       end
 
-      # SECURITY: Safe request_update method for WebSocket updates
+      ##
+      # Handles secure WebSocket update requests for a reactive component.
+      #
+      # Looks up the component class from a registry, validates the component ID format,
+      # retrieves the component instance, verifies authorization, and applies state changes.
+      # Raises a SecurityError and logs if validation or authorization fails.
+      # @param [String] component_type - The underscored name of the component class.
+      # @param [String] component_id - The unique identifier for the component instance.
+      # @param [Hash] changes - The state changes to apply to the component.
       def request_update(component_type, component_id, changes)
         # Use component registry instead of constantize
         component_class = component_registry[component_type]
@@ -240,10 +280,18 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Returns a cached registry mapping underscored component names to their corresponding classes.
+      # The registry is built from the allowed components whitelist.
+      # @return [Hash{String => Class}] The component registry keyed by underscored class names.
       def component_registry
         @component_registry ||= build_component_registry
       end
 
+      ##
+      # Builds a registry mapping underscored allowed component class names to their class objects.
+      # Missing classes are logged as warnings.
+      # @return [Hash] A hash with underscored class names as keys and component classes as values.
       def build_component_registry
         registry = {}
 
@@ -261,12 +309,21 @@ module SwiftUIRails
         registry
       end
 
+      ##
+      # Returns a new instance of the given component class.
+      # This is a placeholder and does not retrieve persisted component state.
+      # @param [Class] component_class The component class to instantiate.
+      # @return [Object] A new instance of the specified component class.
       def find_component_instance(component_class, _component_id)
         # This would need to be implemented based on how components are stored
         # For now, return a new instance for demonstration
         component_class.new
       end
 
+      ##
+      # Determines whether the update to the component is authorized.
+      # Override this method to implement custom authorization logic for component updates.
+      # @return [Boolean] Returns true if the update is authorized.
       def verify_update_authorization(_component, _changes)
         # Implement authorization logic
         # For example, check if the current user can update this component
@@ -274,6 +331,12 @@ module SwiftUIRails
         true
       end
 
+      ##
+      # Safely constantizes a component class name, ensuring it is whitelisted and inherits from a valid SwiftUI Rails component base class.
+      # Raises a SecurityError if the class is not allowed, does not exist, or is not a valid component.
+      # @param [String] class_name The name of the component class to constantize.
+      # @return [Class] The constantized component class.
+      # @raise [SecurityError] If the class is not whitelisted, not found, or not a valid component.
       def safe_constantize(class_name)
         # Double validation - belt and suspenders approach
         raise SecurityError, 'Invalid component class' unless ALLOWED_COMPONENTS.include?(class_name)
@@ -292,6 +355,11 @@ module SwiftUIRails
         raise SecurityError, 'Component class not found'
       end
 
+      ##
+      # Removes potentially dangerous string properties from the given props hash to prevent injection attacks.
+      # Only string values starting with method names like `send`, `eval`, `constantize`, `system`, `exec`, or a backtick are removed.
+      # @param [Hash] props - The props hash to sanitize.
+      # @return [Hash] A sanitized copy of the props hash with unsafe string values removed.
       def sanitize_component_props(props)
         # Sanitize props to prevent injection attacks
         return {} unless props.is_a?(Hash)
@@ -307,6 +375,9 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Validates that the incoming request is an XHR or Turbo Stream request, rejecting others as invalid.
+      # Returns true if the request passes validation; otherwise, renders an error response and returns false.
       def verify_component_security
         # Additional security checks can be added here
         # For example: rate limiting, IP whitelisting, request signing
@@ -320,6 +391,11 @@ module SwiftUIRails
         true
       end
 
+      ##
+      # Logs a security-related event for auditing purposes.
+      # Intended for integration with security monitoring systems.
+      # @param [String] event_type - The type of security event.
+      # @param [Hash] details - Additional contextual details about the event.
       def audit_log_security_event(event_type:, **details)
         # Implement security event logging
         # This should be sent to a security monitoring system
@@ -329,6 +405,10 @@ module SwiftUIRails
         # SecurityEventLogger.log(event_type, details) if defined?(SecurityEventLogger)
       end
 
+      ##
+      # Logs a successful component update event for auditing purposes, including component class, ID, and requester IP address.
+      # @param component_class [String] The class name of the updated component.
+      # @param component_id [String] The identifier of the updated component.
       def audit_log_component_update(component_class:, component_id:)
         # Log successful component updates for audit trail
         Rails.logger.info "[AUDIT] Component updated - Class: #{component_class}, ID: #{component_id}, IP: #{request.remote_ip}"
@@ -340,6 +420,12 @@ module SwiftUIRails
       class ReactiveUpdateJob < ApplicationJob
         queue_as :default
 
+        ##
+        # Performs a background job to broadcast a reactive component update via ActionCable after validating the component class and ID.
+        # Sanitizes props before broadcasting to ensure security.
+        # @param [String] component_class_name The name of the component class to update.
+        # @param [String] component_id The unique identifier for the component instance.
+        # @param [Hash] props The properties to be sent with the update.
         def perform(component_class_name, component_id, props)
           # SECURITY: Validate inputs even in background job
           validate_component_class!(component_class_name)
@@ -361,6 +447,11 @@ module SwiftUIRails
 
         private
 
+        ##
+        # Validates that the given component class name is properly formatted and included in the allowed whitelist.
+        # Raises a SecurityError if the class name is invalid or not permitted.
+        # @param [String] class_name The name of the component class to validate.
+        # @raise [SecurityError] If the class name format is invalid or not in the whitelist.
         def validate_component_class!(class_name)
           return if class_name.blank?
 
@@ -375,12 +466,21 @@ module SwiftUIRails
           raise SecurityError, "Component class not in whitelist: #{class_name}"
         end
 
+        ##
+        # Validates that the component ID matches the expected format for reactive components.
+        # Raises a SecurityError if the format is invalid.
+        # @param [String] component_id The component ID to validate.
         def validate_component_id!(component_id)
           return if /\Aswift-ui-[\w-]+-\d+\z/.match?(component_id)
 
           raise SecurityError, 'Invalid component ID format'
         end
 
+        ##
+        # Converts all keys in the props hash to strings for safe broadcasting.
+        # Returns an empty hash if props is not a Hash.
+        # @param [Hash] props - The properties to sanitize.
+        # @return [Hash] The sanitized hash with stringified keys.
         def sanitize_broadcast_props(props)
           return {} unless props.is_a?(Hash)
 
@@ -393,11 +493,19 @@ module SwiftUIRails
     # ActionCable channel for real-time updates (only define if ActionCable is loaded)
     if defined?(::ActionCable::Channel::Base)
       class ReactiveChannel < ::ActionCable::Channel::Base
+        ##
+        # Subscribes the client to updates for the specified component ID via a WebSocket stream.
+        # Begins streaming updates targeted to the given component instance.
         def subscribed
           component_id = params[:component_id]
           stream_for component_id
         end
 
+        ##
+        # Handles WebSocket requests to update a reactive component.
+        #
+        # Validates the component class and ID, sanitizes incoming props to prevent injection or XSS, and enqueues a background job to process the update. Unauthorized or malformed requests are rejected and logged for security monitoring.
+        # @param [Hash] data The data payload containing 'component_class', 'component_id', and 'props'.
         def request_update(data)
           # SECURITY: Validate and sanitize all input from WebSocket
           component_class_name = data['component_class']&.to_s
@@ -443,6 +551,12 @@ module SwiftUIRails
 
         private
 
+        ##
+        # Determines if the given class name is a safe, whitelisted component class for reactive updates.
+        # Returns true if the class name matches the expected pattern and is included in the allowed components list,
+        # or if it inherits from a recognized base component class; otherwise, returns false.
+        # @param [String] class_name The name of the component class to validate.
+        # @return [Boolean] Whether the class name is considered safe for use.
         def safe_component_class?(class_name)
           # Use the same whitelist as the controller
           return false unless class_name.match?(/\A[A-Z][A-Za-z0-9]*Component\z/)
@@ -462,6 +576,10 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Recursively sanitizes all string values in the given props hash to prevent XSS and injection attacks.
+        # @param [Hash] props - The props hash to sanitize.
+        # @return [Hash] A sanitized copy of the props hash with all string values cleaned.
         def sanitize_props(props)
           return {} unless props.is_a?(Hash)
 
@@ -481,6 +599,8 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Rejects the WebSocket connection for unauthorized clients.
         def reject_unauthorized
           reject
         end

@@ -47,7 +47,12 @@ module SwiftUIRails
       ].freeze
 
       class << self
-        # Validate and sanitize a URL
+        ##
+        # Validates and sanitizes a URL, blocking dangerous patterns, disallowed schemes, and unapproved domains.
+        # Returns the original URL if it passes all checks, or a fallback value or nil if validation fails.
+        # @param [String] url - The URL to validate.
+        # @param [Hash] options - Validation options. Use :allow_relative (default true) to permit relative URLs, :require_approved_domains (default false) to enforce domain approval, and :fallback to specify a value to return if validation fails due to an unapproved domain.
+        # @return [String, nil] The validated URL, the fallback value, or nil if the URL is invalid or unsafe.
         def validate_url(url, options = {})
           return nil if url.blank?
 
@@ -89,7 +94,11 @@ module SwiftUIRails
           url
         end
 
-        # Check if URL is from an approved domain
+        ##
+        # Determines if the given host is considered approved for loading external resources.
+        # Checks configuration-based approval first, then falls back to a legacy list of approved domains.
+        # @param [String, nil] host - The host to check.
+        # @return [Boolean] true if the host is approved, false otherwise.
         def approved_domain?(host)
           return false if host.nil?
 
@@ -107,12 +116,20 @@ module SwiftUIRails
           end
         end
 
-        # Check if URL contains dangerous patterns
+        ##
+        # Determines if the given URL matches any known dangerous patterns.
+        # @param [String] url - The URL to check.
+        # @return [Boolean] True if the URL contains a dangerous pattern, false otherwise.
         def contains_dangerous_pattern?(url)
           DANGEROUS_PATTERNS.any? { |pattern| url.match?(pattern) }
         end
 
-        # Validate image source URL
+        ##
+        # Validates an image source URL, ensuring it is safe and from an approved domain.
+        # Uses a placeholder image as a fallback if validation fails.
+        # @param [String] src The image source URL to validate.
+        # @param [Hash] options Optional validation settings to override defaults.
+        # @return [String, nil] The validated image URL, a fallback placeholder, or nil if invalid and no fallback is set.
         def validate_image_src(src, options = {})
           # Set default options for images
           options = {
@@ -124,7 +141,12 @@ module SwiftUIRails
           validate_url(src, options)
         end
 
-        # Validate script source URL
+        ##
+        # Validates a script source URL, enforcing stricter checks such as requiring approved domains.
+        # Allows relative URLs by default and does not provide a fallback unless specified.
+        # @param [String] src - The script source URL to validate.
+        # @param [Hash] options - Optional validation settings to override defaults.
+        # @return [String, nil] The validated script source URL, or nil if invalid.
         def validate_script_src(src, options = {})
           # Scripts should be more restricted
           options = {
@@ -136,7 +158,12 @@ module SwiftUIRails
           validate_url(src, options)
         end
 
-        # Validate link href
+        ##
+        # Validates a link href to ensure it is safe for use, allowing relative URLs and not requiring approved domains by default.
+        # Falls back to '#' if validation fails.
+        # @param [String] href - The link href to validate.
+        # @param [Hash] options - Optional validation settings to override defaults.
+        # @return [String, nil] The validated href, or the fallback value if invalid.
         def validate_link_href(href, options = {})
           # Links can be more permissive
           options = {
@@ -148,7 +175,12 @@ module SwiftUIRails
           validate_url(href, options)
         end
 
-        # Generate a safe placeholder image URL
+        ##
+        # Generates a URL for a safe placeholder image with the specified dimensions and optional text.
+        # @param [Integer] width The width of the placeholder image in pixels.
+        # @param [Integer] height The height of the placeholder image in pixels.
+        # @param [String, nil] text Optional text to display on the image.
+        # @return [String] The URL of the generated placeholder image.
         def safe_placeholder_image(width: 400, height: 400, text: nil)
           # Use a safe placeholder service
           if text
@@ -158,13 +190,17 @@ module SwiftUIRails
           end
         end
 
-        # Add a domain to the approved list at runtime (for configuration)
+        ##
+        # Adds a domain to the approved domains list at runtime via configuration.
+        # @param [String] domain - The domain to approve.
         def add_approved_domain(domain)
           # Delegate to configuration
           SwiftUIRails.configuration.add_approved_domain(domain)
         end
 
-        # Configuration helper for Rails apps
+        ##
+        # Yields the module to a block for configuration purposes.
+        # Use this method to customize URL validation settings within a Rails application.
         def configure
           yield self if block_given?
         end

@@ -33,12 +33,17 @@ module SwiftUIRails
       class_attribute :swift_ui_memoization_enabled, default: true
 
       class << self
-        # Enable or disable memoization for this component
+        ##
+        # Enables or disables memoization for the component's rendered output.
+        # @param [Boolean] enabled - Whether to enable memoization (default: true).
         def enable_memoization(enabled = true)
           self.swift_ui_memoization_enabled = enabled
         end
 
-        # ViewComponent 2.0 Collection Support
+        ##
+        # Renders a collection of items using ViewComponent's optimized collection rendering.
+        # Yields each item and its counter to the provided block, or uses default rendering if no block is given.
+        # @param collection [Enumerable] The collection of items to render.
         def with_collection(collection, *args, **kwargs, &block)
           # Leverage ViewComponent 2.0's optimized collection rendering
           # This provides ~10x performance improvement over manual iteration
@@ -57,7 +62,10 @@ module SwiftUIRails
           end
         end
 
-        # Define the swift_ui DSL block
+        ##
+        # Defines the main SwiftUI-inspired DSL block for the component, enabling declarative UI construction.
+        # When invoked, executes the provided block in a dedicated DSL context, collects and renders elements, optionally wraps the output for reactive updates, and memoizes the result if enabled.
+        # @yield The DSL block for building the component's UI.
         def swift_ui(&block)
           # Store the block to be executed in the component context
           @swift_ui_block = block
@@ -95,6 +103,11 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Defines a reactive state variable with getter and setter methods.
+        # The setter triggers state change effects and requests automatic re-rendering if applicable.
+        # @param [Symbol] name - The name of the state variable.
+        # @param [Object] default_value - The initial value for the state variable.
         def state(name, default_value = nil)
           self.swift_states = swift_states.merge(name => default_value)
 
@@ -114,6 +127,13 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Defines a prop for the component with optional type, requirement, and default value.
+        # For components named with "Component" and a prop named "title", also adds collection parameters for ViewComponent collection rendering support.
+        # @param [Symbol] name - The name of the prop.
+        # @param [Class, nil] type - The expected type of the prop, or nil for any type.
+        # @param [Boolean] required - Whether the prop is required.
+        # @param [Object, nil] default - The default value for the prop.
         def prop(name, type: nil, required: false, default: nil)
           self.swift_props = swift_props.merge(
             name => { type: type, required: required, default: default }
@@ -139,6 +159,10 @@ module SwiftUIRails
           attr_reader :"#{collection_param}_counter"
         end
 
+        ##
+        # Defines a computed property for the component.
+        # The property is evaluated by the provided block and made accessible as an instance method.
+        # @param [Symbol] name - The name of the computed property.
         def computed(name, &block)
           self.swift_computed = swift_computed.merge(name => block)
           define_method(name, &block)
@@ -148,6 +172,11 @@ module SwiftUIRails
           self.swift_effects = swift_effects.merge(trigger => block)
         end
 
+        ##
+        # Defines a named slot for the component, enabling content injection via a setter and retrieval via a getter.
+        # The setter method (`with_<name>`) assigns a block to the slot, while the getter method (`<name>`) retrieves and evaluates the slot content.
+        # @param [Symbol] name - The name of the slot to define.
+        # @param [Boolean] required - Whether the slot is required for the component.
         def slot(name, required: false)
           self.swift_slots = swift_slots.merge(name => { required: required })
 
@@ -174,6 +203,9 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Initializes the component with provided props, separating custom SwiftUIRails props from ViewComponent props, handling collection parameters, and validating and setting prop values.
+      # Calls the superclass initializer with remaining ViewComponent props.
       def initialize(**props)
         # Extract ViewComponent-specific props from our custom props
         swift_props_names = self.class.swift_props.keys
@@ -205,13 +237,20 @@ module SwiftUIRails
         super(**view_component_props)
       end
 
-      # Register component actions for event handling
+      ##
+      # Registers an action block for a given action ID to handle component events.
+      # @param [Symbol, String] action_id - The identifier for the action.
+      # @param [Proc] block - The block to execute when the action is triggered.
       def register_component_action(action_id, block)
         @component_actions ||= {}
         @component_actions[action_id] = block
       end
 
-      # Execute a component action
+      ##
+      # Executes a registered component action with the provided event data.
+      # @param [Symbol, String] action_id - The identifier of the action to execute.
+      # @param [Hash] event_data - Optional data to be passed to the action as an event object.
+      # @return [Object, nil] The result of the action block, or nil if the action is not registered.
       def execute_action(action_id, event_data = {})
         return unless @component_actions && @component_actions[action_id]
 
@@ -222,17 +261,23 @@ module SwiftUIRails
         instance_exec(event, &@component_actions[action_id])
       end
 
-      # Get all registered actions (for debugging)
+      ##
+      # Returns a list of all registered action identifiers for the component.
+      # @return [Array<Symbol>] The keys of registered actions, or an empty array if none are registered.
       def registered_actions
         @component_actions&.keys || []
       end
 
-      # Get current state values for persistence
+      ##
+      # Returns a hash of the current reactive state values for the component.
+      # @return [Hash] The current state values, or an empty hash if none are set.
       def state_values
         @state_values || {}
       end
 
-      # Get current prop values for persistence
+      ##
+      # Returns a hash of the current prop values for the component, keyed by prop name.
+      # @return [Hash] The current prop values.
       def get_component_props
         props = {}
         self.class.swift_props.each_key do |prop_name|
@@ -241,25 +286,32 @@ module SwiftUIRails
         props
       end
 
-      # Enable reactive rendering for this component
+      ##
+      # Returns true if the component has any reactive state variables or effects defined.
+      # @return [Boolean] Whether reactive rendering is enabled for this component.
       def reactive_rendering_enabled
         # Check if component has state or effects defined
         self.class.swift_states.any? || self.class.swift_effects.any?
       end
 
-      # Request automatic re-rendering (for use with Turbo)
+      ##
+      # Flags the component to be re-rendered automatically, typically in response to state changes or Turbo updates.
       def request_automatic_rerender
         # This would typically be handled by the controller/view layer
         # For now, we'll store a flag that can be checked
         @needs_rerender = true
       end
 
-      # Check if component needs re-rendering
+      ##
+      # Returns whether the component is flagged for automatic re-rendering.
+      # @return [Boolean] True if a re-render is needed, false otherwise.
       def needs_rerender?
         @needs_rerender || false
       end
 
-      # Get the component's unique identifier
+      ##
+      # Returns a unique identifier for the component instance, generating and memoizing it if necessary.
+      # @return [String] The unique component identifier.
       def component_id
         @component_id ||= begin
           id = "swift_ui_component_#{object_id}"
@@ -268,7 +320,9 @@ module SwiftUIRails
         end
       end
 
-      # SECURITY: Safe method to update reactive state
+      ##
+      # Safely updates reactive state properties from a hash of changes, validating property existence and type.
+      # Logs warnings for invalid or unauthorized updates and triggers a re-render if supported.
       def update_reactive_state(changes)
         return unless changes.is_a?(Hash)
 
@@ -298,6 +352,10 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Validates and assigns component props, applying defaults and type checks.
+      # Raises an error if required props are missing or if a prop value does not match its specified type.
+      # Executes component-specific prop validations if defined.
       def validate_and_set_props(props)
         self.class.swift_props.each do |name, config|
           # Use has_key? to properly handle false values
@@ -330,6 +388,11 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Invokes the effect block associated with a state variable when its value changes.
+      # @param [Symbol] name - The name of the state variable.
+      # @param old_value - The previous value of the state.
+      # @param new_value - The new value of the state.
       def trigger_state_change(name, old_value, new_value)
         return if old_value == new_value
 
@@ -338,7 +401,11 @@ module SwiftUIRails
         end
       end
 
-      # Wrap content with a reactive container for Turbo Stream updates
+      ##
+      # Wraps the given content in a div with data attributes for Turbo Stream and client-side reactive updates.
+      # The container includes a unique component ID and class information for client-side reconstruction.
+      # @param [String] content - The HTML content to be wrapped.
+      # @return [String] The HTML-safe string wrapped in a reactive container div.
       def wrap_with_reactive_container(content)
         # Generate a unique component ID if not already set
         @component_id ||= "swift_ui_component_#{object_id}"
@@ -364,20 +431,25 @@ module SwiftUIRails
         content_tag(:div, content.html_safe, container_attrs)
       end
 
-      # Enable reactive rendering for this component
+      ##
+      # Returns true if the component has any reactive state variables or effects defined.
+      # @return [Boolean] Whether reactive rendering is enabled for this component.
       def reactive_rendering_enabled
         # Check if component has state or effects defined
         self.class.swift_states.any? || self.class.swift_effects.any?
       end
 
-      # Request automatic re-rendering (for use with Turbo)
+      ##
+      # Flags the component to be re-rendered automatically, typically in response to state changes or Turbo updates.
       def request_automatic_rerender
         # This would typically be handled by the controller/view layer
         # For now, we'll store a flag that can be checked
         @needs_rerender = true
       end
 
-      # Check if component needs re-rendering
+      ##
+      # Returns whether the component is flagged for automatic re-rendering.
+      # @return [Boolean] True if a re-render is needed, false otherwise.
       def needs_rerender?
         @needs_rerender || false
       end
@@ -388,7 +460,9 @@ module SwiftUIRails
       # Ensure Element class is accessible
       Element = SwiftUIRails::DSL::Element
 
-      # Memoization helpers (public for testing)
+      ##
+      # Generates a SHA256 hash key representing the current component's props, state, class, and version for memoization purposes.
+      # @return [String] The computed memoization key.
       def calculate_memoization_key
         # Create a cache key based on props and state
         key_parts = []
@@ -411,6 +485,11 @@ module SwiftUIRails
         Digest::SHA256.hexdigest(key_parts.join('-'))
       end
 
+      ##
+      # Generates a unique string key representing the given value for memoization purposes.
+      # Handles various data types, including arrays and hashes, by producing a consistent hash digest.
+      # @param value The value to be converted into a memoization key.
+      # @return [String] A string suitable for use as a memoization key.
       def memoization_value_key(value)
         case value
         when NilClass
@@ -433,6 +512,9 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Checks if the memoized SwiftUI content is still valid based on the current memoization key.
+      # @return [Boolean] true if the memoized content matches the current state and props, false otherwise.
       def memoized_content_valid?
         return false unless @memoized_swift_ui_content && @memoization_key
 
@@ -441,7 +523,9 @@ module SwiftUIRails
         current_key == @memoization_key
       end
 
-      # Clear memoization cache (useful for testing or forced refresh)
+      ##
+      # Clears the memoization cache for the component, removing any cached content and memoization key.
+      # Useful for testing or forcing a refresh of the rendered output.
       def clear_memoization!
         @memoized_swift_ui_content = nil
         @memoization_key = nil

@@ -23,7 +23,9 @@ module SwiftUIRails
     end
 
     class_methods do
-      # Configure reactive features
+      ##
+      # Returns the current configuration settings for reactive features, including auto-rendering, debug mode, cable support, and debounce interval.
+      # @return [Hash] The configuration hash for reactive behavior.
       def reactive_config
         @reactive_config ||= {
           auto_render: true,
@@ -33,16 +35,26 @@ module SwiftUIRails
         }
       end
 
+      ##
+      # Yields the current reactive configuration hash to a block for modification.
+      # The block can update settings such as auto rendering, debug mode, cable support, and debounce interval.
+      # @yield [config] Gives the current configuration hash to the block for in-place modification.
       def configure_reactive
         yield reactive_config
       end
     end
 
-    # Helper methods for reactive components
+    ##
+    # Indicates that the component is reactive.
+    # @return [Boolean] Always returns true.
     def reactive?
       true
     end
 
+    ##
+    # Returns an array of strings representing all reactive state, binding, and observed object dependencies for the component.
+    # Each dependency is prefixed to indicate its type (e.g., "state.", "binding.", "observed.").
+    # @return [Array<String>] List of reactive dependency identifiers.
     def state_dependencies
       dependencies = []
 
@@ -65,7 +77,9 @@ module SwiftUIRails
       dependencies
     end
 
-    # Trigger manual update
+    ##
+    # Enqueues a background job to trigger a manual update for the reactive component if supported.
+    # The job is only enqueued if the component is reactive and the ReactiveUpdateJob is defined.
     def trigger_update
       return unless reactive?
 
@@ -78,7 +92,10 @@ module SwiftUIRails
       )
     end
 
-    # Check if component should update
+    ##
+    # Determines whether the component should update based on changes to props or reactive state dependencies.
+    # @param [Hash] new_props Optional new props to compare against current props.
+    # @return [Boolean] True if an update is needed due to changed props or dependencies.
     def should_update?(new_props = {})
       # Always update if props changed
       return true if props_changed?(new_props)
@@ -89,6 +106,10 @@ module SwiftUIRails
 
     private
 
+    ##
+    # Determines if any defined prop has changed compared to the current instance variables.
+    # @param [Hash] new_props - The new props to compare against current values.
+    # @return [Boolean] True if any prop value differs; false otherwise.
     def props_changed?(new_props)
       return false if new_props.empty?
 
@@ -99,6 +120,10 @@ module SwiftUIRails
       end
     end
 
+    ##
+    # Checks if a specific reactive dependency has changed.
+    # Currently returns false as a placeholder; intended for integration with a change tracking system.
+    # @return [Boolean] Always returns false in the current implementation.
     def dependency_changed?(_dependency)
       # This would be implemented to check if a specific dependency changed
       # In practice, this would integrate with the change tracking system

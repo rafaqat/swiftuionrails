@@ -8,7 +8,9 @@ require_relative 'dev_tools/debug_helpers' if Rails.env.local?
 module SwiftUIRails
   module Helpers
     include SwiftUIRails::DevTools::DebugHelpers if Rails.env.local?
-    # Helper for inline Swift DSL usage in views
+    ##
+    # Renders SwiftUI-style UI elements in a Rails view using a Ruby DSL block.
+    # Executes the provided block within a DSL context, collects all created UI elements, and returns them as HTML-safe content.
     def swift_ui(&block)
       # Create a DSL context that delegates view helpers to the current view
       dsl_context = DSLContext.new(self)
@@ -25,6 +27,15 @@ module SwiftUIRails
       raw(flushed_content)
     end
 
+    ##
+    # Renders a SwiftUI-style component by name with the given properties and optional block content.
+    #
+    # Validates the component name against an allowed list and ensures the resolved class inherits from an approved base component class.
+    # Raises a security error if the component is unauthorized or invalid, and an argument error if the component class cannot be found.
+    # @param [String, Symbol] name The base name of the component to render (without "Component" suffix).
+    # @param [Hash] props Properties to pass to the component initializer.
+    # @yield Optional block providing content for the component.
+    # @return [String] The rendered component HTML.
     def swift_component(name, **props, &block)
       # SECURITY: Validate component name against whitelist to prevent RCE
       component_name = name.to_s.camelize

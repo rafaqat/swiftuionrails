@@ -15,6 +15,12 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Sets the Content Security Policy (CSP) headers for the current response based on application configuration.
+      #
+      # Applies a restrictive CSP by default, allowing only approved sources for scripts, styles, images, fonts, and connections.
+      # In development, also sets a report-only CSP header for monitoring violations.
+      # Skips setting the policy if CSP is disabled or relaxed for the current request.
       def set_content_security_policy
         return unless SwiftUIRails.configuration.content_security_policy_enabled
         return if @csp_relaxed
@@ -81,7 +87,10 @@ module SwiftUIRails
           skip_before_action :set_content_security_policy, options
         end
 
-        # Class-level method to customize CSP for specific actions
+        ##
+        # Defines a before_action that applies a custom Content Security Policy for specified controller actions.
+        # Executes the provided block in the controller instance context to allow per-action CSP customization.
+        # @param [Hash] options - Options to control which actions the policy applies to (e.g., :only, :except).
         def content_security_policy(options = {}, &block)
           before_action(options) do
             instance_eval(&block) if block

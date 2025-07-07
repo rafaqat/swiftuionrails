@@ -12,7 +12,9 @@ module SwiftUIRails
         class_attribute :state_definitions, default: {}
         class_attribute :state_observers, default: {}
 
-        # Override initialization instead of using hooks
+        ##
+        # Initializes the component and sets up state tracking if the method is defined.
+        # Calls the superclass initializer and then invokes `initialize_state_tracking` for reactive state setup.
         def initialize(...)
           super
           initialize_state_tracking if respond_to?(:initialize_state_tracking, true)
@@ -22,7 +24,11 @@ module SwiftUIRails
       class_methods do
         # Define a state variable
         # @state :count, 0
-        # @state :user, -> { current_user }
+        ##
+        # Defines a reactive state variable with automatic getter and setter methods.
+        # Also generates mutation helper methods for arrays and hashes, enabling reactivity and observer notifications on state changes.
+        # @param [Symbol] name - The name of the state variable.
+        # @param [Object, Proc] initial_value - The initial value or a proc returning the initial value for the state variable.
         def state(name, initial_value = nil, &block)
           initial = block || initial_value
 
@@ -55,7 +61,9 @@ module SwiftUIRails
           end
         end
 
-        # Define a state observer
+        ##
+        # Registers an observer block to be called whenever the specified state variable changes.
+        # @param [Symbol, String] state_name - The name of the state variable to observe.
         def observe(state_name, &block)
           state_observers[state_name] ||= []
           state_observers[state_name] << block
@@ -63,6 +71,11 @@ module SwiftUIRails
 
         private
 
+        ##
+        # Infers the type of a state variable based on its initial value.
+        # Returns the class, :boolean for booleans, or nil if the type cannot be determined (e.g., for Procs).
+        # @param initial The initial value of the state variable.
+        # @return [Class, Symbol, nil] The inferred type, :boolean, or nil if undeterminable.
         def infer_state_type(initial)
           case initial
           when Proc
@@ -83,6 +96,10 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Defines array mutation helper methods for a state variable.
+        # Adds push, remove, and clear methods for the specified array state variable name.
+        # These methods allow adding items, removing an item, or clearing the array while ensuring state reactivity.
         def define_array_mutation_methods(name)
           # Push method
           define_method("#{name}_push") do |*items|
@@ -104,6 +121,9 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Defines mutation helper methods for a hash state variable, enabling set, delete, and clear operations.
+        # @param [Symbol, String] name - The name of the hash state variable.
         def define_hash_mutation_methods(name)
           # Set key method
           define_method("#{name}_set") do |key, value|
@@ -128,6 +148,9 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Initializes internal tracking for reactive state variables, including their values, change history, and generation identifier.
+      # Sets each state variable to its initial value, evaluating procs if provided.
       def initialize_state_tracking
         @state_values ||= {}
         @state_changes = []
@@ -142,6 +165,12 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Records a change to a state variable and notifies any registered observers.
+      # Appends the change details to the internal state changes array and invokes observer callbacks with the new and old values.
+      # @param [Symbol] name - The name of the state variable.
+      # @param old_value - The previous value of the state variable.
+      # @param new_value - The updated value of the state variable.
       def track_state_change(name, old_value, new_value)
         return if old_value == new_value
 
@@ -160,6 +189,9 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Injects state change metadata as data attributes into the component's HTML content for client-side reactivity.
+      # Adds `data-state-generation` and `data-state-changes` attributes to the root HTML element if there are recorded state changes.
       def generate_state_updates
         return if @state_changes.empty?
 
@@ -170,21 +202,33 @@ module SwiftUIRails
         ).html_safe
       end
 
-      # Helper to create reactive wrappers
+      ##
+      # Wraps a block in a reactive context for state-dependent evaluation.
+      # @return [ReactiveContext] The reactive context wrapping the provided block.
       def reactive(&block)
         ReactiveContext.new(self, &block)
       end
 
       class ReactiveContext
+        ##
+        # Initializes a new ReactiveContext with the given component and block.
+        # @param component The component instance associated with this reactive context.
         def initialize(component, &block)
           @component = component
           @block = block
         end
 
+        ##
+        # Executes the reactive block and returns its result.
+        # @return The result of evaluating the reactive block.
         def value
           @block.call
         end
 
+        ##
+        # Registers a handler to be called when the reactive context's value changes.
+        # Returns self to allow method chaining.
+        # @return [ReactiveContext] The current instance for chaining.
         def on_change(&handler)
           # This would integrate with Stimulus for client-side reactivity
           @change_handler = handler
