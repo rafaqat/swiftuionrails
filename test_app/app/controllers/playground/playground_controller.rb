@@ -4,6 +4,11 @@ require "ostruct"
 
 module Playground
   class PlaygroundController < ApplicationController
+    # CSRF protection is intentionally disabled for the playground execute endpoint
+    # This is safe because:
+    # 1. The playground is a development tool, not for production use
+    # 2. No user data is modified - it only renders preview HTML
+    # 3. The executor has strict code validation to prevent dangerous operations
     skip_before_action :verify_authenticity_token, only: [ :execute ]
 
     def index

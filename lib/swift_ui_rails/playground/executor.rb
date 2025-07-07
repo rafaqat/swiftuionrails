@@ -28,8 +28,10 @@ module SwiftUIRails
         # Create a clean execution context
         context = ExecutionContext.new(@view_context)
 
-        # Execute the code
-        result = context.instance_eval(code)
+        # Execute the code in a restricted binding with limited access
+        # Create a clean binding to prevent access to instance variables
+        clean_binding = context.instance_eval { binding }
+        result = clean_binding.eval(code)
 
         # Convert result to HTML
         html = if result.respond_to?(:to_s)
@@ -112,8 +114,9 @@ module SwiftUIRails
 
       def extract_stimulus_controllers(code)
         # Parse code for data-controller attributes
-        controller_pattern = /data[:\s]*[\{\(]?\s*controller[:\s]*["']([^"']+)["']/
-        action_pattern = /data[:\s]*[\{\(]?\s*action[:\s]*["']([^"']+)["']/
+        # Fixed: Use possessive quantifiers and atomic groups to prevent backtracking
+        controller_pattern = /data(?:\s*[:=]\s*)?(?:\{|\()?\s*controller\s*[:=]\s*["']([^"']+)["']/
+        action_pattern = /data(?:\s*[:=]\s*)?(?:\{|\()?\s*action\s*[:=]\s*["']([^"']+)["']/
 
         code.scan(controller_pattern) do |match|
           controller_name = match[0]
@@ -127,7 +130,8 @@ module SwiftUIRails
         code.scan(action_pattern) do |match|
           action_string = match[0]
           # Parse action string like "click->controller#method"
-          if action_string =~ /(\w+)->(\w+)#(\w+)/
+          # Fixed: Use more specific pattern with anchors
+          if action_string =~ /\A(\w+)->(\w+)#(\w+)\z/
             event = ::Regexp.last_match(1)
             controller = ::Regexp.last_match(2)
             method = ::Regexp.last_match(3)

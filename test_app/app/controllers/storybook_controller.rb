@@ -3,6 +3,11 @@
 # Copyright 2025
 
 class StorybookController < ApplicationController
+  # CSRF protection is disabled for AJAX endpoints used by interactive storybook
+  # This is safe because:
+  # 1. Storybook is a development/documentation tool
+  # 2. These endpoints only render component previews, no data is persisted
+  # 3. Component actions are sandboxed and don't modify application state
   protect_from_forgery except: [ :update_preview, :component_action ] # Allow AJAX requests
   helper_method :tailwind_color_to_css
   helper StorybookDebugHelper

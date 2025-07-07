@@ -336,8 +336,8 @@ module SwiftUIRails
     end
 
     # Background job for async updates (only define if Rails is loaded)
-    if defined?(::ActiveJob::Base)
-      class ReactiveUpdateJob < ApplicationJob
+    if defined?(::ActiveJob::Base) && defined?(::ApplicationJob)
+      class ReactiveUpdateJob < ::ApplicationJob
         queue_as :default
 
         def perform(component_class_name, component_id, props)
