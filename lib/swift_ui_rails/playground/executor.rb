@@ -92,7 +92,9 @@ module SwiftUIRails
           node[:value]
         when :identifier
           # For simple identifiers, treat as method calls
-          context.send(node[:name])
+          # SECURITY: Validate identifier before calling
+          validate_allowed_method(node[:name].to_s)
+          context.public_send(node[:name])
         when :hash
           # Convert hash AST to Ruby hash
           node[:pairs].each_with_object({}) do |pair, hash|
@@ -108,7 +110,11 @@ module SwiftUIRails
       end
 
       def execute_method_call(context, node)
-        method_name = node[:method]
+        method_name = node[:method].to_s
+        
+        # SECURITY: Validate method is allowed before calling
+        validate_allowed_method(method_name)
+        
         args = node[:args].map { |arg| execute_ast(context, arg) }
         
         # Handle block if present
@@ -116,22 +122,33 @@ module SwiftUIRails
           block_proc = proc do
             node[:block][:children].map { |stmt| execute_ast(context, stmt) }.last
           end
-          context.send(method_name, *args, &block_proc)
+          context.public_send(method_name, *args, &block_proc)
         else
-          context.send(method_name, *args)
+          context.public_send(method_name, *args)
         end
       end
 
       def execute_method_on_receiver(receiver, method_name, args, block)
+        # SECURITY: Validate method is allowed before calling
+        validate_allowed_method(method_name.to_s)
+        
         evaluated_args = args.map { |arg| execute_ast(receiver, arg) }
         
         if block
           block_proc = proc do
             block[:children].map { |stmt| execute_ast(receiver, stmt) }.last
           end
-          receiver.send(method_name, *evaluated_args, &block_proc)
+          receiver.public_send(method_name, *evaluated_args, &block_proc)
         else
-          receiver.send(method_name, *evaluated_args)
+          receiver.public_send(method_name, *evaluated_args)
+        end
+      end
+      
+      def validate_allowed_method(method_name)
+        # Use the same whitelist from TokenParser
+        allowed = TokenParser::DSL_METHODS + TokenParser::MODIFIER_METHODS
+        unless allowed.include?(method_name)
+          raise SwiftUIRails::SecurityError, "Method '#{method_name}' is not allowed in playground"
         end
       end
 
@@ -205,7 +222,7 @@ module SwiftUIRails
         # Delegate missing methods to view_context for Rails helpers
         def method_missing(method, ...)
           if @view_context.respond_to?(method)
-            @view_context.send(method, ...)
+            @view_context.public_send(method, ...)
           else
             super
           end

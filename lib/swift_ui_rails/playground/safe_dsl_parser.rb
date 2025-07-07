@@ -276,12 +276,16 @@ module SwiftUIRails
         receiver = node[:receiver] ? execute(node[:receiver]) : @context
         args = node[:arguments].map { |arg| execute_argument(arg) }
         
+        # SECURITY: Use public_send to prevent calling private methods
+        # The method name has already been validated against ALLOWED_METHODS
+        method_name = node[:method].to_sym
+        
         # If there's a block, pass it as a proc
         if node[:block]
           block_proc = -> { execute_block(node[:block]) }
-          receiver.send(node[:method], *args, &block_proc)
+          receiver.public_send(method_name, *args, &block_proc)
         else
-          receiver.send(node[:method], *args)
+          receiver.public_send(method_name, *args)
         end
       end
 

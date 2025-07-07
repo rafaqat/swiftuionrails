@@ -492,15 +492,15 @@ module SwiftUIRails
         if ast[:block]
           block_proc = create_block_proc(ast[:block])
           if kwargs.empty?
-            receiver.send(method_name, *args, &block_proc)
+            receiver.public_send(method_name, *args, &block_proc)
           else
-            receiver.send(method_name, *args, **kwargs, &block_proc)
+            receiver.public_send(method_name, *args, **kwargs, &block_proc)
           end
         else
           if kwargs.empty?
-            receiver.send(method_name, *args)
+            receiver.public_send(method_name, *args)
           else
-            receiver.send(method_name, *args, **kwargs)
+            receiver.public_send(method_name, *args, **kwargs)
           end
         end
       end
