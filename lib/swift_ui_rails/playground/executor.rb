@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../dsl/element'
+require_relative 'safe_dsl_parser'
+require_relative 'token_parser'
 
 module SwiftUIRails
   module Playground
@@ -19,22 +21,15 @@ module SwiftUIRails
       end
 
       def execute(code)
-        # Safety check - basic validation
-        validate_code_safety!(code)
-
         # Execute in sandboxed context
         component_tree = nil
 
         # Create a clean execution context
         context = ExecutionContext.new(@view_context)
 
-        # Execute the code in a restricted binding with limited access
-        # SECURITY: Using instance_eval with a string is a security risk
-        # This should be replaced with a proper DSL parser in production
-        # For now, we'll add additional safety measures
-        # rubocop:disable Security/Eval
-        result = context.instance_eval(code)
-        # rubocop:enable Security/Eval
+        # SECURITY: Parse and execute DSL code safely without eval
+        # This uses a safe DSL parser that only allows whitelisted methods
+        result = safe_execute_dsl(context, code)
 
         # Convert result to HTML
         html = if result.respond_to?(:to_s)
@@ -69,49 +64,77 @@ module SwiftUIRails
 
       private
 
-      def validate_code_safety!(code)
-        # Disallow dangerous operations
-        dangerous_patterns = [
-          /`.*`/, # Backticks
-          /\bsystem\s*\(/,          # system calls
-          /\bexec\s*\(/,            # exec calls
-          /\beval\s*\(/,            # eval calls
-          /\b__send__\b/,           # __send__
-          /\bFile\s*\./,            # File operations
-          /\bIO\s*\./,              # IO operations
-          /\bDir\s*\./,             # Directory operations
-          /\bKernel\s*\./,          # Kernel methods
-          /\bProcess\s*\./,         # Process operations
-          /\brequire\b/,            # require statements
-          /\bload\b/,               # load statements
-          /\bopen\s*\(/,            # open calls
-          /%x[\{\[]/,               # %x{} and %x[] syntax
-          /\bconstantize\b/,        # constantize method
-          /\bclass_eval\b/,         # class_eval
-          /\bmodule_eval\b/,        # module_eval
-          /\binstance_eval\b/,      # instance_eval (when called directly)
-          /\bpublic_send\b/,        # public_send
-          /\bmethod\s*\(/,          # method() calls
-          /\b\.send\s*\(/,          # .send() calls
-          /\bObject\s*\./,          # Object class methods
-          /\bClass\s*\./,           # Class class methods
-          /\bModule\s*\./           # Module class methods
-        ]
+      def safe_execute_dsl(context, code)
+        # Use the token parser for safe DSL parsing
+        parser = TokenParser.new(code)
+        ast = parser.parse
+        
+        # Execute the AST in the given context
+        execute_ast(context, ast)
+      rescue TokenParser::ParseError => e
+        raise SwiftUIRails::SecurityError, "Parse error: #{e.message}"
+      end
 
-        dangerous_patterns.each do |pattern|
-          raise SwiftUIRails::SecurityError, "Unsafe operation detected: #{pattern.source}" if code.match?(pattern)
-        end
-        
-        # Additional checks for encoded strings that might hide malicious code
-        if code.include?('\\x') || code.include?('\\u') || code.include?('%')
-          raise SwiftUIRails::SecurityError, 'Encoded strings are not allowed'
-        end
-        
-        # Check for attempts to access constants
-        if code.match?(/\b[A-Z][A-Za-z0-9_]*(::[A-Z][A-Za-z0-9_]*)*\b/) && !code.match?(/\b(String|Integer|Float|Array|Hash|Symbol|TrueClass|FalseClass|NilClass)\b/)
-          raise SwiftUIRails::SecurityError, 'Direct constant access is not allowed'
+      def execute_ast(context, node)
+        case node[:type]
+        when :root
+          # Execute all top-level statements
+          results = node[:children].map { |child| execute_ast(context, child) }
+          results.last
+        when :method_call
+          execute_method_call(context, node)
+        when :chained_call
+          # Execute the receiver first
+          receiver = execute_ast(context, node[:receiver])
+          # Then execute the method on it
+          execute_method_on_receiver(receiver, node[:method], node[:args], node[:block])
+        when :literal
+          node[:value]
+        when :identifier
+          # For simple identifiers, treat as method calls
+          context.send(node[:name])
+        when :hash
+          # Convert hash AST to Ruby hash
+          node[:pairs].each_with_object({}) do |pair, hash|
+            key = execute_ast(context, pair[:key])
+            value = execute_ast(context, pair[:value])
+            hash[key] = value
+          end
+        when :array
+          node[:elements].map { |elem| execute_ast(context, elem) }
+        else
+          raise "Unknown AST node type: #{node[:type]}"
         end
       end
+
+      def execute_method_call(context, node)
+        method_name = node[:method]
+        args = node[:args].map { |arg| execute_ast(context, arg) }
+        
+        # Handle block if present
+        if node[:block]
+          block_proc = proc do
+            node[:block][:children].map { |stmt| execute_ast(context, stmt) }.last
+          end
+          context.send(method_name, *args, &block_proc)
+        else
+          context.send(method_name, *args)
+        end
+      end
+
+      def execute_method_on_receiver(receiver, method_name, args, block)
+        evaluated_args = args.map { |arg| execute_ast(receiver, arg) }
+        
+        if block
+          block_proc = proc do
+            block[:children].map { |stmt| execute_ast(receiver, stmt) }.last
+          end
+          receiver.send(method_name, *evaluated_args, &block_proc)
+        else
+          receiver.send(method_name, *evaluated_args)
+        end
+      end
+
 
       def create_view_context
         # Create a minimal view context for rendering
@@ -211,6 +234,18 @@ module SwiftUIRails
           # Convert p to a formatted text element
           text(value.inspect).font_family('mono').text_sm.p(2).bg('gray-50').rounded
         end
+      end
+
+      private
+
+      def safe_execute_dsl(context, code)
+        # Parse the DSL code into an AST
+        parser = SwiftUIRails::Playground::TokenParser.new(code)
+        ast = parser.parse
+        
+        # Execute the AST safely
+        executor = SwiftUIRails::Playground::ASTExecutor.new(context)
+        executor.execute(ast)
       end
     end
   end
