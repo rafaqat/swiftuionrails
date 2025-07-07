@@ -236,17 +236,6 @@ module SwiftUIRails
         end
       end
 
-      private
-
-      def safe_execute_dsl(context, code)
-        # Parse the DSL code into an AST
-        parser = SwiftUIRails::Playground::TokenParser.new(code)
-        ast = parser.parse
-        
-        # Execute the AST safely
-        executor = SwiftUIRails::Playground::ASTExecutor.new(context)
-        executor.execute(ast)
-      end
     end
   end
 end

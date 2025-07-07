@@ -62,7 +62,10 @@ module ViewComponent
 
       class << self
         def stories
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Engine singleton maintains the stories collection for the entire application
           @stories ||= Collections::StoriesCollection.new
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
       end
     end

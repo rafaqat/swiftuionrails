@@ -21,7 +21,7 @@ module SwiftUIRails
       COLON = :colon
       ARROW = :arrow
       DO = :do
-      END = :end
+      END_TOKEN = :end
       NEWLINE = :newline
       EOF = :eof
 
@@ -213,7 +213,7 @@ module SwiftUIRails
         
         type = case value
                when 'do' then DO
-               when 'end' then END
+               when 'end' then END_TOKEN
                when 'true', 'false', 'nil' then IDENTIFIER
                else IDENTIFIER
                end
@@ -348,7 +348,7 @@ module SwiftUIRails
           if current_token&.type == LPAREN
             args = parse_arguments
           elsif current_token&.type != DOT && current_token&.type != EOF && 
-                current_token&.type != RBRACE && current_token&.type != END
+                current_token&.type != RBRACE && current_token&.type != END_TOKEN
             # Space-separated arguments (Ruby style)
             args = parse_space_separated_args
           end
@@ -399,7 +399,7 @@ module SwiftUIRails
         
         # Parse arguments until we hit a terminator
         until current_token.nil? || 
-              %i[DOT DO END RBRACE EOF].include?(current_token.type) ||
+              %i[DOT DO END_TOKEN RBRACE EOF].include?(current_token.type) ||
               (current_token.type == IDENTIFIER && peek_token&.type == COLON)
           
           # Handle named arguments
@@ -423,7 +423,7 @@ module SwiftUIRails
         consume_token # consume 'do' or '{'
         statements = []
         
-        end_token = current_token&.type == LBRACE ? RBRACE : END
+        end_token = current_token&.type == LBRACE ? RBRACE : END_TOKEN
         
         while current_token&.type != end_token && current_token&.type != EOF
           stmt = parse_expression

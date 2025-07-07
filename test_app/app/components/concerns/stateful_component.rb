@@ -8,8 +8,11 @@ module StatefulComponent
 
   included do
     attr_accessor :story_session_id
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+    # State and effect definitions are set at class definition time and are read-only during requests
     class_attribute :_state_definitions, default: {}
     class_attribute :_effect_definitions, default: {}
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
   end
 
   class_methods do

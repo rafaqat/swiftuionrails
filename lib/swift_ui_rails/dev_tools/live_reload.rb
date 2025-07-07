@@ -16,6 +16,8 @@ module SwiftUIRails
         def start!
           return unless enabled?
 
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # LiveReload is a singleton service that runs once per application
           @listener = Listen.to(
             *watched_paths,
             only: watched_extensions,
@@ -25,11 +27,14 @@ module SwiftUIRails
           end
 
           @listener.start
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
           Rails.logger.info 'SwiftUI Rails LiveReload started. Watching for component changes...'
         end
 
         def stop!
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @listener&.stop
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         private

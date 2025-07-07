@@ -7,7 +7,10 @@ module ViewComponent
     class Stories < ViewComponent::Preview
       class << self
         def title(title = nil)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Story title is set at class definition time, not during requests
           @stories_title = title
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         def parameters(params, only: nil, except: nil)
@@ -43,9 +46,12 @@ module ViewComponent
         end
 
         def stories
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Stories are loaded once at boot time and cached
           @stories ||= story_names.map do |name|
             Story.new(story_id(name), name, parameters_collection.for_story(name), controls.for_story(name))
           end
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # find the story by name
@@ -76,15 +82,21 @@ module ViewComponent
                    end
           result ||= {}
           result[:template] = preview_example_template_path(story_name) if result[:template].nil?
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Layout is determined at runtime based on story configuration
           @layout = layout_collection.for_story(story_name.to_sym)
           result.merge(layout: @layout)
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         attr_reader :code_object, :stories_json_path
 
         def code_object=(object)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Code object is set once during initialization
           @code_object = object
           @stories_json_path ||= begin
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
             dir = File.dirname(object.file)
 
             # Defensive programming for nil path
@@ -102,29 +114,47 @@ module ViewComponent
 
           # ordering of public_instance_methods isn't consistent
           # use the code_object to sort the methods to the order that they're declared
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Story names are determined once at load time
           @story_names = object.meths.select { |m| story_names.include?(m.name) }.map(&:name)
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         private
 
         def controls
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Controls collection is built once per story class
           @controls ||= Collections::ControlsCollection.new
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         def stories_title
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Title is generated once and cached
           @stories_title ||= Storybook.stories_title_generator.call(self)
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         def parameters_collection
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Parameters collection is built once per story class
           @parameters_collection ||= Collections::ParametersCollection.new
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         def layout_collection
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Layout collection is built once per story class
           @layout_collection ||= Collections::LayoutCollection.new
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         def story_names
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Story names are determined once at load time
           @story_names ||= public_instance_methods(false)
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         def story_id(name)

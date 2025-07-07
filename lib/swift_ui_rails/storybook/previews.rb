@@ -13,13 +13,18 @@ module SwiftUIRails
       module ClassMethods
         # Define preview parameters for a story
         def preview_params(**params)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Preview parameters are set at class definition time
           @preview_params ||= {}
           @preview_params.merge!(params)
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # Get all preview parameters
         def get_preview_params
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @preview_params || {}
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
       end
 

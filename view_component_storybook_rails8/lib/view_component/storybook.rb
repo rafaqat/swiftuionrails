@@ -22,7 +22,10 @@ module ViewComponent
     #
     #     config.view_component_storybook.stories_path = Rails.root.join("lib/component_stories")
     #
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+    # Configuration is set once at boot time and never changes during requests
     mattr_accessor :stories_paths, instance_writer: false
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
     # Enable or disable component previews through app configuration:
     #
@@ -30,7 +33,10 @@ module ViewComponent
     #
     # Defaults to +true+ for development environment
     #
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+    # Configuration is set once at boot time
     mattr_accessor :show_stories, instance_writer: false
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
     # Set the entry route for component stories:
     #
@@ -38,7 +44,10 @@ module ViewComponent
     #
     # Defaults to `/rails/stories` when `show_stories` is enabled.
     #
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+    # Configuration is set once at boot time
     mattr_accessor :stories_route, instance_writer: false
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
     # :nocov:
     if defined?(ViewComponent::Storybook::Engine)
@@ -57,8 +66,11 @@ module ViewComponent
     #       stories.stories_name.humanize.upcase
     #     }
     #
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+    # Configuration is set once at boot time
     mattr_accessor :stories_title_generator, instance_writer: false,
                                              default: ->(stories) { stories.stories_name.humanize.titlecase }
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
     ActiveSupport.run_load_hooks(:view_component_storybook, self)
   end

@@ -7,8 +7,11 @@ module LiveStories
   extend ActiveSupport::Concern
 
   included do
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+    # Story definitions are set at class definition time, not during requests
     class_attribute :_live_story_definitions, default: {}
     class_attribute :_story_session_config, default: {}
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
   end
 
   class_methods do

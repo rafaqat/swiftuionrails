@@ -13,27 +13,38 @@ module SwiftUIRails
       module ClassMethods
         # Add documentation to a story
         def story_doc(description)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Story documentation is set at class definition time, not during requests
           @story_documentation ||= {}
           @story_documentation[:description] = description
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # Add usage examples
         def story_example(name, code)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Story examples are set at class definition time
           @story_documentation ||= {}
           @story_documentation[:examples] ||= {}
           @story_documentation[:examples][name] = code
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # Add parameter documentation
         def param_doc(param_name, description)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Parameter documentation is set at class definition time
           @story_documentation ||= {}
           @story_documentation[:params] ||= {}
           @story_documentation[:params][param_name] = description
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # Get all documentation
         def get_documentation
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @story_documentation || {}
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
       end
 
