@@ -130,8 +130,9 @@ module SwiftUi
       end
 
       begin
-        # Use safe constantize to prevent code injection
-        component_class = component_class_name.safe_constantize
+        # Use Rails safe_constantize to prevent code injection
+        # This method returns nil for invalid constants instead of raising an exception
+        component_class = component_class_name.to_s.safe_constantize
         
         unless component_class
           Rails.logger.error "[SECURITY] Invalid component class: #{component_class_name}"

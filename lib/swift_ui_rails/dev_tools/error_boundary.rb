@@ -82,7 +82,7 @@ module SwiftUIRails
                 font-size: 14px;
                 white-space: pre-wrap;
                 word-break: break-word;
-              ">#{error_message}</pre>
+              ">#{ERB::Util.html_escape(error_message)}</pre>
             </div>
           #{'  '}
             <details style="margin-bottom: 12px;">
@@ -123,7 +123,7 @@ module SwiftUIRails
                 font-size: 12px;
                 overflow-x: auto;
                 color: #7f1d1d;
-              ">#{backtrace.join("\n")}</pre>
+              ">#{ERB::Util.html_escape(backtrace.join("\n"))}</pre>
             </details>
           #{'  '}
             <div style="

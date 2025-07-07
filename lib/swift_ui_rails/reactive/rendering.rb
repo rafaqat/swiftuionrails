@@ -453,11 +453,12 @@ module SwiftUIRails
           else
             # Fallback: verify it's a valid component class
             begin
-              # Use safe_constantize to prevent code injection
-              klass = class_name.safe_constantize
+              # Use Rails safe_constantize to prevent code injection
+              # Convert to string first to ensure we have a string
+              klass = class_name.to_s.safe_constantize
               klass && (klass < SwiftUIRails::Component::Base ||
                 (defined?(ApplicationComponent) && klass < ApplicationComponent))
-            rescue NameError
+            rescue StandardError
               false
             end
           end
