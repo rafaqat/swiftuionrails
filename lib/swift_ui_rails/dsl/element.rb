@@ -512,7 +512,9 @@ module SwiftUIRails
       # Set inline style with SECURITY validation
       def style(style_string)
         # SECURITY: Validate style string to prevent CSS injection
-        if /javascript:|expression\(|@import|<script|behavior:|binding:|include-source:|moz-binding:|vbscript:/i.match?(style_string)
+        # Split into separate checks to avoid complex regex
+        dangerous_patterns = %w[javascript: expression( @import <script behavior: binding: include-source: moz-binding: vbscript:]
+        if dangerous_patterns.any? { |pattern| style_string.downcase.include?(pattern) }
           Rails.logger.warn "[SECURITY] Potentially dangerous style blocked: #{style_string}"
           return self
         end

@@ -453,9 +453,10 @@ module SwiftUIRails
           else
             # Fallback: verify it's a valid component class
             begin
-              klass = class_name.constantize
-              klass < SwiftUIRails::Component::Base ||
-                (defined?(ApplicationComponent) && klass < ApplicationComponent)
+              # Use safe_constantize to prevent code injection
+              klass = class_name.safe_constantize
+              klass && (klass < SwiftUIRails::Component::Base ||
+                (defined?(ApplicationComponent) && klass < ApplicationComponent))
             rescue NameError
               false
             end

@@ -62,7 +62,7 @@ module SwiftUIRails
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
               <span style="color: #ef4444; font-size: 20px;">⚠️</span>
               <h3 style="margin: 0; color: #991b1b; font-size: 18px; font-weight: 600;">
-                Component Error: #{component_name}
+                Component Error: #{ERB::Util.html_escape(component_name)}
               </h3>
             </div>
           #{'  '}
@@ -102,7 +102,7 @@ module SwiftUIRails
                 margin: 0;
                 font-size: 12px;
                 overflow-x: auto;
-              ">#{JSON.pretty_generate(error.props)}</pre>
+              ">#{ERB::Util.html_escape(JSON.pretty_generate(error.props))}</pre>
             </details>
           #{'  '}
             <details>

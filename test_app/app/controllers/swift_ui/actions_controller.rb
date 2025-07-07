@@ -130,7 +130,13 @@ module SwiftUi
       end
 
       begin
-        component_class = component_class_name.constantize
+        # Use safe constantize to prevent code injection
+        component_class = component_class_name.safe_constantize
+        
+        unless component_class
+          Rails.logger.error "[SECURITY] Invalid component class: #{component_class_name}"
+          raise NameError, "Component class not found: #{component_class_name}"
+        end
 
         # Verify it's actually a SwiftUI Rails component
         unless component_class < SwiftUIRails::Component::Base ||

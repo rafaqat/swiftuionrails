@@ -1,5 +1,10 @@
 # Copyright 2025
 class RailsFirstDemoController < ApplicationController
+  # CSRF protection is intentionally disabled for demo endpoints
+  # This is safe because:
+  # 1. This is a demo controller for documentation purposes
+  # 2. All data is stored in session, not in database
+  # 3. No sensitive user data is modified
   skip_before_action :verify_authenticity_token, only: [ :increment_counter, :add_todo, :delete_todo, :search ]
 
   def index
