@@ -129,32 +129,34 @@ module SwiftUi
         raise SecurityError, "Unauthorized component: #{component_class_name}"
       end
 
-      begin
-        # Use Rails safe_constantize to prevent code injection
-        # This method returns nil for invalid constants instead of raising an exception
-        component_class = component_class_name.to_s.safe_constantize
-        
-        unless component_class
-          Rails.logger.error "[SECURITY] Invalid component class: #{component_class_name}"
-          raise NameError, "Component class not found: #{component_class_name}"
-        end
-
-        # Verify it's actually a SwiftUI Rails component
-        unless component_class < SwiftUIRails::Component::Base ||
-               (defined?(ApplicationComponent) && component_class < ApplicationComponent) ||
-               (defined?(ViewComponent::Base) && component_class < ViewComponent::Base)
-          Rails.logger.error "[SECURITY] Class #{component_class_name} is not a valid component"
-          raise SecurityError, "#{component_class_name} is not a valid SwiftUI Rails component"
-        end
-
-        # Log successful component instantiation
-        Rails.logger.info "[AUDIT] ActionsController instantiated component: #{component_class_name}"
-
-        component_class
-      rescue NameError => e
-        Rails.logger.error "[ERROR] Component class not found: #{component_class_name} - #{e.message}"
+      # Find component from pre-defined mapping to avoid dynamic constant lookup
+      component_class = case component_class_name
+      when 'CounterComponent' then defined?(CounterComponent) ? CounterComponent : nil
+      when 'CardComponent' then defined?(CardComponent) ? CardComponent : nil
+      when 'ButtonComponent' then defined?(ButtonComponent) ? ButtonComponent : nil
+      when 'ProductCardComponent' then defined?(ProductCardComponent) ? ProductCardComponent : nil
+      when 'ProductListComponent' then defined?(ProductListComponent) ? ProductListComponent : nil
+      when 'ProductRatingComponent' then defined?(ProductRatingComponent) ? ProductRatingComponent : nil
+      when 'SimpleAuthComponent' then defined?(SimpleAuthComponent) ? SimpleAuthComponent : nil
+      when 'AuthFormComponent' then defined?(AuthFormComponent) ? AuthFormComponent : nil
+      when 'EnhancedGridComponent' then defined?(EnhancedGridComponent) ? EnhancedGridComponent : nil
+      when 'DslButtonComponent' then defined?(DslButtonComponent) ? DslButtonComponent : nil
+      when 'DslCardComponent' then defined?(DslCardComponent) ? DslCardComponent : nil
+      when 'DslProductCardComponent' then defined?(DslProductCardComponent) ? DslProductCardComponent : nil
+      when 'ProductLayoutSimpleComponent' then defined?(ProductLayoutSimpleComponent) ? ProductLayoutSimpleComponent : nil
+      else
+        nil
+      end
+      
+      unless component_class
+        Rails.logger.error "[SECURITY] Component not found or not allowed: #{component_class_name}"
         raise ArgumentError, "Component #{component_class_name} not found"
       end
+      
+      # Log successful component instantiation
+      Rails.logger.info "[AUDIT] ActionsController instantiated component: #{component_class_name}"
+      
+      component_class
     end
 
     def allowed_component?(component_name)

@@ -452,15 +452,16 @@ module SwiftUIRails
             SwiftUIRails::Component::Base::ALLOWED_COMPONENTS.include?(class_name)
           else
             # Fallback: verify it's a valid component class
-            begin
-              # Use Rails safe_constantize to prevent code injection
-              # Convert to string first to ensure we have a string
-              klass = class_name.to_s.safe_constantize
-              klass && (klass < SwiftUIRails::Component::Base ||
-                (defined?(ApplicationComponent) && klass < ApplicationComponent))
-            rescue StandardError
-              false
-            end
+            # Use a whitelist approach instead of dynamic constant lookup
+            # This prevents code injection vulnerabilities
+            allowed_classes = %w[
+              CounterComponent CardComponent ButtonComponent
+              ProductCardComponent ProductListComponent ProductRatingComponent
+              SimpleAuthComponent AuthFormComponent EnhancedGridComponent
+              DslButtonComponent DslCardComponent DslProductCardComponent
+              ProductLayoutSimpleComponent
+            ]
+            allowed_classes.include?(class_name.to_s)
           end
         end
 
