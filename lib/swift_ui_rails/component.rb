@@ -20,8 +20,10 @@ module SwiftUIRails
       include SwiftUIRails::Component::Slots
       include SwiftUIRails::Component::Caching
       include SwiftUIRails::Reactive if defined?(SwiftUIRails::Reactive)
-      include SwiftUIRails::Security::ComponentValidator
       include SwiftUIRails::DevTools::DebugHelpers if Rails.env.local?
+      
+      # ComponentValidator must be included after other modules but before prop method definition
+      include SwiftUIRails::Security::ComponentValidator
 
       # rubocop:disable ThreadSafety/ClassAndModuleAttributes
       # These are ViewComponent standard patterns that are initialized once at class definition time

@@ -20,29 +20,40 @@ module SwiftUIRails
         # Component prop validation metadata set at class definition time
         class_attribute :prop_validations, default: {}
         # rubocop:enable ThreadSafety/ClassAndModuleAttributes
+      end
 
-        # Override prop setter to add validation
-        class << self
-          def prop(name, type: String, required: false, default: nil, **options)
-            # Extract validation options before passing to parent
-            validate = options.delete(:validate)
-            enum = options.delete(:enum)
-            pattern = options.delete(:pattern)
-            range = options.delete(:range)
+      # Use class methods pattern to ensure proper method resolution
+      def self.included(base)
+        base.extend(ClassMethods)
+        base.class_eval do
+          class << self
+            prepend ClassMethodsOverride
+          end
+        end
+        super
+      end
+      
+      # Module to prepend prop method override
+      module ClassMethodsOverride
+        def prop(name, type: String, required: false, default: nil, **options)
+          # Extract validation options before passing to parent
+          validate = options.delete(:validate)
+          enum = options.delete(:enum)
+          pattern = options.delete(:pattern)
+          range = options.delete(:range)
 
-            # Call parent with remaining options
-            super(name, type: type, required: required, default: default)
+          # Call parent without extra options since it doesn't accept them
+          super(name, type: type, required: required, default: default)
 
-            # Add validation if specified
-            if validate
-              prop_validations[name] = validate
-            elsif enum
-              prop_validations[name] = { inclusion: { in: enum } }
-            elsif pattern
-              prop_validations[name] = { format: { with: pattern } }
-            elsif range
-              prop_validations[name] = { inclusion: { in: range } }
-            end
+          # Add validation if specified
+          if validate
+            prop_validations[name] = validate
+          elsif enum
+            prop_validations[name] = { inclusion: { in: enum } }
+          elsif pattern
+            prop_validations[name] = { format: { with: pattern } }
+          elsif range
+            prop_validations[name] = { inclusion: { in: range } }
           end
         end
       end
