@@ -14,6 +14,8 @@ module SwiftUi
       action_data = params.permit(:action_id, :component_id, :component_class, :event_type, :target_value, :target_checked,
                                   :story_session_id, :story_name, :story_variant, target_dataset: {})
 
+      component = nil
+      
       # Check if we're in storybook mode
       if action_data[:story_session_id].present? && action_data[:story_name].present?
         # Use StorySession to maintain component state
@@ -45,6 +47,15 @@ module SwiftUi
         # SECURITY: Validate component class against whitelist
         component_class_name = action_data[:component_class]
         component_class = safe_constantize_component(component_class_name)
+
+        # Handle unauthorized component
+        unless component_class
+          respond_to do |format|
+            format.turbo_stream { head :unprocessable_entity }
+            format.json { render json: { error: "Unauthorized component: #{component_class_name}" }, status: :unprocessable_entity }
+          end
+          return
+        end
 
         # Get stored state and props from session
         component_key = "component_#{action_data[:component_id]}"
@@ -126,40 +137,40 @@ module SwiftUi
           controller: "ActionsController"
         )
 
-        raise SecurityError, "Unauthorized component: #{component_class_name}"
+        return nil
       end
 
       # Find component from pre-defined mapping to avoid dynamic constant lookup
       # This prevents code injection while allowing all legitimate components
       component_class = case component_class_name
-      when 'CounterComponent' then defined?(CounterComponent) ? CounterComponent : nil
-      when 'CardComponent' then defined?(CardComponent) ? CardComponent : nil
-      when 'ButtonComponent' then defined?(ButtonComponent) ? ButtonComponent : nil
-      when 'ProductCardComponent' then defined?(ProductCardComponent) ? ProductCardComponent : nil
-      when 'ProductListComponent' then defined?(ProductListComponent) ? ProductListComponent : nil
-      when 'ProductRatingComponent' then defined?(ProductRatingComponent) ? ProductRatingComponent : nil
-      when 'SimpleAuthComponent' then defined?(SimpleAuthComponent) ? SimpleAuthComponent : nil
-      when 'AuthFormComponent' then defined?(AuthFormComponent) ? AuthFormComponent : nil
-      when 'EnhancedGridComponent' then defined?(EnhancedGridComponent) ? EnhancedGridComponent : nil
-      when 'DslButtonComponent' then defined?(DslButtonComponent) ? DslButtonComponent : nil
-      when 'DslCardComponent' then defined?(DslCardComponent) ? DslCardComponent : nil
-      when 'DslProductCardComponent' then defined?(DslProductCardComponent) ? DslProductCardComponent : nil
-      when 'ProductLayoutSimpleComponent' then defined?(ProductLayoutSimpleComponent) ? ProductLayoutSimpleComponent : nil
+      when "CounterComponent" then defined?(CounterComponent) ? CounterComponent : nil
+      when "CardComponent" then defined?(CardComponent) ? CardComponent : nil
+      when "ButtonComponent" then defined?(ButtonComponent) ? ButtonComponent : nil
+      when "ProductCardComponent" then defined?(ProductCardComponent) ? ProductCardComponent : nil
+      when "ProductListComponent" then defined?(ProductListComponent) ? ProductListComponent : nil
+      when "ProductRatingComponent" then defined?(ProductRatingComponent) ? ProductRatingComponent : nil
+      when "SimpleAuthComponent" then defined?(SimpleAuthComponent) ? SimpleAuthComponent : nil
+      when "AuthFormComponent" then defined?(AuthFormComponent) ? AuthFormComponent : nil
+      when "EnhancedGridComponent" then defined?(EnhancedGridComponent) ? EnhancedGridComponent : nil
+      when "DslButtonComponent" then defined?(DslButtonComponent) ? DslButtonComponent : nil
+      when "DslCardComponent" then defined?(DslCardComponent) ? DslCardComponent : nil
+      when "DslProductCardComponent" then defined?(DslProductCardComponent) ? DslProductCardComponent : nil
+      when "ProductLayoutSimpleComponent" then defined?(ProductLayoutSimpleComponent) ? ProductLayoutSimpleComponent : nil
       # Test components
-      when 'TestComponent' then defined?(TestComponent) ? TestComponent : nil
-      when 'SimpleTestComponent' then defined?(SimpleTestComponent) ? SimpleTestComponent : nil
-      when 'ComplexNestingComponent' then defined?(ComplexNestingComponent) ? ComplexNestingComponent : nil
-      when 'RenderTestComponent' then defined?(RenderTestComponent) ? RenderTestComponent : nil
-      when 'ViewComponentPureComponent' then defined?(ViewComponentPureComponent) ? ViewComponentPureComponent : nil
-      when 'ComplexComponent' then defined?(ComplexComponent) ? ComplexComponent : nil
-      when 'NestedComponent' then defined?(NestedComponent) ? NestedComponent : nil
+      when "TestComponent" then defined?(TestComponent) ? TestComponent : nil
+      when "SimpleTestComponent" then defined?(SimpleTestComponent) ? SimpleTestComponent : nil
+      when "ComplexNestingComponent" then defined?(ComplexNestingComponent) ? ComplexNestingComponent : nil
+      when "RenderTestComponent" then defined?(RenderTestComponent) ? RenderTestComponent : nil
+      when "ViewComponentPureComponent" then defined?(ViewComponentPureComponent) ? ViewComponentPureComponent : nil
+      when "ComplexComponent" then defined?(ComplexComponent) ? ComplexComponent : nil
+      when "NestedComponent" then defined?(NestedComponent) ? NestedComponent : nil
       else
         nil
       end
 
       unless component_class
         Rails.logger.error "[SECURITY] Component not found or not allowed: #{component_class_name}"
-        raise ArgumentError, "Component #{component_class_name} not found"
+        return nil
       end
 
       # Log successful component instantiation
@@ -177,11 +188,25 @@ module SwiftUi
         CounterComponent
         ProductCardComponent
         ProductListComponent
+        ProductRatingComponent
         AuthFormComponent
+        SimpleAuthComponent
         EnhancedLoginComponent
         EnhancedRegisterComponent
         AuthErrorComponent
         AuthLayoutComponent
+        EnhancedGridComponent
+        DslButtonComponent
+        DslCardComponent
+        DslProductCardComponent
+        ProductLayoutSimpleComponent
+        TestComponent
+        SimpleTestComponent
+        ComplexNestingComponent
+        RenderTestComponent
+        ViewComponentPureComponent
+        ComplexComponent
+        NestedComponent
       ]
 
       allowed_components.include?(component_name)
