@@ -33,7 +33,12 @@ module SwiftUIRails
         end
       end
 
-      # Record an action and check if limit is exceeded
+      ##
+      # Records an action for the given identifier and raises an exception if the rate limit is exceeded.
+      # @param [Object] identifier - Unique identifier for the user or client.
+      # @param [String, nil] action_name - Optional action name to scope the rate limit.
+      # @return [Boolean] Returns true if the action is allowed or if rate limiting is disabled.
+      # @raise [RateLimitExceeded] If the rate limit threshold is exceeded for the identifier.
       def record!(identifier, action_name = nil)
         return true unless SwiftUIRails.configuration.rate_limit_actions
 
@@ -79,7 +84,10 @@ module SwiftUIRails
         [threshold - current_count(identifier, action_name), 0].max
       end
 
-      # Get time until reset (in seconds)
+      ##
+      # Returns the number of seconds until the rate limit resets for the given identifier and optional action name.
+      # If the cache store supports TTL, uses the actual remaining time; otherwise, returns the configured window duration.
+      # @return [Integer] Seconds remaining until the rate limit resets.
       def reset_in(identifier, action_name = nil)
         key = rate_limit_key(identifier, action_name)
 
@@ -95,6 +103,12 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Generates a unique cache key for rate limiting based on the identifier and optional action name.
+      # The identifier is hashed for privacy.
+      # @param [String] identifier - The unique identifier for the user or client.
+      # @param [String, nil] action_name - The name of the action being rate limited, or nil for global scope.
+      # @return [String] The generated cache key.
       def rate_limit_key(identifier, action_name)
         # Create a unique key for rate limiting
         base = 'swift_ui_rails:rate_limit'
@@ -115,6 +129,11 @@ module SwiftUIRails
         @limiter = RateLimiter.new(options)
       end
 
+      ##
+      # Applies rate limiting to incoming HTTP requests targeting SwiftUI Rails action endpoints.
+      # Returns a 429 response if the rate limit is exceeded; otherwise, forwards the request to the next middleware or application.
+      # @param [Hash] env The Rack environment hash.
+      # @return [Array] The standard Rack response array: [status, headers, body].
       def call(env)
         request = ActionDispatch::Request.new(env)
 
@@ -158,7 +177,11 @@ module SwiftUIRails
         self.rate_limiter = RateLimiter.new
       end
 
-      # Check rate limit before action
+      ##
+      # Checks and records the rate limit for the current request, rendering a 429 response if the limit is exceeded.
+      # @param [String, nil] identifier - Optional unique identifier for the requester; defaults to session ID or IP address.
+      # @param [String, nil] action - Optional action name; defaults to controller and action name.
+      # @return [Boolean] Returns true if the request is within the rate limit, false if the limit is exceeded and a response is rendered.
       def check_rate_limit!(identifier = nil, action = nil)
         identifier ||= current_rate_limit_identifier
         action ||= "#{controller_name}##{action_name}"
@@ -184,6 +207,9 @@ module SwiftUIRails
         session.id || request.remote_ip
       end
 
+      ##
+      # Renders a 429 Too Many Requests response when the rate limit is exceeded.
+      # Responds with a JSON error message and retry interval for JSON requests, or a plain text message for HTML requests.
       def render_rate_limit_exceeded
         respond_to do |format|
           format.json do
@@ -200,7 +226,13 @@ module SwiftUIRails
       end
 
       module ClassMethods
-        # Configure rate limiting for controller
+        ##
+        # Sets up rate limiting for controller actions with optional custom threshold, window, and action filters.
+        # Applies a before_action filter to enforce rate limits and configures a custom RateLimiter if threshold or window are specified.
+        # @param [Integer, nil] threshold - Maximum allowed actions within the window; overrides the default if provided.
+        # @param [Integer, nil] window - Time window in seconds for rate limiting; overrides the default if provided.
+        # @param [Array<Symbol>, nil] only - List of actions to apply rate limiting to.
+        # @param [Array<Symbol>, nil] except - List of actions to exclude from rate limiting.
         def rate_limit(threshold: nil, window: nil, only: nil, except: nil)
           options = {}
           options[:only] = only if only

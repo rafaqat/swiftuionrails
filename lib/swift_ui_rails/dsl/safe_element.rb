@@ -40,6 +40,10 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Returns the string representation of the wrapped content, injecting any accumulated CSS classes and the disabled attribute into the HTML tag if applicable.
+      # If the content is a string and CSS classes or disabled state have been set, modifies the opening HTML tag to include them.
+      # @return [String] The modified or original string representation of the content, marked as HTML safe if modified.
       def to_s
         if @content.respond_to?(:to_s)
           # If we have CSS classes to add and content is a string, wrap it
@@ -81,11 +85,16 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Indicates that the output is considered safe HTML.
+      # @return [Boolean] Always returns true.
       def html_safe?
         true
       end
 
-      # Delegate other methods to content if it responds to them
+      ##
+      # Forwards undefined method calls to the wrapped content if possible, returning self for chainable calls.
+      # Returns the result of the delegated method, or raises NoMethodError if the content does not respond.
       def method_missing(method, ...)
         if @content.respond_to?(method)
           result = @content.send(method, ...)

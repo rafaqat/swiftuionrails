@@ -17,30 +17,42 @@ module SwiftUIRails
       end
 
       class_methods do
-        # DSL method to render a collection of components
+        ##
+        # Renders a collection of components using ViewComponent's optimized collection rendering.
+        # @param [Enumerable] items The collection of items to render.
+        # @return [Array] The rendered components for each item in the collection.
         def collection(items, **options)
           # Use ViewComponent's optimized collection rendering
           with_collection(items, **options)
         end
 
-        # Configure collection behavior
+        ##
+        # Sets or updates configuration options for collection rendering.
+        # @param [Hash] options - Options to merge into the collection configuration.
+        # @return [Hash] The updated collection options.
         def collection_options(**options)
           @collection_options ||= {}
           @collection_options.merge!(options)
         end
 
-        # Define what prop receives the collection item
+        ##
+        # Sets the name of the prop that will receive each item from the collection.
+        # @param [Symbol, String] prop_name The name to assign to the collection item prop.
         def collection_prop(prop_name)
           @collection_prop_name = prop_name
         end
 
-        # Get the collection prop name
+        ##
+        # Returns the name of the prop used to receive each collection item, defaulting to :item if not set.
+        # @return [Symbol] The collection prop name.
         def collection_prop_name
           @collection_prop_name || :item
         end
       end
 
-      # Override initialize to handle collection parameters
+      ##
+      # Initializes the component, extracting and mapping collection-related parameters when rendering collection items.
+      # Sets collection metadata such as index and first-item status, and remaps the item to the configured prop name if necessary.
       def initialize(**args)
         # Extract collection-specific parameters
         if args.key?(:item)
@@ -59,25 +71,36 @@ module SwiftUIRails
         super
       end
 
-      # Helper methods for collection items
+      ##
+      # Returns true if the current instance represents an item within a collection.
       def collection_item?
         collection_index.present?
       end
 
+      ##
+      # Returns true if the current item is part of a collection and its index is even.
+      # @return [Boolean] Whether the item is at an even index in the collection.
       def even_item?
         collection_item? && collection_index.even?
       end
 
+      ##
+      # Returns true if the current item is part of a collection and its index is odd.
       def odd_item?
         collection_item? && collection_index.odd?
       end
 
-      # Render helpers for collections
+      ##
+      # Wraps the given block in a div with a background color that alternates based on the item's index in the collection.
+      # The background is white for even-indexed items and gray for odd-indexed items.
       def with_alternating_background(&block)
         wrapper_class = even_item? ? 'bg-white' : 'bg-gray-50'
         div(class: wrapper_class, &block)
       end
 
+      ##
+      # Wraps the given block content with a divider unless the item is the last in the collection.
+      # For the last item, returns the content without a divider.
       def with_divider(&block)
         content = capture(&block)
 

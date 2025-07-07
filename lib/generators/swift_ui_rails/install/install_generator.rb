@@ -7,14 +7,20 @@ module SwiftUIRails
     class InstallGenerator < Rails::Generators::Base
       source_root File.expand_path('templates', __dir__)
 
+      ##
+      # Generates the SwiftUI Rails initializer file in the application's config/initializers directory.
       def create_initializer
         template 'initializer.rb', 'config/initializers/swift_ui_rails.rb'
       end
 
+      ##
+      # Generates the base application component file from a template at app/components/application_component.rb.
       def create_application_component
         template 'application_component.rb', 'app/components/application_component.rb'
       end
 
+      ##
+      # Adds the SwiftUI Rails JavaScript controller import to the application's main JavaScript file and generates the controller file from a template.
       def add_javascript
         append_to_file 'app/javascript/application.js' do
           <<~JS
@@ -27,6 +33,8 @@ module SwiftUIRails
         template 'swift_ui_controller.js', 'app/javascript/controllers/swift_ui_controller.js'
       end
 
+      ##
+      # Adds SwiftUI Rails styles to the application's Tailwind CSS file if it exists and generates the SwiftUI Rails CSS file from a template.
       def add_styles
         if File.exist?('app/assets/stylesheets/application.tailwind.css')
           append_to_file 'app/assets/stylesheets/application.tailwind.css' do
@@ -41,10 +49,16 @@ module SwiftUIRails
         template 'swift_ui_rails.css', 'app/assets/stylesheets/swift_ui_rails.css'
       end
 
+      ##
+      # Generates an example component Ruby file in the app/components directory from a template.
       def create_example_component
         template 'example_component.rb', 'app/components/example_component.rb'
       end
 
+      ##
+      # Sets up Storybook integration for SwiftUI Rails components.
+      #
+      # Creates necessary directories, adds routing for the Storybook engine, generates configuration and CSS files, and provides example story files for component previews.
       def setup_storybook
         # Create storybook directories
         empty_directory 'test/components/stories'
@@ -69,6 +83,8 @@ module SwiftUIRails
         template 'example_component_preview.html.erb', 'test/components/stories/example_component_preview.html.erb'
       end
 
+      ##
+      # Displays a post-installation message with next steps and helpful URLs after the SwiftUI Rails installation completes.
       def display_post_install_message
         say "\n✅ SwiftUI Rails has been successfully installed!", :green
         say "\nNext steps:", :yellow

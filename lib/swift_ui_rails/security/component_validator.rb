@@ -20,6 +20,10 @@ module SwiftUIRails
 
         # Override prop setter to add validation
         class << self
+          ##
+          # Declares a component prop with optional validation rules.
+          # Supports validation for inclusion, format, and range based on provided options.
+          # Validation rules are stored for use during prop validation.
           def prop(name, type: String, required: false, default: nil, **options)
             # Extract validation options before passing to parent
             validate = options.delete(:validate)
@@ -46,7 +50,10 @@ module SwiftUIRails
 
       # Validation methods
       module ClassMethods
-        # Define common prop validations
+        ##
+        # Adds a validation rule to ensure the specified prop value is included in the allowed variants.
+        # @param [Symbol] prop_name The name of the prop to validate.
+        # @param [Array] allowed The list of permitted variant values. Defaults to VALID_VARIANTS.
         def validates_variant(prop_name, allowed: VALID_VARIANTS)
           prop_validations[prop_name] = {
             inclusion: {
@@ -56,6 +63,10 @@ module SwiftUIRails
           }
         end
 
+        ##
+        # Adds a validation rule to ensure the specified prop value is included in the allowed list of sizes.
+        # @param [Symbol] prop_name The name of the prop to validate.
+        # @param [Array<String>] allowed The list of valid size values. Defaults to VALID_SIZES.
         def validates_size(prop_name, allowed: VALID_SIZES)
           prop_validations[prop_name] = {
             inclusion: {
@@ -65,6 +76,9 @@ module SwiftUIRails
           }
         end
 
+        ##
+        # Adds a validation rule to ensure the specified prop contains only alphanumeric characters and dashes, suitable for color names.
+        # @param [Symbol, String] prop_name - The name of the prop to validate.
         def validates_color(prop_name)
           prop_validations[prop_name] = {
             format: {
@@ -74,6 +88,11 @@ module SwiftUIRails
           }
         end
 
+        ##
+        # Adds numericality validation to a prop, enforcing optional minimum and maximum values.
+        # @param [Symbol] prop_name The name of the prop to validate.
+        # @param [Numeric, nil] min The minimum allowed value (inclusive), or nil for no minimum.
+        # @param [Numeric, nil] max The maximum allowed value (inclusive), or nil for no maximum.
         def validates_number(prop_name, min: nil, max: nil)
           validations = {}
           validations[:numericality] = { greater_than_or_equal_to: min } if min
@@ -82,12 +101,21 @@ module SwiftUIRails
           prop_validations[prop_name] = validations
         end
 
+        ##
+        # Adds a URL validation rule to the specified prop.
+        # The prop will be validated to ensure its value is a valid HTTP or HTTPS URL.
+        # @param [Symbol] prop_name The name of the prop to validate.
+        # @param [Boolean] allow_blank Whether to allow blank values as valid (default: false).
         def validates_url(prop_name, allow_blank: false)
           prop_validations[prop_name] = {
             url: { allow_blank: allow_blank }
           }
         end
 
+        ##
+        # Adds a validation rule to ensure the specified prop contains a valid email address.
+        # @param [Symbol] prop_name The name of the prop to validate.
+        # @param [Boolean] allow_blank Whether to allow blank values as valid (default: false).
         def validates_email(prop_name, allow_blank: false)
           prop_validations[prop_name] = {
             format: {
@@ -98,6 +126,10 @@ module SwiftUIRails
           }
         end
 
+        ##
+        # Adds a validation rule to ensure the specified prop is callable, optionally allowing nil values.
+        # @param [Symbol] prop_name - The name of the prop to validate.
+        # @param [Boolean] allow_nil - Whether nil is accepted as a valid value (default: true).
         def validates_callable(prop_name, allow_nil: true)
           prop_validations[prop_name] = {
             callable: { allow_nil: allow_nil }
@@ -105,7 +137,10 @@ module SwiftUIRails
         end
       end
 
-      # Instance methods for validation
+      ##
+      # Validates all component props against their defined validation rules.
+      # Raises an ArgumentError with details if any validations fail.
+      # @return [Boolean] true if all validations pass.
       def validate_props!
         return true if self.class.prop_validations.empty?
 
@@ -145,7 +180,12 @@ module SwiftUIRails
         true
       end
 
-      # Common validation helpers
+      ##
+      # Checks if the given URL is a valid HTTP or HTTPS URL.
+      # Returns true if the URL is valid, or if blank URLs are allowed and the URL is blank.
+      # @param [String] url - The URL to validate.
+      # @param [Boolean] allow_blank - Whether to consider blank URLs as valid.
+      # @return [Boolean] True if the URL is valid or blank (when allowed), false otherwise.
       def valid_url?(url, allow_blank: false)
         return true if allow_blank && url.blank?
         return false if url.blank?
@@ -158,13 +198,22 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Checks if the given value is callable, optionally allowing nil values.
+      # @param value The value to check for callability.
+      # @param allow_nil [Boolean] Whether to consider nil as valid (default: true).
+      # @return [Boolean] True if the value is callable or nil (when allowed), false otherwise.
       def valid_callable?(value, allow_nil: true)
         return true if allow_nil && value.nil?
 
         value.respond_to?(:call)
       end
 
-      # Sanitization helpers
+      ##
+      # Sanitizes HTML content for safe rendering.
+      # Uses Rails' sanitize helper if available; otherwise, falls back to basic HTML escaping.
+      # @param content The HTML content to sanitize.
+      # @return [String] The sanitized HTML string, or an empty string if input is nil.
       def sanitize_html(content)
         return '' if content.nil?
 
@@ -177,6 +226,10 @@ module SwiftUIRails
         end
       end
 
+      ##
+      # Sanitizes a CSS class name by removing all characters except alphanumeric, dash, underscore, and space.
+      # @param [String, nil] class_name The CSS class name to sanitize.
+      # @return [String] The sanitized CSS class name, or an empty string if input is nil.
       def sanitize_css_class(class_name)
         return '' if class_name.nil?
 
@@ -184,6 +237,11 @@ module SwiftUIRails
         class_name.to_s.gsub(/[^a-zA-Z0-9\-_ ]/, '')
       end
 
+      ##
+      # Sanitizes an element ID by removing invalid characters and ensuring it starts with a letter.
+      # Returns an empty string if the input is nil.
+      # @param [String, nil] id - The input ID to sanitize.
+      # @return [String] The sanitized ID, safe for use in HTML elements.
       def sanitize_id(id)
         return '' if id.nil?
 

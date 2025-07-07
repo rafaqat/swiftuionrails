@@ -44,7 +44,10 @@ module SwiftUIRails
       ].freeze
 
       class << self
-        # SECURITY: Sanitize a single data attribute
+        ##
+        # Sanitizes a single HTML data attribute key and value pair.
+        # Handles special cases for StimulusJS actions to ensure both key and value are safe for embedding in HTML.
+        # @return [Array] A two-element array containing the sanitized key and value.
         def sanitize_data_attribute(key, value)
           # Ensure key is safe
           safe_key = sanitize_data_key(key)
@@ -59,7 +62,10 @@ module SwiftUIRails
           [safe_key, safe_value]
         end
 
-        # SECURITY: Sanitize a hash of data attributes
+        ##
+        # Returns a sanitized hash of HTML data attributes, removing or escaping any potentially dangerous keys or values.
+        # @param [Hash] attributes - The hash of data attribute key-value pairs to sanitize.
+        # @return [Hash] A hash containing only safe, sanitized data attribute keys and values.
         def sanitize_data_attributes(attributes)
           return {} unless attributes.is_a?(Hash)
 
@@ -72,7 +78,10 @@ module SwiftUIRails
           sanitized
         end
 
-        # SECURITY: Create safe data attributes for common patterns
+        ##
+        # Builds a hash of sanitized HTML data attributes for common usage patterns, including StimulusJS actions, controllers, targets, values, and generic data attributes.
+        # @param [Hash] options Options for constructing data attributes. Recognized keys: :action, :controller, :target, :values (Hash), :data (Hash).
+        # @return [Hash] A hash of sanitized data attribute key-value pairs safe for embedding in HTML.
         def safe_data_attributes(options = {})
           attrs = {}
 
@@ -106,7 +115,10 @@ module SwiftUIRails
 
         private
 
-        # Sanitize data attribute keys
+        ##
+        # Returns a sanitized HTML data attribute key, ensuring it is dasherized, contains only allowed characters, and starts with a letter.
+        # @param key The original attribute key to sanitize.
+        # @return [String] The sanitized data attribute key, prefixed with "data-".
         def sanitize_data_key(key)
           # Convert to string and dasherize
           key_str = key.to_s.dasherize
@@ -123,7 +135,11 @@ module SwiftUIRails
           "data-#{key_str}"
         end
 
-        # Sanitize data attribute values
+        ##
+        # Sanitizes a data attribute value by removing dangerous patterns and escaping HTML.
+        # Returns an empty string if the value is nil or matches known XSS patterns.
+        # @param value The value to sanitize.
+        # @return [String] The sanitized and HTML-escaped value, or an empty string if unsafe.
         def sanitize_data_value(value)
           return '' if value.nil?
 
@@ -143,7 +159,11 @@ module SwiftUIRails
           ERB::Util.html_escape(value_str)
         end
 
-        # Sanitize Stimulus action strings
+        ##
+        # Sanitizes a Stimulus action string to ensure it follows the expected format and contains only allowed events and valid controller/method names.
+        # Returns an empty string if the action is invalid or potentially unsafe.
+        # @param [String, nil] action The Stimulus action string to sanitize.
+        # @return [String] The sanitized action string, or an empty string if invalid.
         def sanitize_stimulus_action(action)
           return '' unless action
 
@@ -172,7 +192,11 @@ module SwiftUIRails
           "#{event_part}->#{controller_method}"
         end
 
-        # Sanitize Stimulus controller names
+        ##
+        # Sanitizes a Stimulus controller name by removing invalid characters.
+        # Only alphanumeric characters, dashes, and underscores are allowed.
+        # @param controller The controller name to sanitize.
+        # @return [String] The sanitized controller name, or an empty string if input is nil.
         def sanitize_stimulus_controller(controller)
           return '' unless controller
 
@@ -180,7 +204,10 @@ module SwiftUIRails
           controller.to_s.gsub(/[^a-zA-Z0-9\-_]/, '')
         end
 
-        # Sanitize Stimulus target names
+        ##
+        # Sanitizes a Stimulus target name by removing all characters except alphanumeric and underscores.
+        # @param target The target name to sanitize.
+        # @return [String] The sanitized target name, or an empty string if input is nil.
         def sanitize_stimulus_target(target)
           return '' unless target
 
@@ -188,7 +215,10 @@ module SwiftUIRails
           target.to_s.gsub(/[^a-zA-Z0-9_]/, '')
         end
 
-        # Sanitize generic values based on type
+        ##
+        # Sanitizes a value for safe use in HTML data attributes, handling various types including numbers, booleans, symbols, strings, arrays, and hashes.
+        # @param value The value to sanitize.
+        # @return [String] The sanitized string representation of the value, safe for embedding in HTML attributes.
         def sanitize_value(value)
           case value
           when Integer, Float

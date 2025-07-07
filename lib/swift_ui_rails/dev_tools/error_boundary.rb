@@ -15,6 +15,11 @@ module SwiftUIRails
       class ComponentError < StandardError
         attr_reader :component_class, :props, :original_error
 
+        ##
+        # Initializes a new ComponentError with the component class, props, and the original error.
+        # @param component_class The class of the component where the error occurred.
+        # @param props The properties passed to the component at the time of the error.
+        # @param original_error The original exception raised during component rendering.
         def initialize(component_class, props, original_error)
           @component_class = component_class
           @props = props
@@ -142,6 +147,8 @@ module SwiftUIRails
 
       private
 
+      ##
+      # Wraps controller actions in an error boundary, rendering a JSON error response for XHR or JSON requests, or an error page for other formats when a StandardError is raised during action execution.
       def wrap_in_error_boundary
         yield
       rescue StandardError => e
@@ -160,6 +167,9 @@ module SwiftUIRails
 
     # Monkey patch ViewComponent to add error boundaries
     module ViewComponentExtension
+      ##
+      # Renders the component within an error boundary in development mode.
+      # Ensures that any errors during rendering are gracefully handled and displayed using the error boundary UI.
       def render_in(view_context)
         SwiftUIRails::DevTools::ErrorBoundary.wrap_component(self.class, **@props) do
           super

@@ -47,6 +47,9 @@ module SwiftUIRails
     attr_accessor :default_transition_duration, :default_animation_easing, :component_prefix, :tailwind_enabled,
                   :stimulus_controller_suffix, :allowed_components, :content_security_policy_enabled, :maximum_component_depth, :approved_image_domains, :rate_limit_actions, :rate_limit_threshold, :rate_limit_window
 
+    ##
+    # Initializes the configuration with default UI, security, and component settings for SwiftUIRails.
+    # Sets default values for transition duration, animation easing, component prefix, Tailwind CSS, Stimulus controller suffix, content security policy, maximum component depth, approved image domains, rate limiting, and the whitelist of allowed components.
     def initialize
       @default_transition_duration = 300
       @default_animation_easing = 'ease-out'
@@ -109,12 +112,19 @@ module SwiftUIRails
                                     ])
     end
 
-    # Helper method to check if a component is allowed
+    ##
+    # Returns true if the given component name is included in the allowed components whitelist.
+    # @param [String, Symbol] component_name - The name of the component to check.
+    # @return [Boolean] True if the component is allowed, false otherwise.
     def component_allowed?(component_name)
       allowed_components.include?(component_name.to_s)
     end
 
-    # Add approved domain at runtime
+    ##
+    # Adds a domain to the set of approved image domains if it is valid.
+    # Returns true if the domain was added, false if the domain is blank or has an invalid format.
+    # @param [String] domain The domain to approve.
+    # @return [Boolean] Whether the domain was successfully added.
     def add_approved_domain(domain)
       return false if domain.blank?
 
@@ -128,7 +138,10 @@ module SwiftUIRails
       true
     end
 
-    # Check if domain is approved
+    ##
+    # Determines if the given domain is included in the set of approved image domains or is a subdomain of one.
+    # @param [String] domain - The domain to check.
+    # @return [Boolean] True if the domain is approved or is a subdomain of an approved domain, false otherwise.
     def domain_approved?(domain)
       return false if domain.nil?
 

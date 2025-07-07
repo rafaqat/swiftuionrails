@@ -48,7 +48,12 @@ module SwiftUIRails
       CSS_IDENTIFIER = %r{\A[a-zA-Z0-9\-_/]+\z}
 
       class << self
-        # Validate and return safe background color class
+        ##
+        # Returns a safe CSS class string for background color based on validated color and optional shade.
+        # Defaults to 'bg-gray-500' if the input is invalid or missing.
+        # @param [String, Symbol] color - The base color name.
+        # @param [String, Integer, nil] shade - Optional shade value for the color.
+        # @return [String] A safe background color CSS class string.
         def safe_bg_class(color, shade = nil)
           return 'bg-gray-500' unless color
 
@@ -68,7 +73,12 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe text color class
+        ##
+        # Returns a safe text color CSS class string based on validated color and optional shade.
+        # Falls back to 'text-gray-900' if the color is invalid or not provided.
+        # @param [String, Symbol] color - The base color name to use.
+        # @param [String, Integer, nil] shade - Optional shade value for the color.
+        # @return [String] A safe text color CSS class string.
         def safe_text_class(color, shade = nil)
           return 'text-gray-900' unless color
 
@@ -88,7 +98,11 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe aspect ratio class
+        ##
+        # Returns a safe CSS class string for aspect ratio based on allowed values.
+        # Defaults to 'aspect-square' if the input is invalid or not provided.
+        # @param [String, Symbol, nil] ratio - The desired aspect ratio.
+        # @return [String] A validated aspect ratio CSS class name.
         def safe_aspect_class(ratio)
           return 'aspect-square' unless ratio
 
@@ -100,7 +114,11 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe grid columns class
+        ##
+        # Returns a safe CSS class string for grid column count.
+        # If the provided value is not allowed, defaults to 'grid-cols-1'.
+        # @param cols The desired number of grid columns.
+        # @return [String] A validated grid columns CSS class string.
         def safe_grid_cols_class(cols)
           return 'grid-cols-1' unless cols
 
@@ -112,7 +130,12 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe spacing class
+        ##
+        # Returns a safe CSS spacing class string for the given prefix and value.
+        # If the prefix or value is invalid, defaults to "#{prefix}-0".
+        # @param [String] prefix The spacing property prefix (e.g., 'p', 'm', 'px', 'py', etc.).
+        # @param [String, Integer] value The spacing value to validate.
+        # @return [String] A validated and safe spacing class string.
         def safe_spacing_class(prefix, value)
           return "#{prefix}-0" unless value && %w[p m px py mx my pt pb pl pr mt mb ml mr].include?(prefix)
 
@@ -124,7 +147,12 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe shadow class
+        ##
+        # Returns a safe CSS class string for shadow size.
+        # If the provided size is valid, returns 'shadow-none' for 'none', or 'shadow-<size>' for other valid sizes.
+        # Defaults to 'shadow' if the size is invalid or not provided.
+        # @param [String, Symbol, nil] size - The desired shadow size.
+        # @return [String] The validated shadow CSS class string.
         def safe_shadow_class(size)
           return 'shadow' unless size
 
@@ -136,7 +164,11 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe rounded class
+        ##
+        # Returns a safe CSS class for rounded corners based on the provided size.
+        # Defaults to 'rounded' if the size is invalid or not provided.
+        # @param [String, Symbol, nil] size - The desired rounded size.
+        # @return [String] A validated rounded CSS class name.
         def safe_rounded_class(size)
           return 'rounded' unless size
 
@@ -148,7 +180,11 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe text size class
+        ##
+        # Returns a safe CSS class for text size based on allowed values.
+        # Defaults to 'text-base' if the provided size is invalid or missing.
+        # @param [String, Symbol, nil] size - The desired text size.
+        # @return [String] A validated text size CSS class.
         def safe_text_size_class(size)
           return 'text-base' unless size
 
@@ -160,7 +196,11 @@ module SwiftUIRails
           end
         end
 
-        # Validate and return safe font weight class
+        ##
+        # Returns a safe font weight CSS class string based on the provided weight.
+        # Defaults to 'font-normal' if the weight is invalid or not provided.
+        # @param [String, Symbol, nil] weight - The desired font weight.
+        # @return [String] A validated font weight CSS class name.
         def safe_font_weight_class(weight)
           return 'font-normal' unless weight
 
@@ -172,14 +212,20 @@ module SwiftUIRails
           end
         end
 
-        # Validate any generic CSS value
+        ##
+        # Checks if the given value is a valid CSS identifier.
+        # @param value The value to validate.
+        # @return [Boolean] True if the value matches the allowed CSS identifier pattern, false otherwise.
         def valid_css_value?(value)
           return false unless value
 
           value.to_s.match?(CSS_IDENTIFIER)
         end
 
-        # Sanitize any CSS value to prevent injection
+        ##
+        # Removes any characters from the input that are not letters, digits, hyphens, underscores, or slashes to sanitize CSS values.
+        # @param value The input to sanitize.
+        # @return [String] The sanitized CSS value, or an empty string if input is nil.
         def sanitize_css_value(value)
           return '' unless value
 
@@ -187,7 +233,10 @@ module SwiftUIRails
           value.to_s.gsub(%r{[^a-zA-Z0-9\-_/]}, '')
         end
 
-        # Check if a complete CSS class is safe
+        ##
+        # Determines if a CSS class string is safe by checking for dangerous characters, substrings, and ensuring it matches a valid pattern.
+        # @param [String] css_class The CSS class string to validate.
+        # @return [Boolean] True if the CSS class is considered safe, false otherwise.
         def safe_css_class?(css_class)
           return false unless css_class
 
@@ -200,7 +249,13 @@ module SwiftUIRails
           css_class.match?(%r{\A[a-zA-Z0-9\-_:/\s]+\z})
         end
 
-        # Build a safe CSS class string from components
+        ##
+        # Constructs a safe CSS class string by sanitizing the prefix and value, joining them with a hyphen.
+        # Returns the fallback if either input is missing or sanitizes to an empty string.
+        # @param [String] prefix The CSS class prefix to sanitize and use.
+        # @param [String] value The CSS class value to sanitize and use.
+        # @param [String, nil] fallback The value to return if the prefix or value is invalid.
+        # @return [String, nil] The constructed safe CSS class string, or the fallback if inputs are invalid.
         def build_safe_class(prefix, value, fallback = nil)
           return fallback unless prefix && value
 

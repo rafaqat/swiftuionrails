@@ -14,7 +14,9 @@ module SwiftUIRails
       end
 
       # SECURITY: Render CSRF protection token field
-      # Uses Rails' built-in helpers to ensure proper CSRF protection
+      ##
+      # Returns a hidden input element containing the CSRF token for form protection.
+      # Returns an empty string if CSRF protection is not enabled.
       def render_csrf_protection
         return '' unless protect_against_forgery?
 
@@ -30,7 +32,9 @@ module SwiftUIRails
                        autocomplete: 'off')
       end
 
-      # SECURITY: Render CSRF meta tags for AJAX requests
+      ##
+      # Generates CSRF meta tags for inclusion in HTML, enabling AJAX requests to access CSRF protection tokens.
+      # @return [Array] An array containing meta tag elements for the CSRF parameter name and token, or an empty array if CSRF protection is disabled.
       def csrf_meta_tags_dsl
         return [] unless protect_against_forgery?
 
@@ -44,7 +48,16 @@ module SwiftUIRails
         ]
       end
 
-      # SECURITY: Create a secure form with automatic CSRF protection
+      ##
+      # Builds a secure HTML form element with automatic CSRF protection and method override handling.
+      # For non-GET requests, includes a hidden CSRF token input if protection is enabled.
+      # Adds a hidden `_method` input for HTTP verbs PUT, PATCH, or DELETE, and a UTF-8 enforcer input for compatibility.
+      # The form's content is provided by the given block.
+      # @param action [String] The form submission URL.
+      # @param method [String] The HTTP method to use (default: 'POST').
+      # @param attrs [Hash] Additional HTML attributes for the form element.
+      # @yield Block that generates the form's inner content.
+      # @return [Object] The constructed form element with all children.
       def secure_form(action:, method: 'POST', **attrs, &block)
         # Ensure method is uppercase
         method = method.to_s.upcase
@@ -97,7 +110,9 @@ module SwiftUIRails
         end
       end
 
-      # SECURITY: Check if forgery protection is enabled
+      ##
+      # Determines whether CSRF (Cross-Site Request Forgery) protection is enabled in the current Rails application.
+      # @return [Boolean] true if forgery protection is enabled, false otherwise.
       def protect_against_forgery?
         if defined?(ActionController::Base) && defined?(Rails)
           # Check if forgery protection is configured and enabled
@@ -107,7 +122,10 @@ module SwiftUIRails
         end
       end
 
-      # SECURITY: Get the CSRF token parameter name
+      ##
+      # Returns the name of the CSRF token parameter used for form authenticity verification.
+      # Defaults to :authenticity_token if not defined by ActionController::Base.
+      # @return [Symbol] The CSRF parameter name.
       def request_forgery_protection_token
         if defined?(ActionController::Base)
           ActionController::Base.request_forgery_protection_token || :authenticity_token
@@ -117,7 +135,12 @@ module SwiftUIRails
       end
 
       # SECURITY: Get the current CSRF token
-      # We use a different name to avoid conflicts with Rails' built-in method
+      ##
+      # Retrieves the CSRF authenticity token using available Rails contexts and fallbacks.
+      # Attempts to obtain the token from the current context, view context, helpers, or controller.
+      # Returns an empty string if the token cannot be generated.
+      # @param [Hash] form_options Options to pass to the token generation method.
+      # @return [String] The CSRF authenticity token, or an empty string if unavailable.
       def get_form_authenticity_token(form_options: {})
         # Try to use Rails' built-in method if available
         return form_authenticity_token(form_options) if respond_to?(:form_authenticity_token)

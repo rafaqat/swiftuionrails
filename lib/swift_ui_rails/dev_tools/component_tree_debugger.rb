@@ -5,7 +5,15 @@ module SwiftUIRails
     # Component tree visualization for debugging SwiftUI DSL structures
     class ComponentTreeDebugger
       class << self
-        # Generate a visual tree representation of a component
+        ##
+        # Generates a visual representation of a SwiftUI component tree in the specified format.
+        # Only operates in the local Rails environment.
+        # @param component The root component to visualize.
+        # @param format [Symbol] The output format: :ascii, :html, or :json (default: :ascii).
+        # @param max_depth [Integer, nil] The maximum depth to traverse in the tree (optional).
+        # @param include_props [Boolean] Whether to include component properties in the output (default: true).
+        # @return [String, nil] The formatted tree string, or nil if not in the local environment.
+        # @raise [ArgumentError] If an unknown format is specified.
         def debug_tree(component, format: :ascii, max_depth: nil, include_props: true)
           return unless Rails.env.local?
 
@@ -21,14 +29,19 @@ module SwiftUIRails
           end
         end
 
-        # Print tree to console
+        ##
+        # Generates a visual representation of the component tree and logs it at debug level.
+        # @return [String, nil] The generated tree string, or nil if not in the local environment.
         def print_tree(component, **options)
           tree = debug_tree(component, **options)
           Rails.logger.debug tree
           tree
         end
 
-        # Log tree to Rails logger
+        ##
+        # Logs a visual representation of the component tree to the Rails logger at debug level.
+        # Prepends a newline before the tree output.
+        # @return [String, nil] The generated tree string, or nil if not in the local environment.
         def log_tree(component, **options)
           tree = debug_tree(component, **options)
           Rails.logger.debug { "\n#{tree}" }
@@ -37,12 +50,22 @@ module SwiftUIRails
 
         private
 
+        ##
+        # Generates an ASCII representation of the component tree.
+        # @param component The root component to visualize.
+        # @param max_depth [Integer, nil] The maximum depth to traverse, or nil for unlimited.
+        # @param include_props [Boolean] Whether to include component properties in the output.
+        # @return [String] The ASCII tree representation.
         def generate_ascii_tree(component, max_depth: nil, include_props: true)
           lines = []
           build_ascii_node(component, lines, '', true, 0, max_depth, include_props)
           lines.join("\n")
         end
 
+        ##
+        # Recursively builds the ASCII representation of a component tree node and its children.
+        # Adds formatted lines for the node, its properties (if requested), and all descendants to the provided lines array.
+        # Stops recursion if the maximum depth is exceeded.
         def build_ascii_node(node, lines, prefix, is_last, depth, max_depth, include_props)
           return if max_depth && depth > max_depth
 
@@ -73,6 +96,12 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Generates an HTML representation of a SwiftUI component tree for debugging.
+        # @param component The root component to visualize.
+        # @param max_depth [Integer, nil] The maximum depth to traverse in the tree, or nil for unlimited.
+        # @param include_props [Boolean] Whether to include component properties in the output.
+        # @return [ActiveSupport::SafeBuffer] An HTML-safe string containing the formatted component tree.
         def generate_html_tree(component, max_depth: nil, include_props: true)
           html = +"<div class='swift-ui-debug-tree' style='font-family: monospace; line-height: 1.4;'>"
           html << build_html_node(component, 0, max_depth, include_props)
@@ -80,6 +109,15 @@ module SwiftUIRails
           html.html_safe
         end
 
+        ##
+        # Recursively generates the HTML representation of a component tree node and its children.
+        # Returns a styled HTML string for the node, including its type, optional text content, and properties if requested.
+        # Returns an empty string if the maximum depth is exceeded.
+        # @param node The current component or element node to render.
+        # @param depth [Integer] The current depth in the tree.
+        # @param max_depth [Integer, nil] The maximum depth to render, or nil for unlimited.
+        # @param include_props [Boolean] Whether to include node properties in the output.
+        # @return [String] The HTML representation of the node and its subtree.
         def build_html_node(node, depth, max_depth, include_props)
           return '' if max_depth && depth > max_depth
 
@@ -112,11 +150,21 @@ module SwiftUIRails
           html
         end
 
+        ##
+        # Generates a formatted JSON representation of the component tree.
+        # @return [String] The component tree as a pretty-printed JSON string.
         def generate_json_tree(component, max_depth: nil, include_props: true)
           tree = build_json_node(component, 0, max_depth, include_props)
           JSON.pretty_generate(tree)
         end
 
+        ##
+        # Recursively builds a JSON-compatible hash representing a component tree node and its children.
+        # @param node The current node to process.
+        # @param depth The current depth in the tree.
+        # @param max_depth The maximum depth to traverse; nodes beyond this depth are omitted.
+        # @param include_props Whether to include node properties in the output.
+        # @return [Hash, nil] A hash representing the node and its subtree, or nil if the node exceeds max_depth.
         def build_json_node(node, depth, max_depth, include_props)
           return nil if max_depth && depth > max_depth
 
@@ -140,6 +188,10 @@ module SwiftUIRails
           json_node
         end
 
+        ##
+        # Extracts and summarizes information about a node in the component tree.
+        # Returns a hash containing the node's type, properties, text content (if any), and a display string suitable for tree visualization.
+        # Handles component nodes, DSL elements, text nodes, blocks, and other types.
         def extract_node_info(node)
           info = { type: 'Unknown', props: [], text: nil, display: 'Unknown' }
 
@@ -198,6 +250,12 @@ module SwiftUIRails
           info
         end
 
+        ##
+        # Extracts the child nodes of a given SwiftUI component or DSL element.
+        #
+        # For components, executes the associated SwiftUI DSL block in a new context to collect child elements.
+        # For DSL elements, executes the block if present to gather children, or collects non-string content and manually set children.
+        # @return [Array] An array of child nodes, excluding nil values.
         def extract_children(node)
           children = []
 
@@ -272,6 +330,11 @@ module SwiftUIRails
           children.compact
         end
 
+        ##
+        # Formats a value for display in the component tree output.
+        # Strings are truncated and quoted, symbols are prefixed with a colon, arrays and hashes are summarized by size, and other values are converted to strings or inspected as appropriate.
+        # @param value The value to format.
+        # @return [String] The formatted representation of the value.
         def format_value(value)
           case value
           when String
@@ -289,12 +352,21 @@ module SwiftUIRails
           end
         end
 
+        ##
+        # Truncates a string to the specified maximum length, appending an ellipsis if truncated.
+        # @param [String] str - The string to truncate.
+        # @param [Integer] max_length - The maximum allowed length of the string (default: 30).
+        # @return [String] The truncated string with an ellipsis if it exceeded the maximum length.
         def truncate(str, max_length = 30)
           return str if str.length <= max_length
 
           "#{str[0...max_length]}..."
         end
 
+        ##
+        # Escapes HTML special characters in the given text.
+        # @param [String] text - The text to be escaped.
+        # @return [String] The HTML-escaped string.
         def h(text)
           ERB::Util.html_escape(text)
         end
