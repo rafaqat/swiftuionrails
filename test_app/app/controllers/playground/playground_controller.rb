@@ -9,7 +9,9 @@ module Playground
     # 1. The playground is a development tool, not for production use
     # 2. No user data is modified - it only renders preview HTML
     # 3. The executor has strict code validation to prevent dangerous operations
+    # rubocop:disable Rails/SkipBeforeAction
     skip_before_action :verify_authenticity_token, only: [ :execute ]
+    # rubocop:enable Rails/SkipBeforeAction
 
     def index
       @initial_code = default_playground_code

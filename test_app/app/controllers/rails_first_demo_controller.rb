@@ -5,7 +5,9 @@ class RailsFirstDemoController < ApplicationController
   # 1. This is a demo controller for documentation purposes
   # 2. All data is stored in session, not in database
   # 3. No sensitive user data is modified
+  # rubocop:disable Rails/SkipBeforeAction
   skip_before_action :verify_authenticity_token, only: [ :increment_counter, :add_todo, :delete_todo, :search ]
+  # rubocop:enable Rails/SkipBeforeAction
 
   def index
     # Initialize demo data in session

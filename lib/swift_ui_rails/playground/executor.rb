@@ -177,9 +177,9 @@ module SwiftUIRails
 
       def extract_stimulus_controllers(code)
         # Parse code for data-controller attributes
-        # Fixed: Use possessive quantifiers and atomic groups to prevent backtracking
-        controller_pattern = /data(?:\s*[:=]\s*)?(?:\{|\()?\s*controller\s*[:=]\s*["']([^"']+)["']/
-        action_pattern = /data(?:\s*[:=]\s*)?(?:\{|\()?\s*action\s*[:=]\s*["']([^"']+)["']/
+        # SECURITY: Fixed polynomial regex vulnerability - simplified patterns
+        controller_pattern = /data-controller\s*=\s*["']([^"']+)["']/
+        action_pattern = /data-action\s*=\s*["']([^"']+)["']/
 
         code.scan(controller_pattern) do |match|
           controller_name = match[0]
@@ -193,16 +193,20 @@ module SwiftUIRails
         code.scan(action_pattern) do |match|
           action_string = match[0]
           # Parse action string like "click->controller#method"
-          # Fixed: Use more specific pattern with anchors
-          if action_string =~ /\A(\w+)->(\w+)#(\w+)\z/
-            event = ::Regexp.last_match(1)
-            controller = ::Regexp.last_match(2)
-            method = ::Regexp.last_match(3)
-            if @stimulus_controllers[controller]
-              @stimulus_controllers[controller][:actions] << {
-                event: event,
-                method: method
-              }
+          # SECURITY: Use simple split instead of regex to avoid ReDoS
+          parts = action_string.split('->')
+          if parts.length == 2 && parts[1].include?('#')
+            event = parts[0]
+            controller_method = parts[1].split('#')
+            if controller_method.length == 2
+              controller = controller_method[0]
+              method = controller_method[1]
+              if @stimulus_controllers[controller]
+                @stimulus_controllers[controller][:actions] << {
+                  event: event,
+                  method: method
+                }
+              end
             end
           end
         end

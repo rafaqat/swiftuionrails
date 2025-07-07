@@ -108,10 +108,11 @@ module SwiftUIRails
         end
 
         def validates_inclusion(prop_name, in:, allow_blank: false)
+          allowed_values = binding.local_variable_get(:in)
           prop_validations[prop_name] = {
             inclusion: {
-              in: binding.local_variable_get(:in),
-              message: "must be one of: #{binding.local_variable_get(:in).join(', ')}",
+              in: allowed_values,
+              message: "must be one of: #{allowed_values.join(', ')}",
               allow_blank: allow_blank
             }
           }

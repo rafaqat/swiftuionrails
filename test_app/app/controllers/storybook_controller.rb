@@ -8,7 +8,9 @@ class StorybookController < ApplicationController
   # 1. Storybook is a development/documentation tool
   # 2. These endpoints only render component previews, no data is persisted
   # 3. Component actions are sandboxed and don't modify application state
+  # rubocop:disable Rails/SkipBeforeAction
   protect_from_forgery except: [ :update_preview, :component_action ] # Allow AJAX requests
+  # rubocop:enable Rails/SkipBeforeAction
   helper_method :tailwind_color_to_css
   helper StorybookDebugHelper
   def index
