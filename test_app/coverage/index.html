@@ -13,7 +13,7 @@
       <img src="./assets/0.13.1/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" class="hide">
-      <div class="timestamp">Generated <abbr class="timeago" title="2025-07-07T20:08:27+01:00">2025-07-07T20:08:27+01:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2025-07-07T22:28:57+01:00">2025-07-07T22:28:57+01:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -231,7 +231,7 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#0200028ff06d9c98f749e33c103ab0ea0b502b01" class="src_link" title="app/components/concerns/live_stories.rb">app/components/concerns/live_stories.rb</a></td>
             <td class="red strong cell--number t-file__coverage">0.00 %</td>
-            <td class="cell--number">216</td>
+            <td class="cell--number">219</td>
             <td class="cell--number">149</td>
             <td class="cell--number">0</td>
             <td class="cell--number">149</td>
@@ -247,7 +247,7 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#ed15aedc374439f8a5fc38c666c17f3c3535d03c" class="src_link" title="app/components/concerns/stateful_component.rb">app/components/concerns/stateful_component.rb</a></td>
             <td class="red strong cell--number t-file__coverage">0.00 %</td>
-            <td class="cell--number">147</td>
+            <td class="cell--number">150</td>
             <td class="cell--number">101</td>
             <td class="cell--number">0</td>
             <td class="cell--number">101</td>
@@ -2080,7 +2080,7 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#0200028ff06d9c98f749e33c103ab0ea0b502b01" class="src_link" title="app/components/concerns/live_stories.rb">app/components/concerns/live_stories.rb</a></td>
             <td class="red strong cell--number t-file__coverage">0.00 %</td>
-            <td class="cell--number">216</td>
+            <td class="cell--number">219</td>
             <td class="cell--number">149</td>
             <td class="cell--number">0</td>
             <td class="cell--number">149</td>
@@ -2096,7 +2096,7 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#ed15aedc374439f8a5fc38c666c17f3c3535d03c" class="src_link" title="app/components/concerns/stateful_component.rb">app/components/concerns/stateful_component.rb</a></td>
             <td class="red strong cell--number t-file__coverage">0.00 %</td>
-            <td class="cell--number">147</td>
+            <td class="cell--number">150</td>
             <td class="cell--number">101</td>
             <td class="cell--number">0</td>
             <td class="cell--number">101</td>
@@ -14758,26 +14758,26 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="10">
+          <li class="never" data-hits="" data-linenumber="10">
             
 
             
               
             
 
-            <code class="ruby">    class_attribute :_live_story_definitions, default: {}</code>
+            <code class="ruby">    # rubocop:disable ThreadSafety/ClassAndModuleAttributes</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="11">
+          <li class="never" data-hits="" data-linenumber="11">
             
 
             
               
             
 
-            <code class="ruby">    class_attribute :_story_session_config, default: {}</code>
+            <code class="ruby">    # Story definitions are set at class definition time, not during requests</code>
           </li>
         </div>
       
@@ -14789,12 +14789,48 @@
               
             
 
+            <code class="ruby">    class_attribute :_live_story_definitions, default: {}</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="13">
+            
+
+            
+              
+            
+
+            <code class="ruby">    class_attribute :_story_session_config, default: {}</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="14">
+            
+
+            
+              
+            
+
+            <code class="ruby">    # rubocop:enable ThreadSafety/ClassAndModuleAttributes</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="15">
+            
+
+            
+              
+            
+
             <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="13">
+          <li class="never" data-hits="" data-linenumber="16">
             
 
             
@@ -14802,42 +14838,6 @@
             
 
             <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="14">
-            
-
-            
-              
-            
-
-            <code class="ruby">  class_methods do</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="15">
-            
-
-            
-              
-            
-
-            <code class="ruby">    # Define a live, interactive story</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="16">
-            
-
-            
-              
-            
-
-            <code class="ruby">    def live_story(name, &amp;block)</code>
           </li>
         </div>
       
@@ -14849,31 +14849,31 @@
               
             
 
-            <code class="ruby">      story_config = LiveStoryDefinition.new(name)</code>
+            <code class="ruby">  class_methods do</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="18">
+          <li class="never" data-hits="" data-linenumber="18">
             
 
             
               
             
 
-            <code class="ruby">      story_config.instance_eval(&amp;block) if block_given?</code>
+            <code class="ruby">    # Define a live, interactive story</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="19">
+          <li class="missed" data-hits="0" data-linenumber="19">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">    def live_story(name, &amp;block)</code>
           </li>
         </div>
       
@@ -14885,19 +14885,19 @@
               
             
 
-            <code class="ruby">      _live_story_definitions[name] = story_config</code>
+            <code class="ruby">      story_config = LiveStoryDefinition.new(name)</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="21">
+          <li class="missed" data-hits="0" data-linenumber="21">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      story_config.instance_eval(&amp;block) if block_given?</code>
           </li>
         </div>
       
@@ -14909,7 +14909,7 @@
               
             
 
-            <code class="ruby">      # Create the story method that supports both static and live modes</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -14921,19 +14921,19 @@
               
             
 
-            <code class="ruby">      define_method(name) do |**props|</code>
+            <code class="ruby">      _live_story_definitions[name] = story_config</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="24">
+          <li class="never" data-hits="" data-linenumber="24">
             
 
             
               
             
 
-            <code class="ruby">        if @live_mode &amp;&amp; @story_session</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -14945,7 +14945,7 @@
               
             
 
-            <code class="ruby">          # Live mode: return component with session management</code>
+            <code class="ruby">      # Create the story method that supports both static and live modes</code>
           </li>
         </div>
       
@@ -14957,7 +14957,7 @@
               
             
 
-            <code class="ruby">          render_live_component(name, **props)</code>
+            <code class="ruby">      define_method(name) do |**props|</code>
           </li>
         </div>
       
@@ -14969,7 +14969,7 @@
               
             
 
-            <code class="ruby">        else</code>
+            <code class="ruby">        if @live_mode &amp;&amp; @story_session</code>
           </li>
         </div>
       
@@ -14981,7 +14981,7 @@
               
             
 
-            <code class="ruby">          # Static mode: traditional story rendering</code>
+            <code class="ruby">          # Live mode: return component with session management</code>
           </li>
         </div>
       
@@ -14993,7 +14993,7 @@
               
             
 
-            <code class="ruby">          render_static_component(name, **props)</code>
+            <code class="ruby">          render_live_component(name, **props)</code>
           </li>
         </div>
       
@@ -15005,19 +15005,19 @@
               
             
 
-            <code class="ruby">        end</code>
+            <code class="ruby">        else</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="31">
+          <li class="never" data-hits="" data-linenumber="31">
             
 
             
               
             
 
-            <code class="ruby">      end</code>
+            <code class="ruby">          # Static mode: traditional story rendering</code>
           </li>
         </div>
       
@@ -15029,31 +15029,31 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">          render_static_component(name, **props)</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="33">
+          <li class="missed" data-hits="0" data-linenumber="33">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">        end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="34">
+          <li class="missed" data-hits="0" data-linenumber="34">
             
 
             
               
             
 
-            <code class="ruby">    # Configure session behavior for all stories</code>
+            <code class="ruby">      end</code>
           </li>
         </div>
       
@@ -15065,31 +15065,31 @@
               
             
 
-            <code class="ruby">    def session_config(&amp;block)</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="36">
+          <li class="never" data-hits="" data-linenumber="36">
             
 
             
               
             
 
-            <code class="ruby">      config = SessionConfig.new</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="37">
+          <li class="never" data-hits="" data-linenumber="37">
             
 
             
               
             
 
-            <code class="ruby">      config.instance_eval(&amp;block) if block_given?</code>
+            <code class="ruby">    # Configure session behavior for all stories</code>
           </li>
         </div>
       
@@ -15101,7 +15101,7 @@
               
             
 
-            <code class="ruby">      self._story_session_config = config</code>
+            <code class="ruby">    def session_config(&amp;block)</code>
           </li>
         </div>
       
@@ -15113,31 +15113,31 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">      config = SessionConfig.new</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="40">
+          <li class="missed" data-hits="0" data-linenumber="40">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      config.instance_eval(&amp;block) if block_given?</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="41">
+          <li class="missed" data-hits="0" data-linenumber="41">
             
 
             
               
             
 
-            <code class="ruby">    # Check if a story is live-enabled</code>
+            <code class="ruby">      self._story_session_config = config</code>
           </li>
         </div>
       
@@ -15149,12 +15149,48 @@
               
             
 
+            <code class="ruby">    end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="43">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="44">
+            
+
+            
+              
+            
+
+            <code class="ruby">    # Check if a story is live-enabled</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="45">
+            
+
+            
+              
+            
+
             <code class="ruby">    def live_story?(name)</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="43">
+          <li class="missed" data-hits="0" data-linenumber="46">
             
 
             
@@ -15166,7 +15202,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="44">
+          <li class="missed" data-hits="0" data-linenumber="47">
             
 
             
@@ -15178,7 +15214,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="45">
+          <li class="never" data-hits="" data-linenumber="48">
             
 
             
@@ -15190,7 +15226,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="46">
+          <li class="never" data-hits="" data-linenumber="49">
             
 
             
@@ -15202,7 +15238,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="47">
+          <li class="missed" data-hits="0" data-linenumber="50">
             
 
             
@@ -15214,7 +15250,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="48">
+          <li class="missed" data-hits="0" data-linenumber="51">
             
 
             
@@ -15226,7 +15262,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="49">
+          <li class="missed" data-hits="0" data-linenumber="52">
             
 
             
@@ -15238,7 +15274,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="50">
+          <li class="missed" data-hits="0" data-linenumber="53">
             
 
             
@@ -15250,7 +15286,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="51">
+          <li class="never" data-hits="" data-linenumber="54">
             
 
             
@@ -15262,7 +15298,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="52">
+          <li class="never" data-hits="" data-linenumber="55">
             
 
             
@@ -15274,7 +15310,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="53">
+          <li class="missed" data-hits="0" data-linenumber="56">
             
 
             
@@ -15286,7 +15322,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="54">
+          <li class="missed" data-hits="0" data-linenumber="57">
             
 
             
@@ -15298,7 +15334,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="55">
+          <li class="missed" data-hits="0" data-linenumber="58">
             
 
             
@@ -15310,7 +15346,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="56">
+          <li class="missed" data-hits="0" data-linenumber="59">
             
 
             
@@ -15322,7 +15358,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="57">
+          <li class="never" data-hits="" data-linenumber="60">
             
 
             
@@ -15334,7 +15370,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="58">
+          <li class="never" data-hits="" data-linenumber="61">
             
 
             
@@ -15346,7 +15382,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="59">
+          <li class="missed" data-hits="0" data-linenumber="62">
             
 
             
@@ -15358,7 +15394,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="60">
+          <li class="missed" data-hits="0" data-linenumber="63">
             
 
             
@@ -15370,42 +15406,6 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="61">
-            
-
-            
-              
-            
-
-            <code class="ruby">    return render_static_component(story_name, **props) unless config</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="62">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="63">
-            
-
-            
-              
-            
-
-            <code class="ruby">    # Update session props</code>
-          </li>
-        </div>
-      
-        <div>
           <li class="missed" data-hits="0" data-linenumber="64">
             
 
@@ -15413,7 +15413,7 @@
               
             
 
-            <code class="ruby">    @story_session.update_props!(props) if props.any?</code>
+            <code class="ruby">    return render_static_component(story_name, **props) unless config</code>
           </li>
         </div>
       
@@ -15437,7 +15437,7 @@
               
             
 
-            <code class="ruby">    # Create component instance</code>
+            <code class="ruby">    # Update session props</code>
           </li>
         </div>
       
@@ -15449,19 +15449,19 @@
               
             
 
-            <code class="ruby">    component_class = config.component_class</code>
+            <code class="ruby">    @story_session.update_props!(props) if props.any?</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="68">
+          <li class="never" data-hits="" data-linenumber="68">
             
 
             
               
             
 
-            <code class="ruby">    component = component_class.new(**@story_session.props.symbolize_keys)</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -15473,19 +15473,19 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">    # Create component instance</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="70">
+          <li class="missed" data-hits="0" data-linenumber="70">
             
 
             
               
             
 
-            <code class="ruby">    # Enable stateful features if component supports it</code>
+            <code class="ruby">    component_class = config.component_class</code>
           </li>
         </div>
       
@@ -15497,19 +15497,19 @@
               
             
 
-            <code class="ruby">    if component.respond_to?(:story_session_id=)</code>
+            <code class="ruby">    component = component_class.new(**@story_session.props.symbolize_keys)</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="72">
+          <li class="never" data-hits="" data-linenumber="72">
             
 
             
               
             
 
-            <code class="ruby">      component.story_session_id = @story_session.session_id</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -15521,19 +15521,19 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">    # Enable stateful features if component supports it</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="74">
+          <li class="missed" data-hits="0" data-linenumber="74">
             
 
             
               
             
 
-            <code class="ruby">      # Store session lookup for component callbacks</code>
+            <code class="ruby">    if component.respond_to?(:story_session_id=)</code>
           </li>
         </div>
       
@@ -15545,108 +15545,12 @@
               
             
 
-            <code class="ruby">      Rails.cache.write(</code>
+            <code class="ruby">      component.story_session_id = @story_session.session_id</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="76">
-            
-
-            
-              
-            
-
-            <code class="ruby">        &quot;story_session_lookup:#{@story_session.session_id}&quot;,</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="77">
-            
-
-            
-              
-            
-
-            <code class="ruby">        {</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="78">
-            
-
-            
-              
-            
-
-            <code class="ruby">          story_name: @story_session.story_name,</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="79">
-            
-
-            
-              
-            
-
-            <code class="ruby">          variant: @story_session.variant</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="80">
-            
-
-            
-              
-            
-
-            <code class="ruby">        },</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="81">
-            
-
-            
-              
-            
-
-            <code class="ruby">        expires_in: 30.minutes</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="82">
-            
-
-            
-              
-            
-
-            <code class="ruby">      )</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="83">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="84">
+          <li class="never" data-hits="" data-linenumber="76">
             
 
             
@@ -15658,14 +15562,110 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="85">
+          <li class="never" data-hits="" data-linenumber="77">
             
 
             
               
             
 
-            <code class="ruby">    # Restore component state</code>
+            <code class="ruby">      # Store session lookup for component callbacks</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="78">
+            
+
+            
+              
+            
+
+            <code class="ruby">      Rails.cache.write(</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="79">
+            
+
+            
+              
+            
+
+            <code class="ruby">        &quot;story_session_lookup:#{@story_session.session_id}&quot;,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="80">
+            
+
+            
+              
+            
+
+            <code class="ruby">        {</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="81">
+            
+
+            
+              
+            
+
+            <code class="ruby">          story_name: @story_session.story_name,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="82">
+            
+
+            
+              
+            
+
+            <code class="ruby">          variant: @story_session.variant</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="83">
+            
+
+            
+              
+            
+
+            <code class="ruby">        },</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="84">
+            
+
+            
+              
+            
+
+            <code class="ruby">        expires_in: 30.minutes</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="85">
+            
+
+            
+              
+            
+
+            <code class="ruby">      )</code>
           </li>
         </div>
       
@@ -15677,7 +15677,7 @@
               
             
 
-            <code class="ruby">    component.restore_state!(@story_session.state) if component.respond_to?(:restore_state!)</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
@@ -15694,14 +15694,14 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="88">
+          <li class="never" data-hits="" data-linenumber="88">
             
 
             
               
             
 
-            <code class="ruby">    component</code>
+            <code class="ruby">    # Restore component state</code>
           </li>
         </div>
       
@@ -15713,7 +15713,7 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">    component.restore_state!(@story_session.state) if component.respond_to?(:restore_state!)</code>
           </li>
         </div>
       
@@ -15730,14 +15730,14 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="91">
+          <li class="missed" data-hits="0" data-linenumber="91">
             
 
             
               
             
 
-            <code class="ruby">  # Render component in static mode (traditional)</code>
+            <code class="ruby">    component</code>
           </li>
         </div>
       
@@ -15749,19 +15749,19 @@
               
             
 
-            <code class="ruby">  def render_static_component(story_name, **props)</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="93">
+          <li class="never" data-hits="" data-linenumber="93">
             
 
             
               
             
 
-            <code class="ruby">    config = self.class.live_story_config(story_name)</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -15773,7 +15773,7 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">  # Render component in static mode (traditional)</code>
           </li>
         </div>
       
@@ -15785,7 +15785,7 @@
               
             
 
-            <code class="ruby">    if config</code>
+            <code class="ruby">  def render_static_component(story_name, **props)</code>
           </li>
         </div>
       
@@ -15797,19 +15797,19 @@
               
             
 
-            <code class="ruby">      component_class = config.component_class</code>
+            <code class="ruby">    config = self.class.live_story_config(story_name)</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="97">
+          <li class="never" data-hits="" data-linenumber="97">
             
 
             
               
             
 
-            <code class="ruby">      component_class.new(**props)</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -15821,31 +15821,31 @@
               
             
 
-            <code class="ruby">    else</code>
+            <code class="ruby">    if config</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="99">
+          <li class="missed" data-hits="0" data-linenumber="99">
             
 
             
               
             
 
-            <code class="ruby">      # Fallback to traditional component rendering</code>
+            <code class="ruby">      component_class = config.component_class</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="100">
+          <li class="missed" data-hits="0" data-linenumber="100">
             
 
             
               
             
 
-            <code class="ruby">      # This assumes the story method exists and returns a component</code>
+            <code class="ruby">      component_class.new(**props)</code>
           </li>
         </div>
       
@@ -15857,12 +15857,48 @@
               
             
 
+            <code class="ruby">    else</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="102">
+            
+
+            
+              
+            
+
+            <code class="ruby">      # Fallback to traditional component rendering</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="103">
+            
+
+            
+              
+            
+
+            <code class="ruby">      # This assumes the story method exists and returns a component</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="104">
+            
+
+            
+              
+            
+
             <code class="ruby">      super(**props) if defined?(super)</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="102">
+          <li class="missed" data-hits="0" data-linenumber="105">
             
 
             
@@ -15870,42 +15906,6 @@
             
 
             <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="103">
-            
-
-            
-              
-            
-
-            <code class="ruby">  end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="104">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="105">
-            
-
-            
-              
-            
-
-            <code class="ruby">  # Configuration class for live stories</code>
           </li>
         </div>
       
@@ -15917,19 +15917,19 @@
               
             
 
-            <code class="ruby">  class LiveStoryDefinition</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="107">
+          <li class="never" data-hits="" data-linenumber="107">
             
 
             
               
             
 
-            <code class="ruby">    attr_reader :name, :component_class, :controls_config, :session_config</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -15941,7 +15941,7 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">  # Configuration class for live stories</code>
           </li>
         </div>
       
@@ -15953,7 +15953,7 @@
               
             
 
-            <code class="ruby">    def initialize(name)</code>
+            <code class="ruby">  class LiveStoryDefinition</code>
           </li>
         </div>
       
@@ -15965,19 +15965,19 @@
               
             
 
-            <code class="ruby">      @name = name</code>
+            <code class="ruby">    attr_reader :name, :component_class, :controls_config, :session_config</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="111">
+          <li class="never" data-hits="" data-linenumber="111">
             
 
             
               
             
 
-            <code class="ruby">      @controls_config = {}</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -15989,7 +15989,7 @@
               
             
 
-            <code class="ruby">      @session_config = {}</code>
+            <code class="ruby">    def initialize(name)</code>
           </li>
         </div>
       
@@ -16001,19 +16001,19 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">      @name = name</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="114">
+          <li class="missed" data-hits="0" data-linenumber="114">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      @controls_config = {}</code>
           </li>
         </div>
       
@@ -16025,7 +16025,7 @@
               
             
 
-            <code class="ruby">    def component(klass)</code>
+            <code class="ruby">      @session_config = {}</code>
           </li>
         </div>
       
@@ -16037,24 +16037,12 @@
               
             
 
-            <code class="ruby">      @component_class = klass</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="117">
-            
-
-            
-              
-            
-
             <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="118">
+          <li class="never" data-hits="" data-linenumber="117">
             
 
             
@@ -16062,6 +16050,18 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="118">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def component(klass)</code>
           </li>
         </div>
       
@@ -16073,7 +16073,7 @@
               
             
 
-            <code class="ruby">    def controls(&amp;block)</code>
+            <code class="ruby">      @component_class = klass</code>
           </li>
         </div>
       
@@ -16085,19 +16085,19 @@
               
             
 
-            <code class="ruby">      controls_builder = ControlsBuilder.new</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="121">
+          <li class="never" data-hits="" data-linenumber="121">
             
 
             
               
             
 
-            <code class="ruby">      controls_builder.instance_eval(&amp;block) if block_given?</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -16109,7 +16109,7 @@
               
             
 
-            <code class="ruby">      @controls_config = controls_builder.controls</code>
+            <code class="ruby">    def controls(&amp;block)</code>
           </li>
         </div>
       
@@ -16121,19 +16121,19 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">      controls_builder = ControlsBuilder.new</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="124">
+          <li class="missed" data-hits="0" data-linenumber="124">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      controls_builder.instance_eval(&amp;block) if block_given?</code>
           </li>
         </div>
       
@@ -16145,7 +16145,7 @@
               
             
 
-            <code class="ruby">    def session_state(&amp;block)</code>
+            <code class="ruby">      @controls_config = controls_builder.controls</code>
           </li>
         </div>
       
@@ -16157,19 +16157,19 @@
               
             
 
-            <code class="ruby">      session_builder = SessionStateBuilder.new</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="127">
+          <li class="never" data-hits="" data-linenumber="127">
             
 
             
               
             
 
-            <code class="ruby">      session_builder.instance_eval(&amp;block) if block_given?</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -16181,7 +16181,7 @@
               
             
 
-            <code class="ruby">      @session_config = session_builder.config</code>
+            <code class="ruby">    def session_state(&amp;block)</code>
           </li>
         </div>
       
@@ -16193,19 +16193,19 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">      session_builder = SessionStateBuilder.new</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="130">
+          <li class="missed" data-hits="0" data-linenumber="130">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      session_builder.instance_eval(&amp;block) if block_given?</code>
           </li>
         </div>
       
@@ -16217,7 +16217,7 @@
               
             
 
-            <code class="ruby">    def live_updates(enabled: true)</code>
+            <code class="ruby">      @session_config = session_builder.config</code>
           </li>
         </div>
       
@@ -16229,24 +16229,12 @@
               
             
 
-            <code class="ruby">      @session_config[:live_updates] = enabled</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="133">
-            
-
-            
-              
-            
-
             <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="134">
+          <li class="never" data-hits="" data-linenumber="133">
             
 
             
@@ -16254,6 +16242,18 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="134">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def live_updates(enabled: true)</code>
           </li>
         </div>
       
@@ -16265,7 +16265,7 @@
               
             
 
-            <code class="ruby">    def stimulus_controller(name)</code>
+            <code class="ruby">      @session_config[:live_updates] = enabled</code>
           </li>
         </div>
       
@@ -16277,19 +16277,19 @@
               
             
 
-            <code class="ruby">      @session_config[:stimulus_controller] = name</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="137">
+          <li class="never" data-hits="" data-linenumber="137">
             
 
             
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -16301,31 +16301,31 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">    def stimulus_controller(name)</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="139">
+          <li class="missed" data-hits="0" data-linenumber="139">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      @session_config[:stimulus_controller] = name</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="140">
+          <li class="missed" data-hits="0" data-linenumber="140">
             
 
             
               
             
 
-            <code class="ruby">  # Builder for control definitions</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
@@ -16337,19 +16337,19 @@
               
             
 
-            <code class="ruby">  class ControlsBuilder</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="142">
+          <li class="never" data-hits="" data-linenumber="142">
             
 
             
               
             
 
-            <code class="ruby">    attr_reader :controls</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -16361,7 +16361,7 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">  # Builder for control definitions</code>
           </li>
         </div>
       
@@ -16373,7 +16373,7 @@
               
             
 
-            <code class="ruby">    def initialize</code>
+            <code class="ruby">  class ControlsBuilder</code>
           </li>
         </div>
       
@@ -16385,24 +16385,12 @@
               
             
 
-            <code class="ruby">      @controls = {}</code>
+            <code class="ruby">    attr_reader :controls</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="146">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="147">
+          <li class="never" data-hits="" data-linenumber="146">
             
 
             
@@ -16410,6 +16398,18 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="147">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def initialize</code>
           </li>
         </div>
       
@@ -16421,7 +16421,7 @@
               
             
 
-            <code class="ruby">    def text(name, default: nil, **options)</code>
+            <code class="ruby">      @controls = {}</code>
           </li>
         </div>
       
@@ -16433,24 +16433,12 @@
               
             
 
-            <code class="ruby">      @controls[name] = { type: :text, default: default, **options }</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="150">
-            
-
-            
-              
-            
-
             <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="151">
+          <li class="never" data-hits="" data-linenumber="150">
             
 
             
@@ -16458,6 +16446,18 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="151">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def text(name, default: nil, **options)</code>
           </li>
         </div>
       
@@ -16469,7 +16469,7 @@
               
             
 
-            <code class="ruby">    def select(name, options:, default: nil, **opts)</code>
+            <code class="ruby">      @controls[name] = { type: :text, default: default, **options }</code>
           </li>
         </div>
       
@@ -16481,24 +16481,12 @@
               
             
 
-            <code class="ruby">      @controls[name] = { type: :select, options: options, default: default, **opts }</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="154">
-            
-
-            
-              
-            
-
             <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="155">
+          <li class="never" data-hits="" data-linenumber="154">
             
 
             
@@ -16506,6 +16494,18 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="155">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def select(name, options:, default: nil, **opts)</code>
           </li>
         </div>
       
@@ -16517,7 +16517,7 @@
               
             
 
-            <code class="ruby">    def boolean(name, default: false, **options)</code>
+            <code class="ruby">      @controls[name] = { type: :select, options: options, default: default, **opts }</code>
           </li>
         </div>
       
@@ -16529,24 +16529,12 @@
               
             
 
-            <code class="ruby">      @controls[name] = { type: :boolean, default: default, **options }</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="158">
-            
-
-            
-              
-            
-
             <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="159">
+          <li class="never" data-hits="" data-linenumber="158">
             
 
             
@@ -16554,6 +16542,18 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="159">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def boolean(name, default: false, **options)</code>
           </li>
         </div>
       
@@ -16565,7 +16565,7 @@
               
             
 
-            <code class="ruby">    def number(name, default: 0, min: nil, max: nil, step: 1, **options)</code>
+            <code class="ruby">      @controls[name] = { type: :boolean, default: default, **options }</code>
           </li>
         </div>
       
@@ -16577,19 +16577,19 @@
               
             
 
-            <code class="ruby">      @controls[name] = {</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="162">
+          <li class="never" data-hits="" data-linenumber="162">
             
 
             
               
             
 
-            <code class="ruby">        type: :number,</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -16601,7 +16601,7 @@
               
             
 
-            <code class="ruby">        default: default,</code>
+            <code class="ruby">    def number(name, default: 0, min: nil, max: nil, step: 1, **options)</code>
           </li>
         </div>
       
@@ -16613,7 +16613,7 @@
               
             
 
-            <code class="ruby">        min: min,</code>
+            <code class="ruby">      @controls[name] = {</code>
           </li>
         </div>
       
@@ -16625,7 +16625,7 @@
               
             
 
-            <code class="ruby">        max: max,</code>
+            <code class="ruby">        type: :number,</code>
           </li>
         </div>
       
@@ -16637,7 +16637,7 @@
               
             
 
-            <code class="ruby">        step: step,</code>
+            <code class="ruby">        default: default,</code>
           </li>
         </div>
       
@@ -16649,7 +16649,7 @@
               
             
 
-            <code class="ruby">        **options</code>
+            <code class="ruby">        min: min,</code>
           </li>
         </div>
       
@@ -16661,7 +16661,7 @@
               
             
 
-            <code class="ruby">      }</code>
+            <code class="ruby">        max: max,</code>
           </li>
         </div>
       
@@ -16673,7 +16673,7 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">        step: step,</code>
           </li>
         </div>
       
@@ -16685,31 +16685,31 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">        **options</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="171">
+          <li class="missed" data-hits="0" data-linenumber="171">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      }</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="172">
+          <li class="missed" data-hits="0" data-linenumber="172">
             
 
             
               
             
 
-            <code class="ruby">  # Builder for session state configuration</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
@@ -16721,19 +16721,19 @@
               
             
 
-            <code class="ruby">  class SessionStateBuilder</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="174">
+          <li class="never" data-hits="" data-linenumber="174">
             
 
             
               
             
 
-            <code class="ruby">    attr_reader :config</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -16745,7 +16745,7 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">  # Builder for session state configuration</code>
           </li>
         </div>
       
@@ -16757,7 +16757,7 @@
               
             
 
-            <code class="ruby">    def initialize</code>
+            <code class="ruby">  class SessionStateBuilder</code>
           </li>
         </div>
       
@@ -16769,24 +16769,12 @@
               
             
 
-            <code class="ruby">      @config = {}</code>
+            <code class="ruby">    attr_reader :config</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="178">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="179">
+          <li class="never" data-hits="" data-linenumber="178">
             
 
             
@@ -16798,211 +16786,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="180">
-            
-
-            
-              
-            
-
-            <code class="ruby">    def initial_state(**state)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="181">
-            
-
-            
-              
-            
-
-            <code class="ruby">      @config[:initial_state] = state</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="182">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="183">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="184">
-            
-
-            
-              
-            
-
-            <code class="ruby">    def persist_for(duration)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="185">
-            
-
-            
-              
-            
-
-            <code class="ruby">      @config[:persist_for] = duration</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="186">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="187">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="188">
-            
-
-            
-              
-            
-
-            <code class="ruby">    def auto_save(enabled = true)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="189">
-            
-
-            
-              
-            
-
-            <code class="ruby">      @config[:auto_save] = enabled</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="190">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="191">
-            
-
-            
-              
-            
-
-            <code class="ruby">  end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="192">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="193">
-            
-
-            
-              
-            
-
-            <code class="ruby">  # Configuration for session behavior</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="194">
-            
-
-            
-              
-            
-
-            <code class="ruby">  class SessionConfig</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="195">
-            
-
-            
-              
-            
-
-            <code class="ruby">    attr_accessor :default_persist_duration, :auto_save_enabled, :live_updates_enabled</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="196">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="197">
+          <li class="missed" data-hits="0" data-linenumber="179">
             
 
             
@@ -17014,43 +16798,19 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="198">
+          <li class="missed" data-hits="0" data-linenumber="180">
             
 
             
               
             
 
-            <code class="ruby">      @default_persist_duration = 30.minutes</code>
+            <code class="ruby">      @config = {}</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="199">
-            
-
-            
-              
-            
-
-            <code class="ruby">      @auto_save_enabled = true</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="200">
-            
-
-            
-              
-            
-
-            <code class="ruby">      @live_updates_enabled = true</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="201">
+          <li class="missed" data-hits="0" data-linenumber="181">
             
 
             
@@ -17062,7 +16822,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="202">
+          <li class="never" data-hits="" data-linenumber="182">
             
 
             
@@ -17074,7 +16834,55 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="203">
+          <li class="missed" data-hits="0" data-linenumber="183">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def initial_state(**state)</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="184">
+            
+
+            
+              
+            
+
+            <code class="ruby">      @config[:initial_state] = state</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="185">
+            
+
+            
+              
+            
+
+            <code class="ruby">    end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="186">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="187">
             
 
             
@@ -17086,19 +16894,19 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="204">
+          <li class="missed" data-hits="0" data-linenumber="188">
             
 
             
               
             
 
-            <code class="ruby">      @default_persist_duration = duration</code>
+            <code class="ruby">      @config[:persist_for] = duration</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="205">
+          <li class="missed" data-hits="0" data-linenumber="189">
             
 
             
@@ -17110,7 +16918,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="206">
+          <li class="never" data-hits="" data-linenumber="190">
             
 
             
@@ -17122,7 +16930,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="207">
+          <li class="missed" data-hits="0" data-linenumber="191">
             
 
             
@@ -17134,67 +16942,19 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="208">
+          <li class="missed" data-hits="0" data-linenumber="192">
             
 
             
               
             
 
-            <code class="ruby">      @auto_save_enabled = enabled</code>
+            <code class="ruby">      @config[:auto_save] = enabled</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="209">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="210">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="211">
-            
-
-            
-              
-            
-
-            <code class="ruby">    def live_updates(enabled = true)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="212">
-            
-
-            
-              
-            
-
-            <code class="ruby">      @live_updates_enabled = enabled</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="213">
+          <li class="missed" data-hits="0" data-linenumber="193">
             
 
             
@@ -17206,7 +16966,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="214">
+          <li class="missed" data-hits="0" data-linenumber="194">
             
 
             
@@ -17218,7 +16978,283 @@
         </div>
       
         <div>
+          <li class="never" data-hits="" data-linenumber="195">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="196">
+            
+
+            
+              
+            
+
+            <code class="ruby">  # Configuration for session behavior</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="197">
+            
+
+            
+              
+            
+
+            <code class="ruby">  class SessionConfig</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="198">
+            
+
+            
+              
+            
+
+            <code class="ruby">    attr_accessor :default_persist_duration, :auto_save_enabled, :live_updates_enabled</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="199">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="200">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def initialize</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="201">
+            
+
+            
+              
+            
+
+            <code class="ruby">      @default_persist_duration = 30.minutes</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="202">
+            
+
+            
+              
+            
+
+            <code class="ruby">      @auto_save_enabled = true</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="203">
+            
+
+            
+              
+            
+
+            <code class="ruby">      @live_updates_enabled = true</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="204">
+            
+
+            
+              
+            
+
+            <code class="ruby">    end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="205">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="206">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def persist_for(duration)</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="207">
+            
+
+            
+              
+            
+
+            <code class="ruby">      @default_persist_duration = duration</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="208">
+            
+
+            
+              
+            
+
+            <code class="ruby">    end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="209">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="210">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def auto_save(enabled = true)</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="211">
+            
+
+            
+              
+            
+
+            <code class="ruby">      @auto_save_enabled = enabled</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="212">
+            
+
+            
+              
+            
+
+            <code class="ruby">    end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="213">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="214">
+            
+
+            
+              
+            
+
+            <code class="ruby">    def live_updates(enabled = true)</code>
+          </li>
+        </div>
+      
+        <div>
           <li class="missed" data-hits="0" data-linenumber="215">
+            
+
+            
+              
+            
+
+            <code class="ruby">      @live_updates_enabled = enabled</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="216">
+            
+
+            
+              
+            
+
+            <code class="ruby">    end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="217">
+            
+
+            
+              
+            
+
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="218">
             
 
             
@@ -17230,7 +17266,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="216">
+          <li class="never" data-hits="" data-linenumber="219">
             
 
             
@@ -17407,26 +17443,26 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="11">
+          <li class="never" data-hits="" data-linenumber="11">
             
 
             
               
             
 
-            <code class="ruby">    class_attribute :_state_definitions, default: {}</code>
+            <code class="ruby">    # rubocop:disable ThreadSafety/ClassAndModuleAttributes</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="12">
+          <li class="never" data-hits="" data-linenumber="12">
             
 
             
               
             
 
-            <code class="ruby">    class_attribute :_effect_definitions, default: {}</code>
+            <code class="ruby">    # State and effect definitions are set at class definition time and are read-only during requests</code>
           </li>
         </div>
       
@@ -17438,12 +17474,48 @@
               
             
 
+            <code class="ruby">    class_attribute :_state_definitions, default: {}</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="14">
+            
+
+            
+              
+            
+
+            <code class="ruby">    class_attribute :_effect_definitions, default: {}</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="15">
+            
+
+            
+              
+            
+
+            <code class="ruby">    # rubocop:enable ThreadSafety/ClassAndModuleAttributes</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="16">
+            
+
+            
+              
+            
+
             <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="14">
+          <li class="never" data-hits="" data-linenumber="17">
             
 
             
@@ -17451,42 +17523,6 @@
             
 
             <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="15">
-            
-
-            
-              
-            
-
-            <code class="ruby">  class_methods do</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="16">
-            
-
-            
-              
-            
-
-            <code class="ruby">    # Enhanced state definition with story session support</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="17">
-            
-
-            
-              
-            
-
-            <code class="ruby">    def state(name, default_value = nil)</code>
           </li>
         </div>
       
@@ -17498,7 +17534,7 @@
               
             
 
-            <code class="ruby">      _state_definitions[name] = default_value</code>
+            <code class="ruby">  class_methods do</code>
           </li>
         </div>
       
@@ -17510,19 +17546,19 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">    # Enhanced state definition with story session support</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="20">
+          <li class="missed" data-hits="0" data-linenumber="20">
             
 
             
               
             
 
-            <code class="ruby">      # Create getter that checks story session first</code>
+            <code class="ruby">    def state(name, default_value = nil)</code>
           </li>
         </div>
       
@@ -17534,31 +17570,31 @@
               
             
 
-            <code class="ruby">      define_method(name) do</code>
+            <code class="ruby">      _state_definitions[name] = default_value</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="22">
+          <li class="never" data-hits="" data-linenumber="22">
             
 
             
               
             
 
-            <code class="ruby">        if story_session_id &amp;&amp; (session = current_story_session)</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="23">
+          <li class="never" data-hits="" data-linenumber="23">
             
 
             
               
             
 
-            <code class="ruby">          session.state[name.to_s] || default_value</code>
+            <code class="ruby">      # Create getter that checks story session first</code>
           </li>
         </div>
       
@@ -17570,120 +17606,12 @@
               
             
 
-            <code class="ruby">        else</code>
+            <code class="ruby">      define_method(name) do</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="25">
-            
-
-            
-              
-            
-
-            <code class="ruby">          # Fallback to instance variable for normal component usage</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="26">
-            
-
-            
-              
-            
-
-            <code class="ruby">          instance_variable_get(&quot;@#{name}&quot;) || default_value</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="27">
-            
-
-            
-              
-            
-
-            <code class="ruby">        end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="28">
-            
-
-            
-              
-            
-
-            <code class="ruby">      end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="29">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="30">
-            
-
-            
-              
-            
-
-            <code class="ruby">      # Create setter with session persistence and effect triggering</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="31">
-            
-
-            
-              
-            
-
-            <code class="ruby">      define_method(&quot;#{name}=&quot;) do |new_value|</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="32">
-            
-
-            
-              
-            
-
-            <code class="ruby">        old_value = send(name)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="33">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="34">
+          <li class="missed" data-hits="0" data-linenumber="25">
             
 
             
@@ -17695,26 +17623,134 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="35">
+          <li class="missed" data-hits="0" data-linenumber="26">
             
 
             
               
             
 
-            <code class="ruby">          # Update session state</code>
+            <code class="ruby">          session.state[name.to_s] || default_value</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="36">
+          <li class="missed" data-hits="0" data-linenumber="27">
             
 
             
               
             
 
-            <code class="ruby">          session.update_state!(name.to_s =&gt; new_value)</code>
+            <code class="ruby">        else</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="28">
+            
+
+            
+              
+            
+
+            <code class="ruby">          # Fallback to instance variable for normal component usage</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="29">
+            
+
+            
+              
+            
+
+            <code class="ruby">          instance_variable_get(&quot;@#{name}&quot;) || default_value</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="30">
+            
+
+            
+              
+            
+
+            <code class="ruby">        end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="31">
+            
+
+            
+              
+            
+
+            <code class="ruby">      end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="32">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="33">
+            
+
+            
+              
+            
+
+            <code class="ruby">      # Create setter with session persistence and effect triggering</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="34">
+            
+
+            
+              
+            
+
+            <code class="ruby">      define_method(&quot;#{name}=&quot;) do |new_value|</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="35">
+            
+
+            
+              
+            
+
+            <code class="ruby">        old_value = send(name)</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="36">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -17726,7 +17762,7 @@
               
             
 
-            <code class="ruby">        else</code>
+            <code class="ruby">        if story_session_id &amp;&amp; (session = current_story_session)</code>
           </li>
         </div>
       
@@ -17738,7 +17774,7 @@
               
             
 
-            <code class="ruby">          # Normal component usage</code>
+            <code class="ruby">          # Update session state</code>
           </li>
         </div>
       
@@ -17750,7 +17786,7 @@
               
             
 
-            <code class="ruby">          instance_variable_set(&quot;@#{name}&quot;, new_value)</code>
+            <code class="ruby">          session.update_state!(name.to_s =&gt; new_value)</code>
           </li>
         </div>
       
@@ -17762,7 +17798,7 @@
               
             
 
-            <code class="ruby">        end</code>
+            <code class="ruby">        else</code>
           </li>
         </div>
       
@@ -17774,19 +17810,19 @@
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">          # Normal component usage</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="42">
+          <li class="missed" data-hits="0" data-linenumber="42">
             
 
             
               
             
 
-            <code class="ruby">        # Trigger effects if value changed</code>
+            <code class="ruby">          instance_variable_set(&quot;@#{name}&quot;, new_value)</code>
           </li>
         </div>
       
@@ -17798,36 +17834,12 @@
               
             
 
-            <code class="ruby">        if old_value != new_value &amp;&amp; _effect_definitions[name]</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="44">
-            
-
-            
-              
-            
-
-            <code class="ruby">          trigger_effect(name, new_value, old_value)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="45">
-            
-
-            
-              
-            
-
             <code class="ruby">        end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="46">
+          <li class="never" data-hits="" data-linenumber="44">
             
 
             
@@ -17835,6 +17847,30 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="45">
+            
+
+            
+              
+            
+
+            <code class="ruby">        # Trigger effects if value changed</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="46">
+            
+
+            
+              
+            
+
+            <code class="ruby">        if old_value != new_value &amp;&amp; _effect_definitions[name]</code>
           </li>
         </div>
       
@@ -17846,7 +17882,7 @@
               
             
 
-            <code class="ruby">        new_value</code>
+            <code class="ruby">          trigger_effect(name, new_value, old_value)</code>
           </li>
         </div>
       
@@ -17858,24 +17894,12 @@
               
             
 
-            <code class="ruby">      end</code>
+            <code class="ruby">        end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="49">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="50">
+          <li class="never" data-hits="" data-linenumber="49">
             
 
             
@@ -17887,14 +17911,26 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="51">
+          <li class="missed" data-hits="0" data-linenumber="50">
             
 
             
               
             
 
-            <code class="ruby">    # Enhanced effect definition</code>
+            <code class="ruby">        new_value</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="51">
+            
+
+            
+              
+            
+
+            <code class="ruby">      end</code>
           </li>
         </div>
       
@@ -17906,12 +17942,48 @@
               
             
 
+            <code class="ruby">    end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="53">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="54">
+            
+
+            
+              
+            
+
+            <code class="ruby">    # Enhanced effect definition</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="55">
+            
+
+            
+              
+            
+
             <code class="ruby">    def effect(state_name, &amp;block)</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="53">
+          <li class="missed" data-hits="0" data-linenumber="56">
             
 
             
@@ -17923,7 +17995,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="54">
+          <li class="missed" data-hits="0" data-linenumber="57">
             
 
             
@@ -17935,7 +18007,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="55">
+          <li class="never" data-hits="" data-linenumber="58">
             
 
             
@@ -17947,7 +18019,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="56">
+          <li class="never" data-hits="" data-linenumber="59">
             
 
             
@@ -17959,7 +18031,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="57">
+          <li class="missed" data-hits="0" data-linenumber="60">
             
 
             
@@ -17971,7 +18043,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="58">
+          <li class="missed" data-hits="0" data-linenumber="61">
             
 
             
@@ -17983,7 +18055,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="59">
+          <li class="missed" data-hits="0" data-linenumber="62">
             
 
             
@@ -17995,7 +18067,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="60">
+          <li class="missed" data-hits="0" data-linenumber="63">
             
 
             
@@ -18007,7 +18079,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="61">
+          <li class="missed" data-hits="0" data-linenumber="64">
             
 
             
@@ -18019,7 +18091,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="62">
+          <li class="missed" data-hits="0" data-linenumber="65">
             
 
             
@@ -18031,7 +18103,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="63">
+          <li class="never" data-hits="" data-linenumber="66">
             
 
             
@@ -18043,7 +18115,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="64">
+          <li class="never" data-hits="" data-linenumber="67">
             
 
             
@@ -18055,7 +18127,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="65">
+          <li class="missed" data-hits="0" data-linenumber="68">
             
 
             
@@ -18067,7 +18139,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="66">
+          <li class="missed" data-hits="0" data-linenumber="69">
             
 
             
@@ -18079,7 +18151,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="67">
+          <li class="missed" data-hits="0" data-linenumber="70">
             
 
             
@@ -18091,7 +18163,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="68">
+          <li class="never" data-hits="" data-linenumber="71">
             
 
             
@@ -18103,7 +18175,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="69">
+          <li class="missed" data-hits="0" data-linenumber="72">
             
 
             
@@ -18115,42 +18187,6 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="70">
-            
-
-            
-              
-            
-
-            <code class="ruby">          instance_variable_set(&quot;@_restoring_state&quot;, true)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="71">
-            
-
-            
-              
-            
-
-            <code class="ruby">          send(&quot;#{key}=&quot;, value)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="72">
-            
-
-            
-              
-            
-
-            <code class="ruby">          instance_variable_set(&quot;@_restoring_state&quot;, false)</code>
-          </li>
-        </div>
-      
-        <div>
           <li class="missed" data-hits="0" data-linenumber="73">
             
 
@@ -18158,7 +18194,7 @@
               
             
 
-            <code class="ruby">        else</code>
+            <code class="ruby">          instance_variable_set(&quot;@_restoring_state&quot;, true)</code>
           </li>
         </div>
       
@@ -18182,7 +18218,7 @@
               
             
 
-            <code class="ruby">        end</code>
+            <code class="ruby">          instance_variable_set(&quot;@_restoring_state&quot;, false)</code>
           </li>
         </div>
       
@@ -18194,7 +18230,7 @@
               
             
 
-            <code class="ruby">      end</code>
+            <code class="ruby">        else</code>
           </li>
         </div>
       
@@ -18206,7 +18242,7 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">          send(&quot;#{key}=&quot;, value)</code>
           </li>
         </div>
       
@@ -18218,31 +18254,31 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">        end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="79">
+          <li class="missed" data-hits="0" data-linenumber="79">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="80">
+          <li class="missed" data-hits="0" data-linenumber="80">
             
 
             
               
             
 
-            <code class="ruby">  # Get current state as hash</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
@@ -18254,31 +18290,31 @@
               
             
 
-            <code class="ruby">  def current_state</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="82">
+          <li class="never" data-hits="" data-linenumber="82">
             
 
             
               
             
 
-            <code class="ruby">    state_hash = {}</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="83">
+          <li class="never" data-hits="" data-linenumber="83">
             
 
             
               
             
 
-            <code class="ruby">    self.class._state_definitions.keys.each do |key|</code>
+            <code class="ruby">  # Get current state as hash</code>
           </li>
         </div>
       
@@ -18290,7 +18326,7 @@
               
             
 
-            <code class="ruby">      state_hash[key.to_s] = send(key)</code>
+            <code class="ruby">  def current_state</code>
           </li>
         </div>
       
@@ -18302,7 +18338,7 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">    state_hash = {}</code>
           </li>
         </div>
       
@@ -18314,7 +18350,7 @@
               
             
 
-            <code class="ruby">    state_hash</code>
+            <code class="ruby">    self.class._state_definitions.keys.each do |key|</code>
           </li>
         </div>
       
@@ -18326,31 +18362,31 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">      state_hash[key.to_s] = send(key)</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="88">
+          <li class="missed" data-hits="0" data-linenumber="88">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="89">
+          <li class="missed" data-hits="0" data-linenumber="89">
             
 
             
               
             
 
-            <code class="ruby">  # Get list of state variable names</code>
+            <code class="ruby">    state_hash</code>
           </li>
         </div>
       
@@ -18362,12 +18398,48 @@
               
             
 
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="91">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="92">
+            
+
+            
+              
+            
+
+            <code class="ruby">  # Get list of state variable names</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="93">
+            
+
+            
+              
+            
+
             <code class="ruby">  def state_variables</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="91">
+          <li class="missed" data-hits="0" data-linenumber="94">
             
 
             
@@ -18379,7 +18451,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="92">
+          <li class="missed" data-hits="0" data-linenumber="95">
             
 
             
@@ -18391,7 +18463,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="93">
+          <li class="never" data-hits="" data-linenumber="96">
             
 
             
@@ -18403,7 +18475,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="94">
+          <li class="never" data-hits="" data-linenumber="97">
             
 
             
@@ -18415,7 +18487,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="95">
+          <li class="missed" data-hits="0" data-linenumber="98">
             
 
             
@@ -18427,7 +18499,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="96">
+          <li class="missed" data-hits="0" data-linenumber="99">
             
 
             
@@ -18435,42 +18507,6 @@
             
 
             <code class="ruby">    current_value = send(field) || 0</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="97">
-            
-
-            
-              
-            
-
-            <code class="ruby">    send(&quot;#{field}=&quot;, current_value + 1)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="98">
-            
-
-            
-              
-            
-
-            <code class="ruby">  end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="99">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
           </li>
         </div>
       
@@ -18482,7 +18518,7 @@
               
             
 
-            <code class="ruby">  def handle_decrement(field = :counter)</code>
+            <code class="ruby">    send(&quot;#{field}=&quot;, current_value + 1)</code>
           </li>
         </div>
       
@@ -18494,19 +18530,19 @@
               
             
 
-            <code class="ruby">    current_value = send(field) || 0</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="102">
+          <li class="never" data-hits="" data-linenumber="102">
             
 
             
               
             
 
-            <code class="ruby">    send(&quot;#{field}=&quot;, [ current_value - 1, 0 ].max)</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -18518,19 +18554,19 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">  def handle_decrement(field = :counter)</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="104">
+          <li class="missed" data-hits="0" data-linenumber="104">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">    current_value = send(field) || 0</code>
           </li>
         </div>
       
@@ -18542,7 +18578,7 @@
               
             
 
-            <code class="ruby">  def handle_toggle(field)</code>
+            <code class="ruby">    send(&quot;#{field}=&quot;, [ current_value - 1, 0 ].max)</code>
           </li>
         </div>
       
@@ -18554,24 +18590,12 @@
               
             
 
-            <code class="ruby">    send(&quot;#{field}=&quot;, !send(field))</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="107">
-            
-
-            
-              
-            
-
             <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="108">
+          <li class="never" data-hits="" data-linenumber="107">
             
 
             
@@ -18579,6 +18603,18 @@
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="108">
+            
+
+            
+              
+            
+
+            <code class="ruby">  def handle_toggle(field)</code>
           </li>
         </div>
       
@@ -18590,7 +18626,7 @@
               
             
 
-            <code class="ruby">  def handle_reset</code>
+            <code class="ruby">    send(&quot;#{field}=&quot;, !send(field))</code>
           </li>
         </div>
       
@@ -18602,19 +18638,19 @@
               
             
 
-            <code class="ruby">    self.class._state_definitions.each do |name, default_value|</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="111">
+          <li class="never" data-hits="" data-linenumber="111">
             
 
             
               
             
 
-            <code class="ruby">      send(&quot;#{name}=&quot;, default_value)</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -18626,7 +18662,7 @@
               
             
 
-            <code class="ruby">    end</code>
+            <code class="ruby">  def handle_reset</code>
           </li>
         </div>
       
@@ -18638,19 +18674,19 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">    self.class._state_definitions.each do |name, default_value|</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="114">
+          <li class="missed" data-hits="0" data-linenumber="114">
             
 
             
               
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      send(&quot;#{name}=&quot;, default_value)</code>
           </li>
         </div>
       
@@ -18662,12 +18698,24 @@
               
             
 
-            <code class="ruby">  private</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="116">
+          <li class="missed" data-hits="0" data-linenumber="116">
+            
+
+            
+              
+            
+
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="117">
             
 
             
@@ -18675,18 +18723,6 @@
             
 
             <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="117">
-            
-
-            
-              
-            
-
-            <code class="ruby">  def current_story_session</code>
           </li>
         </div>
       
@@ -18698,12 +18734,48 @@
               
             
 
+            <code class="ruby">  private</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="119">
+            
+
+            
+              
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="120">
+            
+
+            
+              
+            
+
+            <code class="ruby">  def current_story_session</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="121">
+            
+
+            
+              
+            
+
             <code class="ruby">    return nil unless story_session_id</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="119">
+          <li class="missed" data-hits="0" data-linenumber="122">
             
 
             
@@ -18715,7 +18787,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="120">
+          <li class="never" data-hits="" data-linenumber="123">
             
 
             
@@ -18727,7 +18799,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="121">
+          <li class="never" data-hits="" data-linenumber="124">
             
 
             
@@ -18739,7 +18811,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="122">
+          <li class="never" data-hits="" data-linenumber="125">
             
 
             
@@ -18751,7 +18823,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="123">
+          <li class="missed" data-hits="0" data-linenumber="126">
             
 
             
@@ -18763,7 +18835,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="124">
+          <li class="missed" data-hits="0" data-linenumber="127">
             
 
             
@@ -18775,7 +18847,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="125">
+          <li class="missed" data-hits="0" data-linenumber="128">
             
 
             
@@ -18787,7 +18859,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="126">
+          <li class="missed" data-hits="0" data-linenumber="129">
             
 
             
@@ -18799,7 +18871,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="127">
+          <li class="missed" data-hits="0" data-linenumber="130">
             
 
             
@@ -18811,7 +18883,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="128">
+          <li class="missed" data-hits="0" data-linenumber="131">
             
 
             
@@ -18823,7 +18895,7 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="129">
+          <li class="missed" data-hits="0" data-linenumber="132">
             
 
             
@@ -18835,42 +18907,6 @@
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="130">
-            
-
-            
-              
-            
-
-            <code class="ruby">    end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="131">
-            
-
-            
-              
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="132">
-            
-
-            
-              
-            
-
-            <code class="ruby">    @current_story_session</code>
-          </li>
-        </div>
-      
-        <div>
           <li class="missed" data-hits="0" data-linenumber="133">
             
 
@@ -18878,7 +18914,7 @@
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
@@ -18902,7 +18938,7 @@
               
             
 
-            <code class="ruby">  def trigger_effect(state_name, new_value, old_value)</code>
+            <code class="ruby">    @current_story_session</code>
           </li>
         </div>
       
@@ -18914,24 +18950,12 @@
               
             
 
-            <code class="ruby">    effect_block = self.class._effect_definitions[state_name]</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="137">
-            
-
-            
-              
-            
-
-            <code class="ruby">    return unless effect_block</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="138">
+          <li class="never" data-hits="" data-linenumber="137">
             
 
             
@@ -18943,14 +18967,26 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="139">
+          <li class="missed" data-hits="0" data-linenumber="138">
             
 
             
               
             
 
-            <code class="ruby">    # Execute effect in component context</code>
+            <code class="ruby">  def trigger_effect(state_name, new_value, old_value)</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="139">
+            
+
+            
+              
+            
+
+            <code class="ruby">    effect_block = self.class._effect_definitions[state_name]</code>
           </li>
         </div>
       
@@ -18962,24 +18998,12 @@
               
             
 
-            <code class="ruby">    instance_exec(new_value, old_value, &amp;effect_block)</code>
+            <code class="ruby">    return unless effect_block</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="141">
-            
-
-            
-              
-            
-
-            <code class="ruby">  end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="142">
+          <li class="never" data-hits="" data-linenumber="141">
             
 
             
@@ -18991,6 +19015,18 @@
         </div>
       
         <div>
+          <li class="never" data-hits="" data-linenumber="142">
+            
+
+            
+              
+            
+
+            <code class="ruby">    # Execute effect in component context</code>
+          </li>
+        </div>
+      
+        <div>
           <li class="missed" data-hits="0" data-linenumber="143">
             
 
@@ -18998,7 +19034,7 @@
               
             
 
-            <code class="ruby">  def restoring_state?</code>
+            <code class="ruby">    instance_exec(new_value, old_value, &amp;effect_block)</code>
           </li>
         </div>
       
@@ -19010,19 +19046,19 @@
               
             
 
-            <code class="ruby">    instance_variable_get(&quot;@_restoring_state&quot;) == true</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="145">
+          <li class="never" data-hits="" data-linenumber="145">
             
 
             
               
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -19034,12 +19070,48 @@
               
             
 
+            <code class="ruby">  def restoring_state?</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="147">
+            
+
+            
+              
+            
+
+            <code class="ruby">    instance_variable_get(&quot;@_restoring_state&quot;) == true</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="148">
+            
+
+            
+              
+            
+
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="149">
+            
+
+            
+              
+            
+
             <code class="ruby">end</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="147">
+          <li class="never" data-hits="" data-linenumber="150">
             
 
             

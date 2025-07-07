@@ -107,8 +107,17 @@ module SwiftUIRails
           }
         end
 
-        def validates_inclusion(prop_name, in:, allow_blank: false)
-          allowed_values = binding.local_variable_get(:in)
+        ##
+        # Adds a validation rule to ensure the specified prop value is included in the allowed list.
+        # @param [Symbol] prop_name The name of the prop to validate.
+        # @param [Array] allowed_values The list of allowed values (passed as 'in:' parameter).
+        # @param [Boolean] allow_blank Whether to allow blank values as valid (default: false).
+        def validates_inclusion(prop_name, **options)
+          allowed_values = options[:in]
+          allow_blank = options[:allow_blank] || false
+          
+          raise ArgumentError, "validates_inclusion requires :in option" unless allowed_values
+          
           prop_validations[prop_name] = {
             inclusion: {
               in: allowed_values,
