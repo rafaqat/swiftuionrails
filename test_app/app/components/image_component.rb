@@ -5,7 +5,7 @@
 require "swift_ui_rails/security/url_validator"
 
 class ImageComponent < SwiftUIRails::Component::Base
-  prop :src, type: String, required: true, validate: :url
+  prop :src, type: String, required: true
   prop :alt_text, type: String, default: "Image"
   prop :aspect_ratio, type: String, default: "square", enum: [ "square", "portrait", "landscape", "wide" ]
   prop :object_fit, type: String, default: "cover", enum: [ "cover", "contain", "fill", "none", "scale-down" ]
@@ -13,6 +13,8 @@ class ImageComponent < SwiftUIRails::Component::Base
   prop :border, type: [ TrueClass, FalseClass ], default: false
   prop :grayscale, type: [ TrueClass, FalseClass ], default: false
   prop :blur, type: [ TrueClass, FalseClass ], default: false
+  
+  # URL validation is handled in the component logic below
 
   swift_ui do
     # SECURITY: Validate image source URL

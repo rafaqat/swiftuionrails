@@ -5,7 +5,7 @@
 class ProductFilterComponent < SwiftUIRails::Component::Base
   prop :current_filters, type: Hash, default: {}
   prop :filter_options, type: Hash, required: true
-  prop :products_path, type: String, required: true, validate: :url
+  prop :products_path, type: String, required: true
 
   swift_ui do
     form(action: products_path, method: :get, data: { turbo_frame: "products" }) do
