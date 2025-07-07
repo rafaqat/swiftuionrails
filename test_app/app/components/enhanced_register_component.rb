@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class EnhancedRegisterComponent < ApplicationComponent
@@ -11,7 +12,7 @@ class EnhancedRegisterComponent < ApplicationComponent
   prop :general_error, type: String, default: nil
   prop :terms_path, type: String, default: "/terms"
   prop :privacy_path, type: String, default: "/privacy"
-  
+
   swift_ui do
     div do
       # Container
@@ -24,7 +25,7 @@ class EnhancedRegisterComponent < ApplicationComponent
           h2("Create your account").mt(4).text_size("2xl").font_weight("bold").text_color("gray-900")
           text("Start your journey with us").mt(2).text_size("sm").text_color("gray-600")
         end
-        
+
         # Progress indicator
         div.mb(8) do
           div.flex.items_center do
@@ -35,10 +36,10 @@ class EnhancedRegisterComponent < ApplicationComponent
               end
               text("Account").ml(3).text_size("sm").font_weight("medium").text_color("indigo-600")
             end
-            
+
             # Connector
             div.flex_1.h(0.5).bg("gray-300").mx(4)
-            
+
             # Step 2 - Inactive
             div.flex.items_center.flex_1 do
               div.w(10).h(10).bg("gray-300").rounded("full").flex.items_center.justify_center do
@@ -48,7 +49,7 @@ class EnhancedRegisterComponent < ApplicationComponent
             end
           end
         end
-        
+
         # Error Alert
         if general_error
           div.bg("red-50").border.border_color("red-200").text_color("red-700").px(4).py(3).rounded("md").mb(6).flex.items_start do
@@ -59,7 +60,7 @@ class EnhancedRegisterComponent < ApplicationComponent
             end
           end
         end
-        
+
         # Form
         form(action: action, method: method, data: { turbo: false }) do
           div.space_y(6) do
@@ -89,12 +90,12 @@ class EnhancedRegisterComponent < ApplicationComponent
                 .focus("ring-indigo-500 border-indigo-500")
                 .sm("text-sm")
               end
-              
+
               if errors[:name]
                 text(errors[:name].first).mt(2).text_size("sm").text_color("red-600")
               end
             end
-            
+
             # Email Field
             div do
               label("Email address", for: "email").block.text_size("sm").font_weight("medium").text_color("gray-700")
@@ -121,12 +122,12 @@ class EnhancedRegisterComponent < ApplicationComponent
                 .focus("ring-indigo-500 border-indigo-500")
                 .sm("text-sm")
               end
-              
+
               if errors[:email]
                 text(errors[:email].first).mt(2).text_size("sm").text_color("red-600")
               end
             end
-            
+
             # Password Field
             div do
               label("Password", for: "password").block.text_size("sm").font_weight("medium").text_color("gray-700")
@@ -152,7 +153,7 @@ class EnhancedRegisterComponent < ApplicationComponent
                 .focus("ring-indigo-500 border-indigo-500")
                 .sm("text-sm")
               end
-              
+
               # Password strength indicator
               div.mt(2) do
                 div.text_size("xs").text_color("gray-600").mb(1) do
@@ -165,12 +166,12 @@ class EnhancedRegisterComponent < ApplicationComponent
                   div.flex_1.h(2).bg("gray-200").rounded("full")
                 end
               end
-              
+
               if errors[:password]
                 text(errors[:password].first).mt(2).text_size("sm").text_color("red-600")
               end
             end
-            
+
             # Password Confirmation
             div do
               label("Confirm password", for: "password_confirmation").block.text_size("sm").font_weight("medium").text_color("gray-700")
@@ -196,12 +197,12 @@ class EnhancedRegisterComponent < ApplicationComponent
                 .focus("ring-indigo-500 border-indigo-500")
                 .sm("text-sm")
               end
-              
+
               if errors[:password_confirmation]
                 text(errors[:password_confirmation].first).mt(2).text_size("sm").text_color("red-600")
               end
             end
-            
+
             # Terms checkbox
             div.flex.items_start do
               div.flex.items_center.h(5) do
@@ -217,7 +218,7 @@ class EnhancedRegisterComponent < ApplicationComponent
                 end
               end
             end
-            
+
             # Submit Button
             div do
               button("Create account", type: "submit")
@@ -240,7 +241,7 @@ class EnhancedRegisterComponent < ApplicationComponent
             end
           end
         end
-        
+
         # Divider
         div.relative.mt(8) do
           div.absolute.inset(0).flex.items_center do
@@ -250,7 +251,7 @@ class EnhancedRegisterComponent < ApplicationComponent
             span("Already have an account?").px(2).bg("white").text_color("gray-500")
           end
         end
-        
+
         # Sign in link
         div.mt(6) do
           link("Sign in instead", destination: "/login")

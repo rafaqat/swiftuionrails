@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class IconComponent < SwiftUIRails::Component::Base
   # Type alias for better readability
-  Boolean = [TrueClass, FalseClass].freeze
-  
+  Boolean = [ TrueClass, FalseClass ].freeze
+
   prop :name, type: String, default: "star"
   prop :size, type: Integer, default: 24
   prop :color, type: String, default: "gray-500"

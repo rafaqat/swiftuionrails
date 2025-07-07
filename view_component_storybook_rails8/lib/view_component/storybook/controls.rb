@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
-require "active_support/dependencies/autoload"
+require 'active_support/dependencies/autoload'
 
 module ViewComponent
   module Storybook

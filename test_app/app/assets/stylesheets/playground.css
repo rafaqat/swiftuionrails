@@ -1,0 +1,76 @@
+/* Playground specific styles */
+
+/* Code editor enhancements */
+.playground-container textarea {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+/* Syntax highlighting placeholders for future Monaco integration */
+.playground-container textarea::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Better scrollbar styling */
+.playground-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.playground-container ::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.playground-container ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.playground-container ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Inspector tabs styling */
+.playground-container .inspector-tab {
+  transition: all 0.2s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .playground-container .flex > div[style*="flex: 0 0 55%"] {
+    flex: 0 0 50% !important;
+  }
+  
+  .playground-container .flex > div[style*="flex: 0 0 45%"] {
+    flex: 0 0 50% !important;
+  }
+}
+
+/* Preview device frames */
+#playground-preview.max-w-sm {
+  border: 16px solid #1a1a1a;
+  border-radius: 24px;
+  box-shadow: 0 0 0 2px #333;
+}
+
+#playground-preview.max-w-md {
+  border: 24px solid #1a1a1a;
+  border-top-width: 48px;
+  border-bottom-width: 48px;
+  border-radius: 16px;
+  box-shadow: 0 0 0 2px #333;
+}
+
+/* Dropdown menu enhancements */
+[data-dropdown-target="menu"] {
+  max-height: calc(100vh - 200px);
+}
+
+/* Smooth transitions */
+.playground-container * {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

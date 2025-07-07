@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
   include SwiftUIRails::DSL
-  
+
   # Pure DSL story - no backing component instantiation
   def default
     products = [
@@ -13,7 +14,7 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
       { name: "Nomad Tumbler", variant: "White", price: 35, image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg" },
       { name: "Travel Mug", variant: "Black", price: 25, image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-03.jpg" }
     ]
-    
+
     swift_ui do
       section.bg("gray-50").min_h("screen") do
         div.max_w("7xl").mx("auto").px(4).py(8).add_class("sm:px-6 lg:px-8") do
@@ -24,14 +25,14 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
                 .text_size("3xl")
                 .font_weight("bold")
                 .text_color("gray-900")
-              
+
               text("#{products.count} items")
                 .text_size("base")
                 .text_color("gray-600")
             end
             spacer
           end
-          
+
           # Product grid using DSL
           grid(columns: 2, spacing: 6) do
             products.each do |product|
@@ -51,10 +52,10 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   def with_filters
     products = generate_sample_products
-    
+
     swift_ui do
       section.bg("gray-50").min_h("screen") do
         div.max_w("7xl").mx("auto").px(4).py(8).add_class("sm:px-6 lg:px-8") do
@@ -65,14 +66,14 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
                 .text_size("3xl")
                 .font_weight("bold")
                 .text_color("gray-900")
-              
+
               text("#{products.count} items")
                 .text_size("base")
                 .text_color("gray-600")
             end
             spacer
           end
-          
+
           # Filter section
           div.bg("white").p(6).rounded("lg").shadow("sm").border.border_color("gray-200").mb(6) do
             hstack(spacing: 4) do
@@ -83,7 +84,7 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
               button("Outerwear").px(3).py(1).bg("gray-200").text_color("gray-700").rounded("md")
             end
           end
-          
+
           # Product grid using DSL
           grid(columns: 3, spacing: 6) do
             products.each do |product|
@@ -103,10 +104,10 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   def four_column_grid
     products = generate_sample_products
-    
+
     swift_ui do
       section.bg("gray-50").min_h("screen") do
         div.max_w("7xl").mx("auto").px(4).py(8).add_class("sm:px-6 lg:px-8") do
@@ -117,14 +118,14 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
                 .text_size("3xl")
                 .font_weight("bold")
                 .text_color("gray-900")
-              
+
               text("#{products.count} items")
                 .text_size("base")
                 .text_color("gray-600")
             end
-            
+
             spacer
-            
+
             # Sort dropdown
             div.relative do
               select
@@ -138,7 +139,7 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
               end
             end
           end
-          
+
           # Product grid using DSL - 4 columns
           grid(columns: 4, spacing: 6) do
             products.each do |product|
@@ -158,12 +159,12 @@ class ProductLayoutSimpleStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   private
-  
+
   def generate_sample_products
     [
-      { name: "Basic Tee", variant: "Black", price: 35, color: "black", category: "shirts", 
+      { name: "Basic Tee", variant: "Black", price: 35, color: "black", category: "shirts",
         image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg" },
       { name: "Basic Tee", variant: "White", price: 35, color: "white", category: "shirts",
         image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg" },

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 namespace :view_component_storybook do
-  desc "Write CSF JSON stories for all Stories"
+  desc 'Write CSF JSON stories for all Stories'
   task write_stories_json: :environment do
-    puts "Writing Stories JSON"
+    puts 'Writing Stories JSON'
     exceptions = []
     ViewComponent::Storybook::Engine.stories.each do |stories|
       json_path = stories.write_csf_json
@@ -12,24 +12,24 @@ namespace :view_component_storybook do
       exceptions << e
     end
 
-    raise StandardError, exceptions.map(&:message).join(", ") if exceptions.present?
+    raise StandardError, exceptions.map(&:message).join(', ') if exceptions.present?
 
-    puts "Done"
+    puts 'Done'
   end
 
-  desc "Remove all existing CSF JSON Stories"
+  desc 'Remove all existing CSF JSON Stories'
   task remove_stories_json: :environment do
-    puts "Removing old Stories JSON"
+    puts 'Removing old Stories JSON'
     exceptions = []
-    Dir["#{ViewComponent::Storybook.stories_path}/**/*.stories.json"].sort.each do |file|
+    Dir["#{ViewComponent::Storybook.stories_path}/**/*.stories.json"].each do |file|
       puts file
       File.unlink(file)
     rescue StandardError => e
       exceptions << e
     end
 
-    raise StandardError, exceptions.map(&:message).join(", ") if exceptions.present?
+    raise StandardError, exceptions.map(&:message).join(', ') if exceptions.present?
 
-    puts "Done"
+    puts 'Done'
   end
 end

@@ -3,15 +3,15 @@ require "test_helper"
 
 class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
   setup do
-    @valid_component_id = "component-123"
-    @valid_action_id = "action-456"
+    @valid_component_id = "component-123".freeze
+    @valid_action_id = "action-456".freeze
   end
-  
+
   test "prevents RCE by rejecting arbitrary component classes" do
     dangerous_classes = [
       "Kernel",
       "Object",
-      "BasicObject", 
+      "BasicObject",
       "File",
       "IO",
       "Dir",
@@ -29,7 +29,7 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
       "__send__",
       "constantize"
     ]
-    
+
     dangerous_classes.each do |class_name|
       post swift_ui_actions_path, params: {
         action_id: @valid_action_id,
@@ -37,13 +37,13 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
         component_class: class_name,
         event_type: "click"
       }, xhr: true
-      
+
       assert_response :unprocessable_entity
       response_data = JSON.parse(response.body)
       assert_equal "Unauthorized component: #{class_name}", response_data["error"]
     end
   end
-  
+
   test "allows only whitelisted components" do
     # Test with allowed component (if exists)
     if Object.const_defined?("ButtonComponent")
@@ -53,13 +53,13 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
         component_class: "ButtonComponent",
         event_type: "click"
       }, xhr: true
-      
+
       # Should not raise SecurityError
-      assert_not_equal "Unauthorized component: ButtonComponent", 
+      assert_not_equal "Unauthorized component: ButtonComponent",
                        JSON.parse(response.body)["error"] if response.body.present?
     end
   end
-  
+
   test "requires XHR or Turbo Stream format" do
     # Non-XHR request should be rejected
     post swift_ui_actions_path, params: {
@@ -68,11 +68,11 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
       component_class: "ButtonComponent",
       event_type: "click"
     }
-    
+
     assert_response :bad_request
     assert_equal({ "error" => "Invalid request format" }, JSON.parse(response.body))
   end
-  
+
   test "logs security events for unauthorized component attempts" do
     logged_messages = []
     Rails.logger.stub :error, ->(msg) { logged_messages << msg } do
@@ -83,32 +83,32 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
         event_type: "click"
       }, xhr: true
     end
-    
+
     # Verify security event was logged
     assert logged_messages.any? { |msg| msg.include?("[SECURITY]") }
     assert logged_messages.any? { |msg| msg.include?("Attempted to instantiate unauthorized component in ActionsController") }
     assert logged_messages.any? { |msg| msg.include?("Kernel") }
     assert logged_messages.any? { |msg| msg.include?("[SECURITY AUDIT]") }
   end
-  
+
   test "validates component inheritance" do
     # Create a fake component that's not a valid SwiftUI component
     fake_component = Class.new
     Object.const_set("FakeComponent", fake_component)
-    
+
     post swift_ui_actions_path, params: {
       action_id: @valid_action_id,
       component_id: @valid_component_id,
       component_class: "FakeComponent",
       event_type: "click"
     }, xhr: true
-    
+
     assert_response :unprocessable_entity
     assert_match(/Unauthorized component/, response.body)
   ensure
     Object.send(:remove_const, "FakeComponent") if Object.const_defined?("FakeComponent")
   end
-  
+
   test "handles missing component classes gracefully" do
     post swift_ui_actions_path, params: {
       action_id: @valid_action_id,
@@ -116,11 +116,11 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
       component_class: "NonExistentComponent",
       event_type: "click"
     }, xhr: true
-    
+
     assert_response :unprocessable_entity
     assert_match(/Unauthorized component/, response.body)
   end
-  
+
   test "protects against injection in component_class parameter" do
     injection_attempts = [
       "ButtonComponent'; system('touch /tmp/hacked'); '",
@@ -130,7 +130,7 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
       "ButtonComponent && Process",
       "'; eval('File.read(\"/etc/passwd\")')"
     ]
-    
+
     injection_attempts.each do |injection|
       post swift_ui_actions_path, params: {
         action_id: @valid_action_id,
@@ -138,30 +138,30 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
         component_class: injection,
         event_type: "click"
       }, xhr: true
-      
+
       assert_response :unprocessable_entity
-      
+
       # Verify no files were created
       assert_not File.exist?("/tmp/hacked")
       assert_not File.exist?("/tmp/hacked2")
     end
   end
-  
+
   test "CSRF protection is enabled" do
     # This test verifies that CSRF is not skipped
     # The controller should have before_action :verify_component_security
     # instead of skip_before_action :verify_authenticity_token
-    
+
     # Make request without CSRF token
     ActionController::Base.allow_forgery_protection = true
-    
+
     post swift_ui_actions_path, params: {
       action_id: @valid_action_id,
       component_id: @valid_component_id,
       component_class: "ButtonComponent",
       event_type: "click"
     }, headers: { "X-Requested-With" => "XMLHttpRequest" }
-    
+
     # Should still work with XHR as we check request format
     # but would fail without proper CSRF token in non-test environment
   ensure

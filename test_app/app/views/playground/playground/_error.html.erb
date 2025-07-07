@@ -1,0 +1,21 @@
+<div class="flex items-start gap-3">
+  <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>
+  <div class="flex-1">
+    <h3 class="text-sm font-medium text-red-800">Error</h3>
+    <p class="mt-1 text-sm text-red-700"><%= error.message %></p>
+    <% if error.respond_to?(:backtrace) && Rails.env.development? %>
+      <details class="mt-2">
+        <summary class="text-xs text-red-600 cursor-pointer hover:underline">Show backtrace</summary>
+        <pre class="mt-2 text-xs text-red-600 overflow-x-auto"><%= error.backtrace.first(5).join("\n") %></pre>
+      </details>
+    <% end %>
+  </div>
+  <button class="text-red-400 hover:text-red-600"
+          data-action="click->playground#clearErrors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+  </button>
+</div>

@@ -80,6 +80,11 @@ jobs:
         ruby-version: '3.2'
         bundler-cache: true
     
+    - name: Install test_app dependencies
+      run: |
+        cd test_app
+        bundle install
+    
     - name: Run security tests
       run: |
         cd test_app
