@@ -460,6 +460,9 @@ module SwiftUIRails
               SimpleAuthComponent AuthFormComponent EnhancedGridComponent
               DslButtonComponent DslCardComponent DslProductCardComponent
               ProductLayoutSimpleComponent
+              TestComponent SimpleTestComponent ComplexNestingComponent
+              RenderTestComponent ViewComponentPureComponent ComplexComponent
+              NestedComponent
             ]
             allowed_classes.include?(class_name.to_s)
           end

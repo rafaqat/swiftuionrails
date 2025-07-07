@@ -130,6 +130,7 @@ module SwiftUi
       end
 
       # Find component from pre-defined mapping to avoid dynamic constant lookup
+      # This prevents code injection while allowing all legitimate components
       component_class = case component_class_name
       when 'CounterComponent' then defined?(CounterComponent) ? CounterComponent : nil
       when 'CardComponent' then defined?(CardComponent) ? CardComponent : nil
@@ -144,18 +145,26 @@ module SwiftUi
       when 'DslCardComponent' then defined?(DslCardComponent) ? DslCardComponent : nil
       when 'DslProductCardComponent' then defined?(DslProductCardComponent) ? DslProductCardComponent : nil
       when 'ProductLayoutSimpleComponent' then defined?(ProductLayoutSimpleComponent) ? ProductLayoutSimpleComponent : nil
+      # Test components
+      when 'TestComponent' then defined?(TestComponent) ? TestComponent : nil
+      when 'SimpleTestComponent' then defined?(SimpleTestComponent) ? SimpleTestComponent : nil
+      when 'ComplexNestingComponent' then defined?(ComplexNestingComponent) ? ComplexNestingComponent : nil
+      when 'RenderTestComponent' then defined?(RenderTestComponent) ? RenderTestComponent : nil
+      when 'ViewComponentPureComponent' then defined?(ViewComponentPureComponent) ? ViewComponentPureComponent : nil
+      when 'ComplexComponent' then defined?(ComplexComponent) ? ComplexComponent : nil
+      when 'NestedComponent' then defined?(NestedComponent) ? NestedComponent : nil
       else
         nil
       end
-      
+
       unless component_class
         Rails.logger.error "[SECURITY] Component not found or not allowed: #{component_class_name}"
         raise ArgumentError, "Component #{component_class_name} not found"
       end
-      
+
       # Log successful component instantiation
       Rails.logger.info "[AUDIT] ActionsController instantiated component: #{component_class_name}"
-      
+
       component_class
     end
 
