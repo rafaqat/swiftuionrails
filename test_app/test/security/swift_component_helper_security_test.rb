@@ -37,7 +37,7 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises(SecurityError, "Should reject dangerous component name: #{name}") do
+      assert_raises(SwiftUIRails::SecurityError, "Should reject dangerous component name: #{name}") do
         swift_component(name, title: "Test")
       end
     end
@@ -57,7 +57,7 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
           swift_component(name, title: "Test")
         rescue => e
           # Only SecurityError means it was blocked
-          assert_not_instance_of SecurityError, e, "#{name} should be allowed"
+          assert_not_instance_of SwiftUIRails::SecurityError, e, "#{name} should be allowed"
         end
       else
         # If component doesn't exist, it should raise ArgumentError, not SecurityError
@@ -77,7 +77,7 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
     SwiftUIRails.configuration.allowed_components << "Fake"
 
     # Should still reject because it's not a valid component
-    assert_raises(SecurityError) do
+    assert_raises(SwiftUIRails::SecurityError) do
       swift_component("fake")
     end
   ensure
@@ -86,38 +86,47 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
 
   test "handles various input types safely" do
     # Test with symbols
-    assert_raises(SecurityError) do
+    assert_raises(SwiftUIRails::SecurityError) do
       swift_component(:kernel)
     end
 
     # Test with mixed case
-    assert_raises(SecurityError) do
+    assert_raises(SwiftUIRails::SecurityError) do
       swift_component("KerNEL")
     end
 
     # Test with underscored names
-    assert_raises(SecurityError) do
+    assert_raises(SwiftUIRails::SecurityError) do
       swift_component("active_record_base")
     end
   end
 
   test "logs security events" do
-    logged_messages = []
-    Rails.logger.stub :error, ->(msg) { logged_messages << msg } do
-      assert_raises(SecurityError) do
+    # Create a custom logger to capture messages
+    test_logger = ActiveSupport::Logger.new(StringIO.new)
+    original_logger = Rails.logger
+    
+    begin
+      Rails.logger = test_logger
+      
+      assert_raises(SwiftUIRails::SecurityError) do
         swift_component("Kernel")
       end
+      
+      log_output = test_logger.instance_variable_get(:@logdev).dev.string
+      
+      # Verify security event was logged
+      assert log_output.include?("[SECURITY]")
+      assert log_output.include?("Attempted to instantiate unauthorized component")
+      assert log_output.include?("Kernel")
+    ensure
+      Rails.logger = original_logger
     end
-
-    # Verify security event was logged
-    assert logged_messages.any? { |msg| msg.include?("[SECURITY]") }
-    assert logged_messages.any? { |msg| msg.include?("Attempted to instantiate unauthorized component") }
-    assert logged_messages.any? { |msg| msg.include?("Kernel") }
   end
 
   test "provides helpful error messages" do
     # For unauthorized components
-    error = assert_raises(SecurityError) do
+    error = assert_raises(SwiftUIRails::SecurityError) do
       swift_component("evil")
     end
     assert_match(/Unauthorized component: Evil/, error.message)
@@ -144,25 +153,25 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
     Object.const_set("CustomComponent", custom_component)
 
     # Should now be allowed
-    result = swift_component("custom")
-    assert_instance_of String, result
+    output = swift_component("custom")
+    assert_instance_of ActiveSupport::SafeBuffer, output
   ensure
     Object.send(:remove_const, "CustomComponent") if Object.const_defined?("CustomComponent")
   end
 
   test "handles edge cases safely" do
     # Empty string
-    assert_raises(SecurityError) do
+    assert_raises(SwiftUIRails::SecurityError) do
       swift_component("")
     end
 
     # Nil (gets converted to empty string)
-    assert_raises(SecurityError) do
+    assert_raises(SwiftUIRails::SecurityError) do
       swift_component(nil)
     end
 
     # Component name with special characters
-    assert_raises(SecurityError) do
+    assert_raises(SwiftUIRails::SecurityError) do
       swift_component("button'; system('ls'); '")
     end
   end

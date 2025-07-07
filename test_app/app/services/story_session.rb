@@ -193,6 +193,9 @@ class StorySession
         story_class: story_class
       }
     )
+  rescue SecurityError => e
+    Rails.logger.error "[SECURITY] #{e.message}"
+    Rails.logger.error "Error broadcasting prop change: #{e.message}"
   rescue => e
     Rails.logger.error "Error broadcasting prop change: #{e.message}"
   end

@@ -78,7 +78,7 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
         true
       end
 
-      def form_authenticity_token
+      def form_authenticity_token(form_options = {})
         "test-csrf-token"
       end
 

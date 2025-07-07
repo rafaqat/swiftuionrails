@@ -47,7 +47,7 @@ module SwiftUIRails
                (defined?(ApplicationComponent) && component_class < ApplicationComponent) ||
                (defined?(ViewComponent::Base) && component_class < ViewComponent::Base)
           Rails.logger.error "[SECURITY] Class #{component_class_name} is not a valid component"
-          raise SecurityError, "#{component_class_name} is not a valid SwiftUI Rails component"
+          raise SwiftUIRails::SecurityError, "#{component_class_name} is not a valid SwiftUI Rails component"
         end
 
         # Log successful component instantiation for audit trail

@@ -9,6 +9,7 @@ module SwiftUIRails
 
       argument :props, type: :array, default: [], banner: 'prop:type prop:type'
 
+
       # SECURITY: Validate component name to prevent code injection
       def validate_component_name!
         unless name.match?(/\A[a-zA-Z][a-zA-Z0-9_]*\z/)
@@ -34,7 +35,7 @@ module SwiftUIRails
         component_path = File.join('app/components', class_path, "#{file_name}_component.rb")
 
         # Check if file already exists
-        if File.exist?(destination_root.join(component_path))
+        if File.exist?(File.join(destination_root, component_path))
           if options[:force]
             say_status :overwrite, component_path, :yellow
           else
@@ -55,7 +56,11 @@ module SwiftUIRails
       private
 
       def parsed_props
-        props.map do |prop|
+        # Ensure props is an array
+        return [] if props.nil? || props.empty?
+        
+        props_array = props.is_a?(Array) ? props : [props]
+        props_array.map do |prop|
           parts = prop.split(':', 2)
           name = parts[0]&.strip
           type = parts[1]&.strip || 'String'
@@ -72,8 +77,14 @@ module SwiftUIRails
       end
 
       def validate_props!
-        props.each do |prop|
-          if prop.match?(/[;\|&`$(){}]/) || prop.match?(/\b(system|exec|eval)\b/i)
+        # Ensure props is an array
+        return if props.nil? || props.empty?
+        
+        # Convert to array if it's not
+        props_array = props.is_a?(Array) ? props : [props]
+        
+        props_array.each do |prop|
+          if prop.to_s.match?(/[;\|&`$(){}]/) || prop.to_s.match?(/\b(system|exec|eval)\b/i)
             raise Thor::Error, "Property definition '#{prop}' contains suspicious characters or keywords."
           end
         end

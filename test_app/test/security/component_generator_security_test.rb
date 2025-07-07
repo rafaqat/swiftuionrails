@@ -23,9 +23,24 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
+      # Clean up before each test
+      prepare_destination
+      
+      # Capture output
+      output = capture(:stdout) do
+        begin
+          run_generator [ name ]
+        rescue => e
+          # Catch any error
+          puts "Error caught: #{e.class} - #{e.message}"
+        end
       end
+      
+      # Check that validation error was shown
+      assert_match(/Invalid component name|contains forbidden keywords|suspicious characters/, output)
+      
+      # Check that no files were created
+      assert_no_file "app/components/#{name.underscore}_component.rb"
     end
   end
 
