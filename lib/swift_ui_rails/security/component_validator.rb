@@ -106,6 +106,16 @@ module SwiftUIRails
             callable: { allow_nil: allow_nil }
           }
         end
+
+        def validates_inclusion(prop_name, in:, allow_blank: false)
+          prop_validations[prop_name] = {
+            inclusion: {
+              in: binding.local_variable_get(:in),
+              message: "must be one of: #{binding.local_variable_get(:in).join(', ')}",
+              allow_blank: allow_blank
+            }
+          }
+        end
       end
 
       # Instance methods for validation
@@ -118,6 +128,10 @@ module SwiftUIRails
           validations.each do |validation_type, options|
             case validation_type
             when :inclusion
+              # Handle allow_blank option
+              if options[:allow_blank] && value.to_s.strip.empty?
+                next
+              end
               # Convert both the value and the allowed list to strings for comparison
               unless options[:in].map(&:to_s).include?(value.to_s)
                 error_list << "#{prop_name} #{options[:message] || 'is not included in the list'}"

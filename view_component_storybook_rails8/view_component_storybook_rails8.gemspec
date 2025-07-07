@@ -16,9 +16,12 @@ Gem::Specification.new do |spec|
 
   spec.metadata['homepage_uri'] = spec.homepage
 
+  # rubocop:disable ThreadSafety/DirChdir
+  # Dir.chdir is safe here as it's only used during gem building, not runtime
   spec.files = Dir.chdir(__dir__) do
     `find . -type f -name "*.rb" -o -name "*.md" -o -name "*.txt" -o -name "*.rake" | grep -v "^\\./\\."`.split("\n")
   end
+  # rubocop:enable ThreadSafety/DirChdir
 
   spec.require_paths = ['lib']
 

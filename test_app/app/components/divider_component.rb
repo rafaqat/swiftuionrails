@@ -85,7 +85,8 @@ class DividerComponent < SwiftUIRails::Component::Base
 
     # Check color with shade
     if shade
-      VALID_COLORS.include?(color_name) && VALID_SHADES.include?(shade)
+      SwiftUIRails::Security::CSSValidator::VALID_COLORS.include?(color_name) && 
+        SwiftUIRails::Security::CSSValidator::VALID_SHADES.include?(shade)
     else
       false
     end
