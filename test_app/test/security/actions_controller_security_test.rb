@@ -82,19 +82,19 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
     # Create a custom logger to capture messages
     test_logger = ActiveSupport::Logger.new(StringIO.new)
     original_logger = Rails.logger
-    
+
     begin
       Rails.logger = test_logger
-      
+
       post swift_ui_actions_path, params: {
         action_id: @valid_action_id,
         component_id: @valid_component_id,
         component_class: "Kernel",
         event_type: "click"
       }, xhr: true
-      
+
       log_output = test_logger.instance_variable_get(:@logdev).dev.string
-      
+
       # Verify security event was logged
       assert log_output.include?("[SECURITY]")
       assert log_output.include?("Attempted to instantiate unauthorized component in ActionsController")

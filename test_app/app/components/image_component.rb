@@ -13,7 +13,7 @@ class ImageComponent < SwiftUIRails::Component::Base
   prop :border, type: [ TrueClass, FalseClass ], default: false
   prop :grayscale, type: [ TrueClass, FalseClass ], default: false
   prop :blur, type: [ TrueClass, FalseClass ], default: false
-  
+
   # URL validation is handled in the component logic below
 
   swift_ui do

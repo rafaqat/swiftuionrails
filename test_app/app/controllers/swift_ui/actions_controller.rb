@@ -15,7 +15,7 @@ module SwiftUi
                                   :story_session_id, :story_name, :story_variant, target_dataset: {})
 
       component = nil
-      
+
       # Check if we're in storybook mode
       if action_data[:story_session_id].present? && action_data[:story_name].present?
         # Use StorySession to maintain component state

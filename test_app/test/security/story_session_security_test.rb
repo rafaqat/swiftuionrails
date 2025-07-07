@@ -92,10 +92,10 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
     # Create a custom logger to capture messages
     test_logger = ActiveSupport::Logger.new(StringIO.new)
     original_logger = Rails.logger
-    
+
     begin
       Rails.logger = test_logger
-      
+
       story_session = StorySession.new(
         story_name: "kernel",
         variant: @valid_variant,
@@ -105,9 +105,9 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
       assert_raises(SecurityError) do
         story_session.component_instance
       end
-      
+
       log_output = test_logger.instance_variable_get(:@logdev).dev.string
-      
+
       # Verify security event was logged
       assert log_output.include?("[SECURITY]")
       assert log_output.include?("Attempted to instantiate unauthorized story class")
@@ -120,27 +120,27 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
   test "broadcast_prop_change validates story class" do
     # Test that broadcast_prop_change handles unauthorized story classes gracefully
     # by logging the error but not raising it externally
-    
+
     # Create a test logger to capture messages
     test_logger = ActiveSupport::Logger.new(StringIO.new)
     original_logger = Rails.logger
-    
+
     begin
       Rails.logger = test_logger
-      
+
       # Create a story session with an unauthorized story name
       story_session = StorySession.new(
         story_name: "evil",
         variant: @valid_variant,
         session_id: @valid_session_id
       )
-      
+
       # The broadcast_prop_change method should catch and log the error
       # without raising it externally
       story_session.send(:broadcast_prop_change)
-      
+
       log_output = test_logger.instance_variable_get(:@logdev).dev.string
-      
+
       # Verify that the security error was logged
       assert log_output.include?("[SECURITY]"), "Expected security log message"
       assert log_output.include?("Attempted to instantiate unauthorized story class"), "Expected unauthorized class message"

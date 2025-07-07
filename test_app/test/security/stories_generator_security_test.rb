@@ -21,9 +21,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     dangerous_names.each do |name|
       prepare_destination
       run_generator [ name ]
-      
+
       # Verify no files created
-      safe_name = name.gsub(/[^a-z0-9_]/i, '_').underscore
+      safe_name = name.gsub(/[^a-z0-9_]/i, "_").underscore
       assert_no_file "test/components/stories/#{safe_name}_component_stories.rb"
       assert_no_file "test/components/stories/#{safe_name}_component_preview.html.erb"
     end
@@ -44,7 +44,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     dangerous_stories.each do |story|
       prepare_destination
       run_generator [ "SafeComponent", story ]
-      
+
       # Verify no files created
       assert_no_file "test/components/stories/safe_component_stories.rb"
     end
@@ -64,7 +64,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     invalid_stories.each do |story|
       prepare_destination
       run_generator [ "ValidComponent", story ]
-      
+
       # Verify no files created
       assert_no_file "test/components/stories/valid_component_stories.rb"
     end
@@ -157,7 +157,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     dangerous_names.each do |name|
       prepare_destination
       run_generator [ name ]
-      
+
       # Verify no files created
       assert_no_file "test/components/stories/passwd_stories.rb"
       assert_no_file "../../../etc/passwd"
@@ -167,7 +167,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
   test "handles special characters in file names" do
     # Create a generator with proper initialization
     prepare_destination
-    
+
     # Create the generator and set the name
     generator = SwiftUIRails::Generators::StoriesGenerator.new([ "My_Component" ])
     generator.instance_variable_set(:@name, "My_Component")

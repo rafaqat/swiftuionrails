@@ -25,16 +25,16 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     dangerous_names.each do |name|
       # Clean up before each test
       prepare_destination
-      
+
       # Run generator - validation will prevent file creation
-      run_generator [name]
-      
+      run_generator [ name ]
+
       # Check that no component file was created
       # Use a safe version of the name for the file check
-      safe_name = name.gsub(/[^a-z0-9_]/i, '_').underscore
+      safe_name = name.gsub(/[^a-z0-9_]/i, "_").underscore
       assert_no_file "app/components/#{safe_name}_component.rb"
       assert_no_file "spec/components/#{safe_name}_component_spec.rb"
-      
+
       # Verify no command injection occurred
       assert_not File.exist?("/tmp/hacked")
     end
@@ -55,7 +55,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     dangerous_props.each do |prop|
       prepare_destination
       run_generator [ "SafeComponent", prop ]
-      
+
       # Check that component file was not created with dangerous props
       assert_no_file "app/components/safe_component.rb"
     end
@@ -76,9 +76,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     invalid_names.each do |name|
       prepare_destination
       run_generator [ name ]
-      
+
       # Verify no files created
-      safe_name = name.gsub(/[^a-z0-9_]/i, '_').underscore
+      safe_name = name.gsub(/[^a-z0-9_]/i, "_").underscore
       assert_no_file "app/components/#{safe_name}_component.rb" unless name.empty?
     end
   end
@@ -93,7 +93,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     reserved_words.each do |word|
       prepare_destination
       run_generator [ "ValidComponent", "#{word}:String" ]
-      
+
       # Verify no files created
       assert_no_file "app/components/valid_component.rb"
     end
@@ -125,7 +125,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
   test "sanitizes file names" do
     # Create a generator with proper initialization
     prepare_destination
-    
+
     # Create the generator and set the name
     generator = SwiftUIRails::Generators::ComponentGenerator.new([ "My_Component" ])
     generator.instance_variable_set(:@name, "My_Component")
@@ -137,7 +137,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
   test "sanitizes class names" do
     # Create a generator with proper initialization
     prepare_destination
-    
+
     # Create the generator and set the name
     generator = SwiftUIRails::Generators::ComponentGenerator.new([ "MyComponent" ])
     generator.instance_variable_set(:@name, "MyComponent")
@@ -158,7 +158,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     dangerous_names.each do |name|
       prepare_destination
       run_generator [ name ]
-      
+
       # Verify no files created with path traversal
       assert_no_file "app/components/passwd_component.rb"
       assert_no_file "../../../etc/passwd"
@@ -178,12 +178,12 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     unicode_names.each do |name|
       prepare_destination
-      
+
       # Run the generator - it should reject these at validation
       run_generator [ name ]
-      
+
       # Verify no files created
-      safe_name = name.gsub(/[^a-z0-9_]/i, '_').underscore
+      safe_name = name.gsub(/[^a-z0-9_]/i, "_").underscore
       assert_no_file "app/components/#{safe_name}_component.rb"
     end
   end

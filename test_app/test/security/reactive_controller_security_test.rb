@@ -126,19 +126,19 @@ class ReactiveControllerSecurityTest < ActionDispatch::IntegrationTest
     # Create a test logger to capture messages
     test_logger = ActiveSupport::Logger.new(StringIO.new)
     original_logger = Rails.logger
-    
+
     begin
       Rails.logger = test_logger
-      
+
       post "/swift_ui/actions", params: {
         component_class: "Kernel",
         component_id: "test-component",
         action_id: "test-action",
         event_type: "click"
       }, xhr: true
-      
+
       log_output = test_logger.instance_variable_get(:@logdev).dev.string
-      
+
       # Verify security event was logged
       assert log_output.include?("[SECURITY]"), "Expected [SECURITY] in log output but got: #{log_output}"
       assert log_output.include?("Attempted to instantiate unauthorized component"), "Expected unauthorized component message but got: #{log_output}"
@@ -152,7 +152,7 @@ class ReactiveControllerSecurityTest < ActionDispatch::IntegrationTest
     fake_component = Class.new
     Object.const_set("FakeComponent", fake_component)
 
-    # Add it to allowed components 
+    # Add it to allowed components
     SwiftUIRails.configuration.allowed_components << "Fake"
 
     begin
@@ -211,6 +211,5 @@ class ReactiveControllerSecurityTest < ActionDispatch::IntegrationTest
       end
     end
   end
-
 end
 # Copyright 2025

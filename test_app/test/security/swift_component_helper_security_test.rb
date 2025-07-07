@@ -105,16 +105,16 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
     # Create a custom logger to capture messages
     test_logger = ActiveSupport::Logger.new(StringIO.new)
     original_logger = Rails.logger
-    
+
     begin
       Rails.logger = test_logger
-      
+
       assert_raises(SwiftUIRails::SecurityError) do
         swift_component("Kernel")
       end
-      
+
       log_output = test_logger.instance_variable_get(:@logdev).dev.string
-      
+
       # Verify security event was logged
       assert log_output.include?("[SECURITY]")
       assert log_output.include?("Attempted to instantiate unauthorized component")

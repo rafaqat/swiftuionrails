@@ -69,4 +69,4 @@ group :development do
   gem "web-console"
 end
 
-gem "rubocop-thread_safety", "~> 0.7.3", groups: [:development, :test]
+gem "rubocop-thread_safety", "~> 0.7.3", groups: [ :development, :test ]
