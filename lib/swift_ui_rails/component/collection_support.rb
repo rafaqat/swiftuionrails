@@ -25,18 +25,27 @@ module SwiftUIRails
 
         # Configure collection behavior
         def collection_options(**options)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # This is set at class definition time and not mutated during requests
           @collection_options ||= {}
           @collection_options.merge!(options)
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # Define what prop receives the collection item
         def collection_prop(prop_name)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # This is set at class definition time to configure collection behavior
           @collection_prop_name = prop_name
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # Get the collection prop name
         def collection_prop_name
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
+          # Reading class configuration set at definition time
           @collection_prop_name || :item
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
       end
 

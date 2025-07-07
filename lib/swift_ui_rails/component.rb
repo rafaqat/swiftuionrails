@@ -23,6 +23,9 @@ module SwiftUIRails
       include SwiftUIRails::Security::ComponentValidator
       include SwiftUIRails::DevTools::DebugHelpers if Rails.env.local?
 
+      # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+      # These are ViewComponent standard patterns that are initialized once at class definition time
+      # and used for component metadata. They're not mutated during request processing.
       class_attribute :swift_states, default: {}
       class_attribute :swift_props, default: {}
       class_attribute :swift_computed, default: {}
@@ -31,6 +34,10 @@ module SwiftUIRails
 
       # Memoization support for swift_ui content
       class_attribute :swift_ui_memoization_enabled, default: true
+      
+      # Store the swift_ui block as a class attribute for thread safety
+      class_attribute :swift_ui_definition_block, default: nil
+      # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
       class << self
         # Enable or disable memoization for this component
@@ -60,7 +67,8 @@ module SwiftUIRails
         # Define the swift_ui DSL block
         def swift_ui(&block)
           # Store the block to be executed in the component context
-          @swift_ui_block = block
+          # Using class_attribute for thread safety
+          self.swift_ui_definition_block = block
 
           define_method :call do
             # Check if memoization is enabled and we have a cached result
@@ -74,7 +82,7 @@ module SwiftUIRails
 
             # Execute the block in the DSL context
             # The block execution will automatically register elements via create_element
-            dsl_context.instance_eval(&self.class.instance_variable_get(:@swift_ui_block))
+            dsl_context.instance_eval(&self.class.swift_ui_definition_block)
 
             # Don't double-register the result - it was already registered during creation
             # Just flush all collected elements

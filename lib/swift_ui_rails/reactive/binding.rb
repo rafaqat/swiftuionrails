@@ -9,7 +9,10 @@ module SwiftUIRails
       extend ActiveSupport::Concern
 
       included do
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # Component metadata set at class definition time
         class_attribute :binding_definitions, default: {}
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
       end
 
       class_methods do

@@ -9,7 +9,10 @@ module SwiftUIRails
       extend ActiveSupport::Concern
 
       included do
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # Component metadata set at class definition time
         class_attribute :observed_object_definitions, default: {}
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
         # Temporarily disabled to debug rendering issue
       end
@@ -104,35 +107,49 @@ module SwiftUIRails
 
       # SECURITY: Use thread-safe Concurrent::Map instead of class variable
       require 'concurrent-ruby'
+      # rubocop:disable ThreadSafety/ClassInstanceVariable
+      # These are singleton class variables for the ObservableStore registry.
+      # They use Concurrent::Map and Mutex for thread-safe access.
       @stores = Concurrent::Map.new
       @mutex = Mutex.new
+      # rubocop:enable ThreadSafety/ClassInstanceVariable
 
       class << self
         # SECURITY: Thread-safe find_or_create using compute_if_absent
         def find_or_create(id)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @stores.compute_if_absent(id) { new(id) }
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # SECURITY: Thread-safe find
         def find(id)
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @stores[id]
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # SECURITY: Thread-safe clear with mutex protection
         def clear_all
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @mutex.synchronize do
             @stores.clear
           end
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # SECURITY: Thread-safe store count for monitoring
         def store_count
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @stores.size
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # SECURITY: Thread-safe store listing
         def all_store_ids
+          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @stores.keys
+          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
       end
 

@@ -20,6 +20,8 @@ Gem::Specification.new do |spec|
   spec.metadata['documentation_uri'] = 'https://swiftuirails.org/docs'
   spec.metadata['bug_tracker_uri'] = 'https://github.com/rafaqat/SwiftUI-on-Rails/issues'
 
+  # rubocop:disable ThreadSafety/DirChdir
+  # Dir.chdir is safe in gemspec context - runs at gem build time, not runtime
   spec.files = Dir.chdir(__dir__) do
     if system('git rev-parse --git-dir > /dev/null 2>&1')
       # Use git ls-files in git repositories
@@ -35,6 +37,7 @@ Gem::Specification.new do |spec|
       end
     end
   end
+  # rubocop:enable ThreadSafety/DirChdir
   spec.bindir = 'exe'
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']

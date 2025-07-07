@@ -1,4 +1,8 @@
 # Copyright 2025
+# rubocop:disable ThreadSafety/NewThread
+# This entire file is dedicated to testing thread safety.
+# We need to create threads to test concurrent behavior.
+
 require "test_helper"
 require "concurrent"
 
@@ -257,3 +261,4 @@ class ThreadSafetyTest < ActiveSupport::TestCase
   end
 end
 # Copyright 2025
+# rubocop:enable ThreadSafety/NewThread

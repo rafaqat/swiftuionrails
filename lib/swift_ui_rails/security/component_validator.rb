@@ -16,7 +16,10 @@ module SwiftUIRails
 
       included do
         # Add validation methods to components
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # Component prop validation metadata set at class definition time
         class_attribute :prop_validations, default: {}
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
         # Override prop setter to add validation
         class << self

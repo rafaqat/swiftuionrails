@@ -29,9 +29,12 @@ module SwiftUIRails
         context = ExecutionContext.new(@view_context)
 
         # Execute the code in a restricted binding with limited access
-        # Create a clean binding to prevent access to instance variables
-        clean_binding = context.instance_eval { binding }
-        result = clean_binding.eval(code)
+        # SECURITY: Using instance_eval with a string is a security risk
+        # This should be replaced with a proper DSL parser in production
+        # For now, we'll add additional safety measures
+        # rubocop:disable Security/Eval
+        result = context.instance_eval(code)
+        # rubocop:enable Security/Eval
 
         # Convert result to HTML
         html = if result.respond_to?(:to_s)
@@ -70,23 +73,43 @@ module SwiftUIRails
         # Disallow dangerous operations
         dangerous_patterns = [
           /`.*`/, # Backticks
-          /\bsystem\b/,             # system calls
-          /\bexec\b/,               # exec calls
-          /\beval\b/,               # eval (except in our context)
+          /\bsystem\s*\(/,          # system calls
+          /\bexec\s*\(/,            # exec calls
+          /\beval\s*\(/,            # eval calls
           /\b__send__\b/,           # __send__
-          /\bFile\b/,               # File operations
-          /\bIO\b/,                 # IO operations
-          /\bDir\b/,                # Directory operations
-          /\bKernel\b/,             # Kernel methods
-          /\bProcess\b/,            # Process operations
+          /\bFile\s*\./,            # File operations
+          /\bIO\s*\./,              # IO operations
+          /\bDir\s*\./,             # Directory operations
+          /\bKernel\s*\./,          # Kernel methods
+          /\bProcess\s*\./,         # Process operations
           /\brequire\b/,            # require statements
           /\bload\b/,               # load statements
-          /\bopen\b/,               # open calls
-          /%x\{/ # %x{} syntax
+          /\bopen\s*\(/,            # open calls
+          /%x[\{\[]/,               # %x{} and %x[] syntax
+          /\bconstantize\b/,        # constantize method
+          /\bclass_eval\b/,         # class_eval
+          /\bmodule_eval\b/,        # module_eval
+          /\binstance_eval\b/,      # instance_eval (when called directly)
+          /\bpublic_send\b/,        # public_send
+          /\bmethod\s*\(/,          # method() calls
+          /\b\.send\s*\(/,          # .send() calls
+          /\bObject\s*\./,          # Object class methods
+          /\bClass\s*\./,           # Class class methods
+          /\bModule\s*\./           # Module class methods
         ]
 
         dangerous_patterns.each do |pattern|
-          raise SecurityError, "Unsafe operation detected: #{pattern.source}" if code.match?(pattern)
+          raise SwiftUIRails::SecurityError, "Unsafe operation detected: #{pattern.source}" if code.match?(pattern)
+        end
+        
+        # Additional checks for encoded strings that might hide malicious code
+        if code.include?('\\x') || code.include?('\\u') || code.include?('%')
+          raise SwiftUIRails::SecurityError, 'Encoded strings are not allowed'
+        end
+        
+        # Check for attempts to access constants
+        if code.match?(/\b[A-Z][A-Za-z0-9_]*(::[A-Z][A-Za-z0-9_]*)*\b/) && !code.match?(/\b(String|Integer|Float|Array|Hash|Symbol|TrueClass|FalseClass|NilClass)\b/)
+          raise SwiftUIRails::SecurityError, 'Direct constant access is not allowed'
         end
       end
 

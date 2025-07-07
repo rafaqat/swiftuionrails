@@ -25,12 +25,15 @@ module SwiftUIRails
     class_methods do
       # Configure reactive features
       def reactive_config
+        # rubocop:disable ThreadSafety/ClassInstanceVariable
+        # This configuration is set once at class definition time
         @reactive_config ||= {
           auto_render: true,
           debug: Rails.env.development?,
           cable_enabled: true,
           debounce_ms: 100
         }
+        # rubocop:enable ThreadSafety/ClassInstanceVariable
       end
 
       def configure_reactive

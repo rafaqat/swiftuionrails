@@ -9,8 +9,11 @@ module SwiftUIRails
       extend ActiveSupport::Concern
 
       included do
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # These are component metadata set at class definition time
         class_attribute :state_definitions, default: {}
         class_attribute :state_observers, default: {}
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
         # Override initialization instead of using hooks
         def initialize(...)

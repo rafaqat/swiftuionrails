@@ -9,7 +9,10 @@ module SwiftUIRails
       extend ActiveSupport::Concern
 
       included do
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # Component configuration set at class definition time
         class_attribute :state_debugging_enabled, default: Rails.env.development?
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
         # Temporarily disabled to debug rendering issue
       end

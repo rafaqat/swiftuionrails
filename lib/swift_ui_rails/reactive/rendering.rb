@@ -9,7 +9,10 @@ module SwiftUIRails
       extend ActiveSupport::Concern
 
       included do
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # Component configuration set at class definition time
         class_attribute :reactive_rendering_enabled, default: true
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
         # We'll handle reactive updates differently
         # Removed after_render hook that was interfering

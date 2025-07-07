@@ -10,9 +10,12 @@ module SwiftUIRails
 
       included do
         # Track if caching is enabled for this component
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # These are ViewComponent caching patterns set at class definition time
         class_attribute :caching_enabled, default: false
         class_attribute :cache_key_attributes, default: []
         class_attribute :cache_expiry, default: nil
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
       end
 
       class_methods do

@@ -31,16 +31,15 @@ module SwiftUIRails
   class SecurityError < Error; end
 
   class << self
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+    # This is a standard Rails pattern for gem configuration that is set once at boot time
     attr_accessor :configuration
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
   end
 
   def self.configure
     self.configuration ||= Configuration.new
     yield(configuration)
-  end
-
-  def self.configuration
-    @configuration ||= Configuration.new
   end
 
   class Configuration

@@ -10,7 +10,10 @@ module SwiftUIRails
 
       included do
         # Track defined slots for documentation
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # This is ViewComponent metadata set at class definition time
         class_attribute :defined_slots, default: {}
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
       end
 
       class_methods do

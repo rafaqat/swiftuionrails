@@ -154,7 +154,10 @@ module SwiftUIRails
 
       included do
         # Rate limiter instance
+        # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+        # Rate limiter is a singleton instance per controller class
         class_attribute :rate_limiter
+        # rubocop:enable ThreadSafety/ClassAndModuleAttributes
         self.rate_limiter = RateLimiter.new
       end
 
