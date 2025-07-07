@@ -42,6 +42,14 @@ module SwiftUIRails
     yield(configuration)
   end
 
+  # Required by Rails eager loading
+  def self.eager_load!
+    # Eager load all files in the gem
+    Dir[File.join(__dir__, 'swift_ui_rails', '**', '*.rb')].sort.each do |file|
+      require file unless file.include?('/generators/')
+    end
+  end
+
   class Configuration
     attr_accessor :default_transition_duration, :default_animation_easing, :component_prefix, :tailwind_enabled,
                   :stimulus_controller_suffix, :allowed_components, :content_security_policy_enabled, :maximum_component_depth, :approved_image_domains, :rate_limit_actions, :rate_limit_threshold, :rate_limit_window
