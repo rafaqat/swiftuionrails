@@ -1,30 +1,31 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class LoginFormComponent < SwiftUIRails::Component::Base
   prop :action_path, type: String, default: "/login"
   prop :logo_url, type: String, default: "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
   prop :company_name, type: String, default: "Your Company"
-  prop :show_forgot_password, type: [TrueClass, FalseClass], default: true
-  prop :show_signup_link, type: [TrueClass, FalseClass], default: true
+  prop :show_forgot_password, type: [ TrueClass, FalseClass ], default: true
+  prop :show_signup_link, type: [ TrueClass, FalseClass ], default: true
   prop :forgot_password_path, type: String, default: "#"
   prop :signup_path, type: String, default: "#"
   prop :csrf_token, type: String, default: nil
-  
+
   swift_ui do
     div.flex.tw("min-h-full flex-col").justify_center.px(6).py(12).tw("lg:px-8") do
       # Logo and title section
       div.sm_mx_auto.sm_w_full.sm_max_w_sm do
         image(
-          src: logo_url, 
+          src: logo_url,
           alt: company_name
         ).mx_auto.h(10).w_auto
-        
+
         h2.mt(10).text_center.text_size("2xl").leading(9).font_weight("bold").tracking_tight.text_color("gray-900") do
           text("Sign in to your account")
         end
       end
-      
+
       # Form section
       div.mt(10).sm_mx_auto.sm_w_full.sm_max_w_sm do
         form(action: action_path, method: "POST").space_y(6) do
@@ -32,7 +33,7 @@ class LoginFormComponent < SwiftUIRails::Component::Base
           if csrf_token
             input(type: "hidden", name: "authenticity_token", value: csrf_token)
           end
-          
+
           # Email field
           div do
             label(for: "email").block.text_size("sm").leading(6).font_weight("medium").text_color("gray-900") do
@@ -53,7 +54,7 @@ class LoginFormComponent < SwiftUIRails::Component::Base
                .sm_text_size("sm").sm_leading(6)
             end
           end
-          
+
           # Password field
           div do
             div.flex.items_center.justify_between do
@@ -84,7 +85,7 @@ class LoginFormComponent < SwiftUIRails::Component::Base
                .sm_text_size("sm").sm_leading(6)
             end
           end
-          
+
           # Submit button
           div do
             button("Sign in", type: "submit")
@@ -102,7 +103,7 @@ class LoginFormComponent < SwiftUIRails::Component::Base
               .focus_visible_outline_color("indigo-600")
           end
         end
-        
+
         # Sign up link
         if show_signup_link
           p.mt(10).text_center.text_size("sm").leading(6).text_color("gray-500") do

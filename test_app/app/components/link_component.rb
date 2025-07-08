@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class LinkComponent < SwiftUIRails::Component::Base
@@ -8,10 +9,10 @@ class LinkComponent < SwiftUIRails::Component::Base
   DEFAULT_FONT_WEIGHT = "normal"
   DEFAULT_FONT_SIZE = "base"
   DEFAULT_UNDERLINE = "hover"
-  
+
   # Valid underline options
   UNDERLINE_OPTIONS = %w[none always hover].freeze
-  
+
   prop :text, type: String, default: "Learn More"
   prop :destination, type: String, default: "#"
   prop :target, type: String, default: ""
@@ -26,7 +27,7 @@ class LinkComponent < SwiftUIRails::Component::Base
       l.target(target) if target.present?
       l.text_color(text_color) if text_color != DEFAULT_TEXT_COLOR
       l.hover_text_color(hover_color) if hover_color != DEFAULT_HOVER_COLOR
-      
+
       case underline
       when "none"
         l.no_underline
@@ -35,7 +36,7 @@ class LinkComponent < SwiftUIRails::Component::Base
       when "hover"
         l.hover_underline
       end
-      
+
       l.font_weight(font_weight) if font_weight != DEFAULT_FONT_WEIGHT
       l.font_size(font_size) if font_size != DEFAULT_FONT_SIZE
     end

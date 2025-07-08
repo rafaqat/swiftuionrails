@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class ProductsController < ApplicationController
@@ -86,7 +87,7 @@ class ProductsController < ApplicationController
         in_stock: true
       }
     ]
-    
+
     # Simulate categories for filters
     @categories = [
       { id: 1, name: "Laptops" },
@@ -98,19 +99,19 @@ class ProductsController < ApplicationController
       { id: 7, name: "Desktops" },
       { id: 8, name: "Accessories" }
     ]
-    
+
     @total_count = @products.count
   end
-  
+
   def catalog
     # Same products but demonstrating different layout
     @products = index_products
     @featured_products = @products.first(3)
     @sale_products = @products.last(3)
   end
-  
+
   private
-  
+
   def index_products
     [
       {

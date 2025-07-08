@@ -5,7 +5,7 @@ class RenderInDslTest < ActiveSupport::TestCase
   test "render ViewComponent inside DSL" do
     view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
     view.extend(SwiftUIRails::Helpers)
-    
+
     # Test rendering a component inside DSL
     result = view.swift_ui do
       div do
@@ -17,21 +17,21 @@ class RenderInDslTest < ActiveSupport::TestCase
         rendered
       end
     end
-    
+
     puts "\n=== Final result ==="
     puts result
-    
+
     # Check if the component was rendered (it renders as a card div)
-    assert result.include?('<div></div>'), "Should include the outer div"
+    assert result.include?("<div></div>"), "Should include the outer div"
   end
-  
+
   test "render returns wrong type" do
     view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
     view.extend(SwiftUIRails::Helpers)
-    
+
     # Check what render actually returns
     dsl_context = SwiftUIRails::DSLContext.new(view)
-    
+
     puts "\n=== What does render return? ==="
     begin
       component = ExampleComponent.new(title: "Debug Test")

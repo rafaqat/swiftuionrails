@@ -13,13 +13,13 @@ class ERBRenderingTest < ActionDispatch::IntegrationTest
         end %>
       </div>
     ERB
-    
+
     # Create a test controller that renders this ERB
     get "/home/index"
-    
+
     puts "=== Response body ==="
     puts response.body
-    
+
     # Check for errors
     if response.body.include?("Error")
       puts "=== Error found ==="
@@ -27,12 +27,12 @@ class ERBRenderingTest < ActionDispatch::IntegrationTest
       puts error_match[0] if error_match
     end
   end
-  
+
   test "render ERB directly" do
     # Test ERB rendering directly
     view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
     view.extend(SwiftUIRails::Helpers)
-    
+
     erb_content = <<~ERB
       <%= swift_ui do
         vstack(spacing: 24).p(8) do
@@ -40,7 +40,7 @@ class ERBRenderingTest < ActionDispatch::IntegrationTest
         end
       end %>
     ERB
-    
+
     begin
       result = ERB.new(erb_content).result(view.send(:binding))
       puts "=== Direct ERB result ==="

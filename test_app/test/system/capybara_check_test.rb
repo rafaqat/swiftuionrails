@@ -8,7 +8,7 @@ class CapybaraCheckTest < ApplicationSystemTestCase
     puts "Test class: #{self.class}"
     puts "Responds to visit?: #{respond_to?(:visit)}"
     puts "Page class: #{page.class if respond_to?(:page)}"
-    
+
     # Try to visit a simple path
     begin
       visit root_path
