@@ -10,14 +10,14 @@ class ProductCardComponentTest < ViewComponent::TestCase
       image_url: "test.jpg",
       in_stock: true
     }
-    
+
     component = ProductCardComponent.new(product: product)
     render_inline(component)
-    
+
     assert_text "Test Product"
     assert_text "$29.99"
   end
-  
+
   def test_renders_out_of_stock
     product = {
       id: 1,
@@ -25,10 +25,10 @@ class ProductCardComponentTest < ViewComponent::TestCase
       price: 29.99,
       in_stock: false
     }
-    
+
     component = ProductCardComponent.new(product: product)
     render_inline(component)
-    
+
     assert_text "Out of Stock"
   end
 end

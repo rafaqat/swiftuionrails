@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+require "pathname"
+require "fileutils"
+
+# path to your application root.
+APP_ROOT = Pathname.new File.expand_path("../..", __FILE__)
+
+Dir.chdir APP_ROOT do
+  begin
+    exec "bundle", "exec", "brakeman", *ARGV
+  rescue Errno::ENOENT
+    $stderr.puts "Brakeman is not installed. Please add it to your Gemfile."
+    exit 1
+  end
+end

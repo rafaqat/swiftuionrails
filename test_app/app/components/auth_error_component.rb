@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class AuthErrorComponent < ApplicationComponent
@@ -8,9 +9,9 @@ class AuthErrorComponent < ApplicationComponent
   prop :message, type: String, default: nil
   prop :action_text, type: String, default: nil
   prop :action_path, type: String, default: "/"
-  prop :show_support, type: [TrueClass, FalseClass], default: true
+  prop :show_support, type: [ TrueClass, FalseClass ], default: true
   prop :support_email, type: String, default: "support@example.com"
-  
+
   swift_ui do
     div do
       div.max_w("md").w_full.bg("white").shadow("xl").rounded("lg").p(8).text_center do
@@ -39,13 +40,13 @@ class AuthErrorComponent < ApplicationComponent
             end
           end
         end
-        
+
         # Error title
         h1(title || default_title).text_size("2xl").font_weight("bold").text_color("gray-900").mb(4)
-        
+
         # Error message
         p(message || default_message).text_color("gray-600").mb(8).max_w("sm").mx("auto")
-        
+
         # Action buttons
         div.flex.flex_col.sm("flex-row").gap(4).justify_center.mb(8) do
           link(action_text || default_action_text, destination: action_path)
@@ -62,7 +63,7 @@ class AuthErrorComponent < ApplicationComponent
             .bg("indigo-600")
             .hover_bg("indigo-700")
             .focus("outline-none ring-2 ring-offset-2 ring-indigo-500")
-          
+
           if error_type == :unauthorized || error_type == :forbidden
             link("Try Again", destination: request.path)
               .inline_flex
@@ -80,7 +81,7 @@ class AuthErrorComponent < ApplicationComponent
               .focus("outline-none ring-2 ring-offset-2 ring-gray-500")
           end
         end
-        
+
         # Support section
         if show_support
           div.border_t.border_color("gray-200").pt(8) do
@@ -94,7 +95,7 @@ class AuthErrorComponent < ApplicationComponent
               .font_weight("medium")
           end
         end
-        
+
         # Additional helpful links
         if error_type == :not_found
           div.mt(8).pt(8).border_t.border_color("gray-200") do
@@ -130,9 +131,9 @@ class AuthErrorComponent < ApplicationComponent
     .px(4)
     .sm("px-6 lg:px-8")
   end
-  
+
   private
-  
+
   def default_title
     case error_type
     when :not_found
@@ -147,7 +148,7 @@ class AuthErrorComponent < ApplicationComponent
       "Oops!"
     end
   end
-  
+
   def default_message
     case error_type
     when :not_found
@@ -162,7 +163,7 @@ class AuthErrorComponent < ApplicationComponent
       "An unexpected error occurred. Please try again later."
     end
   end
-  
+
   def default_action_text
     case error_type
     when :not_found
@@ -177,7 +178,7 @@ class AuthErrorComponent < ApplicationComponent
       "Go Back"
     end
   end
-  
+
   def request
     @request ||= helpers.request
   end

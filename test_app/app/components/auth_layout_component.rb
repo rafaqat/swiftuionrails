@@ -1,21 +1,22 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class AuthLayoutComponent < ApplicationComponent
   # Layout configuration
   prop :variant, type: Symbol, default: :centered # :centered, :split, :card
   prop :background_color, type: String, default: "gray-50"
-  prop :show_logo, type: [TrueClass, FalseClass], default: true
+  prop :show_logo, type: [ TrueClass, FalseClass ], default: true
   prop :logo_url, type: String, default: nil
   prop :brand_name, type: String, default: "Your Brand"
-  prop :show_footer, type: [TrueClass, FalseClass], default: true
-  
+  prop :show_footer, type: [ TrueClass, FalseClass ], default: true
+
   # Content slots
   renders_one :form
   renders_one :sidebar
   renders_one :header
   renders_one :footer
-  
+
   swift_ui do
     case variant
     when :centered
@@ -28,9 +29,9 @@ class AuthLayoutComponent < ApplicationComponent
       centered_layout
     end
   end
-  
+
   private
-  
+
   def centered_layout
     div.min_h("screen").flex.flex_col.justify_center.py(12).sm("px-6 lg:px-8").bg(background_color) do
       # Logo/Brand
@@ -50,21 +51,21 @@ class AuthLayoutComponent < ApplicationComponent
           end
         end
       end
-      
+
       # Custom header
       if header?
         div.mt(8).sm("mx-auto sm:w-full sm:max-w-md") do
           header
         end
       end
-      
+
       # Main form content
       div.mt(8).sm("mx-auto sm:w-full sm:max-w-md") do
         div.bg("white").py(8).px(4).shadow("xl").sm("rounded-lg sm:px-10") do
           form if form?
         end
       end
-      
+
       # Footer
       if show_footer || footer?
         div.mt(8).sm("mx-auto sm:w-full sm:max-w-md") do
@@ -77,7 +78,7 @@ class AuthLayoutComponent < ApplicationComponent
       end
     end
   end
-  
+
   def split_layout
     div.min_h("screen").flex do
       # Left side - Form
@@ -91,10 +92,10 @@ class AuthLayoutComponent < ApplicationComponent
               .text_color("gray-900")
               .mb(8)
           end
-          
+
           # Form
           form if form?
-          
+
           # Footer for mobile
           if show_footer || footer?
             div.mt(8).block.lg("hidden") do
@@ -107,7 +108,7 @@ class AuthLayoutComponent < ApplicationComponent
           end
         end
       end
-      
+
       # Right side - Sidebar/Image
       div.hidden.lg("block relative w-0 flex-1") do
         if sidebar?
@@ -134,7 +135,7 @@ class AuthLayoutComponent < ApplicationComponent
       end
     end
   end
-  
+
   def card_layout
     div.min_h("screen").flex.items_center.justify_center.bg(background_color).px(4).py(12) do
       div.w_full.max_w("lg").space_y(8) do
@@ -154,7 +155,7 @@ class AuthLayoutComponent < ApplicationComponent
             end
           end
         end
-        
+
         # Card container
         div.bg("white").shadow("2xl").rounded("xl").overflow_hidden do
           # Optional header
@@ -163,12 +164,12 @@ class AuthLayoutComponent < ApplicationComponent
               header
             end
           end
-          
+
           # Form content
           div.p(8) do
             form if form?
           end
-          
+
           # Optional footer in card
           if footer?
             div.bg("gray-50").px(8).py(6).border_t.border_color("gray-200") do
@@ -176,7 +177,7 @@ class AuthLayoutComponent < ApplicationComponent
             end
           end
         end
-        
+
         # External footer
         if show_footer && !footer?
           default_footer
@@ -184,7 +185,7 @@ class AuthLayoutComponent < ApplicationComponent
       end
     end
   end
-  
+
   def default_footer
     div.text_center.text_size("sm").text_color("gray-600") do
       text("© #{Date.current.year} #{brand_name}. All rights reserved.")

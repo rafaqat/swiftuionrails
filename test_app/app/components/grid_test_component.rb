@@ -1,12 +1,13 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class GridTestComponent < ApplicationComponent
   include SwiftUIRails::DSL
-  
+
   swift_ui do
     lazy_vgrid(
-      columns: [grid_item(:flexible), grid_item(:flexible)],
+      columns: [ grid_item(:flexible), grid_item(:flexible) ],
       spacing: 6
     ) do
       4.times do |i|

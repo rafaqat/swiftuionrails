@@ -2,8 +2,8 @@
 class RailsFirstDemoController < ApplicationController
   # SECURITY: CSRF protection disabled for demo actions that use Turbo Streams
   # This is a demo controller showing Rails-first patterns and is not meant for production use
-  skip_before_action :verify_authenticity_token, only: [:increment_counter, :add_todo, :delete_todo, :search]
-  
+  skip_before_action :verify_authenticity_token, only: [ :increment_counter, :add_todo, :delete_todo, :search ]
+
   def index
     # Initialize demo data in session
     session[:demo_counter] ||= 0
@@ -18,24 +18,24 @@ class RailsFirstDemoController < ApplicationController
       { id: 4, name: "Rails Sticker Pack", price: 9.99, category: "accessories" },
       { id: 5, name: "Advanced Rails Book", price: 39.99, category: "books" }
     ]
-    
+
     @counter = session[:demo_counter]
     @todos = session[:demo_todos]
     @products = filter_products(session[:demo_products], params[:search], params[:category])
     @search_query = params[:search] || ""
     @selected_category = params[:category] || "all"
   end
-  
+
   def increment_counter
     session[:demo_counter] = (session[:demo_counter] || 0) + 1
     @counter = session[:demo_counter]
-    
+
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.replace("rails-counter", partial: "rails_first_demo/counter", locals: { counter: @counter }) }
       format.html { redirect_to rails_first_demo_path }
     end
   end
-  
+
   def add_todo
     todos = session[:demo_todos] || []
     new_todo = {
@@ -46,7 +46,7 @@ class RailsFirstDemoController < ApplicationController
     todos << new_todo
     session[:demo_todos] = todos
     @todos = todos
-    
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -57,43 +57,43 @@ class RailsFirstDemoController < ApplicationController
       format.html { redirect_to rails_first_demo_path }
     end
   end
-  
+
   def delete_todo
     todos = session[:demo_todos] || []
     todos.reject! { |todo| todo[:id] == params[:id].to_i }
     session[:demo_todos] = todos
     @todos = todos
-    
+
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.replace("rails-todos", partial: "rails_first_demo/todos", locals: { todos: @todos }) }
       format.html { redirect_to rails_first_demo_path }
     end
   end
-  
+
   def search
     @products = filter_products(session[:demo_products], params[:search], params[:category])
     @search_query = params[:search] || ""
     @selected_category = params[:category] || "all"
-    
+
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.replace("rails-products", partial: "rails_first_demo/products", locals: { products: @products, search_query: @search_query, selected_category: @selected_category }) }
       format.html { redirect_to rails_first_demo_path(search: @search_query, category: @selected_category) }
     end
   end
-  
+
   private
-  
+
   def filter_products(products, search_query, category)
     filtered = products || []
-    
+
     if search_query.present?
       filtered = filtered.select { |p| p[:name].downcase.include?(search_query.downcase) }
     end
-    
+
     if category.present? && category != "all"
       filtered = filtered.select { |p| p[:category] == category }
     end
-    
+
     filtered
   end
 end

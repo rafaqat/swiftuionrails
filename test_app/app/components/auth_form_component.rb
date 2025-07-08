@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class AuthFormComponent < SwiftUIRails::Component::Base
@@ -8,27 +9,27 @@ class AuthFormComponent < SwiftUIRails::Component::Base
   prop :logo_url, type: String, default: ENV.fetch("DEFAULT_LOGO_URL", "/assets/logo.svg")
   prop :company_name, type: String, default: "Your Company"
   prop :csrf_token, type: String, default: nil
-  
+
   # Login specific props
   prop :forgot_password_path, type: String, default: "#"
   prop :signup_path, type: String, default: "/register"
-  
+
   # Register specific props
   prop :login_path, type: String, default: "/login"
   prop :terms_path, type: String, default: "/terms"
   prop :privacy_path, type: String, default: "/privacy"
-  prop :require_name, type: [TrueClass, FalseClass], default: true
-  
+  prop :require_name, type: [ TrueClass, FalseClass ], default: true
+
   # Form field props for pre-filling
   prop :email_value, type: String, default: ""
   prop :first_name_value, type: String, default: ""
   prop :last_name_value, type: String, default: ""
-  
+
   # Error handling
   prop :errors, type: Hash, default: {}
   prop :flash_message, type: String, default: nil
   prop :flash_type, type: Symbol, default: :notice # :notice, :alert, :error
-  
+
   swift_ui do
     div.flex.tw("min-h-full").tw("flex-col").justify_center.px(6).py(12).tw("lg:px-8") do
       # Logo and title section
@@ -36,7 +37,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
         div.tw("mx-auto h-10 w-10") do
           image(src: logo_url, alt: company_name).tw("w-full h-full")
         end
-        
+
         div.mt(10).text_center do
           text(mode == :login ? "Sign in to your account" : "Create your account")
             .text_size("2xl")
@@ -46,7 +47,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
             .text_color("gray-900")
         end
       end
-      
+
       # Flash message
       if flash_message
         div.mt(4).tw("sm:mx-auto sm:w-full sm:max-w-sm") do
@@ -55,15 +56,14 @@ class AuthFormComponent < SwiftUIRails::Component::Base
           end
         end
       end
-      
+
       # Form section
       div.mt(10).tw("sm:mx-auto sm:w-full sm:max-w-sm") do
         form_action = action_path || (mode == :login ? "/login" : "/register")
         secure_form(
-          action: form_action, 
+          action: form_action,
           method: "POST"
         ).tw("space-y-6") do
-          
           # Name fields for registration
           if mode == :register && require_name
             div do
@@ -93,7 +93,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
                   end.mt(2).text_size("sm").text_color("red-600")
                 end
               end
-              
+
               # Last name
               div do
                 label(for: "last_name").block.text_size("sm").tw("leading-6").font_weight("medium").text_color("gray-900") do
@@ -122,7 +122,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
               end
             end.tw("grid grid-cols-2 gap-4")
           end
-          
+
           # Email field
           div do
             label(for: "email").block.text_size("sm").tw("leading-6").font_weight("medium").text_color("gray-900") do
@@ -149,7 +149,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
               end.mt(2).text_size("sm").text_color("red-600")
             end
           end
-          
+
           # Password fields
           div do
             div.flex.items_center.justify_between do
@@ -185,7 +185,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
               end.mt(2).text_size("sm").text_color("red-600")
             end
           end
-          
+
           # Password confirmation for registration
           if mode == :register
             div do
@@ -213,7 +213,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
               end
             end
           end
-          
+
           # Terms checkbox for registration
           if mode == :register
             div.flex.items_start do
@@ -247,11 +247,11 @@ class AuthFormComponent < SwiftUIRails::Component::Base
               end.mt(2).text_size("sm").text_color("red-600")
             end
           end
-          
+
           # Submit button
           div do
             button(
-              mode == :login ? "Sign in" : "Create account", 
+              mode == :login ? "Sign in" : "Create account",
               type: "submit"
             ).flex.w_full.justify_center
              .rounded("md")
@@ -267,7 +267,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
              .tw("focus-visible:outline-indigo-600")
           end
         end
-        
+
         # Bottom link
         div do
           if mode == :login
@@ -287,9 +287,9 @@ class AuthFormComponent < SwiftUIRails::Component::Base
       end
     end
   end
-  
+
   private
-  
+
   def input_border_classes(field)
     if errors[field].present?
       "outline outline-1 -outline-offset-1 outline-red-300"
@@ -297,7 +297,7 @@ class AuthFormComponent < SwiftUIRails::Component::Base
       "outline outline-1 -outline-offset-1 outline-gray-300"
     end
   end
-  
+
   def flash_alert_classes
     case flash_type
     when :error, :alert

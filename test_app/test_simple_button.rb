@@ -1,5 +1,5 @@
 # Copyright 2025
-#!/usr/bin/env ruby
+# !/usr/bin/env ruby
 require_relative 'config/environment'
 
 puts "Testing SimpleButtonComponent with Swift DSL..."
@@ -19,7 +19,7 @@ puts "✅ Basic button rendered successfully!" if html.include?("Click Me")
 
 # Test 2: Different variants
 puts "\n2. Button Variants:"
-[:primary, :secondary, :danger].each do |variant|
+[ :primary, :secondary, :danger ].each do |variant|
   button = SimpleButtonComponent.new(title: "#{variant.to_s.capitalize}", variant: variant)
   html = button.render_in(view_context)
   puts "#{variant}: #{html.include?("bg-") ? '✅' : '❌'}"

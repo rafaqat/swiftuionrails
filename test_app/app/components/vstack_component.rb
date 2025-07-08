@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class VstackComponent < SwiftUIRails::Component::Base
@@ -13,24 +14,24 @@ class VstackComponent < SwiftUIRails::Component::Base
       text("First Item")
         .font_weight("semibold")
         .text_color("gray-900")
-      
+
       text("Second Item")
         .font_size("sm")
         .text_color("gray-600")
-      
+
       button("Action Button")
         .button_style(:primary)
         .button_size(:sm)
-      
+
       text("Last Item")
         .font_size("xs")
         .text_color("gray-500")
     end
-    
+
     stack = stack.background(background_color) if background_color.present?
     stack = stack.padding(padding) if padding.present?
     stack = stack.corner_radius(corner_radius) if corner_radius.present?
-    
+
     stack
   end
 end
