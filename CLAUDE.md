@@ -1560,3 +1560,178 @@ Importmap skipped missing path: controllers/search_controller.js
 These warnings appear twice because the importmap is resolved multiple times during the request cycle. This is a harmless issue that doesn't affect functionality - the controllers still work properly. The warnings occur because Rails is looking for the controller files during asset resolution at multiple stages.
 
 This is a known Rails behavior and doesn't impact the application's performance or functionality.
+
+## 🚀 Live Playground Project Plan
+
+### Overview
+
+The SwiftUI Rails Live Playground is an interactive development environment similar to Xcode Playgrounds, providing:
+- Real-time DSL code editing with Monaco Editor
+- Instant preview updates using Turbo Streams
+- Full intellisense via Ruby LSP addon
+- Component introspection and property discovery
+- Stimulus controller integration for black-box components
+- Export and sharing capabilities
+
+### Architecture Decisions
+
+1. **ActionCable for WebSockets** - Native Rails real-time communication
+2. **Turbo Morphing** - Smooth preview updates without flicker
+3. **Ruby LSP Addon** - Better integration than custom LSP
+4. **Monaco Editor** - VS Code's editor for familiar experience
+5. **Stimulus Controllers** - Consistent with Rails philosophy
+6. **Safe Code Execution** - Sandboxed DSL evaluation
+
+### Implementation Phases
+
+#### Phase 1: Core Infrastructure (Week 1)
+- [ ] Set up Rails routes for playground (`/playground`)
+- [ ] Create `PlaygroundController` with index and execute actions
+- [ ] Implement basic split-pane view layout
+- [ ] Set up ActionCable channel for live updates
+- [ ] Build `PlaygroundExecutor` for safe DSL code execution
+- [ ] Add CSRF exemption for playground actions
+
+#### Phase 2: Monaco Editor Integration (Week 1-2)
+- [ ] Install Monaco editor via npm/yarn
+- [ ] Create `playground_editor_controller.js` Stimulus controller
+- [ ] Configure Ruby syntax highlighting
+- [ ] Create custom `swiftuirails` language mode
+- [ ] Implement code change debouncing
+- [ ] Add keyboard shortcuts (Cmd+Enter to run)
+
+#### Phase 3: Real-time Preview System (Week 2)
+- [ ] Implement WebSocket code streaming
+- [ ] Create Turbo Stream responses for preview updates
+- [ ] Add error handling and display
+- [ ] Implement smart diffing for performance
+- [ ] Add preview loading states
+- [ ] Create smooth morphing transitions
+
+#### Phase 4: Ruby LSP Addon Development (Week 3)
+- [ ] Create `lib/ruby_lsp/swift_ui_rails/addon.rb`
+- [ ] Implement DSL method completions
+- [ ] Add hover information for all DSL methods
+- [ ] Create method signature help
+- [ ] Build component property introspection
+- [ ] Add chainable modifier suggestions
+
+#### Phase 5: Component Introspection UI (Week 3-4)
+- [ ] Create property inspector panel
+- [ ] Build component tree visualization
+- [ ] Implement click-to-inspect in preview
+- [ ] Add prop type information display
+- [ ] Create method documentation viewer
+- [ ] Add visual hierarchy display
+
+#### Phase 6: Stimulus Integration (Week 4)
+- [ ] Build `StimulusGenerator` for auto-generation
+- [ ] Parse DSL for data-controller attributes
+- [ ] Generate corresponding JS controllers
+- [ ] Bind controllers to preview automatically
+- [ ] Display controller state in inspector
+- [ ] Handle interactive events properly
+
+#### Phase 7: Advanced Features (Week 5)
+- [ ] Device preview modes (desktop/tablet/mobile)
+- [ ] Export functionality (component files, controllers)
+- [ ] Shareable playground URLs
+- [ ] Code snippets library
+- [ ] Playground templates
+- [ ] Performance optimizations
+
+### Technical Requirements
+
+#### Playground Routes
+```ruby
+# config/routes.rb
+namespace :playground do
+  root 'playground#index'
+  post 'execute', to: 'playground#execute'
+  get 'export/:id', to: 'playground#export'
+  resources :snippets, only: [:index, :show, :create]
+end
+```
+
+#### Monaco Editor Setup
+```javascript
+// package.json dependencies
+{
+  "monaco-editor": "^0.45.0",
+  "monaco-languageclient": "^6.6.0",
+  "vscode-ws-jsonrpc": "^3.1.0"
+}
+```
+
+#### Ruby LSP Addon Structure
+```
+lib/
+  ruby_lsp/
+    swift_ui_rails/
+      addon.rb              # Main addon class
+      completion_provider.rb # DSL completions
+      hover_provider.rb     # Documentation on hover
+      definition_provider.rb # Go to definition
+```
+
+### Success Metrics
+
+1. **Performance**
+   - Sub-200ms preview update latency
+   - Instant (<50ms) code completion
+   - Smooth 60fps preview morphing
+
+2. **Features**
+   - Full DSL method completion coverage
+   - All modifiers documented on hover
+   - Zero-flicker preview updates
+   - Working Stimulus interactivity
+
+3. **Developer Experience**
+   - Intuitive UI similar to Xcode
+   - Helpful error messages
+   - Easy component export
+   - Shareable playground sessions
+
+### Example Playground Session
+
+```ruby
+# User types in Monaco editor:
+swift_ui do
+  vstack(spacing: 16) do
+    text("Live Playground Demo")
+      .font_size("2xl")
+      .font_weight("bold")
+      .text_color("blue-600")
+    
+    button("Click Me")
+      .bg("blue-500")
+      .text_color("white")
+      .rounded("lg")
+      .px(6).py(3)
+      .attr("data-action", "click->demo#handleClick")
+      
+    # As they type, intellisense suggests:
+    # - Available DSL methods
+    # - Chainable modifiers
+    # - Tailwind classes
+    # - Component props
+  end
+end
+
+# Preview updates in real-time showing:
+# - Rendered component
+# - Working interactions
+# - Applied styles
+# - Component hierarchy
+```
+
+### Development Guidelines
+
+1. **Keep It Fast**: Debounce appropriately, cache aggressively
+2. **Make It Safe**: Sandbox all code execution
+3. **Stay Rails-y**: Use Turbo, Stimulus, and Rails patterns
+4. **Think Developer First**: Optimize for learning and exploration
+5. **Document Everything**: Every DSL method needs hover docs
+
+This playground will revolutionize how developers learn and build with SwiftUI Rails!

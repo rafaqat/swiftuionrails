@@ -1,22 +1,23 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class TabNavigationComponent < SwiftUIRails::Component::Base
   prop :tabs, type: Array, required: true  # [{name:, path:}, ...]
   prop :current_tab, type: String, required: true
   prop :turbo_frame, type: String, default: nil
-  
+
   swift_ui do
     nav(role: "tablist", aria: { label: "Tabs" }) do
       div.border_b do
         hstack(spacing: 0) do
           tabs.each_with_index do |tab, index|
             is_current = tab[:name] == current_tab || tab[:id] == current_tab
-            
-            link(tab[:name], 
+
+            link(tab[:name],
                  destination: tab[:path],
                  role: "tab",
-                 aria: { 
+                 aria: {
                    selected: is_current,
                    controls: "tabpanel-#{index}"
                  },

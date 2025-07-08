@@ -80,10 +80,15 @@ jobs:
         ruby-version: '3.2'
         bundler-cache: true
     
+    - name: Install test_app dependencies
+      run: |
+        cd test_app
+        bundle install
+    
     - name: Run security tests
       run: |
         cd test_app
-        bundle exec rails test test/security/
+        PARALLEL_WORKERS=1 bundle exec rails test test/security/
 
   codeql:
     name: CodeQL Analysis
@@ -97,12 +102,12 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ruby
     
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+      uses: github/codeql-action/autobuild@v3
     
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3

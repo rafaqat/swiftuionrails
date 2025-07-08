@@ -1,13 +1,14 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 # This demonstrates the new SwiftUI-like preview DSL
 class ButtonPreviewStories < SwiftUIRails::StorybookStories
   # Controls are still defined at the class level for interactive Storybook
-  control :variant, as: :select, options: ["primary", "secondary", "danger", "success"], default: "primary"
-  control :size, as: :select, options: ["sm", "md", "lg", "xl"], default: "md"
+  control :variant, as: :select, options: [ "primary", "secondary", "danger", "success" ], default: "primary"
+  control :size, as: :select, options: [ "sm", "md", "lg", "xl" ], default: "md"
   control :disabled, as: :boolean, default: false
-  
+
   preview "Button Variations" do
     scenario "Primary Button" do
       # You use the DSL directly! No more `.new` or `render`.
@@ -21,7 +22,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
         .stimulus_controller("button")
         .stimulus_action("click->button#handleClick")
     end
-    
+
     scenario "Secondary Button" do
       button("Secondary Button")
         .bg("gray-200")
@@ -31,7 +32,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
         .hover("bg-gray-300")
         .transition
     end
-    
+
     scenario "Danger Button" do
       button("Delete Account")
         .bg("red-600")
@@ -42,7 +43,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
         .transition
         .disabled
     end
-    
+
     # Composition is natural and easy
     scenario "Button Group" do
       hstack(spacing: 4, alignment: :center) do
@@ -53,7 +54,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
           .rounded("l-md")
           .hover("bg-green-700")
           .transition
-        
+
         button("Save & Continue")
           .bg("green-700")
           .text_color("white")
@@ -63,7 +64,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
           .transition
       end
     end
-    
+
     scenario "Button with Icon" do
       button do
         hstack(spacing: 2, alignment: :center) do
@@ -80,7 +81,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
       .shadow("lg")
     end
   end
-  
+
   preview "Interactive Buttons" do
     scenario "Loading State" do
       vstack(spacing: 4) do
@@ -93,7 +94,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
           .transition
           .stimulus_controller("form-submit")
           .stimulus_action("click->form-submit#submit")
-        
+
         button do
           hstack(spacing: 2, alignment: :center) do
             spinner(size: :sm, border_color: "white/20", spinner_color: "white")
@@ -109,7 +110,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
         .disabled
       end
     end
-    
+
     scenario "Toggle Button" do
       hstack(spacing: 0) do
         button("Grid View")
@@ -124,7 +125,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
           .stimulus_controller("view-toggle")
           .stimulus_action("click->view-toggle#grid")
           .stimulus_target("gridButton")
-        
+
         button("List View")
           .bg("blue-600")
           .text_color("white")
@@ -140,7 +141,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
       end
     end
   end
-  
+
   preview "Advanced Compositions" do
     scenario "Card with Actions" do
       card.bg("white") do
@@ -150,13 +151,13 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
               .font_size("lg")
               .font_weight("semibold")
               .text_color("gray-900")
-            
+
             text("Are you sure you want to proceed? This action cannot be undone.")
               .text_size("sm")
               .text_color("gray-600")
           end
         end
-        
+
         card_footer do
           hstack(spacing: 3, alignment: :center) do
             button("Cancel")
@@ -169,7 +170,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
               .hover("bg-gray-50")
               .transition
               .flex_grow
-            
+
             button("Confirm")
               .bg("blue-600")
               .text_color("white")
@@ -184,7 +185,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
       .max_w("sm")
       .shadow("xl")
     end
-    
+
     scenario "Floating Action Button" do
       div.relative.h(64).w_full.bg("gray-100").rounded("lg") do
         # Content area
@@ -192,7 +193,7 @@ class ButtonPreviewStories < SwiftUIRails::StorybookStories
           text("Content Area")
             .text_color("gray-500")
         end
-        
+
         # Floating button
         button do
           text("➕")

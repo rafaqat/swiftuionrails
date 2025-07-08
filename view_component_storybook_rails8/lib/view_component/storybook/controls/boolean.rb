@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 module ViewComponent
@@ -16,9 +17,9 @@ module ViewComponent
         def parse_param_value(value)
           if value.is_a?(String) && value.present?
             case value
-            when "true"
+            when 'true'
               true
-            when "false"
+            when 'false'
               false
             end
           else

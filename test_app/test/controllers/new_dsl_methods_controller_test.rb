@@ -7,11 +7,11 @@ class NewDslMethodsControllerTest < ActionDispatch::IntegrationTest
     Rails.application.routes.draw do
       get "/test_new_dsl", to: "application#test_new_dsl"
     end
-    
+
     # Add the test action to ApplicationController
     ApplicationController.class_eval do
       include SwiftUIRails::Helpers
-      
+
       def test_new_dsl
         render inline: <<~ERB
           <%= swift_ui do
@@ -21,11 +21,11 @@ class NewDslMethodsControllerTest < ActionDispatch::IntegrationTest
                 option("1", "Option 1")
                 option("2", "Option 2", selected: true)
               end.ring_hover(2, "blue-500")
-              
+          #{'    '}
               div.break_inside("avoid").group_hover_opacity(50) do
                 text("Test content")
               end
-              
+          #{'    '}
               button("Test Button")
                 .flex_shrink(0)
                 .title("Test tooltip")
@@ -35,10 +35,10 @@ class NewDslMethodsControllerTest < ActionDispatch::IntegrationTest
         ERB
       end
     end
-    
+
     get "/test_new_dsl"
     assert_response :success
-    
+
     # Verify the HTML includes our new DSL elements
     assert_select "label[for='test-select']", "Test Label"
     assert_select "select[name='test']" do
