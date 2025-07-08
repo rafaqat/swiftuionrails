@@ -513,7 +513,8 @@ module SwiftUIRails
       def style(style_string)
         # SECURITY: Validate style string to prevent CSS injection
         # Split into separate checks to avoid complex regex
-        dangerous_patterns = %w[javascript: expression( @import <script behavior: binding: include-source: moz-binding: vbscript:]
+        dangerous_patterns = %w[javascript: expression( @import <script behavior: binding: include-source: moz-binding:
+                                vbscript:]
         if dangerous_patterns.any? { |pattern| style_string.downcase.include?(pattern) }
           Rails.logger.warn "[SECURITY] Potentially dangerous style blocked: #{style_string}"
           return self
@@ -523,7 +524,7 @@ module SwiftUIRails
         # Fixed: Removed nested quantifiers and simplified regex
         # Split into separate checks to avoid complex regex
         if style_string =~ /javascript:|vbscript:/ ||
-           style_string =~ /data:(?!image\/(?:png|jpg|jpeg|gif|webp|svg\+xml))/ ||
+           style_string =~ %r{data:(?!image/(?:png|jpg|jpeg|gif|webp|svg\+xml))} ||
            style_string =~ /\bon\w+\s*=/
           Rails.logger.warn "[SECURITY] XSS pattern detected in style: #{style_string}"
           return self

@@ -68,7 +68,7 @@ module SwiftUIRails
         # Use the token parser for safe DSL parsing
         parser = TokenParser.new(code)
         ast = parser.parse
-        
+
         # Execute the AST in the given context
         execute_ast(context, ast)
       rescue TokenParser::ParseError => e
@@ -111,12 +111,12 @@ module SwiftUIRails
 
       def execute_method_call(context, node)
         method_name = node[:method].to_s
-        
+
         # SECURITY: Validate method is allowed before calling
         validate_allowed_method(method_name)
-        
+
         args = node[:args].map { |arg| execute_ast(context, arg) }
-        
+
         # Handle block if present
         if node[:block]
           block_proc = proc do
@@ -131,9 +131,9 @@ module SwiftUIRails
       def execute_method_on_receiver(receiver, method_name, args, block)
         # SECURITY: Validate method is allowed before calling
         validate_allowed_method(method_name.to_s)
-        
+
         evaluated_args = args.map { |arg| execute_ast(receiver, arg) }
-        
+
         if block
           block_proc = proc do
             block[:children].map { |stmt| execute_ast(receiver, stmt) }.last
@@ -143,15 +143,14 @@ module SwiftUIRails
           receiver.public_send(method_name, *evaluated_args)
         end
       end
-      
+
       def validate_allowed_method(method_name)
         # Use the same whitelist from TokenParser
         allowed = TokenParser::DSL_METHODS + TokenParser::MODIFIER_METHODS
-        unless allowed.include?(method_name)
-          raise SwiftUIRails::SecurityError, "Method '#{method_name}' is not allowed in playground"
-        end
-      end
+        return if allowed.include?(method_name)
 
+        raise SwiftUIRails::SecurityError, "Method '#{method_name}' is not allowed in playground"
+      end
 
       def create_view_context
         # Create a minimal view context for rendering
@@ -256,7 +255,6 @@ module SwiftUIRails
           text(value.inspect).font_family('mono').text_sm.p(2).bg('gray-50').rounded
         end
       end
-
     end
   end
 end

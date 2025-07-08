@@ -96,7 +96,7 @@ module ViewComponent
           # Code object is set once during initialization
           @code_object = object
           @stories_json_path ||= begin
-          # rubocop:enable ThreadSafety/ClassInstanceVariable
+            # rubocop:enable ThreadSafety/ClassInstanceVariable
             dir = File.dirname(object.file)
 
             # Defensive programming for nil path

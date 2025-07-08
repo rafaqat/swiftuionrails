@@ -65,26 +65,24 @@ module SwiftUIRails
         pos = 0
         while pos < @code.length
           matched = false
-          
+
           TOKEN_TYPES.each do |type, pattern|
-            if match = @code[pos..-1].match(pattern)
-              # Skip whitespace and comments
-              unless [:whitespace, :comment].include?(type)
-                @tokens << {
-                  type: type,
-                  value: match[0],
-                  position: pos
-                }
-              end
-              pos += match[0].length
-              matched = true
-              break
+            next unless (match = @code[pos..].match(pattern))
+
+            # Skip whitespace and comments
+            unless %i[whitespace comment].include?(type)
+              @tokens << {
+                type: type,
+                value: match[0],
+                position: pos
+              }
             end
+            pos += match[0].length
+            matched = true
+            break
           end
 
-          unless matched
-            raise ParseError, "Unexpected character at position #{pos}: #{@code[pos]}"
-          end
+          raise ParseError, "Unexpected character at position #{pos}: #{@code[pos]}" unless matched
         end
       end
 
@@ -94,11 +92,11 @@ module SwiftUIRails
 
       def consume(expected_type = nil)
         token = current_token
-        
+
         if expected_type && (!token || token[:type] != expected_type)
           raise ParseError, "Expected #{expected_type} but got #{token&.[](:type) || 'EOF'}"
         end
-        
+
         @position += 1
         token
       end
@@ -117,12 +115,12 @@ module SwiftUIRails
         while current_token && current_token[:type] == :dot
           consume(:dot)
           method_token = consume(:identifier)
-          
+
           validate_method(method_token[:value])
-          
+
           args = parse_arguments if current_token && current_token[:type] == :lparen
           block = parse_block if current_token && current_token[:type] == :do
-          
+
           expr = {
             type: :method_call,
             receiver: expr,
@@ -137,7 +135,7 @@ module SwiftUIRails
 
       def parse_primary
         token = current_token
-        
+
         case token[:type]
         when :identifier
           parse_method_or_variable
@@ -149,7 +147,7 @@ module SwiftUIRails
           { type: :number, value: token[:value].include?('.') ? token[:value].to_f : token[:value].to_i }
         when :symbol
           consume
-          { type: :symbol, value: token[:value][1..-1].to_sym }
+          { type: :symbol, value: token[:value].drop(1).to_sym }
         else
           raise ParseError, "Unexpected token: #{token[:type]}"
         end
@@ -158,14 +156,14 @@ module SwiftUIRails
       def parse_method_or_variable
         method_token = consume(:identifier)
         method_name = method_token[:value]
-        
+
         validate_method(method_name)
-        
+
         # Check if it's a method call with arguments or block
-        if current_token && [:lparen, :do].include?(current_token[:type])
+        if current_token && %i[lparen do].include?(current_token[:type])
           args = parse_arguments if current_token[:type] == :lparen
           block = parse_block if current_token && current_token[:type] == :do
-          
+
           {
             type: :method_call,
             receiver: nil,
@@ -188,7 +186,7 @@ module SwiftUIRails
       def parse_arguments
         consume(:lparen)
         args = []
-        
+
         while current_token && current_token[:type] != :rparen
           # Handle named arguments (key: value)
           if peek_token(1) && peek_token(1)[:type] == :colon
@@ -199,14 +197,14 @@ module SwiftUIRails
           else
             args << parse_expression
           end
-          
+
           if current_token && current_token[:type] == :comma
             consume(:comma)
           elsif current_token && current_token[:type] != :rparen
-            raise ParseError, "Expected comma or closing paren"
+            raise ParseError, 'Expected comma or closing paren'
           end
         end
-        
+
         consume(:rparen)
         args
       end
@@ -214,29 +212,27 @@ module SwiftUIRails
       def parse_block
         consume(:do)
         statements = []
-        
-        while current_token && current_token[:type] != :end
-          statements << parse_expression
-        end
-        
+
+        statements << parse_expression while current_token && current_token[:type] != :end
+
         consume(:end)
         { type: :block, statements: statements }
       end
 
       def validate_method(method_name)
-        unless ALLOWED_METHODS.include?(method_name)
-          raise ParseError, "Method '#{method_name}' is not allowed in the DSL"
-        end
+        return if ALLOWED_METHODS.include?(method_name)
+
+        raise ParseError, "Method '#{method_name}' is not allowed in the DSL"
       end
 
       def parse_string_literal(str)
         # Remove quotes and handle escape sequences
         str[1..-2].gsub(/\\(.)/) do |match|
-          case $1
+          case ::Regexp.last_match(1)
           when 'n' then "\n"
           when 't' then "\t"
           when 'r' then "\r"
-          when '\\' then "\\"
+          when '\\' then '\\'
           when '"' then '"'
           when "'" then "'"
           else match
@@ -253,7 +249,7 @@ module SwiftUIRails
 
       def execute(node)
         return nil unless node
-        
+
         case node[:type]
         when :method_call
           execute_method_call(node)
@@ -275,11 +271,11 @@ module SwiftUIRails
       def execute_method_call(node)
         receiver = node[:receiver] ? execute(node[:receiver]) : @context
         args = node[:arguments].map { |arg| execute_argument(arg) }
-        
+
         # SECURITY: Use public_send to prevent calling private methods
         # The method name has already been validated against ALLOWED_METHODS
         method_name = node[:method].to_sym
-        
+
         # If there's a block, pass it as a proc
         if node[:block]
           block_proc = -> { execute_block(node[:block]) }

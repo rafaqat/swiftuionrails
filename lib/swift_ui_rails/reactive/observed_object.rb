@@ -107,13 +107,10 @@ module SwiftUIRails
 
       # SECURITY: Use thread-safe Concurrent::Map instead of class variable
       require 'concurrent-ruby'
-      # rubocop:disable ThreadSafety/ClassInstanceVariable
       # These are singleton class variables for the ObservableStore registry.
       # They use Concurrent::Map and Mutex for thread-safe access.
       @stores = Concurrent::Map.new
       @mutex = Mutex.new
-      # rubocop:enable ThreadSafety/ClassInstanceVariable
-
       class << self
         # SECURITY: Thread-safe find_or_create using compute_if_absent
         def find_or_create(id)
@@ -131,11 +128,9 @@ module SwiftUIRails
 
         # SECURITY: Thread-safe clear with mutex protection
         def clear_all
-          # rubocop:disable ThreadSafety/ClassInstanceVariable
           @mutex.synchronize do
             @stores.clear
           end
-          # rubocop:enable ThreadSafety/ClassInstanceVariable
         end
 
         # SECURITY: Thread-safe store count for monitoring

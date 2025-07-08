@@ -45,7 +45,7 @@ module SwiftUIRails
   # Required by Rails eager loading
   def self.eager_load!
     # Eager load all files in the gem
-    Dir[File.join(__dir__, 'swift_ui_rails', '**', '*.rb')].sort.each do |file|
+    Dir[File.join(__dir__, 'swift_ui_rails', '**', '*.rb')].each do |file|
       require file unless file.include?('/generators/')
     end
   end

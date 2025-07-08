@@ -32,7 +32,7 @@ module SwiftUIRails
         end
         super
       end
-      
+
       # Module to prepend prop method override
       module ClassMethodsOverride
         def prop(name, type: String, required: false, default: nil, **options)
@@ -126,9 +126,9 @@ module SwiftUIRails
         def validates_inclusion(prop_name, **options)
           allowed_values = options[:in]
           allow_blank = options[:allow_blank] || false
-          
-          raise ArgumentError, "validates_inclusion requires :in option" unless allowed_values
-          
+
+          raise ArgumentError, 'validates_inclusion requires :in option' unless allowed_values
+
           prop_validations[prop_name] = {
             inclusion: {
               in: allowed_values,
@@ -150,9 +150,8 @@ module SwiftUIRails
             case validation_type
             when :inclusion
               # Handle allow_blank option
-              if options[:allow_blank] && value.to_s.strip.empty?
-                next
-              end
+              next if options[:allow_blank] && value.to_s.strip.empty?
+
               # Convert both the value and the allowed list to strings for comparison
               unless options[:in].map(&:to_s).include?(value.to_s)
                 error_list << "#{prop_name} #{options[:message] || 'is not included in the list'}"

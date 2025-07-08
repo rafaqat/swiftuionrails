@@ -9,7 +9,6 @@ module SwiftUIRails
 
       argument :props, type: :array, default: [], banner: 'prop:type prop:type'
 
-
       # SECURITY: Validate component name to prevent code injection
       def validate_component_name!
         unless name.match?(/\A[a-zA-Z][a-zA-Z0-9_]*\z/)
@@ -22,10 +21,8 @@ module SwiftUIRails
           alias and begin break case class def defined do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield
           __FILE__ __LINE__ __ENCODING__ BEGIN END
         ]
-        
-        if reserved_words.include?(name.downcase)
-          raise Thor::Error, "Component name '#{name}' is a Ruby reserved word."
-        end
+
+        raise Thor::Error, "Component name '#{name}' is a Ruby reserved word." if reserved_words.include?(name.downcase)
 
         # Additional check for suspicious patterns
         if name.match?(/\b(system|exec|eval|constantize|send|public_send|instance_eval|class_eval|module_eval)\b/i)
@@ -67,8 +64,8 @@ module SwiftUIRails
 
       def parsed_props
         # Ensure props is an array
-        return [] if props.nil? || props.empty?
-        
+        return [] if props.blank?
+
         props_array = props.is_a?(Array) ? props : [props]
         props_array.map do |prop|
           parts = prop.split(':', 2)
@@ -88,11 +85,11 @@ module SwiftUIRails
 
       def validate_props!
         # Ensure props is an array
-        return if props.nil? || props.empty?
-        
+        return if props.blank?
+
         # Convert to array if it's not
         props_array = props.is_a?(Array) ? props : [props]
-        
+
         props_array.each do |prop|
           if prop.to_s.match?(/[;\|&`$(){}]/) || prop.to_s.match?(/\b(system|exec|eval)\b/i)
             raise Thor::Error, "Property definition '#{prop}' contains suspicious characters or keywords."

@@ -21,7 +21,7 @@ module SwiftUIRails
       include SwiftUIRails::Component::Caching
       include SwiftUIRails::Reactive if defined?(SwiftUIRails::Reactive)
       include SwiftUIRails::DevTools::DebugHelpers if Rails.env.local?
-      
+
       # ComponentValidator must be included after other modules but before prop method definition
       include SwiftUIRails::Security::ComponentValidator
 
@@ -36,7 +36,7 @@ module SwiftUIRails
 
       # Memoization support for swift_ui content
       class_attribute :swift_ui_memoization_enabled, default: true
-      
+
       # Store the swift_ui block as a class attribute for thread safety
       class_attribute :swift_ui_definition_block, default: nil
       # rubocop:enable ThreadSafety/ClassAndModuleAttributes
@@ -84,11 +84,8 @@ module SwiftUIRails
 
             # Execute the block in the DSL context
             # The block execution will automatically register elements via create_element
-            # rubocop:disable ThreadSafety/InstanceEval
             # Safe: Evaluating developer-defined swift_ui block stored at class definition time
             dsl_context.instance_eval(&self.class.swift_ui_definition_block)
-            # rubocop:enable ThreadSafety/InstanceEval
-
             # Don't double-register the result - it was already registered during creation
             # Just flush all collected elements
             rendered_content = dsl_context.flush_elements

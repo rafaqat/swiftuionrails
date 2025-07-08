@@ -21,10 +21,8 @@ module SwiftUIRails
           alias and begin break case class def defined do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield
           __FILE__ __LINE__ __ENCODING__ BEGIN END
         ]
-        
-        if reserved_words.include?(name.downcase)
-          raise Thor::Error, "Component name '#{name}' is a Ruby reserved word."
-        end
+
+        raise Thor::Error, "Component name '#{name}' is a Ruby reserved word." if reserved_words.include?(name.downcase)
 
         # Additional check for suspicious patterns
         if name.match?(/\b(system|exec|eval|constantize|send|public_send|instance_eval|class_eval|module_eval)\b/i)
