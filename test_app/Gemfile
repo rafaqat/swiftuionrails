@@ -55,6 +55,9 @@ group :development, :test do
 
   # Security vulnerability scanner
   gem "brakeman", require: false
+  
+  # Security audit for gem dependencies
+  gem "bundle-audit", require: false
 end
 
 group :test do
