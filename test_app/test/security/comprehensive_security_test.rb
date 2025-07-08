@@ -124,9 +124,10 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
       prop :size, type: Symbol, default: :md
       prop :count, type: Integer, default: 0
 
-      validates_variant :variant, allowed: %w[primary secondary danger]
-      validates_size :size, allowed: %w[sm md lg]
-      validates_number :count, min: 0, max: 100
+      validates_inclusion :variant, in: %i[primary secondary danger]
+      validates_inclusion :size, in: %i[sm md lg]
+      validates_presence :count
+      validate_options :count, validate: ->(val) { val >= 0 && val <= 100 }
     end
 
     # Valid props should work
