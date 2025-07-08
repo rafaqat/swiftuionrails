@@ -17,14 +17,14 @@ module SwiftUIRails
       strict_args_position!
 
       class_option :force, type: :boolean, default: false,
-                   desc: "Overwrite files that already exist"
+                           desc: 'Overwrite files that already exist'
 
       # First public method that runs in Thor::Group lifecycle
       # Subclasses should NOT override this method
       def validate_all_inputs
         # Validate the component name first
         validate_component_name!(name) if respond_to?(:name)
-        
+
         # Then validate any additional inputs
         validate_additional_inputs!
       rescue Thor::Error => e
@@ -68,9 +68,9 @@ module SwiftUIRails
           __FILE__ __LINE__ __ENCODING__ BEGIN END
         ]
 
-        if reserved_words.include?(name)
-          raise Thor::Error, "Prop name '#{name}' is a Ruby reserved word."
-        end
+        return unless reserved_words.include?(name)
+
+        raise Thor::Error, "Prop name '#{name}' is a Ruby reserved word."
       end
 
       # Common type sanitization

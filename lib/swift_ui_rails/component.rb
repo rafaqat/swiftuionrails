@@ -119,13 +119,13 @@ module SwiftUIRails
           type = options.delete(:type)
           required = options.delete(:required) || false
           default = options.delete(:default)
-          
+
           # Extract validation options (for ComponentValidator)
           validate = options.delete(:validate)
           enum = options.delete(:enum)
           pattern = options.delete(:pattern)
           range = options.delete(:range)
-          
+
           # Store prop definition
           self.swift_props = swift_props.merge(
             name => { type: type, required: required, default: default }

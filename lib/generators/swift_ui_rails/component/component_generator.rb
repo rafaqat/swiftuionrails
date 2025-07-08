@@ -59,10 +59,6 @@ module SwiftUIRails
           { name: name, type: type }
         end
       end
-
-
-
-
     end
   end
 end

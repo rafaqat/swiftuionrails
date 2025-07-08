@@ -52,7 +52,7 @@ module SwiftUIRails
         def validates_inclusion(prop_name, options = {})
           allowed_values = options[:in] || []
           allow_blank = options[:allow_blank] || false
-          
+
           prop_validations[prop_name] = {
             inclusion: {
               in: allowed_values,
@@ -91,6 +91,23 @@ module SwiftUIRails
             callable: { allow_nil: allow_nil }
           }
         end
+
+        def validates_presence(prop_name, allow_blank: false)
+          prop_validations[prop_name] = {
+            presence: { allow_blank: allow_blank }
+          }
+        end
+
+        def validate_options(prop_name, options = {})
+          # Support custom validation callbacks
+          return unless options[:validate] && options[:validate].respond_to?(:call)
+
+          prop_validations[prop_name] ||= {}
+          prop_validations[prop_name][:custom] = {
+            validator: options[:validate],
+            message: options[:message] || 'is invalid'
+          }
+        end
       end
 
       # Instance methods for validation
@@ -105,7 +122,7 @@ module SwiftUIRails
             when :inclusion
               # Skip validation if allow_blank is true and value is blank
               next if options[:allow_blank] && value.to_s.strip.empty?
-              
+
               # Convert both the value and the allowed list to strings for comparison
               unless options[:in].map(&:to_s).include?(value.to_s)
                 error_list << "#{prop_name} #{options[:message] || 'is not included in the list'}"
@@ -127,6 +144,12 @@ module SwiftUIRails
               unless valid_callable?(value, allow_nil: options[:allow_nil])
                 error_list << "#{prop_name} must be a callable (Proc or method)"
               end
+            when :presence
+              unless valid_presence?(value, allow_blank: options[:allow_blank])
+                error_list << "#{prop_name} can't be blank"
+              end
+            when :custom
+              error_list << "#{prop_name} #{options[:message]}" unless options[:validator].call(value)
             end
           end
         end
@@ -153,6 +176,12 @@ module SwiftUIRails
         return true if allow_nil && value.nil?
 
         value.respond_to?(:call)
+      end
+
+      def valid_presence?(value, allow_blank: false)
+        return true if allow_blank && value.to_s.strip.empty?
+
+        !value.nil? && !value.to_s.strip.empty?
       end
 
       # Sanitization helpers

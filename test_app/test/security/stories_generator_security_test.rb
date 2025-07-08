@@ -158,9 +158,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
   test "handles special characters in file names" do
     # Create a mock generator that bypasses validation for testing
     generator = SwiftUIRails::Generators::StoriesGenerator.allocate
-    generator.instance_variable_set(:@given_args, ["My Component!!!"])
+    generator.instance_variable_set(:@given_args, [ "My Component!!!" ])
     generator.instance_variable_set(:@name, "My Component!!!")
-    
+
     # File name should be sanitized
     assert_equal "my_component_", generator.send(:file_name)
   end

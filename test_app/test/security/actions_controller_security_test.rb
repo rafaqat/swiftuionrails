@@ -81,7 +81,7 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
     original_logger = Rails.logger
     log_output = StringIO.new
     Rails.logger = Logger.new(log_output)
-    
+
     post swift_ui_actions_path, params: {
       action_id: @valid_action_id,
       component_id: @valid_component_id,

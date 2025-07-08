@@ -29,13 +29,11 @@ module SwiftUIRails
 
       private
 
-
       def story_names
         # SECURITY: Sanitize story names
         validated_stories = stories.grep(/\A[a-z_][a-z0-9_]*\z/)
         validated_stories.presence || %w[default playground]
       end
-
 
       def component_props
         component_class.swift_props

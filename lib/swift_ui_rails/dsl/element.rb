@@ -523,7 +523,7 @@ module SwiftUIRails
           Rails.logger.warn "[SECURITY] Script URL detected in style: #{style_string}"
           return self
         end
-        
+
         # Check for event handlers separately with a simpler pattern
         if style_string.match?(/\bon[a-z]+\s*=/i)
           Rails.logger.warn "[SECURITY] Event handler detected in style: #{style_string}"

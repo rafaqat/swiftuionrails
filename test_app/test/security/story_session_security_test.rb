@@ -77,7 +77,7 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
     # Temporarily modify the allowed stories constant
     original_allowed = StorySession::ALLOWED_STORIES
     StorySession.send(:remove_const, :ALLOWED_STORIES)
-    StorySession.const_set(:ALLOWED_STORIES, original_allowed + ["FakeStories"])
+    StorySession.const_set(:ALLOWED_STORIES, original_allowed + [ "FakeStories" ])
 
     story_session = StorySession.new(
       story_name: "fake",

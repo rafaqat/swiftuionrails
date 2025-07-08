@@ -86,7 +86,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     output = capture(:stdout) do
       run_generator [ "TestComponent", "name:String;system('ls')" ]
     end
-    
+
     # Should succeed but sanitize the type
     assert_file "app/components/test_component_component.rb" do |content|
       assert_match(/prop :name, type: String/, content)
@@ -111,9 +111,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
   test "sanitizes file names" do
     # Create a mock generator that bypasses validation for testing
     generator = SwiftUIRails::Generators::ComponentGenerator.allocate
-    generator.instance_variable_set(:@given_args, ["My Component!!!"])
+    generator.instance_variable_set(:@given_args, [ "My Component!!!" ])
     generator.instance_variable_set(:@name, "My Component!!!")
-    
+
     # Despite invalid input, file name should be safe
     # The generator removes special chars and converts to lowercase
     assert_equal "my_component", generator.send(:file_name)
@@ -122,9 +122,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
   test "sanitizes class names" do
     # Create a mock generator that bypasses validation for testing
     generator = SwiftUIRails::Generators::ComponentGenerator.allocate
-    generator.instance_variable_set(:@given_args, ["My-Component!!!"])
+    generator.instance_variable_set(:@given_args, [ "My-Component!!!" ])
     generator.instance_variable_set(:@name, "My-Component!!!")
-    
+
     # Despite invalid input, class name should be safe
     assert_equal "MyComponent", generator.send(:class_name)
     assert_equal "MyComponentComponent", generator.send(:component_class_name)

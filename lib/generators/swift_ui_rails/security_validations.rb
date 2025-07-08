@@ -25,15 +25,15 @@ module SwiftUIRails
           raise Thor::Error, "Component name '#{name}' contains forbidden keywords."
         end
 
-        if name.match?(/[;\|&`$(){}]/)
-          raise Thor::Error, "Component name '#{name}' contains suspicious characters."
-        end
+        return unless name.match?(/[;\|&`$(){}]/)
+
+        raise Thor::Error, "Component name '#{name}' contains suspicious characters."
       end
 
       # Validates prop definitions for security issues
       def validate_props!(props)
         return unless props && props.respond_to?(:each)
-        
+
         props.each do |prop|
           if prop.match?(/[;\|&`$(){}]/) || prop.match?(/\b(system|exec|eval)\b/i)
             raise Thor::Error, "Property definition '#{prop}' contains suspicious characters or keywords."
@@ -44,7 +44,7 @@ module SwiftUIRails
       # Validates story names for security issues
       def validate_story_names!(stories)
         return unless stories && stories.respond_to?(:each)
-        
+
         stories.each do |story|
           unless story.match?(/\A[a-z_][a-z0-9_]*\z/)
             raise Thor::Error,
