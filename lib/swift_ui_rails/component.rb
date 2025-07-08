@@ -84,7 +84,10 @@ module SwiftUIRails
 
             # Execute the block in the DSL context
             # The block execution will automatically register elements via create_element
+            # rubocop:disable ThreadSafety/InstanceEval
+            # Safe: Evaluating developer-defined swift_ui block stored at class definition time
             dsl_context.instance_eval(&self.class.swift_ui_definition_block)
+            # rubocop:enable ThreadSafety/InstanceEval
 
             # Don't double-register the result - it was already registered during creation
             # Just flush all collected elements

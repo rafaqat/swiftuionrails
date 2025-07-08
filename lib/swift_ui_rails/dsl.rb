@@ -27,7 +27,10 @@ module SwiftUIRails
           # If not, we need to collect all elements created in the block
           if is_a?(SwiftUIRails::DSLContext)
             # Execute the block and capture any returned element
+            # rubocop:disable ThreadSafety/InstanceEval
+            # Safe: Evaluating developer-provided block in DSL context
             result = instance_eval(&block)
+            # rubocop:enable ThreadSafety/InstanceEval
             # If the block returns an element, ensure it's registered
             register_element(result) if result.is_a?(Element) && @pending_elements.exclude?(result)
             # Return nil to let the DSL context handle rendering via flush_elements
@@ -44,7 +47,10 @@ module SwiftUIRails
             end
 
             # Execute the block
+            # rubocop:disable ThreadSafety/InstanceEval
+            # Safe: Evaluating developer-provided block to collect elements
             result = instance_eval(&block)
+            # rubocop:enable ThreadSafety/InstanceEval
 
             # Restore original method
             define_singleton_method(:create_element, original_create)
@@ -75,7 +81,10 @@ module SwiftUIRails
           # If not, we need to collect all elements created in the block
           if is_a?(SwiftUIRails::DSLContext)
             # Execute the block and capture any returned element
+            # rubocop:disable ThreadSafety/InstanceEval
+            # Safe: Evaluating developer-provided block in DSL context
             result = instance_eval(&block)
+            # rubocop:enable ThreadSafety/InstanceEval
             # If the block returns an element, ensure it's registered
             register_element(result) if result.is_a?(Element) && @pending_elements.exclude?(result)
             # Return nil to let the DSL context handle rendering via flush_elements
@@ -92,7 +101,10 @@ module SwiftUIRails
             end
 
             # Execute the block
+            # rubocop:disable ThreadSafety/InstanceEval
+            # Safe: Evaluating developer-provided block to collect elements
             result = instance_eval(&block)
+            # rubocop:enable ThreadSafety/InstanceEval
 
             # Restore original method
             define_singleton_method(:create_element, original_create)
