@@ -51,6 +51,35 @@ jobs:
         bundle exec bundle-audit update
         bundle exec bundle-audit check
 
+  brakeman:
+    name: Brakeman Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Install Brakeman
+      run: gem install brakeman
+    
+    - name: Run Brakeman on test_app
+      run: |
+        cd test_app
+        brakeman --no-pager --format json --output ../brakeman-report.json || true
+        brakeman --no-pager --format table
+    
+    - name: Upload Brakeman report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: brakeman-report
+        path: brakeman-report.json
+
   thread-safety:
     name: Thread Safety Analysis
     runs-on: ubuntu-latest
