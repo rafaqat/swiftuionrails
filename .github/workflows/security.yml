@@ -22,8 +22,10 @@ jobs:
       with:
         ruby-version: '3.2'
         bundler-cache: true
+        working-directory: test_app
     
     - name: Run RuboCop
+      working-directory: test_app
       run: bundle exec rubocop --format json --out rubocop-results.json
     
     - name: Upload RuboCop results
@@ -31,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: rubocop-results
-        path: rubocop-results.json
+        path: test_app/rubocop-results.json
 
   bundler-audit:
     name: Bundler Audit
@@ -45,8 +47,10 @@ jobs:
       with:
         ruby-version: '3.2'
         bundler-cache: true
+        working-directory: test_app
     
     - name: Run bundler-audit
+      working-directory: test_app
       run: |
         bundle exec bundle-audit update
         bundle exec bundle-audit check
@@ -63,13 +67,14 @@ jobs:
       with:
         ruby-version: '3.2'
         bundler-cache: true
+        working-directory: test_app
     
     - name: Install Brakeman
       run: gem install brakeman
     
     - name: Run Brakeman on test_app
+      working-directory: test_app
       run: |
-        cd test_app
         brakeman --no-pager --format json --output ../brakeman-report.json || true
         brakeman --no-pager --format table
     
@@ -92,8 +97,10 @@ jobs:
       with:
         ruby-version: '3.2'
         bundler-cache: true
+        working-directory: test_app
     
     - name: Run thread safety checks
+      working-directory: test_app
       run: bundle exec rubocop --only ThreadSafety
 
   security-tests:
@@ -108,11 +115,11 @@ jobs:
       with:
         ruby-version: '3.2'
         bundler-cache: true
+        working-directory: test_app
     
     - name: Run security tests
-      run: |
-        cd test_app
-        bundle exec rails test test/security/
+      working-directory: test_app
+      run: bundle exec rails test test/security/
 
   codeql:
     name: CodeQL Analysis
