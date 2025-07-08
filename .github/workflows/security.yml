@@ -88,7 +88,7 @@ jobs:
     - name: Run security tests
       run: |
         cd test_app
-        bundle exec rails test test/security/
+        PARALLEL_WORKERS=1 bundle exec rails test test/security/
 
   codeql:
     name: CodeQL Analysis

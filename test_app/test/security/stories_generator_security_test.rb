@@ -10,6 +10,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     prepare_destination
     # Ensure required directories exist
     FileUtils.mkdir_p(File.join(destination_root, "test", "components", "stories"))
+    FileUtils.mkdir_p(File.join(destination_root, "app", "components"))
   end
 
   test "prevents code injection through component name" do
@@ -97,6 +98,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
   end
 
   test "allows valid component and story names" do
+    prepare_destination
+    FileUtils.mkdir_p(File.join(destination_root, "test", "components", "stories"))
+    
     assert_nothing_raised do
       run_generator [ "UserProfile", "default", "with_avatar", "loading_state" ]
     end

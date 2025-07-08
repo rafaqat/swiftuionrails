@@ -120,6 +120,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     reserved_words.each do |word|
       prepare_destination
+      FileUtils.mkdir_p(File.join(destination_root, "app", "components"))
 
       capture(:stdout) do
         begin
@@ -144,6 +145,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
   end
 
   test "allows valid component names and props" do
+    prepare_destination
+    FileUtils.mkdir_p(File.join(destination_root, "app", "components"))
+    
     # These should work without errors
     assert_nothing_raised do
       run_generator [ "UserProfile", "name:String", "age:Integer", "active:Boolean" ]
