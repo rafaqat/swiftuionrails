@@ -5,7 +5,12 @@ require "generators/swift_ui_rails/stories/stories_generator"
 class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
   tests SwiftUIRails::Generators::StoriesGenerator
   destination Rails.root.join("tmp/generators")
-  setup :prepare_destination
+  
+  setup do
+    prepare_destination
+    # Ensure required directories exist
+    FileUtils.mkdir_p(File.join(destination_root, "test", "components", "stories"))
+  end
 
   test "prevents code injection through component name" do
     dangerous_names = [
@@ -20,7 +25,14 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_names.each do |name|
       prepare_destination
-      run_generator [ name ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ name ]
+        rescue Thor::Error
+          # Expected - validation should reject dangerous names
+        end
+      end
 
       # Verify no files created
       safe_name = name.gsub(/[^a-z0-9_]/i, "_").underscore
@@ -43,7 +55,14 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_stories.each do |story|
       prepare_destination
-      run_generator [ "SafeComponent", story ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ "SafeComponent", story ]
+        rescue Thor::Error
+          # Expected - validation should reject dangerous story names
+        end
+      end
 
       # Verify no files created
       assert_no_file "test/components/stories/safe_component_stories.rb"
@@ -63,7 +82,14 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     invalid_stories.each do |story|
       prepare_destination
-      run_generator [ "ValidComponent", story ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ "ValidComponent", story ]
+        rescue Thor::Error
+          # Expected - validation should reject invalid story names
+        end
+      end
 
       # Verify no files created
       assert_no_file "test/components/stories/valid_component_stories.rb"
@@ -156,7 +182,14 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_names.each do |name|
       prepare_destination
-      run_generator [ name ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ name ]
+        rescue Thor::Error
+          # Expected - validation should reject dangerous paths
+        end
+      end
 
       # Verify no files created
       assert_no_file "test/components/stories/passwd_stories.rb"

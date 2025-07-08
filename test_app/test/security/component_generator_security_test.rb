@@ -5,7 +5,14 @@ require "generators/swift_ui_rails/component/component_generator"
 class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
   tests SwiftUIRails::Generators::ComponentGenerator
   destination Rails.root.join("tmp/generators")
-  setup :prepare_destination
+  
+  setup do
+    prepare_destination
+    # Ensure required directories exist
+    FileUtils.mkdir_p(File.join(destination_root, "app", "components"))
+    FileUtils.mkdir_p(File.join(destination_root, "test", "components", "stories"))
+    FileUtils.mkdir_p(File.join(destination_root, "spec", "components"))
+  end
 
   test "prevents code injection through component name" do
     # Attempt various injection attacks
@@ -27,7 +34,14 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
       prepare_destination
 
       # Run generator - validation will prevent file creation
-      run_generator [ name ]
+      # Capture any output but don't let exceptions propagate
+      capture(:stdout) do
+        begin
+          run_generator [ name ]
+        rescue Thor::Error
+          # Expected - validation should reject dangerous names
+        end
+      end
 
       # Check that no component file was created
       # Use a safe version of the name for the file check
@@ -54,7 +68,14 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_props.each do |prop|
       prepare_destination
-      run_generator [ "SafeComponent", prop ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ "SafeComponent", prop ]
+        rescue Thor::Error
+          # Expected - validation should reject dangerous props
+        end
+      end
 
       # Check that component file was not created with dangerous props
       assert_no_file "app/components/safe_component.rb"
@@ -75,7 +96,14 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     invalid_names.each do |name|
       prepare_destination
-      run_generator [ name ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ name ]
+        rescue Thor::Error
+          # Expected - validation should reject invalid names
+        end
+      end
 
       # Verify no files created
       safe_name = name.gsub(/[^a-z0-9_]/i, "_").underscore
@@ -92,7 +120,14 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     reserved_words.each do |word|
       prepare_destination
-      run_generator [ "ValidComponent", "#{word}:String" ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ "ValidComponent", "#{word}:String" ]
+        rescue Thor::Error
+          # Expected - validation should reject reserved words
+        end
+      end
 
       # Verify no files created
       assert_no_file "app/components/valid_component.rb"
@@ -157,7 +192,14 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_names.each do |name|
       prepare_destination
-      run_generator [ name ]
+      
+      capture(:stdout) do
+        begin
+          run_generator [ name ]
+        rescue Thor::Error
+          # Expected - validation should reject dangerous paths
+        end
+      end
 
       # Verify no files created with path traversal
       assert_no_file "app/components/passwd_component.rb"
@@ -180,7 +222,13 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
       prepare_destination
 
       # Run the generator - it should reject these at validation
-      run_generator [ name ]
+      capture(:stdout) do
+        begin
+          run_generator [ name ]
+        rescue Thor::Error
+          # Expected - validation should reject unicode/special chars
+        end
+      end
 
       # Verify no files created
       safe_name = name.gsub(/[^a-z0-9_]/i, "_").underscore
