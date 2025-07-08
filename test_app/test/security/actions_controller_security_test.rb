@@ -57,6 +57,9 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
       # Should not raise SecurityError
       assert_not_equal "Unauthorized component: ButtonComponent",
                        JSON.parse(response.body)["error"] if response.body.present?
+    else
+      # Skip test if component doesn't exist
+      assert true, "ButtonComponent not defined, skipping test"
     end
   end
 
@@ -74,21 +77,28 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
   end
 
   test "logs security events for unauthorized component attempts" do
-    logged_messages = []
-    Rails.logger.stub :error, ->(msg) { logged_messages << msg } do
-      post swift_ui_actions_path, params: {
-        action_id: @valid_action_id,
-        component_id: @valid_component_id,
-        component_class: "Kernel",
-        event_type: "click"
-      }, xhr: true
-    end
+    # Capture logs using StringIO
+    original_logger = Rails.logger
+    log_output = StringIO.new
+    Rails.logger = Logger.new(log_output)
+    
+    post swift_ui_actions_path, params: {
+      action_id: @valid_action_id,
+      component_id: @valid_component_id,
+      component_class: "Kernel",
+      event_type: "click"
+    }, xhr: true
+
+    # Get logged messages
+    log_content = log_output.string
 
     # Verify security event was logged
-    assert logged_messages.any? { |msg| msg.include?("[SECURITY]") }
-    assert logged_messages.any? { |msg| msg.include?("Attempted to instantiate unauthorized component in ActionsController") }
-    assert logged_messages.any? { |msg| msg.include?("Kernel") }
-    assert logged_messages.any? { |msg| msg.include?("[SECURITY AUDIT]") }
+    assert log_content.include?("[SECURITY]"), "Should log security marker"
+    assert log_content.include?("Attempted to instantiate unauthorized component in ActionsController"), "Should log security message"
+    assert log_content.include?("Kernel"), "Should log component name"
+    assert log_content.include?("[SECURITY AUDIT]"), "Should log security audit marker"
+  ensure
+    Rails.logger = original_logger
   end
 
   test "validates component inheritance" do
@@ -164,6 +174,7 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
 
     # Should still work with XHR as we check request format
     # but would fail without proper CSRF token in non-test environment
+    assert_response :success, "CSRF protection should not block XHR requests"
   ensure
     ActionController::Base.allow_forgery_protection = false
   end

@@ -17,31 +17,6 @@ module SwiftUIRails
       included do
         # Add validation methods to components
         class_attribute :prop_validations, default: {}
-
-        # Override prop setter to add validation
-        class << self
-          def prop(name, type: String, required: false, default: nil, **options)
-            # Extract validation options before passing to parent
-            validate = options.delete(:validate)
-            enum = options.delete(:enum)
-            pattern = options.delete(:pattern)
-            range = options.delete(:range)
-
-            # Call parent with remaining options
-            super(name, type: type, required: required, default: default)
-
-            # Add validation if specified
-            if validate
-              prop_validations[name] = validate
-            elsif enum
-              prop_validations[name] = { inclusion: { in: enum } }
-            elsif pattern
-              prop_validations[name] = { format: { with: pattern } }
-            elsif range
-              prop_validations[name] = { inclusion: { in: range } }
-            end
-          end
-        end
       end
 
       # Validation methods
@@ -70,6 +45,19 @@ module SwiftUIRails
             format: {
               with: /\A[a-zA-Z0-9\-]+\z/,
               message: 'must be a valid color name'
+            }
+          }
+        end
+
+        def validates_inclusion(prop_name, options = {})
+          allowed_values = options[:in] || []
+          allow_blank = options[:allow_blank] || false
+          
+          prop_validations[prop_name] = {
+            inclusion: {
+              in: allowed_values,
+              message: "must be one of: #{allowed_values.join(', ')}",
+              allow_blank: allow_blank
             }
           }
         end
@@ -115,6 +103,9 @@ module SwiftUIRails
           validations.each do |validation_type, options|
             case validation_type
             when :inclusion
+              # Skip validation if allow_blank is true and value is blank
+              next if options[:allow_blank] && value.to_s.strip.empty?
+              
               # Convert both the value and the allowed list to strings for comparison
               unless options[:in].map(&:to_s).include?(value.to_s)
                 error_list << "#{prop_name} #{options[:message] || 'is not included in the list'}"

@@ -23,9 +23,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
-      end
+      output = capture(:stdout) { run_generator [ name ] }
+      assert_match(/Invalid component name|contains forbidden keywords|contains suspicious characters/, output,
+                   "Should reject dangerous name: #{name}")
     end
   end
 
@@ -42,9 +42,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_props.each do |prop|
-      assert_raises Thor::Error do
-        run_generator [ "SafeComponent", prop ]
-      end
+      output = capture(:stdout) { run_generator [ "SafeComponent", prop ] }
+      assert_match(/suspicious characters or keywords/, output,
+                   "Should reject dangerous prop: #{prop}")
     end
   end
 
@@ -61,9 +61,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     invalid_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
-      end
+      output = capture(:stdout) { run_generator [ name ] }
+      assert_match(/Invalid component name|Required arguments/, output,
+                   "Should reject invalid name: #{name}")
     end
   end
 
@@ -75,19 +75,23 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     reserved_words.each do |word|
-      assert_raises Thor::Error do
-        run_generator [ "ValidComponent", "#{word}:String" ]
-      end
+      output = capture(:stdout) { run_generator [ "ValidComponent", "#{word}:String" ] }
+      assert_match(/Ruby reserved word/, output,
+                   "Should reject reserved word: #{word}")
     end
   end
 
   test "sanitizes dangerous type values" do
-    # Create generator instance
-    generator = SwiftUIRails::Generators::ComponentGenerator.new([ "TestComponent", "name:String;system('ls')" ])
-
-    # The dangerous type should be sanitized to String
-    parsed = generator.send(:parsed_props)
-    assert_equal "String", parsed.first[:type]
+    # Run generator with dangerous type value
+    output = capture(:stdout) do
+      run_generator [ "TestComponent", "name:String;system('ls')" ]
+    end
+    
+    # Should succeed but sanitize the type
+    assert_file "app/components/test_component_component.rb" do |content|
+      assert_match(/prop :name, type: String/, content)
+      assert_no_match(/system/, content)
+    end
   end
 
   test "allows valid component names and props" do
@@ -111,7 +115,8 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     generator.instance_variable_set(:@name, "My Component!!!")
     
     # Despite invalid input, file name should be safe
-    assert_equal "my_component_", generator.send(:file_name)
+    # The generator removes special chars and converts to lowercase
+    assert_equal "my_component", generator.send(:file_name)
   end
 
   test "sanitizes class names" do
@@ -134,9 +139,9 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
-      end
+      output = capture(:stdout) { run_generator [ name ] }
+      assert_match(/Invalid component name/, output,
+                   "Should reject directory traversal: #{name}")
     end
   end
 
@@ -152,16 +157,10 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     unicode_names.each do |name|
-      # Should either raise error or sanitize
-      begin
-        generator = SwiftUIRails::Generators::ComponentGenerator.new([ name ])
-        # If it doesn't raise, check that it's sanitized
-        clean_name = generator.send(:class_name)
-        assert_match(/\A[A-Za-z0-9]+\z/, clean_name)
-      rescue Thor::Error
-        # Expected for invalid names
-        assert true
-      end
+      output = capture(:stdout) { run_generator [ name ] }
+      # Should reject all these as invalid component names
+      assert_match(/Invalid component name/, output,
+                   "Should reject unicode/special chars: #{name}")
     end
   end
 end

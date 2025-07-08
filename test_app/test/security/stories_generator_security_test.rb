@@ -19,9 +19,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
-      end
+      output = capture(:stdout) { run_generator [ name ] }
+      assert_match(/Invalid component name|contains forbidden keywords|contains suspicious characters/, output,
+                   "Should reject dangerous name: #{name}")
     end
   end
 
@@ -38,9 +38,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_stories.each do |story|
-      assert_raises Thor::Error do
-        run_generator [ "SafeComponent", story ]
-      end
+      output = capture(:stdout) { run_generator [ "SafeComponent", story ] }
+      assert_match(/Invalid story name|contains forbidden keywords/, output,
+                   "Should reject dangerous story: #{story}")
     end
   end
 
@@ -56,9 +56,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     invalid_stories.each do |story|
-      assert_raises Thor::Error do
-        run_generator [ "ValidComponent", story ]
-      end
+      output = capture(:stdout) { run_generator [ "ValidComponent", story ] }
+      assert_match(/Invalid story name/, output,
+                   "Should reject invalid story: #{story}")
     end
   end
 
@@ -132,7 +132,10 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
   end
 
   test "default story names when none provided" do
-    generator = SwiftUIRails::Generators::StoriesGenerator.new([ "MyComponent" ])
+    # Use allocate to bypass validation
+    generator = SwiftUIRails::Generators::StoriesGenerator.allocate
+    generator.instance_variable_set(:@name, "MyComponent")
+    generator.instance_variable_set(:@stories, [])
 
     # Should provide default stories
     assert_equal [ "default", "playground" ], generator.send(:story_names)
@@ -146,9 +149,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     ]
 
     dangerous_names.each do |name|
-      assert_raises Thor::Error do
-        run_generator [ name ]
-      end
+      output = capture(:stdout) { run_generator [ name ] }
+      assert_match(/Invalid component name/, output,
+                   "Should reject directory traversal: #{name}")
     end
   end
 

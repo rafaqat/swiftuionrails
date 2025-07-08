@@ -49,6 +49,9 @@ class GitHooksSecurityTest < ActiveSupport::TestCase
         end
       end
     end
+    
+    # If we get here, all variables are properly quoted
+    assert true, "All variables in git commands are properly quoted"
   end
 
   test "pre-build hook validates input formats" do

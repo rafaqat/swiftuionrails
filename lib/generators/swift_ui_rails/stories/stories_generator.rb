@@ -2,66 +2,33 @@
 
 # Copyright 2025
 
+require_relative '../base_generator'
+
 module SwiftUIRails
   module Generators
-    class StoriesGenerator < Rails::Generators::NamedBase
+    class StoriesGenerator < BaseGenerator
       source_root File.expand_path('templates', __dir__)
 
       argument :stories, type: :array, default: [], banner: 'story_name story_name'
 
-      # Override invoke! to validate early
-      def invoke!
-        validate_component_name!
-        validate_story_names!
-        super
-      end
-
-      # SECURITY: Validate component name to prevent code injection
-      def validate_component_name!
-        unless name.match?(/\A[a-zA-Z][a-zA-Z0-9_]*\z/)
-          raise Thor::Error,
-                "Invalid component name '#{name}'. Component names must start with a letter and contain only letters, numbers, and underscores."
-        end
-
-        # Additional check for suspicious patterns
-        if name.match?(/\b(system|exec|eval|constantize|send|public_send|instance_eval|class_eval|module_eval)\b/i)
-          raise Thor::Error, "Component name '#{name}' contains forbidden keywords."
-        end
-      end
-
-      def validate_story_names!
-        stories.each do |story|
-          unless story.match?(/\A[a-z_][a-z0-9_]*\z/)
-            raise Thor::Error,
-                  "Invalid story name '#{story}'. Story names must start with a lowercase letter or underscore and contain only lowercase letters, numbers, and underscores."
-          end
-
-          if story.match?(/\b(system|exec|eval)\b/i)
-            raise Thor::Error, "Story name '#{story}' contains forbidden keywords."
-          end
-        end
-      end
-
       def create_stories_file
-        validate_component_name!
-        validate_story_names!
         template 'stories.rb.erb', File.join('test/components/stories', class_path, "#{file_name}_component_stories.rb")
       end
 
       def create_preview_file
-        validate_component_name!
-        validate_story_names!
         template 'preview.html.erb',
                  File.join('test/components/stories', class_path, "#{file_name}_component_preview.html.erb")
       end
 
+      protected
+
+      # Override from BaseGenerator to add story names validation
+      def validate_additional_inputs!
+        validate_story_names!(stories)
+      end
+
       private
 
-      def component_class_name
-        # SECURITY: Ensure class name is safe
-        sanitized_class_name = class_name.gsub(/[^A-Za-z0-9]/, '')
-        "#{sanitized_class_name}Component"
-      end
 
       def story_names
         # SECURITY: Sanitize story names
@@ -69,15 +36,6 @@ module SwiftUIRails
         validated_stories.presence || %w[default playground]
       end
 
-      def class_name
-        # Override to ensure sanitization
-        @class_name ||= name.gsub(/[^A-Za-z0-9_]/, '').camelize
-      end
-
-      def file_name
-        # Override to ensure safe file names
-        @file_name ||= name.gsub(/[^a-zA-Z0-9_]/, '_').downcase.gsub(/_{2,}/, '_').gsub(/^_|_$/, '')
-      end
 
       def component_props
         component_class.swift_props

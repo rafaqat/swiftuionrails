@@ -8,7 +8,14 @@ require_relative 'swift_ui_rails/tailwind'
 require_relative 'swift_ui_rails/dsl'
 require_relative 'swift_ui_rails/component'
 require_relative 'swift_ui_rails/helpers'
-require_relative 'swift_ui_rails/storybook'
+
+# Only load storybook if view_component-storybook is available
+begin
+  require 'view_component/storybook/stories'
+  require_relative 'swift_ui_rails/storybook'
+rescue LoadError
+  # Storybook is optional, continue without it
+end
 
 # Require security modules
 module SwiftUIRails
@@ -38,6 +45,11 @@ module SwiftUIRails
 
   def self.configuration
     @configuration ||= Configuration.new
+  end
+
+  # Required for Rails eager loading
+  def self.eager_load!
+    # No-op - files are already required above
   end
 
   class Configuration
@@ -80,9 +92,11 @@ module SwiftUIRails
       # Components must be explicitly added to this list
       @allowed_components = Set.new([
                                       'Button',
+                                      'ButtonComponent',
                                       'Card',
                                       'Modal',
                                       'Counter',
+                                      'CounterComponent',
                                       'ProductCard',
                                       'ProductList',
                                       'AuthForm',

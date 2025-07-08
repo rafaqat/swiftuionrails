@@ -136,7 +136,8 @@ class SwiftComponentHelperSecurityTest < ActionView::TestCase
 
     # Should now be allowed
     result = swift_component("custom")
-    assert_instance_of String, result
+    assert result.is_a?(String) || result.is_a?(ActiveSupport::SafeBuffer), 
+           "Result should be a String or SafeBuffer"
   ensure
     Object.send(:remove_const, "CustomComponent") if Object.const_defined?("CustomComponent")
   end

@@ -114,11 +114,36 @@ module SwiftUIRails
           end
         end
 
-        def prop(name, type: nil, required: false, default: nil)
+        def prop(name, **options)
+          # Extract known prop options
+          type = options.delete(:type)
+          required = options.delete(:required) || false
+          default = options.delete(:default)
+          
+          # Extract validation options (for ComponentValidator)
+          validate = options.delete(:validate)
+          enum = options.delete(:enum)
+          pattern = options.delete(:pattern)
+          range = options.delete(:range)
+          
+          # Store prop definition
           self.swift_props = swift_props.merge(
             name => { type: type, required: required, default: default }
           )
           attr_reader name
+
+          # Add validation if ComponentValidator is included and options are present
+          if respond_to?(:prop_validations) && (validate || enum || pattern || range)
+            if validate
+              prop_validations[name] = { validate: validate }
+            elsif enum
+              prop_validations[name] = { inclusion: { in: enum } }
+            elsif pattern
+              prop_validations[name] = { format: { with: pattern } }
+            elsif range
+              prop_validations[name] = { inclusion: { in: range } }
+            end
+          end
 
           # For ViewComponent 2.0 collection support, automatically add collection parameter
           # Only do this for properly named components
