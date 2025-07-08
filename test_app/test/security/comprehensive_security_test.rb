@@ -128,6 +128,11 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
       validates_inclusion :size, in: %i[sm md lg]
       validates_presence :count
       validate_options :count, validate: ->(val) { val >= 0 && val <= 100 }
+      
+      # Add a minimal swift_ui block
+      swift_ui do
+        text("Test component")
+      end
     end
 
     # Valid props should work
