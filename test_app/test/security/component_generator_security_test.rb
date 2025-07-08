@@ -5,7 +5,7 @@ require "generators/swift_ui_rails/component/component_generator"
 class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
   tests SwiftUIRails::Generators::ComponentGenerator
   destination Rails.root.join("tmp/generators")
-  
+
   setup do
     prepare_destination
     # Ensure required directories exist
@@ -68,7 +68,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_props.each do |prop|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ "SafeComponent", prop ]
@@ -96,7 +96,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     invalid_names.each do |name|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ name ]
@@ -120,7 +120,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     reserved_words.each do |word|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ "ValidComponent", "#{word}:String" ]
@@ -192,7 +192,7 @@ class ComponentGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_names.each do |name|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ name ]

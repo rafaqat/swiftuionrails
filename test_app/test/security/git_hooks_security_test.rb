@@ -37,6 +37,7 @@ class GitHooksSecurityTest < ActiveSupport::TestCase
     # Split into lines to check each line individually
     lines = content.split("\n")
 
+    unquoted_vars_found = false
     lines.each_with_index do |line, index|
       # Skip echo/print statements
       next if line =~ /^\s*(echo|printf)/
@@ -45,10 +46,14 @@ class GitHooksSecurityTest < ActiveSupport::TestCase
       if line =~ /git\s+[a-zA-Z-]+/ && line =~ /\$[a-zA-Z_][a-zA-Z0-9_]*/ && line !~ /"\$[a-zA-Z_][a-zA-Z0-9_]*"/
         # Check if it's actually a dangerous unquoted variable
         unless line =~ /\$\(.*\)/ || line =~ /for\s+\w+\s+in/
+          unquoted_vars_found = true
           assert false, "SECURITY: Line #{index + 1} has unquoted variable in git command: #{line}"
         end
       end
     end
+
+    # Add assertion to satisfy test requirement
+    assert_not unquoted_vars_found, "All variables in git commands should be properly quoted"
   end
 
   test "pre-build hook validates input formats" do

@@ -5,7 +5,7 @@ require "generators/swift_ui_rails/stories/stories_generator"
 class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
   tests SwiftUIRails::Generators::StoriesGenerator
   destination Rails.root.join("tmp/generators")
-  
+
   setup do
     prepare_destination
     # Ensure required directories exist
@@ -25,7 +25,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_names.each do |name|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ name ]
@@ -55,7 +55,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_stories.each do |story|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ "SafeComponent", story ]
@@ -82,7 +82,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     invalid_stories.each do |story|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ "ValidComponent", story ]
@@ -182,7 +182,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     dangerous_names.each do |name|
       prepare_destination
-      
+
       capture(:stdout) do
         begin
           run_generator [ name ]
