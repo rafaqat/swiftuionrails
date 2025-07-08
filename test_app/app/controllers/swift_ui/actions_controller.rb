@@ -145,14 +145,22 @@ module SwiftUi
         when "GridComponent" then GridComponent
         when "ModalComponent" then ModalComponent
         when "TabsComponent" then TabsComponent
+        when "ProductCardComponent" then ProductCardComponent
+        when "ProductListComponent" then ProductListComponent
+        when "ProductLayoutComponent" then ProductLayoutComponent
+        when "ProductPriceComponent" then ProductPriceComponent
+        when "ProductRatingComponent" then ProductRatingComponent
+        when "ProductVariantsComponent" then ProductVariantsComponent
+        when "EnhancedLoginComponent" then EnhancedLoginComponent
+        when "EnhancedRegisterComponent" then EnhancedRegisterComponent
+        when "AuthLayoutComponent" then AuthLayoutComponent
+        when "AuthErrorComponent" then AuthErrorComponent
+        when "ExampleComponent" then ExampleComponent
+        when "GridTestComponent" then GridTestComponent
         else
-          # For any other whitelisted components, use constantize with extra validation
-          # Only allow components that match our naming pattern and are in allowed list
-          if component_class_name.match?(/\A[A-Z][a-zA-Z0-9]*Component\z/) && allowed_component?(component_class_name)
-            component_class_name.constantize
-          else
-            raise NameError, "Component not found: #{component_class_name}"
-          end
+          # SECURITY: No constantize allowed - all components must be explicitly mapped
+          # This prevents any possibility of code injection
+          raise NameError, "Component not found in explicit mapping: #{component_class_name}"
         end
 
         # Verify it's actually a SwiftUI Rails component
