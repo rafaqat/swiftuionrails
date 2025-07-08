@@ -2,6 +2,8 @@
 # Copyright 2025
 
 class StorybookController < ApplicationController
+  # SECURITY: CSRF protection disabled for AJAX preview updates in development storybook
+  # This controller is only used for development/testing and should not be deployed to production
   protect_from_forgery except: [:update_preview, :component_action] # Allow AJAX requests
   helper_method :tailwind_color_to_css
   helper StorybookDebugHelper

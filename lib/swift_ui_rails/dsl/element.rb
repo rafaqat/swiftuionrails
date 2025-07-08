@@ -509,8 +509,15 @@ module SwiftUIRails
         end
         
         # Additional validation for common XSS patterns
-        if style_string =~ /data:(?!image\/(?:png|jpg|jpeg|gif|webp|svg\+xml))|javascript:|vbscript:|on\w+\s*=/i
+        # Split the checks to avoid complex regex that could cause ReDoS
+        if style_string =~ /javascript:|vbscript:|on\w+\s*=/i
           Rails.logger.warn "[SECURITY] XSS pattern detected in style: #{style_string}"
+          return self
+        end
+        
+        # Check data: URLs separately with a simpler pattern
+        if style_string.include?('data:') && style_string !~ /data:image\/(?:png|jpg|jpeg|gif|webp|svg\+xml);/i
+          Rails.logger.warn "[SECURITY] Potentially dangerous data URL in style: #{style_string}"
           return self
         end
         

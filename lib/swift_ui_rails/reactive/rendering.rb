@@ -457,6 +457,8 @@ module SwiftUIRails
           else
             # Fallback: verify it's a valid component class
             begin
+              # SECURITY: constantize is used here only as a fallback validation check
+              # The actual component instantiation happens elsewhere with proper security checks
               klass = class_name.constantize
               klass < SwiftUIRails::Component::Base || 
               (defined?(ApplicationComponent) && klass < ApplicationComponent)

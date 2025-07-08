@@ -45,8 +45,8 @@ module SwiftUIRails
       
       # Render a nice error UI in development
       def self.render_error_ui(error)
-        component_name = error.component_class.to_s
-        error_message = error.original_error.message
+        component_name = ERB::Util.html_escape(error.component_class.to_s)
+        error_message = ERB::Util.html_escape(error.original_error.message)
         backtrace = error.original_error.backtrace.first(5)
         
         <<~HTML.html_safe
@@ -101,7 +101,7 @@ module SwiftUIRails
                 margin: 0;
                 font-size: 12px;
                 overflow-x: auto;
-              ">#{JSON.pretty_generate(error.props)}</pre>
+              ">#{ERB::Util.html_escape(JSON.pretty_generate(error.props))}</pre>
             </details>
             
             <details>
@@ -122,7 +122,7 @@ module SwiftUIRails
                 font-size: 12px;
                 overflow-x: auto;
                 color: #7f1d1d;
-              ">#{backtrace.join("\n")}</pre>
+              ">#{ERB::Util.html_escape(backtrace.join("\n"))}</pre>
             </details>
             
             <div style="

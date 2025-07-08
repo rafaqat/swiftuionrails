@@ -1,5 +1,7 @@
 # Copyright 2025
 class RailsFirstDemoController < ApplicationController
+  # SECURITY: CSRF protection disabled for demo actions that use Turbo Streams
+  # This is a demo controller showing Rails-first patterns and is not meant for production use
   skip_before_action :verify_authenticity_token, only: [:increment_counter, :add_todo, :delete_todo, :search]
   
   def index

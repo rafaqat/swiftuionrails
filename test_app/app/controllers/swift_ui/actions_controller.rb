@@ -129,6 +129,8 @@ module SwiftUi
       end
       
       begin
+        # SECURITY: constantize is safe here because component_class_name has been validated
+        # against a whitelist in allowed_component? method above
         component_class = component_class_name.constantize
         
         # Verify it's actually a SwiftUI Rails component
