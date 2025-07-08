@@ -518,9 +518,15 @@ module SwiftUIRails
         end
 
         # Additional validation for common XSS patterns
-        # Split the checks to avoid complex regex that could cause ReDoS
-        if /javascript:|vbscript:|on\w+\s*=/i.match?(style_string)
-          Rails.logger.warn "[SECURITY] XSS pattern detected in style: #{style_string}"
+        # Use simpler, non-backtracking patterns to avoid ReDoS
+        if style_string.include?('javascript:') || style_string.include?('vbscript:')
+          Rails.logger.warn "[SECURITY] Script URL detected in style: #{style_string}"
+          return self
+        end
+        
+        # Check for event handlers separately with a simpler pattern
+        if style_string.match?(/\bon[a-z]+\s*=/i)
+          Rails.logger.warn "[SECURITY] Event handler detected in style: #{style_string}"
           return self
         end
 

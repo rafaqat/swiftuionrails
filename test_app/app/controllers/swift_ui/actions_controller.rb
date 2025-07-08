@@ -130,9 +130,30 @@ module SwiftUi
       end
 
       begin
-        # SECURITY: constantize is safe here because component_class_name has been validated
-        # against a whitelist in allowed_component? method above
-        component_class = component_class_name.constantize
+        # SECURITY: Use explicit mapping instead of constantize to avoid code injection
+        # This mapping is maintained in sync with allowed_component? method
+        component_class = case component_class_name
+        when "ButtonComponent" then ButtonComponent
+        when "CardComponent" then CardComponent
+        when "TextComponent" then TextComponent
+        when "ImageComponent" then ImageComponent
+        when "LinkComponent" then LinkComponent
+        when "CounterComponent" then CounterComponent
+        when "FormComponent" then FormComponent
+        when "ToggleComponent" then ToggleComponent
+        when "ListComponent" then ListComponent
+        when "GridComponent" then GridComponent
+        when "ModalComponent" then ModalComponent
+        when "TabsComponent" then TabsComponent
+        else
+          # For any other whitelisted components, use constantize with extra validation
+          # Only allow components that match our naming pattern and are in allowed list
+          if component_class_name.match?(/\A[A-Z][a-zA-Z0-9]*Component\z/) && allowed_component?(component_class_name)
+            component_class_name.constantize
+          else
+            raise NameError, "Component not found: #{component_class_name}"
+          end
+        end
 
         # Verify it's actually a SwiftUI Rails component
         unless component_class < SwiftUIRails::Component::Base ||

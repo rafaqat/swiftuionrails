@@ -158,23 +158,29 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
   end
 
   test "CSRF protection is enabled" do
-    # This test verifies that CSRF is not skipped
-    # The controller should have before_action :verify_component_security
-    # instead of skip_before_action :verify_authenticity_token
-
-    # Make request without CSRF token
+    # This test verifies that CSRF protection is enforced
     ActionController::Base.allow_forgery_protection = true
 
+    # Test 1: Request without CSRF token should fail
+    assert_raises(ActionController::InvalidAuthenticityToken) do
+      post swift_ui_actions_path, params: {
+        action_id: @valid_action_id,
+        component_id: @valid_component_id,
+        component_class: "ButtonComponent",
+        event_type: "click"
+      }
+    end
+
+    # Test 2: Request with valid CSRF token should succeed
     post swift_ui_actions_path, params: {
       action_id: @valid_action_id,
       component_id: @valid_component_id,
       component_class: "ButtonComponent",
-      event_type: "click"
+      event_type: "click",
+      authenticity_token: form_authenticity_token
     }, headers: { "X-Requested-With" => "XMLHttpRequest" }
 
-    # Should still work with XHR as we check request format
-    # but would fail without proper CSRF token in non-test environment
-    assert_response :success, "CSRF protection should not block XHR requests"
+    assert_response :success, "Request with valid CSRF token should succeed"
   ensure
     ActionController::Base.allow_forgery_protection = false
   end
