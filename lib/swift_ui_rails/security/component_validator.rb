@@ -16,7 +16,17 @@ module SwiftUIRails
 
       included do
         # Add validation methods to components
-        class_attribute :prop_validations, default: {}
+        # IMPORTANT: Use instance_writer: false and instance_reader: false to prevent inheritance issues
+        class_attribute :prop_validations, instance_writer: false, instance_reader: false, default: {}
+      end
+
+      # Ensure each component class gets its own isolated prop_validations
+      def self.included(base)
+        super
+        base.class_eval do
+          # Override the class attribute to ensure isolation
+          self.prop_validations = {}
+        end
       end
 
       # Validation methods
@@ -112,9 +122,11 @@ module SwiftUIRails
 
       # Instance methods for validation
       def validate_props!
-        return true if self.class.prop_validations.empty?
+        # Access prop_validations through the class since instance_reader is disabled
+        validations_to_check = self.class.prop_validations
+        return true if validations_to_check.empty?
 
-        errors = self.class.prop_validations.each_with_object([]) do |(prop_name, validations), error_list|
+        errors = validations_to_check.each_with_object([]) do |(prop_name, validations), error_list|
           value = send(prop_name)
 
           validations.each do |validation_type, options|

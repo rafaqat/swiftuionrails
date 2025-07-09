@@ -32,6 +32,9 @@ module SwiftUIRails
       # Memoization support for swift_ui content
       class_attribute :swift_ui_memoization_enabled, default: true
 
+      # Orientation support (SwiftUI-inspired)
+      attr_reader :orientation
+
       class << self
         # Enable or disable memoization for this component
         def enable_memoization(enabled = true)
@@ -133,16 +136,19 @@ module SwiftUIRails
           attr_reader name
 
           # Add validation if ComponentValidator is included and options are present
-          if respond_to?(:prop_validations) && (validate || enum || pattern || range)
+          if self.respond_to?(:prop_validations) && (validate || enum || pattern || range)
+            # Access prop_validations through the class
+            current_validations = self.prop_validations.dup
             if validate
-              prop_validations[name] = { validate: validate }
+              current_validations[name] = { validate: validate }
             elsif enum
-              prop_validations[name] = { inclusion: { in: enum } }
+              current_validations[name] = { inclusion: { in: enum } }
             elsif pattern
-              prop_validations[name] = { format: { with: pattern } }
+              current_validations[name] = { format: { with: pattern } }
             elsif range
-              prop_validations[name] = { inclusion: { in: range } }
+              current_validations[name] = { inclusion: { in: range } }
             end
+            self.prop_validations = current_validations
           end
 
           # For ViewComponent 2.0 collection support, automatically add collection parameter
@@ -200,6 +206,9 @@ module SwiftUIRails
       end
 
       def initialize(**props)
+        # Extract orientation from props (SwiftUI-inspired)
+        @orientation = props.delete(:orientation) || infer_orientation
+
         # Extract ViewComponent-specific props from our custom props
         swift_props_names = self.class.swift_props.keys
         our_props = props.slice(*swift_props_names)
@@ -324,6 +333,12 @@ module SwiftUIRails
       end
 
       private
+
+      # Infer orientation - can be overridden by components
+      # Default to portrait for mobile-first approach
+      def infer_orientation
+        :portrait
+      end
 
       def validate_and_set_props(props)
         self.class.swift_props.each do |name, config|

@@ -8,6 +8,7 @@ require_relative 'swift_ui_rails/tailwind'
 require_relative 'swift_ui_rails/dsl'
 require_relative 'swift_ui_rails/component'
 require_relative 'swift_ui_rails/helpers'
+require_relative 'swift_ui_rails/orientation'
 
 # Only load storybook if view_component-storybook is available
 begin

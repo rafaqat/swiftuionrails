@@ -8,11 +8,14 @@ require_relative 'dsl/context'
 require_relative 'security/css_validator'
 require_relative 'security/form_helpers'
 require_relative 'security/url_validator'
+require_relative 'orientation'
 
 module SwiftUIRails
   module DSL
     extend ActiveSupport::Concern
     include Security::FormHelpers
+    include Orientation::Helpers
+    include Orientation::SizeClasses
 
     # Layout Components
     def vstack(alignment: :center, spacing: 8, **attrs, &block)

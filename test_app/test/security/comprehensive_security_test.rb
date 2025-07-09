@@ -113,13 +113,11 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
 
   # Test component prop validation
   test "component validator enforces prop constraints" do
-    # Create a test component class
-    test_component = Class.new(SwiftUIRails::Component::Base) do
-      # Give the class a name to avoid underscore error
-      def self.name
-        "TestValidationComponent"
-      end
-
+    # Define test component as a proper constant to work with eager loading
+    # Remove the constant if it already exists (from previous test runs)
+    Object.send(:remove_const, :TestValidationComponent) if Object.const_defined?(:TestValidationComponent)
+    
+    class ::TestValidationComponent < SwiftUIRails::Component::Base
       prop :variant, type: Symbol, default: :primary
       prop :size, type: Symbol, default: :md
       prop :count, type: Integer, default: 0
@@ -137,18 +135,21 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
 
     # Valid props should work
     assert_nothing_raised do
-      component = test_component.new(variant: :primary, size: :md, count: 50)
+      component = TestValidationComponent.new(variant: :primary, size: :md, count: 50)
     end
 
     # Invalid variant should fail
     assert_raises(ArgumentError) do
-      component = test_component.new(variant: :invalid, size: :md)
+      component = TestValidationComponent.new(variant: :invalid, size: :md)
     end
 
     # Invalid size should fail
     assert_raises(ArgumentError) do
-      component = test_component.new(variant: :primary, size: :xxl)
+      component = TestValidationComponent.new(variant: :primary, size: :xxl)
     end
+  ensure
+    # Clean up the test component
+    Object.send(:remove_const, :TestValidationComponent) if Object.const_defined?(:TestValidationComponent)
   end
 
   # Test HTML escaping in DSL
