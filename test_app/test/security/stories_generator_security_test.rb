@@ -69,9 +69,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
 
     assert_file "test/components/stories/user_profile_component_stories.rb" do |content|
       assert_match(/class UserProfileComponentStories/, content)
-      assert_match(/def default/, content)
-      assert_match(/def with_avatar/, content)
-      assert_match(/def loading_state/, content)
+      assert_match(/story :default do/, content)
+      assert_match(/story :with_avatar do/, content)
+      assert_match(/story :loading_state do/, content)
     end
   end
 
@@ -161,8 +161,9 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     generator.instance_variable_set(:@given_args, [ "My Component!!!" ])
     generator.instance_variable_set(:@name, "My Component!!!")
 
-    # File name should be sanitized
-    assert_equal "my_component_", generator.send(:file_name)
+    # File name should be sanitized - special chars become underscores, 
+    # multiple underscores are collapsed, and trailing underscores are removed
+    assert_equal "my_component", generator.send(:file_name)
   end
 end
 # Copyright 2025
