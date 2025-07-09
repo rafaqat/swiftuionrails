@@ -1,11 +1,12 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class SwiftUiLiveReloadChannel < ApplicationCable::Channel
   def subscribed
     # Only allow in development
     return reject unless Rails.env.development?
-    
+
     stream_from "swift_ui_live_reload"
   end
 

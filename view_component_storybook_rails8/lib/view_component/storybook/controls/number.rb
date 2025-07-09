@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 module ViewComponent
@@ -22,7 +23,7 @@ module ViewComponent
 
         def parse_param_value(value)
           if value.is_a?(String) && value.present?
-            (value.to_f % 1) > 0 ? value.to_f : value.to_i
+            (value.to_f % 1).positive? ? value.to_f : value.to_i
           else
             value
           end

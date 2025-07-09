@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 require "test_helper"
@@ -9,13 +10,13 @@ class DslProductCardDebugTest < ActiveSupport::TestCase
   include ActionView::Context
   include SwiftUIRails::DSL
   include SwiftUIRails::Helpers
-  
+
   test "content_tag works with two arguments" do
     # Test that content_tag works properly
     result = content_tag(:div, "Hello", class: "test")
     assert_equal '<div class="test">Hello</div>', result
   end
-  
+
   test "content_tag works with block" do
     # Test that content_tag works with a block
     result = content_tag(:div, class: "test") do
@@ -23,7 +24,7 @@ class DslProductCardDebugTest < ActiveSupport::TestCase
     end
     assert_equal '<div class="test">Hello from block</div>', result
   end
-  
+
   test "swift_ui DSL works" do
     # Test that swift_ui works
     result = swift_ui do
@@ -33,7 +34,7 @@ class DslProductCardDebugTest < ActiveSupport::TestCase
     end
     assert result.include?("Hello DSL")
   end
-  
+
   test "combined content_tag and swift_ui works" do
     # Test the combination
     result = content_tag(:div, class: "wrapper") do

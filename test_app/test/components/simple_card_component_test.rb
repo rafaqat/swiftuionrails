@@ -6,7 +6,7 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     render_inline(SimpleCardComponent.new) do
       "Card content"
     end
-    
+
     assert_selector "div.bg-white.rounded-lg"
     assert_selector "div.shadow-md"  # Default elevated variant
     assert_selector "div.p-6"  # Default medium padding
@@ -17,7 +17,7 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     render_inline(SimpleCardComponent.new(variant: :elevated)) do
       "Elevated card"
     end
-    
+
     assert_selector "div.shadow-md"
     assert_text "Elevated card"
   end
@@ -26,7 +26,7 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     render_inline(SimpleCardComponent.new(variant: :outlined)) do
       "Outlined card"
     end
-    
+
     assert_selector "div.border.border-gray-200"
     assert_text "Outlined card"
   end
@@ -35,7 +35,7 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     render_inline(SimpleCardComponent.new(variant: :filled)) do
       "Filled card"
     end
-    
+
     assert_selector "div.bg-gray-50"
     assert_text "Filled card"
   end
@@ -45,11 +45,11 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     component.with_header do
       "Card Header"
     end
-    
+
     render_inline(component) do
       "Card body"
     end
-    
+
     assert_selector "div.pb-4.mb-4.border-b.border-gray-200", text: "Card Header"
     assert_text "Card body"
   end
@@ -59,11 +59,11 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     component.with_footer do
       "Card Footer"
     end
-    
+
     render_inline(component) do
       "Card body"
     end
-    
+
     assert_selector "div.pt-4.mt-4.border-t.border-gray-200", text: "Card Footer"
     assert_text "Card body"
   end
@@ -72,15 +72,15 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     component = SimpleCardComponent.new
     component.with_header { "Header" }
     component.with_footer { "Footer" }
-    
+
     render_inline(component) do
       "Body"
     end
-    
+
     assert_text "Header"
     assert_text "Body"
     assert_text "Footer"
-    
+
     # Check order
     assert_match /Header.*Body.*Footer/m, page.native.to_s
   end
@@ -89,11 +89,11 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     # Small padding
     render_inline(SimpleCardComponent.new(padding: :sm)) { "Small" }
     assert_selector "div.p-4"
-    
+
     # Medium padding
     render_inline(SimpleCardComponent.new(padding: :md)) { "Medium" }
     assert_selector "div.p-6"
-    
+
     # Large padding
     render_inline(SimpleCardComponent.new(padding: :lg)) { "Large" }
     assert_selector "div.p-8"
@@ -104,11 +104,11 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     component = SimpleCardComponent.new(variant: :outlined, padding: :lg)
     component.with_header { "Large Outlined Card" }
     component.with_footer { "Footer Content" }
-    
+
     render_inline(component) do
       "Main content with large padding"
     end
-    
+
     assert_selector "div.border.border-gray-200"
     assert_selector "div.p-8"
     assert_text "Large Outlined Card"
@@ -120,7 +120,7 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     render_inline(SimpleCardComponent.new(variant: :invalid)) do
       "Content"
     end
-    
+
     # Should fall back to elevated (default)
     assert_selector "div.shadow-md"
   end
@@ -129,7 +129,7 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     render_inline(SimpleCardComponent.new(padding: :invalid)) do
       "Content"
     end
-    
+
     # Should fall back to md (default)
     assert_selector "div.p-6"
   end
@@ -137,11 +137,11 @@ class SimpleCardComponentTest < ViewComponent::TestCase
   def test_component_without_slots
     # Test that a component without any slots defined only shows body content
     component = SimpleCardComponent.new
-    
+
     render_inline(component) do
       "Only body content"
     end
-    
+
     # Should not render header/footer divs when slots are not used
     assert_no_selector "div.pb-4.mb-4.border-b.border-gray-200"
     assert_no_selector "div.pt-4.mt-4.border-t.border-gray-200"
@@ -156,11 +156,11 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     component.with_footer do
       "<div class='flex justify-between'><span>Left</span><span>Right</span></div>".html_safe
     end
-    
+
     render_inline(component) do
       "<p class='text-gray-600'>Body with HTML</p>".html_safe
     end
-    
+
     assert_selector "h2.text-xl.font-bold", text: "Complex Header"
     assert_selector "p.text-gray-600", text: "Body with HTML"
     assert_selector "div.flex.justify-between span", count: 2
@@ -170,7 +170,7 @@ class SimpleCardComponentTest < ViewComponent::TestCase
     render_inline(SimpleCardComponent.new(variant: :filled, padding: :lg)) do
       "Content"
     end
-    
+
     # Check that all classes are present
     card = page.find("div.bg-white.rounded-lg")
     assert card[:class].include?("bg-white")
