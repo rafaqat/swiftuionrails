@@ -7,7 +7,7 @@ class ResponsiveCardComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
 
   # Interactive controls
-  control :orientation, as: :select, options: ["portrait", "landscape"], default: "portrait"
+  control :orientation, as: :select, options: [ "portrait", "landscape" ], default: "portrait"
   control :title, as: :text, default: "SwiftUI Rails Card"
   control :description, as: :text, default: "This card adapts its layout based on device orientation, demonstrating responsive design with SwiftUI Rails."
   control :price, as: :text, default: "$99.99"
@@ -16,7 +16,7 @@ class ResponsiveCardComponentStories < ViewComponent::Storybook::Stories
   def default(orientation: "portrait", title: "SwiftUI Rails Card", description: "This card adapts its layout based on device orientation.", price: "$99.99", image_url: "https://picsum.photos/400/300")
     # Convert string orientation to symbol
     orientation_sym = orientation.to_sym
-    
+
     swift_ui do
       vstack(spacing: 16) do
         # Show current orientation

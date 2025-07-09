@@ -12,22 +12,22 @@ class OrientationTest < ViewComponent::TestCase
     swift_ui do
       vstack do
         text(title)
-        
+
         # Conditional rendering based on orientation
         if_portrait do
           text("Portrait Mode").text_color("blue-500")
         end
-        
+
         if_landscape do
           text("Landscape Mode").text_color("green-500")
         end
-        
+
         # Adaptive layout
         orientation_stack(spacing: 16) do
           button("Button 1")
           button("Button 2")
         end
-        
+
         # Size class information
         div do
           text("H: #{horizontal_size_class}, V: #{vertical_size_class}")

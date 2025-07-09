@@ -116,7 +116,7 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
     # Define test component as a proper constant to work with eager loading
     # Remove the constant if it already exists (from previous test runs)
     Object.send(:remove_const, :TestValidationComponent) if Object.const_defined?(:TestValidationComponent)
-    
+
     class ::TestValidationComponent < SwiftUIRails::Component::Base
       prop :variant, type: Symbol, default: :primary
       prop :size, type: Symbol, default: :md
