@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
-require "active_model"
-require "active_support/dependencies/autoload"
+require 'active_model'
+require 'active_support/dependencies/autoload'
 
 module ViewComponent
   module Storybook
@@ -42,11 +43,11 @@ module ViewComponent
     # :nocov:
     if defined?(ViewComponent::Storybook::Engine)
       ActiveSupport::Deprecation.warn(
-        "This manually engine loading is deprecated and will be removed in v1.0.0. " \
-        "Remove `require \"view_component/storybook/engine\"`."
+        'This manually engine loading is deprecated and will be removed in v1.0.0. ' \
+        'Remove `require "view_component/storybook/engine"`.'
       )
     elsif defined?(Rails::Engine)
-      require "view_component/storybook/engine"
+      require 'view_component/storybook/engine'
     end
     # :nocov:
 

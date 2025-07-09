@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 module ViewComponent
@@ -9,7 +10,7 @@ module ViewComponent
       # It has a value and pulls its value from params by key
       class SimpleControl < Control
         def initialize(param, default: nil, name: nil, description: nil, **opts)
-          super(param, default: default, name: name, description: description, **opts)
+          super
         end
 
         def to_csf_params

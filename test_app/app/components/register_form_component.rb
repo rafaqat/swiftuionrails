@@ -1,32 +1,33 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class RegisterFormComponent < SwiftUIRails::Component::Base
   prop :action_path, type: String, default: "/register"
   prop :logo_url, type: String, default: "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
   prop :company_name, type: String, default: "Your Company"
-  prop :show_login_link, type: [TrueClass, FalseClass], default: true
+  prop :show_login_link, type: [ TrueClass, FalseClass ], default: true
   prop :login_path, type: String, default: "/login"
-  prop :show_terms, type: [TrueClass, FalseClass], default: true
+  prop :show_terms, type: [ TrueClass, FalseClass ], default: true
   prop :terms_path, type: String, default: "#"
   prop :privacy_path, type: String, default: "#"
   prop :csrf_token, type: String, default: nil
-  prop :require_name, type: [TrueClass, FalseClass], default: true
-  
+  prop :require_name, type: [ TrueClass, FalseClass ], default: true
+
   swift_ui do
     div.flex.min_h_full.flex_col.justify_center.px(6).py(12).lg_px(8) do
       # Logo and title section
       div.sm_mx_auto.sm_w_full.sm_max_w_sm do
         image(
-          src: logo_url, 
+          src: logo_url,
           alt: company_name
         ).mx_auto.h(10).w_auto
-        
+
         h2.mt(10).text_center.text_size("2xl").leading(9).font_weight("bold").tracking_tight.text_color("gray-900") do
           text("Create your account")
         end
       end
-      
+
       # Form section
       div.mt(10).sm_mx_auto.sm_w_full.sm_max_w_sm do
         form(action: action_path, method: "POST").space_y(6) do
@@ -34,7 +35,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
           if csrf_token
             input(type: "hidden", name: "authenticity_token", value: csrf_token)
           end
-          
+
           # Name fields (optional)
           if require_name
             div.grid.grid_cols(2).gap(4) do
@@ -58,7 +59,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
                    .sm_text_size("sm").sm_leading(6)
                 end
               end
-              
+
               # Last name
               div do
                 label(for: "last_name").block.text_size("sm").leading(6).font_weight("medium").text_color("gray-900") do
@@ -81,7 +82,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
               end
             end
           end
-          
+
           # Email field
           div do
             label(for: "email").block.text_size("sm").leading(6).font_weight("medium").text_color("gray-900") do
@@ -102,7 +103,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
                .sm_text_size("sm").sm_leading(6)
             end
           end
-          
+
           # Password field
           div do
             label(for: "password").block.text_size("sm").leading(6).font_weight("medium").text_color("gray-900") do
@@ -123,7 +124,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
                .sm_text_size("sm").sm_leading(6)
             end
           end
-          
+
           # Password confirmation field
           div do
             label(for: "password_confirmation").block.text_size("sm").leading(6).font_weight("medium").text_color("gray-900") do
@@ -144,7 +145,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
                .sm_text_size("sm").sm_leading(6)
             end
           end
-          
+
           # Terms and conditions
           if show_terms
             div.flex.items_start do
@@ -173,7 +174,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
               end
             end
           end
-          
+
           # Submit button
           div do
             button("Create account", type: "submit")
@@ -191,7 +192,7 @@ class RegisterFormComponent < SwiftUIRails::Component::Base
               .focus_visible_outline_color("indigo-600")
           end
         end
-        
+
         # Login link
         if show_login_link
           p.mt(10).text_center.text_size("sm").leading(6).text_color("gray-500") do

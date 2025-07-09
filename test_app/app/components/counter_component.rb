@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class CounterComponent < SwiftUIRails::Component::Base
@@ -7,7 +8,7 @@ class CounterComponent < SwiftUIRails::Component::Base
   prop :step, type: Integer, default: 1
   prop :label, type: String, default: "Counter"
   prop :counter_id, type: String, default: -> { "counter-#{SecureRandom.hex(4)}" }
-  
+
   swift_ui do
     # Rails-first approach: Components are stateless view builders
     # State is managed by Stimulus controller on the client side
@@ -19,14 +20,14 @@ class CounterComponent < SwiftUIRails::Component::Base
         .font_weight("bold")
         .tw("transition-colors duration-200")
         .data("counter-target": "label")
-      
+
       # Count display with animation
       text("")
         .font_size("6xl")
         .font_weight("black")
         .tw("transition-all duration-300")
         .data("counter-target": "count")
-      
+
       # Controls - client-side actions via Stimulus
       hstack(spacing: 2) do
         button("-")
@@ -40,7 +41,7 @@ class CounterComponent < SwiftUIRails::Component::Base
             action: "click->counter#decrement",
             "counter-target": "decrementBtn"
           })
-        
+
         button("Reset")
           .bg("gray-500")
           .text_color("white")
@@ -48,7 +49,7 @@ class CounterComponent < SwiftUIRails::Component::Base
           .py(2)
           .rounded("lg")
           .data(action: "click->counter#reset")
-        
+
         button("+")
           .bg("green-500")
           .text_color("white")
@@ -61,7 +62,7 @@ class CounterComponent < SwiftUIRails::Component::Base
             "counter-target": "incrementBtn"
           })
       end
-      
+
       # History display
       div(data: { "counter-target": "history" }) do
         # History will be rendered by Stimulus controller

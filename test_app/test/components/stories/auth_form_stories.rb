@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class AuthFormStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
   include SwiftUIRails::DSL
-  
+
   # Simple DSL test
   def simple_dsl_test(**kwargs)
     swift_ui do
@@ -13,7 +14,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   # Basic login form
   def login(**kwargs)
     render AuthFormComponent.new(
@@ -21,7 +22,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Login form with pre-filled email
   def login_with_email(**kwargs)
     render AuthFormComponent.new(
@@ -30,7 +31,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Login form with error
   def login_with_errors(**kwargs)
     render AuthFormComponent.new(
@@ -45,7 +46,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Basic registration form
   def register(**kwargs)
     render AuthFormComponent.new(
@@ -53,7 +54,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Registration without name fields
   def register_email_only(**kwargs)
     render AuthFormComponent.new(
@@ -62,7 +63,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Registration with validation errors
   def register_with_errors(**kwargs)
     render AuthFormComponent.new(
@@ -81,7 +82,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Custom branded login
   def custom_branded_login(**kwargs)
     render AuthFormComponent.new(
@@ -94,7 +95,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Success message after registration
   def login_after_registration(**kwargs)
     render AuthFormComponent.new(
@@ -105,7 +106,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
       csrf_token: "dummy_token_for_demo"
     )
   end
-  
+
   # Login form using DSL directly (without component)
   def pure_dsl_login(**kwargs)
     swift_ui do
@@ -115,7 +116,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
           div.mx("auto").h(12).w(12).rounded_full.bg("indigo-600").flex.items_center.justify_center do
             text("S").text_size("2xl").font_weight("bold").text_color("white")
           end
-          
+
           h2.mt(10).text_center.text_size("2xl").leading("9").font_weight("bold").tracking("tight").text_color("gray-900") do
             text("Welcome back")
           end
@@ -123,7 +124,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
             text("Sign in to continue to SwiftUI Rails")
           end
         end
-        
+
         # Card container
         div.mt(10).sm("mx-auto w-full max-w-sm") do
           div.bg("white").py(8).px(4).shadow.rounded("lg").sm("px-10") do
@@ -148,7 +149,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                    .focus_ring_color("indigo-500").focus_border_color("indigo-500")
                 end
               end
-              
+
               # Password with icon
               div do
                 label(for: "password").block.text_size("sm").font_weight("medium").text_color("gray-700") do
@@ -169,7 +170,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                    .focus_ring_color("indigo-500").focus_border_color("indigo-500")
                 end
               end
-              
+
               # Remember me and forgot password
               div.flex.items_center.justify_between do
                 div.flex.items_center do
@@ -183,7 +184,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     text("Remember me")
                   end
                 end
-                
+
                 div.text_size("sm") do
                   link("Forgot password?", destination: "#")
                     .font_weight("medium")
@@ -191,7 +192,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                     .hover_text_color("indigo-500")
                 end
               end
-              
+
               # Submit button with gradient
               div do
                 button("Sign in", type: "submit")
@@ -210,7 +211,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   .focus_ring_offset("2")
                   .focus_ring_color("indigo-500")
               end
-              
+
               # Divider
               div.mt(6) do
                 div.relative do
@@ -224,7 +225,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   end
                 end
               end
-              
+
               # Social login buttons
               div.mt(6).grid_class.grid_cols(2).gap(3) do
                 button(type: "button")
@@ -240,7 +241,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   .hover_bg("gray-50") do
                   text("🌐 Google")
                 end
-                
+
                 button(type: "button")
                   .flex.w_full.justify_center
                   .items_center.gap(2)
@@ -257,7 +258,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
               end
             end
           end
-          
+
           # Sign up link
           p.mt(10).text_center.text_size("sm").text_color("gray-600") do
             text("Not a member? ")

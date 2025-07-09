@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 # This demonstrates the elegance of the SwiftUI-like preview DSL
@@ -13,13 +14,13 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
             .font_size("4xl")
             .font_weight("bold")
             .text_color("gray-900")
-          
+
           text("Build beautiful, interactive UIs with a familiar SwiftUI-like syntax")
             .font_size("lg")
             .text_color("gray-600")
             .max_w("2xl")
             .text_center
-          
+
           # CTA buttons
           hstack(spacing: 4) do
             button("Get Started")
@@ -31,7 +32,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
               .hover("bg-blue-700 scale-105")
               .transition
               .shadow("lg")
-            
+
             button("Learn More")
               .bg("white")
               .text_color("gray-700")
@@ -44,7 +45,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
               .transition
           end
         end
-        
+
         # Feature cards
         grid(columns: 3, spacing: 8) do
           # Feature 1
@@ -54,12 +55,12 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
                 div.w(12).h(12).bg("blue-100").rounded("full").flex.items_center.justify_center do
                   text("🚀").text_size("2xl")
                 end
-                
+
                 text("Fast Development")
                   .font_size("lg")
                   .font_weight("semibold")
                   .text_color("gray-900")
-                
+
                 text("Build UIs rapidly with our intuitive DSL")
                   .text_size("sm")
                   .text_color("gray-600")
@@ -67,7 +68,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
               end
             end
           end.hover("shadow-lg scale-105").transition
-          
+
           # Feature 2
           card.bg("white") do
             card_content do
@@ -75,12 +76,12 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
                 div.w(12).h(12).bg("green-100").rounded("full").flex.items_center.justify_center do
                   text("✨").text_size("2xl")
                 end
-                
+
                 text("Beautiful by Default")
                   .font_size("lg")
                   .font_weight("semibold")
                   .text_color("gray-900")
-                
+
                 text("Tailwind-powered styling that looks great")
                   .text_size("sm")
                   .text_color("gray-600")
@@ -88,7 +89,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
               end
             end
           end.hover("shadow-lg scale-105").transition
-          
+
           # Feature 3
           card.bg("white") do
             card_content do
@@ -96,12 +97,12 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
                 div.w(12).h(12).bg("purple-100").rounded("full").flex.items_center.justify_center do
                   text("🎯").text_size("2xl")
                 end
-                
+
                 text("Type Safe")
                   .font_size("lg")
                   .font_weight("semibold")
                   .text_color("gray-900")
-                
+
                 text("Props validation keeps your components reliable")
                   .text_size("sm")
                   .text_color("gray-600")
@@ -115,7 +116,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
       .bg("gray-50")
       .rounded("xl")
     end
-    
+
     scenario "Interactive Form" do
       card.bg("white") do
         card_header do
@@ -124,7 +125,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
             .font_weight("semibold")
             .text_color("gray-900")
         end
-        
+
         card_content do
           vstack(spacing: 6) do
             # Project name field
@@ -133,37 +134,37 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
                 .text_size("sm")
                 .font_weight("medium")
                 .text_color("gray-700")
-              
+
               input(
                 type: "text",
                 placeholder: "Enter project name",
                 class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               )
             end
-            
+
             # Description field
             vstack(spacing: 2, alignment: :start) do
               text("Description")
                 .text_size("sm")
                 .font_weight("medium")
                 .text_color("gray-700")
-              
+
               textarea(
                 placeholder: "Describe your project",
                 rows: 3,
                 class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               )
             end
-            
+
             # Project type
             vstack(spacing: 2, alignment: :start) do
               text("Project Type")
                 .text_size("sm")
                 .font_weight("medium")
                 .text_color("gray-700")
-              
+
               hstack(spacing: 4) do
-                ["Web App", "Mobile App", "API"].each do |type|
+                [ "Web App", "Mobile App", "API" ].each do |type|
                   label(class: "flex items-center space-x-2") do
                     input(type: "radio", name: "project_type", value: type.downcase.gsub(" ", "_"))
                     text(type).text_size("sm").text_color("gray-700")
@@ -173,7 +174,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
             end
           end
         end
-        
+
         card_footer do
           hstack(spacing: 3, alignment: :center) do
             button("Cancel")
@@ -185,7 +186,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
               .rounded("md")
               .hover("bg-gray-50")
               .transition
-            
+
             button("Create Project")
               .bg("blue-600")
               .text_color("white")
@@ -201,7 +202,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
       .max_w("lg")
       .shadow("xl")
     end
-    
+
     scenario "Data List" do
       # Sample data
       users = [
@@ -209,7 +210,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
         { name: "Mike Johnson", role: "Developer", status: "active" },
         { name: "Emma Davis", role: "Product Manager", status: "away" }
       ]
-      
+
       vstack(spacing: 4) do
         # Header
         hstack(alignment: :center) do
@@ -218,7 +219,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
             .font_weight("semibold")
             .text_color("gray-900")
             .flex_grow
-          
+
           button("Add Member")
             .bg("blue-600")
             .text_color("white")
@@ -228,7 +229,7 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
             .hover("bg-blue-700")
             .transition
         end
-        
+
         # List using the generic list method
         list(items: users) do |user, index|
           div
@@ -250,18 +251,18 @@ class SwiftuiPreviewDemoStories < SwiftUIRails::StorybookStories
                       .text_color("white")
                       .font_weight("medium")
                   end
-                
+
                 # User info
                 vstack(spacing: 0, alignment: :start).flex_grow do
                   text(user[:name])
                     .font_weight("medium")
                     .text_color("gray-900")
-                  
+
                   text(user[:role])
                     .text_size("sm")
                     .text_color("gray-600")
                 end
-                
+
                 # Status badge
                 div
                   .px(2).py(1)

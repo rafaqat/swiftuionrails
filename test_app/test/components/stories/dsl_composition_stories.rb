@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class DslCompositionStories < ViewComponent::Storybook::Stories
@@ -7,12 +8,12 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
   include ActionView::Context
   include SwiftUIRails::DSL
   include SwiftUIRails::Helpers
-  
+
   # Controls for demonstrating composition
-  control :items_count, as: :select, options: [3, 5, 10], default: 5
-  control :layout, as: :select, options: ["list", "grid"], default: "list"
+  control :items_count, as: :select, options: [ 3, 5, 10 ], default: 5
+  control :layout, as: :select, options: [ "list", "grid" ], default: "list"
   control :show_actions, as: :boolean, default: true
-  
+
   def composition_showcase(
     items_count: 5,
     layout: "list",
@@ -29,7 +30,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
         in_stock: i % 3 != 0
       }
     end
-    
+
     content_tag(:div, class: "p-8") do
       swift_ui do
         vstack(spacing: 24) do
@@ -38,12 +39,12 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
             .font_size("2xl")
             .font_weight("bold")
             .text_color("gray-900")
-          
+
           text("Favor composition over configuration - build complex UIs from simple, composable parts")
             .text_size("sm")
             .text_color("gray-600")
             .margin_bottom(8)
-          
+
           # List example using the new generic list method
           if layout == "list"
             list(items: products) do |product, index|
@@ -59,7 +60,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                       .flex.items_center.justify_center do
                         text("📦").text_size("2xl")
                       end
-                    
+
                     # Product details
                     vstack(spacing: 2, alignment: :start).flex_grow do
                       hstack(alignment: :center) do
@@ -67,7 +68,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                           .font_size("lg")
                           .font_weight("semibold")
                           .text_color("gray-900")
-                        
+
                         if product[:in_stock]
                           text("In Stock")
                             .text_size("xs")
@@ -86,18 +87,18 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                             .ml(2)
                         end
                       end
-                      
+
                       text(product[:description])
                         .text_size("sm")
                         .text_color("gray-600")
-                      
+
                       hstack(spacing: 4, alignment: :center) do
                         text(product[:price])
                           .font_weight("bold")
                           .text_color("blue-600")
-                        
+
                         text("•").text_color("gray-400")
-                        
+
                         # Rating stars
                         hstack(spacing: 1) do
                           product[:rating].times do
@@ -106,7 +107,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                         end
                       end
                     end
-                    
+
                     # Actions
                     if show_actions
                       vstack(spacing: 2) do
@@ -121,7 +122,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                           .stimulus_controller("cart")
                           .stimulus_action("click->cart#add")
                           .stimulus_param("product-id", product[:id])
-                        
+
                         button("View")
                           .bg("gray-100")
                           .text_color("gray-700")
@@ -150,23 +151,23 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                       .flex.items_center.justify_center do
                         text("📦").text_size("4xl")
                       end
-                    
+
                     text(product[:name])
                       .font_size("lg")
                       .font_weight("semibold")
                       .text_color("gray-900")
-                    
+
                     text(product[:description])
                       .text_size("sm")
                       .text_color("gray-600")
                       .text_center
                       .line_clamp(2)
-                    
+
                     text(product[:price])
                       .font_size("xl")
                       .font_weight("bold")
                       .text_color("blue-600")
-                    
+
                     if show_actions
                       button("Add to Cart")
                         .bg("blue-600")
@@ -190,7 +191,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   def button_composition
     content_tag(:div, class: "p-8") do
       swift_ui do
@@ -199,7 +200,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
             .font_size("xl")
             .font_weight("bold")
             .text_color("gray-900")
-          
+
           # Simple button - structure only, behavior via Stimulus
           button("Simple Button")
             .bg("blue-600")
@@ -210,7 +211,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
             .transition
             .stimulus_controller("example")
             .stimulus_action("click->example#handleClick")
-          
+
           # Button with icon composition
           button do
             hstack(spacing: 2, alignment: :center) do
@@ -224,7 +225,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
           .rounded("md")
           .hover("bg-purple-700")
           .transition
-          
+
           # Button group composition
           hstack(spacing: 0) do
             button("Previous")
@@ -236,14 +237,14 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
               .border_color("gray-300")
               .hover("bg-gray-300")
               .transition
-            
+
             button("1")
               .bg("blue-600")
               .text_color("white")
               .px(4).py(2)
               .hover("bg-blue-700")
               .transition
-            
+
             button("2")
               .bg("gray-200")
               .text_color("gray-700")
@@ -252,7 +253,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
               .border_color("gray-300")
               .hover("bg-gray-300")
               .transition
-            
+
             button("Next")
               .bg("gray-200")
               .text_color("gray-700")
@@ -267,7 +268,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   def card_composition_advanced
     content_tag(:div, class: "p-8") do
       swift_ui do
@@ -276,7 +277,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
             .font_size("xl")
             .font_weight("bold")
             .text_color("gray-900")
-          
+
           # Complex card built from simple parts
           card.bg("white") do
             # Header with actions
@@ -287,12 +288,12 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                     .font_size("lg")
                     .font_weight("semibold")
                     .text_color("gray-900")
-                  
+
                   text("Last updated 5 minutes ago")
                     .text_size("sm")
                     .text_color("gray-500")
                 end
-                
+
                 hstack(spacing: 2) do
                   button("Refresh")
                     .bg("white")
@@ -304,7 +305,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                     .rounded("md")
                     .hover("bg-gray-50")
                     .transition
-                  
+
                   button("Settings")
                     .bg("white")
                     .text_color("gray-700")
@@ -318,7 +319,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                 end
               end
             end
-            
+
             # Multiple content sections
             card_section do
               grid(columns: 3, spacing: 4) do
@@ -336,12 +337,12 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                         text(metric[:label])
                           .text_size("sm")
                           .text_color("gray-600")
-                        
+
                         text(metric[:value])
                           .font_size("2xl")
                           .font_weight("bold")
                           .text_color("gray-900")
-                        
+
                         text(metric[:change])
                           .text_size("sm")
                           .text_color(metric[:change].start_with?("+") ? "green-600" : "red-600")
@@ -350,7 +351,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                 end
               end
             end
-            
+
             # Chart placeholder
             card_section.border_t.border_color("gray-200") do
               div
@@ -362,7 +363,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                     .text_color("gray-400")
                 end
             end
-            
+
             # Footer with actions
             card_footer.border_color("gray-200").bg("gray-50") do
               hstack(alignment: :center) do
@@ -370,7 +371,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                   .text_size("sm")
                   .text_color("gray-600")
                   .flex_grow
-                
+
                 button("Export")
                   .bg("white")
                   .text_color("gray-700")
@@ -381,7 +382,7 @@ class DslCompositionStories < ViewComponent::Storybook::Stories
                   .rounded("md")
                   .hover("bg-gray-50")
                   .transition
-                
+
                 button("View All")
                   .bg("blue-600")
                   .text_color("white")

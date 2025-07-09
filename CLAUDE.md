@@ -321,6 +321,33 @@ This is a Rails gem that brings SwiftUI-like declarative syntax to Rails views, 
 - `.title(title_text)` - Sets the title attribute for tooltips
 - `.style(style_string)` - Adds inline styles
 
+#### Orientation Support (SwiftUI-Inspired)
+- Components now accept an `orientation` prop (`:portrait` or `:landscape`)
+- `if_portrait { ... }` - Conditionally render content in portrait mode
+- `if_landscape { ... }` - Conditionally render content in landscape mode
+- `orientation_stack` - Automatically switches between vstack/hstack based on orientation
+- Size classes: `horizontal_size_class`, `vertical_size_class` (returns `:compact` or `:regular`)
+- Helper methods: `compact_width?`, `regular_width?`, `compact_height?`, `regular_height?`
+
+Example:
+```ruby
+swift_ui do
+  orientation_stack(spacing: 16) do
+    # In portrait: renders as vstack
+    # In landscape: renders as hstack
+    image(src: product_image)
+      .width(if_portrait { "full" } || "48")
+    
+    vstack do
+      text(product_name)
+        .font_size(if_portrait { "xl" } || "2xl")
+      text(product_price)
+        .text_color("blue-600")
+    end
+  end
+end
+```
+
 ## Architectural Philosophy: The Rails-First Approach
 
 ### Core Principles
