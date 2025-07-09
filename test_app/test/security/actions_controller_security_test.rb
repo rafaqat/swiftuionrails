@@ -48,12 +48,12 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
     # This test verifies that ButtonComponent is in the whitelist
     # The actual functionality test would require a full component setup
     # with registered actions, which is beyond the scope of security testing
-    
+
     # Verify ButtonComponent is whitelisted
     controller = ::SwiftUi::ActionsController.new
     assert controller.send(:allowed_component?, "ButtonComponent"),
            "ButtonComponent should be in the whitelist"
-    
+
     # Verify a non-whitelisted component is rejected
     refute controller.send(:allowed_component?, "EvilComponent"),
            "Non-whitelisted components should be rejected"
@@ -161,14 +161,14 @@ class ActionsControllerSecurityTest < ActionDispatch::IntegrationTest
     # This test verifies that CSRF protection is enabled in the controller
     # In test environment, Rails disables forgery protection by default,
     # but we can verify the controller doesn't explicitly skip it
-    
+
     # Read the controller source to verify no skip_before_action
     controller_source = File.read(Rails.root.join("app/controllers/swift_ui/actions_controller.rb"))
-    
+
     # Verify the controller doesn't skip CSRF protection
     refute controller_source.include?("skip_before_action :verify_authenticity_token"),
            "ActionsController should not skip CSRF verification"
-    
+
     # Also verify the ApplicationController doesn't skip it
     app_controller_source = File.read(Rails.root.join("app/controllers/application_controller.rb"))
     refute app_controller_source.include?("skip_forgery_protection"),
