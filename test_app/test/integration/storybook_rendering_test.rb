@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 require "test_helper"
@@ -11,22 +12,22 @@ class StorybookRenderingTest < ActionDispatch::IntegrationTest
 
   test "all storybook components render without DSL method errors" do
     story_results = []
-    
+
     @story_files.each do |file|
       story_name = File.basename(file, "_stories.rb")
       next if story_name.include?("simple") # Skip legacy stories
-      
+
       puts "Testing story: #{story_name}"
-      
+
       # Visit the story page
       get "/storybook/show", params: { story: story_name }
-      
+
       # Check if the response was successful
       if response.successful?
         # Look for error content in the response body
-        if response.body.include?("undefined method") && 
+        if response.body.include?("undefined method") &&
            response.body.include?("SwiftUIRails::DSL::Element")
-          
+
           # Extract method name from error
           error_match = response.body.match(/undefined method `([^']+)'.*SwiftUIRails::DSL::Element/m)
           if error_match
@@ -40,7 +41,7 @@ class StorybookRenderingTest < ActionDispatch::IntegrationTest
             puts "  ❌ Missing DSL method: #{method_name}"
           else
             story_results << {
-              story: story_name, 
+              story: story_name,
               status: :other_error,
               error: "DSL error but couldn't extract method name"
             }
@@ -66,22 +67,22 @@ class StorybookRenderingTest < ActionDispatch::IntegrationTest
         puts "  💥 HTTP Error: #{response.status}"
       end
     end
-    
+
     # Generate report
     puts "\n📊 Storybook Rendering Test Results:"
     puts "=" * 50
-    
+
     successful = story_results.count { |r| r[:status] == :success }
     total = story_results.length
-    
+
     puts "✅ Successful: #{successful}/#{total} (#{(successful.to_f/total*100).round(1)}%)"
-    
+
     # Group by error type
     by_status = story_results.group_by { |r| r[:status] }
-    
+
     by_status.each do |status, results|
       next if status == :success
-      
+
       puts "\n#{status_emoji(status)} #{status.to_s.humanize}: #{results.length}"
       results.each do |result|
         puts "  - #{result[:story]}"
@@ -92,13 +93,13 @@ class StorybookRenderingTest < ActionDispatch::IntegrationTest
         end
       end
     end
-    
+
     # Extract missing methods for easy fixing
     missing_methods = story_results
       .select { |r| r[:status] == :missing_method }
       .map { |r| r[:method] }
       .uniq
-    
+
     if missing_methods.any?
       puts "\n🚨 Missing DSL Methods to Add:"
       puts "-" * 30
@@ -107,10 +108,10 @@ class StorybookRenderingTest < ActionDispatch::IntegrationTest
         puts ""
       end
     end
-    
+
     # Fail if there are missing methods
     missing_method_stories = story_results.select { |r| r[:status] == :missing_method }
-    assert missing_method_stories.empty?, 
+    assert missing_method_stories.empty?,
       "#{missing_method_stories.length} stories have missing DSL methods: #{missing_methods.join(', ')}"
   end
 

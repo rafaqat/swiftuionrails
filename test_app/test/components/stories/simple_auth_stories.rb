@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 class SimpleAuthStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
   include SwiftUIRails::DSL
-  
+
   # Simple login form using pure DSL
   def simple_login(**kwargs)
     swift_ui do
@@ -17,7 +18,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
             end
             text("Sign in to your account").text_size("2xl").font_weight("bold").text_color("gray-900")
           end
-          
+
           # Form
           form(action: "/login", method: "POST") do
             # Email field
@@ -32,7 +33,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               ).w("full").px(3).py(2).border.border_color("gray-300").rounded("md")
                .focus("outline-none ring-2 ring-indigo-500 border-indigo-500")
             end
-            
+
             # Password field
             div.mb(6) do
               div.flex.justify_between.mb(2) do
@@ -48,7 +49,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               ).w("full").px(3).py(2).border.border_color("gray-300").rounded("md")
                .focus("outline-none ring-2 ring-indigo-500 border-indigo-500")
             end
-            
+
             # Submit button
             button("Sign in", type: "submit")
               .w("full")
@@ -61,7 +62,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               .hover("bg-indigo-700")
               .focus("outline-none ring-2 ring-offset-2 ring-indigo-500")
           end
-          
+
           # Sign up link
           div.mt(6).text_center do
             text("Don't have an account? ").text_color("gray-600")
@@ -71,7 +72,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   # Registration form
   def simple_register(**kwargs)
     swift_ui do
@@ -81,7 +82,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
           div.text_center.mb(8) do
             text("Create your account").text_size("2xl").font_weight("bold").text_color("gray-900")
           end
-          
+
           # Form
           form(action: "/register", method: "POST") do
             # Name fields
@@ -96,7 +97,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
                 ).w("full").px(3).py(2).border.border_color("gray-300").rounded("md")
                  .focus("outline-none ring-2 ring-indigo-500")
               end
-              
+
               div do
                 label("Last name", for: "last_name").block.text_size("sm").font_weight("medium").text_color("gray-700").mb(2)
                 input(
@@ -108,7 +109,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
                  .focus("outline-none ring-2 ring-indigo-500")
               end
             end
-            
+
             # Email field
             div.mb(4) do
               label("Email", for: "email").block.text_size("sm").font_weight("medium").text_color("gray-700").mb(2)
@@ -121,7 +122,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               ).w("full").px(3).py(2).border.border_color("gray-300").rounded("md")
                .focus("outline-none ring-2 ring-indigo-500")
             end
-            
+
             # Password fields
             div.mb(4) do
               label("Password", for: "password").block.text_size("sm").font_weight("medium").text_color("gray-700").mb(2)
@@ -134,7 +135,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               ).w("full").px(3).py(2).border.border_color("gray-300").rounded("md")
                .focus("outline-none ring-2 ring-indigo-500")
             end
-            
+
             div.mb(6) do
               label("Confirm password", for: "password_confirmation").block.text_size("sm").font_weight("medium").text_color("gray-700").mb(2)
               input(
@@ -146,7 +147,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               ).w("full").px(3).py(2).border.border_color("gray-300").rounded("md")
                .focus("outline-none ring-2 ring-indigo-500")
             end
-            
+
             # Terms checkbox
             div.mb(6).flex.items_start do
               input(
@@ -156,7 +157,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
                 required: true
               ).mt(1).mr(2).h(4).w(4).text_color("indigo-600").rounded.border_color("gray-300")
                .focus("ring-indigo-500")
-              
+
               label(for: "agree_terms").text_size("sm").text_color("gray-600") do
                 text("I agree to the ")
                 link("Terms", destination: "#").text_color("indigo-600").hover("text-indigo-500")
@@ -164,7 +165,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
                 link("Privacy Policy", destination: "#").text_color("indigo-600").hover("text-indigo-500")
               end
             end
-            
+
             # Submit button
             button("Create account", type: "submit")
               .w("full")
@@ -177,7 +178,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               .hover("bg-indigo-700")
               .focus("outline-none ring-2 ring-offset-2 ring-indigo-500")
           end
-          
+
           # Sign in link
           div.mt(6).text_center do
             text("Already have an account? ").text_color("gray-600")
@@ -187,7 +188,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
       end
     end
   end
-  
+
   # Login with gradient styling
   def gradient_login(**kwargs)
     swift_ui do
@@ -201,7 +202,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
             text("Welcome Back").text_size("3xl").font_weight("bold").text_color("gray-900").mb(2)
             text("Sign in to continue your journey").text_size("sm").text_color("gray-600")
           end
-          
+
           # Form
           form(action: "/login", method: "POST") do
             # Email field with icon
@@ -222,7 +223,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
                  .transition.duration(200)
               end
             end
-            
+
             # Password field with icon
             div.mb(8) do
               label("Password", for: "password").block.text_size("sm").font_weight("medium").text_color("gray-700").mb(2)
@@ -241,7 +242,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
                  .transition.duration(200)
               end
             end
-            
+
             # Submit button with gradient
             button("Sign in", type: "submit")
               .w("full")
@@ -257,7 +258,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               .hover("scale-105 shadow-lg")
               .focus("outline-none ring-2 ring-offset-2 ring-purple-500")
           end
-          
+
           # Divider
           div.my(8).relative do
             div.absolute.inset(0).flex.items_center do
@@ -269,7 +270,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               end
             end
           end
-          
+
           # Social buttons
           div.grid.grid_cols(2).gap(4) do
             button(type: "button")
@@ -282,7 +283,7 @@ class SimpleAuthStories < ViewComponent::Storybook::Stories
               text("🌐")
               text("Google").font_weight("medium").text_color("gray-700")
             end
-            
+
             button(type: "button")
               .flex.justify_center.items_center.gap(2)
               .w("full").py(2).px(4)

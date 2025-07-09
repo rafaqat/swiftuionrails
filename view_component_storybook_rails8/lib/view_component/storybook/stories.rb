@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 module ViewComponent
@@ -22,7 +23,7 @@ module ViewComponent
         end
 
         def stories_name
-          name.chomp("Stories").underscore
+          name.chomp('Stories').underscore
         end
 
         def preview_name
@@ -42,7 +43,9 @@ module ViewComponent
         end
 
         def stories
-          @stories ||= story_names.map { |name| Story.new(story_id(name), name, parameters_collection.for_story(name), controls.for_story(name)) }
+          @stories ||= story_names.map do |name|
+            Story.new(story_id(name), name, parameters_collection.for_story(name), controls.for_story(name))
+          end
         end
 
         # find the story by name
@@ -65,7 +68,12 @@ module ViewComponent
             [param, value]
           end
 
-          result = control_parsed_params.empty? ? new.public_send(story_name) : new.public_send(story_name, **control_parsed_params)
+          result = if control_parsed_params.empty?
+                     new.public_send(story_name)
+                   else
+                     new.public_send(story_name,
+                                     **control_parsed_params)
+                   end
           result ||= {}
           result[:template] = preview_example_template_path(story_name) if result[:template].nil?
           @layout = layout_collection.for_story(story_name.to_sym)
@@ -78,11 +86,11 @@ module ViewComponent
           @code_object = object
           @stories_json_path ||= begin
             dir = File.dirname(object.file)
-            
+
             # Defensive programming for nil path
             if object.path.nil?
               Rails.logger.error "Code object path is nil for file: #{object.file}"
-              json_filename = "unknown_story"
+              json_filename = 'unknown_story'
             else
               json_filename = object.path.demodulize.underscore
             end
