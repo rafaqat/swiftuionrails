@@ -101,7 +101,7 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
       skip "Mocha not available"
       return
     end
-    
+
     # Mock Rails.logger
     logged_messages = []
     Rails.logger.stubs(:error).with { |msg| logged_messages << msg; true }
