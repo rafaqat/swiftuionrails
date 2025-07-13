@@ -2,7 +2,7 @@
 
 # Copyright 2025
 
-class SimpleCounterComponent < SwiftUIRails::Component::Base
+class SimpleCounterComponent < ApplicationComponent
   prop :count, type: Integer, default: 0
 
   swift_ui do

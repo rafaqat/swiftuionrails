@@ -8,7 +8,7 @@ class CounterRenderTest < ActiveSupport::TestCase
     component = CounterComponent.new(
       initial_count: 5,
       step: 2,
-      label: "Test Counter"
+      counter_label: "Test Counter"
     )
 
     # Render the component

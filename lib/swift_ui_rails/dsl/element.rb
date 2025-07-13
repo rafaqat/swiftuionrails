@@ -189,6 +189,22 @@ module SwiftUIRails
         end
       end
 
+      def border_transparent(&block)
+        tw('border-transparent', &block)
+      end
+
+      def overflow_hidden(&block)
+        tw('overflow-hidden', &block)
+      end
+
+      def pt(value = nil, &block)
+        tw(value ? "pt-#{value}" : "pt", &block)
+      end
+
+      def pb(value = nil, &block)
+        tw(value ? "pb-#{value}" : "pb", &block)
+      end
+
       # Shadow utilities
       def shadow(size = '', &block)
         tw(size.empty? ? 'shadow' : "shadow-#{size}", &block)
@@ -937,13 +953,11 @@ module SwiftUIRails
             @view_context.content_tag(@tag_name, sanitized_content.html_safe, @options)
           end
         elsif @content
-          # Sanitize content to prevent XSS
-          sanitized_content = if @view_context.respond_to?(:sanitize)
-                                @view_context.sanitize(@content.to_s)
-                              else
-                                ERB::Util.html_escape(@content.to_s)
-                              end
-          @view_context.content_tag(@tag_name, sanitized_content, @options)
+          # Escape HTML content to prevent XSS
+          # For text elements, we should escape HTML rather than sanitize it
+          # This preserves the content while making it safe
+          escaped_content = ERB::Util.html_escape(@content.to_s)
+          @view_context.content_tag(@tag_name, escaped_content, @options)
         elsif %i[span p h1 h2 h3 h4 h5 h6 div label button].include?(@tag_name)
           # For text-like elements, use content_tag with empty string
           @view_context.content_tag(@tag_name, '', @options)
@@ -1117,6 +1131,19 @@ module SwiftUIRails
       def currency(symbol)
         @options[:currency_symbol] = symbol
         self
+      end
+      
+      # Ruby's tap method for chaining
+      def tap(&block)
+        block.call(self) if block
+        self
+      end
+      
+      # Convert to symbol (used in some DSL patterns)
+      def to_sym(&block)
+        # This is a DSL modifier, not actually converting to symbol
+        # It's used for symbolic references in the DSL
+        tw("to-sym", &block)
       end
     end
   end

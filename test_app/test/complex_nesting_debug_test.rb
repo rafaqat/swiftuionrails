@@ -40,6 +40,11 @@ class ComplexNestingDebugTest < ActiveSupport::TestCase
 
     # Restore original method
     SwiftUIRails::DSL.define_method(:create_element, original_create_element)
+    
+    # Add assertion to verify the result contains expected structure
+    assert_match %r{<div class="flex flex-col}, result.to_s
+    assert_match %r{Header}, result.to_s
+    assert_match %r{Inside card}, result.to_s
   end
 end
 # Copyright 2025

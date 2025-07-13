@@ -3,6 +3,9 @@
 # Copyright 2025
 
 class SimpleCardComponent < SwiftUIRails::Component::Base
+  # Disable memoization since we have slots that can change
+  enable_memoization false
+  
   renders_one :header
   renders_one :footer
 
@@ -23,25 +26,43 @@ class SimpleCardComponent < SwiftUIRails::Component::Base
 
   swift_ui do
     div.tw(card_classes) do
-      # Header
-      if header?
-        div.pb(4).mb(4).border_b.border_color("gray-200") do
-          header
-        end
+      # Header - we need to create a method that doesn't collide with DSL's header
+      if header_slot?
+        # Create a div with the slot content as its content directly
+        create_element(:div, header_slot, class: "pb-4 mb-4 border-b border-gray-200")
       end
 
       # Content (from block)
       div do
-        content
-      end
-
-      # Footer
-      if footer?
-        div.pt(4).mt(4).border_t.border_color("gray-200") do
-          footer
+        # ViewComponent's content is available directly
+        if content.present?
+          text(content.to_s)
         end
       end
+
+      # Footer - we need to create a method that doesn't collide with DSL's footer
+      if footer_slot?
+        # Create a div with the slot content as its content directly
+        create_element(:div, footer_slot, class: "pt-4 mt-4 border-t border-gray-200")
+      end
     end
+  end
+
+  # Helper methods to access slots without DSL collision
+  def header_slot?
+    header?
+  end
+
+  def header_slot
+    header
+  end
+
+  def footer_slot?
+    footer?
+  end
+
+  def footer_slot
+    footer
   end
 
   private

@@ -39,6 +39,13 @@ class CardMethodTest < ActiveSupport::TestCase
     card5a = dsl_context.card(elevation: 2)
     card5b = card5a.p(6)
     puts "Same object? #{card5a.object_id == card5b.object_id}"
+    
+    # Add assertions to verify card behavior
+    assert_kind_of SwiftUIRails::DSL::Element, card1
+    assert_match /rounded-lg bg-white shadow/, card1.to_s
+    assert_match /Inside/, card2.to_s
+    assert_match /p-6/, card3.to_s
+    assert_equal card5a.object_id, card5b.object_id, "Chained methods should return same object"
   end
 end
 # Copyright 2025

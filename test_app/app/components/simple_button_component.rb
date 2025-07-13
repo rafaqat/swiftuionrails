@@ -2,7 +2,7 @@
 
 # Copyright 2025
 
-class SimpleButtonComponent < SwiftUIRails::Component::Base
+class SimpleButtonComponent < ApplicationComponent
   # ViewComponent 2.0 Collection Support
   prop :simple_button, type: Object, default: nil  # Required for with_collection
   prop :simple_button_counter, type: Integer, default: nil  # Counter variable access

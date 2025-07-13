@@ -114,7 +114,8 @@ class SwiftUIRails::ErrorHandlingTest < ViewComponent::TestCase
   test "component errors are raised properly" do
     component = InvalidMethodComponent.new
 
-    assert_raises(NoMethodError) do
+    # The undefined_method_call is interpreted as a variable/constant name, raising NameError
+    assert_raises(NameError) do
       render_inline(component)
     end
   end

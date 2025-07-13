@@ -63,7 +63,10 @@ class ProductLayoutComponent < ApplicationComponent
 
             # Custom header actions slot
             if header_actions?
-              div.ml(4) { header_actions }
+              div.ml(4) do
+                # Use the raw slot content
+                text(header_actions.to_s.html_safe)
+              end
             end
           end
         end
@@ -72,13 +75,14 @@ class ProductLayoutComponent < ApplicationComponent
         if show_filters && filter_position == "top"
           # Top filters layout
           vstack(spacing: 6) do
-            render_top_filters if filters?
-            # Inline the grid rendering to ensure it's in DSL context
-            Rails.logger.debug "ProductLayoutComponent: Calling grid with columns: #{columns}, gap: #{gap}"
+            if filters?
+              div.bg("white").p(6).rounded("lg").shadow("sm").border.border_color("gray-200") do
+                text(filters.to_s.html_safe)
+              end
+            end
+            # Product grid
             grid(columns: columns, spacing: gap) do
               products.each_with_index do |product, index|
-                Rails.logger.debug "Rendering product #{index}: #{product[:name]}"
-
                 # Use the reusable DSL product card method
                 dsl_product_card(
                   name: product_name(product),
@@ -170,12 +174,9 @@ class ProductLayoutComponent < ApplicationComponent
           # No filters - just grid
           # Need to wrap in a div to ensure the element is captured
           div do
-            # Inline the grid rendering to ensure it's in DSL context
-            Rails.logger.debug "ProductLayoutComponent: Calling grid with columns: #{columns}, gap: #{gap}"
+            # Product grid
             grid(columns: columns, spacing: gap) do
               products.each_with_index do |product, index|
-                Rails.logger.debug "Rendering product #{index}: #{product[:name]}"
-
                 # Use the reusable DSL product card method
                 dsl_product_card(
                   name: product_name(product),
@@ -194,7 +195,9 @@ class ProductLayoutComponent < ApplicationComponent
 
         # Footer slot
         if footer?
-          div.mt(12) { footer }
+          div.mt(12) do
+            text(footer.to_s.html_safe)
+          end
         end
       end
     end
@@ -278,8 +281,11 @@ class ProductLayoutComponent < ApplicationComponent
     elsif product.respond_to?(:photo) && product.photo.attached?
       # Active Storage support
       rails_blob_url(product.photo)
-    else
+    elsif product.is_a?(Hash)
+      # Handle hash-based products
       product[:image_url] || product[:image] || product[:photo_url]
+    else
+      nil
     end
   end
 

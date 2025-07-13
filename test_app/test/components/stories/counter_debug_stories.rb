@@ -26,7 +26,7 @@ class CounterDebugStories < ViewComponent::Storybook::Stories
         render CounterComponent.new(
           initial_count: 0,
           step: 1,
-          label: "Test Counter"
+          counter_label: "Test Counter"
         )
       end
     end

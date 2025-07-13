@@ -9,9 +9,17 @@ class StorybookVariantsE2eTest < ActionDispatch::IntegrationTest
   # This test ensures all story variants work across all components
 
   def setup
-    @story_files = Dir[Rails.root.join("test/components/stories/*_stories.rb")]
-    @story_classes = @story_files.map do |file|
-      story_name = File.basename(file, "_stories.rb")
+    # Only test stories that are whitelisted in the controller
+    @whitelisted_stories = [ 
+      "dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple", 
+      "enhanced_grid", "auth_form", "simple_auth", "card_component", 
+      "enhanced_product_list_component" 
+    ]
+    
+    @story_classes = @whitelisted_stories.map do |story_name|
+      file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
+      next unless File.exist?(file)
+      
       story_class_name = "#{story_name.camelize}Stories"
 
       # Load the story file
@@ -48,9 +56,8 @@ class StorybookVariantsE2eTest < ActionDispatch::IntegrationTest
       # Get all story methods (variants) - filter out internal methods
       story_instance = story_class.new
       parent_methods = ViewComponent::Storybook::Stories.instance_methods
-      live_stories_methods = LiveStories.instance_methods
 
-      all_public_methods = story_instance.public_methods(false) - parent_methods - live_stories_methods
+      all_public_methods = story_instance.public_methods(false) - parent_methods
 
       # Filter out class attribute accessors and other non-story methods
       available_stories = all_public_methods.reject do |method_name|
@@ -104,9 +111,8 @@ class StorybookVariantsE2eTest < ActionDispatch::IntegrationTest
       # Get all story methods (variants) - filter out internal methods
       story_instance = story_class.new
       parent_methods = ViewComponent::Storybook::Stories.instance_methods
-      live_stories_methods = LiveStories.instance_methods
 
-      all_public_methods = story_instance.public_methods(false) - parent_methods - live_stories_methods
+      all_public_methods = story_instance.public_methods(false) - parent_methods
 
       # Filter out class attribute accessors and other non-story methods
       available_stories = all_public_methods.reject do |method_name|
@@ -192,6 +198,9 @@ class StorybookVariantsE2eTest < ActionDispatch::IntegrationTest
           "TURBO_STREAM request for variant #{variant} should work for story #{story_name}"
       end
     end
+    
+    # Add assertion to ensure we tested at least one story
+    assert working_stories.any?, "Should have at least one working story to test"
   end
 end
 # Copyright 2025

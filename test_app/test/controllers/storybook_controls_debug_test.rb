@@ -6,7 +6,7 @@ require "test_helper"
 
 class StorybookControlsDebugTest < ActionDispatch::IntegrationTest
   test "debug controls extraction for card component" do
-    story_name = "card_component"
+    story_name = "dsl_card"
     story_file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
 
     # Load the story file
@@ -18,12 +18,17 @@ class StorybookControlsDebugTest < ActionDispatch::IntegrationTest
     puts "Story class: #{story_class}"
     puts "Story class methods: #{story_class.instance_methods(false)}"
 
-    # Get component class
-    base_name = story_name.gsub(/_component(_stories)?$/, "")
-    component_name = "#{base_name}_component"
-    component_class = component_name.camelize.safe_constantize
-
-    puts "Component class: #{component_class}"
+    # DSL stories don't have backing component classes
+    if story_name.start_with?("dsl_")
+      puts "DSL story - no backing component class"
+      component_class = nil
+    else
+      # Get component class
+      base_name = story_name.gsub(/_component(_stories)?$/, "")
+      component_name = "#{base_name}_component"
+      component_class = component_name.camelize.safe_constantize
+      puts "Component class: #{component_class}"
+    end
 
     # Test controls extraction (same logic as storybook controller)
     begin
@@ -51,6 +56,13 @@ class StorybookControlsDebugTest < ActionDispatch::IntegrationTest
     end
 
     puts "=== END CONTROLS DEBUG ==="
+    
+    # Add assertions to ensure the test validates something
+    assert_not_nil story_class, "Story class should exist"
+    assert_equal 5, controls_hash.size, "Should have 5 controls"
+    assert_equal :text, controls_hash[:card_title][:type], "Card title should be text control"
+    assert_equal :select, controls_hash[:elevation][:type], "Elevation should be select control"
+    assert_equal [1, 2, 3], controls_hash[:elevation][:options], "Elevation should have 3 options"
   end
 end
 # Copyright 2025

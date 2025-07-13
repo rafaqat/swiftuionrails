@@ -2,7 +2,7 @@
 
 # Copyright 2025
 
-class EnhancedProductListComponent < SwiftUIRails::Component::Base
+class EnhancedProductListComponent < ApplicationComponent
   # Core props
   prop :products, type: Array, required: true
   prop :title, type: String, default: "Products"

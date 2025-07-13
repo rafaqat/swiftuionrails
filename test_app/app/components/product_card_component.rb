@@ -36,42 +36,43 @@ class ProductCardComponent < ApplicationComponent
   swift_ui do
     div do
       # Product Image with overlay actions
-      div.relative do
-        # Render product image or placeholder
-        render_product_image
-
-        # Out of stock badge
-        if product[:in_stock] == false
-          div do
-            text("Out of Stock")
-          end
-          .absolute
-          .top(2)
-          .right(2)
-          .bg("red-600")
-          .text_color("white")
-          .px(3)
-          .py(1)
-          .rounded("full")
-          .text_size("xs")
-          .font_weight("semibold")
+      image_container = div.relative
+      
+      # Render product image or placeholder
+      if product[:image_url].present?
+        img = image(src: product[:image_url], alt: product[:name])
+          .w("full")
+          .rounded("md")
+          .bg("gray-200")
+          .object("cover")
+          .group_hover("opacity-75")
+        apply_aspect_ratio(img)
+      else
+        placeholder = div do
+          text("No Image")
+            .text_color("gray-400")
+            .text_size("sm")
         end
+        placeholder.w("full")
+          .rounded("md")
+          .bg("gray-200")
+          .flex
+          .items_center
+          .justify_center
+        apply_aspect_ratio(placeholder)
+      end
 
-        # Sale badge
-        if product[:on_sale]
-          div do
-            text("Sale")
-          end
-          .absolute
-          .top(2)
-          .left(2)
-          .bg("green-600")
-          .text_color("white")
-          .px(3)
-          .py(1)
-          .rounded("full")
-          .text_size("xs")
-          .font_weight("semibold")
+      # Out of stock badge
+      if product[:in_stock] == false
+        div(class: "absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold") do
+          text("Out of Stock")
+        end
+      end
+
+      # Sale badge
+      if product[:on_sale]
+        div(class: "absolute top-2 left-2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold") do
+          text("Sale")
         end
       end
 
@@ -79,7 +80,8 @@ class ProductCardComponent < ApplicationComponent
       div.mt(4) do
         hstack.justify_between.items_start do
           # Product info
-          vstack(alignment: :leading, spacing: 1).flex_1 do
+          # Product info - don't chain flex_1 on vstack
+          info_stack = vstack(alignment: :start, spacing: 1) do
             # Product name
             text(product[:name])
               .text_size("sm")
@@ -94,9 +96,10 @@ class ProductCardComponent < ApplicationComponent
                 .text_color("gray-500")
             end
           end
+          info_stack.flex_1
 
           # Price
-          vstack(alignment: :trailing, spacing: 1) do
+          vstack(alignment: :end, spacing: 1) do
             # Current price
             text("#{product[:currency] || '$'}#{product[:price]}")
               .text_size("sm")

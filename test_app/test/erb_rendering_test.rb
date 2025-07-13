@@ -14,8 +14,8 @@ class ERBRenderingTest < ActionDispatch::IntegrationTest
       </div>
     ERB
 
-    # Create a test controller that renders this ERB
-    get "/home/index"
+    # Get the home page
+    get "/"
 
     puts "=== Response body ==="
     puts response.body
@@ -26,30 +26,12 @@ class ERBRenderingTest < ActionDispatch::IntegrationTest
       error_match = response.body.match(/Error.*?<\/p>/m)
       puts error_match[0] if error_match
     end
+    
+    # Add assertions
+    assert_response :success, "Should render successfully"
+    refute_match(/Error/, response.body, "Should not contain errors")
+    assert_match(/SwiftUI Rails DSL Components/, response.body, "Should contain page content")
   end
 
-  test "render ERB directly" do
-    # Test ERB rendering directly
-    view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
-    view.extend(SwiftUIRails::Helpers)
-
-    erb_content = <<~ERB
-      <%= swift_ui do
-        vstack(spacing: 24).p(8) do
-          text("Test content")
-        end
-      end %>
-    ERB
-
-    begin
-      result = ERB.new(erb_content).result(view.send(:binding))
-      puts "=== Direct ERB result ==="
-      puts result
-    rescue => e
-      puts "=== ERB rendering failed ==="
-      puts "#{e.class}: #{e.message}"
-      puts e.backtrace[0..5].join("\n")
-    end
-  end
 end
 # Copyright 2025

@@ -963,6 +963,32 @@ module SwiftUIRails
         self
       end
 
+      # Object fit utilities
+      def object_cover
+        add_class('object-cover')
+        self
+      end
+
+      def object_contain
+        add_class('object-contain')
+        self
+      end
+
+      def object_fill
+        add_class('object-fill')
+        self
+      end
+
+      def object_none
+        add_class('object-none')
+        self
+      end
+
+      def object_scale_down
+        add_class('object-scale-down')
+        self
+      end
+
       private
 
       def add_class(class_name, &block)

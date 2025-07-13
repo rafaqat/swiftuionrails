@@ -3,7 +3,7 @@
 # Copyright 2025
 
 # A responsive card component that adapts its layout based on orientation
-class ResponsiveCardComponent < SwiftUIRails::Component::Base
+class ResponsiveCardComponent < ApplicationComponent
   prop :title, type: String, required: true
   prop :description, type: String, required: true
   prop :image_url, type: String, required: true

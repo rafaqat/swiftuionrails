@@ -13,11 +13,11 @@ class StorybookFinalValidationTest < ActionDispatch::IntegrationTest
     # 2. Test that controls are rendered correctly
     assert_select "select[name='background_color']"
     assert_select "select[data-live-story-target='control']"
-    assert_select "select[data-action*='change->live_story#controlChanged']"
+    assert_select "select[data-action*='change->live-story#controlChanged']"
 
     # 3. Test that HTML escaping is fixed (no &gt; in stimulus actions)
-    assert_not response.body.include?("data-action.*change-&gt;live_story")
-    assert response.body.include?("change->live_story#controlChanged")
+    assert_not response.body.include?("data-action.*change-&gt;live-story")
+    assert response.body.include?("change->live-story#controlChanged")
 
     # 4. Test interactive update works
     post "/storybook/update_preview", params: {
@@ -94,7 +94,7 @@ class StorybookFinalValidationTest < ActionDispatch::IntegrationTest
     # 2. Navigate to card component
     get "/storybook/show", params: { story: "card_component" }
     assert_response :success
-    assert_select "[data-controller='live_story']"
+    assert_select "[data-controller='live-story']"
 
     # 3. Test each control type works
 

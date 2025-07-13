@@ -42,6 +42,7 @@ Rails.application.routes.draw do
   # Component showcase routes
   get "counter", to: "home#counter", as: :counter
   get "debug_demo", to: "home#debug_demo" if Rails.env.development?
+  get "home/simple_test", to: "home#simple_test"
 
   # Product layout examples
   resources :products, only: [ :index ] do

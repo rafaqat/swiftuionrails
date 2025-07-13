@@ -15,24 +15,41 @@ module SwiftUIRails
       VALID_ALIGNMENTS = %w[start center end stretch baseline].freeze
 
       included do
-        # Add validation methods to components
-        # IMPORTANT: Use instance_writer: false and instance_reader: false to prevent inheritance issues
-        class_attribute :prop_validations, instance_writer: false, instance_reader: false, default: {}
+        # Use class instance variable instead of class_attribute to ensure complete isolation
+        # This prevents any inheritance or sharing between classes
+        @prop_validations = {}
+        
+        # Define accessor methods at the class level
+        class << self
+          attr_accessor :prop_validations
+        end
       end
 
       # Ensure each component class gets its own isolated prop_validations
       def self.included(base)
         super
-        base.class_eval do
-          # Override the class attribute to ensure isolation
-          self.prop_validations = {}
+        base.instance_eval do
+          # Create a fresh hash for each class using class instance variable
+          @prop_validations = {}
         end
+        
+        # Also ensure that subclasses get their own prop_validations
+        base.singleton_class.prepend(Module.new do
+          def inherited(subclass)
+            super
+            subclass.instance_eval do
+              @prop_validations = {}
+            end
+          end
+        end)
       end
 
       # Validation methods
       module ClassMethods
         # Define common prop validations
         def validates_variant(prop_name, allowed: VALID_VARIANTS)
+          # Initialize if needed (for dynamically created classes)
+          @prop_validations ||= {}
           prop_validations[prop_name] = {
             inclusion: {
               in: allowed,
@@ -42,6 +59,7 @@ module SwiftUIRails
         end
 
         def validates_size(prop_name, allowed: VALID_SIZES)
+          @prop_validations ||= {}
           prop_validations[prop_name] = {
             inclusion: {
               in: allowed,
@@ -51,6 +69,8 @@ module SwiftUIRails
         end
 
         def validates_color(prop_name)
+          @prop_validations ||= {}
+
           prop_validations[prop_name] = {
             format: {
               with: /\A[a-zA-Z0-9\-]+\z/,
@@ -60,6 +80,8 @@ module SwiftUIRails
         end
 
         def validates_inclusion(prop_name, options = {})
+          @prop_validations ||= {}
+
           allowed_values = options[:in] || []
           allow_blank = options[:allow_blank] || false
 
@@ -73,6 +95,8 @@ module SwiftUIRails
         end
 
         def validates_number(prop_name, min: nil, max: nil)
+          @prop_validations ||= {}
+
           validations = {}
           validations[:numericality] = { greater_than_or_equal_to: min } if min
           validations[:numericality] ||= {}
@@ -81,12 +105,16 @@ module SwiftUIRails
         end
 
         def validates_url(prop_name, allow_blank: false)
+          @prop_validations ||= {}
+
           prop_validations[prop_name] = {
             url: { allow_blank: allow_blank }
           }
         end
 
         def validates_email(prop_name, allow_blank: false)
+          @prop_validations ||= {}
+
           prop_validations[prop_name] = {
             format: {
               with: URI::MailTo::EMAIL_REGEXP,
@@ -97,12 +125,16 @@ module SwiftUIRails
         end
 
         def validates_callable(prop_name, allow_nil: true)
+          @prop_validations ||= {}
+
           prop_validations[prop_name] = {
             callable: { allow_nil: allow_nil }
           }
         end
 
         def validates_presence(prop_name, allow_blank: false)
+          @prop_validations ||= {}
+
           prop_validations[prop_name] = {
             presence: { allow_blank: allow_blank }
           }
@@ -112,6 +144,7 @@ module SwiftUIRails
           # Support custom validation callbacks
           return unless options[:validate] && options[:validate].respond_to?(:call)
 
+          @prop_validations ||= {}
           prop_validations[prop_name] ||= {}
           prop_validations[prop_name][:custom] = {
             validator: options[:validate],
@@ -122,9 +155,9 @@ module SwiftUIRails
 
       # Instance methods for validation
       def validate_props!
-        # Access prop_validations through the class since instance_reader is disabled
+        # Access prop_validations through the class
         validations_to_check = self.class.prop_validations
-        return true if validations_to_check.empty?
+        return true if validations_to_check.nil? || validations_to_check.empty?
 
         errors = validations_to_check.each_with_object([]) do |(prop_name, validations), error_list|
           value = send(prop_name)

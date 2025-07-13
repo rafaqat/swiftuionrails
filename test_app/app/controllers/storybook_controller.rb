@@ -9,8 +9,29 @@ class StorybookController < ApplicationController
   helper_method :tailwind_color_to_css
   helper StorybookDebugHelper
   def index
-    # Only show DSL stories
-    dsl_stories = [ "dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple", "enhanced_grid", "auth_form", "simple_auth" ]
+    # Show both DSL stories and component stories needed for tests
+    dsl_stories = [ 
+      "dsl_button", 
+      "dsl_card", 
+      "dsl_product_card", 
+      "product_layout_simple", 
+      "enhanced_grid", 
+      "auth_form", 
+      "simple_auth", 
+      "card_component", 
+      "enhanced_product_list_component",
+      "button_preview",
+      "counter_component",
+      "counter_debug",
+      "dsl_composition",
+      "dsl_simple_test",
+      "enhanced_auth",
+      "new_dsl_methods",
+      "responsive_card_component",
+      "simple_test_component",
+      "swiftui_preview_demo",
+      "test_grid"
+    ]
 
     @stories = dsl_stories.map do |story_name|
       file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
@@ -24,6 +45,19 @@ class StorybookController < ApplicationController
       when "enhanced_grid" then "Enhanced Grid Layouts"
       when "auth_form" then "Authentication Forms"
       when "simple_auth" then "Simple Auth Forms"
+      when "card_component" then "Card Component"
+      when "enhanced_product_list_component" then "Enhanced Product List"
+      when "button_preview" then "Button Preview"
+      when "counter_component" then "Counter Component"
+      when "counter_debug" then "Counter Debug"
+      when "dsl_composition" then "DSL Composition"
+      when "dsl_simple_test" then "DSL Simple Test"
+      when "enhanced_auth" then "Enhanced Auth"
+      when "new_dsl_methods" then "New DSL Methods"
+      when "responsive_card_component" then "Responsive Card Component"
+      when "simple_test_component" then "Simple Test Component"
+      when "swiftui_preview_demo" then "SwiftUI Preview Demo"
+      when "test_grid" then "Test Grid"
       else story_name.titleize
       end
 
@@ -93,7 +127,10 @@ class StorybookController < ApplicationController
     # For DSL stories (like dsl_button), a backing component is not required
     # DSL stories create elements directly using the DSL, not components
     unless @component_class
-      if story_name.start_with?("dsl_") || story_name.include?("product_layout") || story_name == "enhanced_grid" || story_name == "auth_form" || story_name == "simple_auth"
+      if story_name.start_with?("dsl_") || story_name.include?("product_layout") || 
+         story_name == "enhanced_grid" || story_name == "auth_form" || story_name == "simple_auth" ||
+         story_name == "button_preview" || story_name == "counter_debug" || story_name == "enhanced_auth" ||
+         story_name == "new_dsl_methods" || story_name == "swiftui_preview_demo" || story_name == "test_grid"
         # DSL stories don't need backing components - they use pure DSL elements
         @component_class = nil
         @component_name = story_name
@@ -119,7 +156,10 @@ class StorybookController < ApplicationController
     @component_props = build_component_props(@story_config)
 
     # Read actual story source code for DSL stories
-    is_dsl_story = story_name.start_with?("dsl_") || story_name.include?("product_layout") || story_name == "enhanced_grid" || story_name == "auth_form" || story_name == "simple_auth"
+    is_dsl_story = story_name.start_with?("dsl_") || story_name.include?("product_layout") || 
+                   story_name == "enhanced_grid" || story_name == "auth_form" || story_name == "simple_auth" ||
+                   story_name == "button_preview" || story_name == "counter_debug" || story_name == "enhanced_auth" ||
+                   story_name == "new_dsl_methods" || story_name == "swiftui_preview_demo" || story_name == "test_grid"
     if is_dsl_story && @story_class
       story_file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
       if File.exist?(story_file)

@@ -65,6 +65,12 @@ class StateDebugTest < ViewComponent::TestCase
       puts "Error: #{e.message}"
       puts e.backtrace[0..5]
     end
+    
+    # Add assertions to make this a valid test
+    assert_not_nil component, "Component should be created"
+    assert_respond_to component, :call, "Component should respond to call"
+    assert_kind_of String, result, "Component call should return a string-like object"
+    assert_match(/data-controller="counter"/, result, "Should include counter stimulus controller")
   end
 end
 # Copyright 2025

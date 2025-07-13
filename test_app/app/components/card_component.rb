@@ -2,7 +2,7 @@
 
 # Copyright 2025
 
-class CardComponent < SwiftUIRails::Component::Base
+class CardComponent < ApplicationComponent
   # Constants for repeated values
   SIZE_SM = "sm"
   SIZE_LG = "lg"

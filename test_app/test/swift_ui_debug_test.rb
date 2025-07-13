@@ -32,6 +32,13 @@ class SwiftUIDebugTest < ActiveSupport::TestCase
     puts "=== Result ==="
     puts "result.class: #{result.class}"
     puts "result: #{result.inspect}"
+    
+    # Add assertions
+    assert_not_nil result, "Result should not be nil"
+    assert result.is_a?(String), "Result should be a string"
+    assert result.include?("div"), "Result should contain div element"
+    assert result.include?("space-y-24"), "Result should have spacing class"
+    assert result.include?("p-8"), "Result should have padding class"
   end
 
   test "direct DSL usage" do
@@ -47,6 +54,17 @@ class SwiftUIDebugTest < ActiveSupport::TestCase
 
     html = chained.to_s
     puts "Direct DSL HTML: #{html}"
+    
+    # Add assertions
+    assert_not_nil vstack_result, "vstack should return a result"
+    assert vstack_result.respond_to?(:p), "vstack result should respond to p method"
+    assert_not_nil chained, "chained result should not be nil"
+    assert chained.respond_to?(:to_s), "chained result should respond to to_s"
+    assert html.include?("div"), "HTML should contain div element"
+    assert html.include?("space-y-24"), "HTML should have spacing class"
+    assert html.include?("p-8"), "HTML should have padding class"
+    assert html.include?("max-w-4xl"), "HTML should have max width class"
+    assert html.include?("mx-auto"), "HTML should have margin auto class"
   end
 end
 # Copyright 2025

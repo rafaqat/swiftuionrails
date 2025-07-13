@@ -3,8 +3,6 @@
 # Copyright 2025
 
 class ApplicationComponent < SwiftUIRails::Component::Base
-  include StatefulComponent
-
   # Common component configuration for your app
 
   # Example: Add common computed properties

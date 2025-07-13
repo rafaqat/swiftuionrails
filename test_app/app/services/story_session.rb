@@ -16,6 +16,7 @@ class StorySession
     CounterComponentStories
     ProductCardComponentStories
     ProductListComponentStories
+    EnhancedProductListComponentStories
     AuthFormStories
     AuthFormComponentStories
     EnhancedLoginComponentStories

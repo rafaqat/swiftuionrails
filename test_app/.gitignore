@@ -33,9 +33,20 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+*.key
 
 # Ignore test coverage
 /coverage/
 
 # Ignore bootsnap cache
 /tmp/cache/
+
+# Ignore temporary test files
+*.txt
+CURRENT_STATE.md
+TODO_REMAINING.md
+SKIPPED_TESTS_REPORT.md
+TEST_CLEANUP_SUMMARY.md
+
+# Ignore spec directory (if using test instead)
+/spec/

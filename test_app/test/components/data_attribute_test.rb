@@ -8,7 +8,8 @@ class DataAttributeTest < ActiveSupport::TestCase
     # Test how Rails handles data attributes
     result = content_tag(:button, "Click", data: { action: "click->test#method" })
     puts "Rails content_tag result: #{result}"
-    assert_match(/data-action="click->test#method"/, result)
+    # Rails HTML-escapes the > character, which is expected behavior
+    assert_match(/data-action="click-&gt;test#method"/, result)
   end
 
   test "Manual attribute setting" do
@@ -16,7 +17,8 @@ class DataAttributeTest < ActiveSupport::TestCase
     attrs = { "data-action" => "click->test#method" }
     result = content_tag(:button, "Click", attrs)
     puts "Manual attrs result: #{result}"
-    assert_match(/data-action="click->test#method"/, result)
+    # Rails HTML-escapes the > character, which is expected behavior
+    assert_match(/data-action="click-&gt;test#method"/, result)
   end
 end
 # Copyright 2025

@@ -10,7 +10,7 @@ class StorybookControllerDebugTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify the story loads without errors
-    assert_select "[data-controller='live_story']"
+    assert_select "[data-controller='live-story']"
     assert_select "#component-preview"
 
     # Verify controls are present

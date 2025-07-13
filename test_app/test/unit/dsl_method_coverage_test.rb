@@ -113,7 +113,8 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
     puts "=" * 30
     puts "Implemented methods: #{implemented_methods.length}"
     puts "Used methods: #{used_methods.length}"
-    puts "Coverage: #{((implemented_methods & used_methods.keys).length.to_f / used_methods.length * 100).round(1)}%"
+    coverage = ((implemented_methods & used_methods.keys).length.to_f / used_methods.length * 100).round(1)
+    puts "Coverage: #{coverage}%"
 
     # Find unused implemented methods
     unused = implemented_methods - used_methods.keys
@@ -128,6 +129,9 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
       status = implemented_methods.include?(method) ? "✅" : "❌"
       puts "  #{status} #{method}: #{count} uses"
     end
+    
+    # Add assertion to verify coverage
+    assert coverage >= 99.0, "DSL method coverage should be at least 99% (was #{coverage}%)"
   end
 
   private

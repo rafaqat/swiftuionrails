@@ -71,7 +71,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
             .text_color("gray-600")
 
           # Simulate collection counter
-          span("Badge 1")
+          span { text("Badge 1") }
             .background("blue-100")
             .text_color("blue-800")
             .padding_x(2)

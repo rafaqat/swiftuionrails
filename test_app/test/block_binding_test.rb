@@ -15,6 +15,9 @@ class BlockBindingTest < ActiveSupport::TestCase
     end
     puts result1
     puts "vstack is empty? #{!result1.include?('This won')}"
+    
+    # Assert the problem case
+    assert_not result1.include?("This won't work as expected"), "Block should not bind to vstack when chained"
 
     # Workaround 1: Use parentheses
     puts "\n=== Workaround 1: Parentheses ==="
@@ -24,6 +27,11 @@ class BlockBindingTest < ActiveSupport::TestCase
       }).p(8).mx("auto")
     end
     puts result2
+    
+    # Assert workaround 1 works
+    assert result2.include?("This works!"), "Parentheses workaround should include the text"
+    assert result2.include?("p-8"), "Should have padding"
+    assert result2.include?("mx-auto"), "Should have margin auto"
 
     # Workaround 2: Store intermediate result
     puts "\n=== Workaround 2: Store intermediate ==="
@@ -34,6 +42,11 @@ class BlockBindingTest < ActiveSupport::TestCase
       container.p(8).mx("auto")
     end
     puts result3
+    
+    # Assert workaround 2 works
+    assert result3.include?("This also works!"), "Store intermediate workaround should include the text"
+    assert result3.include?("p-8"), "Should have padding"
+    assert result3.include?("mx-auto"), "Should have margin auto"
 
     # Workaround 3: Chain after block
     puts "\n=== Workaround 3: Chain after block ==="
@@ -43,6 +56,11 @@ class BlockBindingTest < ActiveSupport::TestCase
       }.p(8).mx("auto")
     end
     puts result4
+    
+    # Assert workaround 3 works
+    assert result4.include?("Chain after block"), "Chain after block workaround should include the text"
+    assert result4.include?("p-8"), "Should have padding"
+    assert result4.include?("mx-auto"), "Should have margin auto"
   end
 
   test "fix home page pattern" do

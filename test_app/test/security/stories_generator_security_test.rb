@@ -161,7 +161,7 @@ class StoriesGeneratorSecurityTest < Rails::Generators::TestCase
     generator.instance_variable_set(:@given_args, [ "My Component!!!" ])
     generator.instance_variable_set(:@name, "My Component!!!")
 
-    # File name should be sanitized - special chars become underscores, 
+    # File name should be sanitized - special chars become underscores,
     # multiple underscores are collapsed, and trailing underscores are removed
     assert_equal "my_component", generator.send(:file_name)
   end

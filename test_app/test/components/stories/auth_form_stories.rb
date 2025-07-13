@@ -16,96 +16,147 @@ class AuthFormStories < ViewComponent::Storybook::Stories
   end
 
   # Basic login form
-  def login(**kwargs)
-    render AuthFormComponent.new(
-      mode: :login,
-      csrf_token: "dummy_token_for_demo"
-    )
-  end
+  # def login(**kwargs)
+  #   render AuthFormComponent.new(
+  #     mode: :login,
+  #     csrf_token: "dummy_token_for_demo"
+  #   )
+  # end
 
   # Login form with pre-filled email
-  def login_with_email(**kwargs)
-    render AuthFormComponent.new(
-      mode: :login,
-      email_value: "user@example.com",
-      csrf_token: "dummy_token_for_demo"
-    )
-  end
+  # def login_with_email(**kwargs)
+  #   render AuthFormComponent.new(
+  #     mode: :login,
+  #     email_value: "user@example.com",
+  #     csrf_token: "dummy_token_for_demo"
+  #   )
+  # end
 
   # Login form with error
-  def login_with_errors(**kwargs)
-    render AuthFormComponent.new(
-      mode: :login,
-      email_value: "invalid@email",
-      errors: {
-        email: "Please enter a valid email address",
-        password: "Password is incorrect"
-      },
-      flash_message: "Invalid email or password. Please try again.",
-      flash_type: :error,
-      csrf_token: "dummy_token_for_demo"
-    )
-  end
+  # def login_with_errors(**kwargs)
+  #   render AuthFormComponent.new(
+  #     mode: :login,
+  #     email_value: "invalid@email",
+  #     errors: {
+  #       email: "Please enter a valid email address",
+  #       password: "Password is incorrect"
+  #     },
+  #     flash_message: "Invalid email or password. Please try again.",
+  #     flash_type: :error,
+  #     csrf_token: "dummy_token_for_demo"
+  #   )
+  # end
 
   # Basic registration form
-  def register(**kwargs)
-    render AuthFormComponent.new(
-      mode: :register,
-      csrf_token: "dummy_token_for_demo"
-    )
-  end
+  # def register(**kwargs)
+  #   render AuthFormComponent.new(
+  #     mode: :register,
+  #     csrf_token: "dummy_token_for_demo"
+  #   )
+  # end
 
   # Registration without name fields
   def register_email_only(**kwargs)
-    render AuthFormComponent.new(
-      mode: :register,
-      require_name: false,
-      csrf_token: "dummy_token_for_demo"
-    )
+    swift_ui do
+      div.flex.min_h("full").flex_col.justify_center.px(6).py(12).lg("px-8").bg("gray-50") do
+        div.sm("mx-auto w-full max-w-sm") do
+          h2.text_center.text_size("2xl").font_weight("bold").text_color("gray-900") do
+            text("Create account")
+          end
+          p.mt(2).text_center.text_size("sm").text_color("gray-600") do
+            text("Register with just email and password")
+          end
+        end
+        
+        div.mt(8).sm("mx-auto w-full max-w-sm") do
+          div.bg("white").py(8).px(4).shadow.rounded("lg").sm("px-10") do
+            form(action: "/register", method: "POST").space_y(6) do
+              # Email field
+              div do
+                label(for: "email").block.text_size("sm").font_weight("medium").text_color("gray-700") do
+                  text("Email")
+                end
+                input(
+                  type: "email",
+                  name: "email",
+                  id: "email",
+                  required: true
+                ).mt(1).block.w_full.rounded("md").border_color("gray-300")
+              end
+              
+              # Password field
+              div do
+                label(for: "password").block.text_size("sm").font_weight("medium").text_color("gray-700") do
+                  text("Password")
+                end
+                input(
+                  type: "password",
+                  name: "password",
+                  id: "password",
+                  required: true
+                ).mt(1).block.w_full.rounded("md").border_color("gray-300")
+              end
+              
+              # Submit button
+              button("Create account", type: "submit")
+                .w_full.flex.justify_center
+                .py(2).px(4)
+                .border.border_transparent
+                .rounded("md")
+                .shadow("sm")
+                .text_size("sm").font_weight("medium")
+                .text_color("white")
+                .bg("indigo-600")
+                .hover_bg("indigo-700")
+            end
+          end
+        end
+      end
+    end
   end
 
   # Registration with validation errors
-  def register_with_errors(**kwargs)
-    render AuthFormComponent.new(
-      mode: :register,
-      first_name_value: "John",
-      email_value: "john@example",
-      errors: {
-        last_name: "Last name can't be blank",
-        email: "Email is invalid",
-        password: "Password is too short (minimum 8 characters)",
-        password_confirmation: "Passwords don't match",
-        agree_terms: "You must agree to the terms"
-      },
-      flash_message: "Please correct the errors below.",
-      flash_type: :error,
-      csrf_token: "dummy_token_for_demo"
-    )
-  end
+  # def register_with_errors(**kwargs)
+  #   render AuthFormComponent.new(
+  #     mode: :register,
+  #     first_name_value: "John",
+  #     email_value: "john@example",
+  #     errors: {
+  #       last_name: "Last name can't be blank",
+  #       email: "Email is invalid",
+  #       password: "Password is too short (minimum 8 characters)",
+  #       password_confirmation: "Passwords don't match",
+  #       agree_terms: "You must agree to the terms"
+  #     },
+  #     flash_message: "Please correct the errors below.",
+  #     flash_type: :error,
+  #     csrf_token: "dummy_token_for_demo"
+  #   )
+  # end
 
   # Custom branded login
-  def custom_branded_login(**kwargs)
-    render AuthFormComponent.new(
-      mode: :login,
-      logo_url: "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=purple&shade=600",
-      company_name: "SwiftUI Rails",
-      action_path: "/auth/login",
-      forgot_password_path: "/auth/password/new",
-      signup_path: "/auth/register",
-      csrf_token: "dummy_token_for_demo"
-    )
-  end
+  # def custom_branded_login(**kwargs)
+  #   render AuthFormComponent.new(
+  #     mode: :login,
+  #     logo_url: "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=purple&shade=600",
+  #     company_name: "SwiftUI Rails",
+  #     action_path: "/auth/login",
+  #     forgot_password_path: "/auth/password/new",
+  #     signup_path: "/auth/register",
+  #     csrf_token: "dummy_token_for_demo"
+  #   )
+  # end
 
   # Success message after registration
-  def login_after_registration(**kwargs)
-    render AuthFormComponent.new(
-      mode: :login,
-      flash_message: "Registration successful! Please sign in with your new account.",
-      flash_type: :success,
-      email_value: "newuser@example.com",
-      csrf_token: "dummy_token_for_demo"
-    )
-  end
+  # def login_after_registration(**kwargs)
+  #   render AuthFormComponent.new(
+  #     mode: :login,
+  #     flash_message: "Registration successful! Please sign in with your new account.",
+  #     flash_type: :success,
+  #     email_value: "newuser@example.com",
+  #     csrf_token: "dummy_token_for_demo"
+  #   )
+  # end
 
   # Login form using DSL directly (without component)
   def pure_dsl_login(**kwargs)

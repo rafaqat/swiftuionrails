@@ -96,14 +96,28 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
   end
 
   test "logs security events for unauthorized story attempts" do
-    # Skip this test as it requires mocking which isn't available
-    skip "Requires mocking framework"
+    # Mock Rails.logger
+    logged_messages = []
+    Rails.logger.stubs(:error).with { |msg| logged_messages << msg; true }
+
+    # Attempt to instantiate an unauthorized story
+    session = StorySession.new(
+      story_name: "kernel",  # This will try to load KernelStories
+      variant: "default",
+      session_id: "test-session"
+    )
+    
+    # Try to get component instance which will trigger security check
+    # This should raise SecurityError
+    assert_raises(SecurityError) do
+      session.component_instance
+    end
+
+    # Verify security event was logged
+    assert logged_messages.any? { |msg| msg.include?("[SECURITY]") }
+    assert logged_messages.any? { |msg| msg.include?("Attempted to instantiate unauthorized story class: KernelStories") }
   end
 
-  test "broadcast_prop_change validates story class" do
-    # Skip this test as it tries to call a private method and requires mocking
-    skip "Requires access to private method and mocking framework"
-  end
 
   test "protects against injection in story_name" do
     injection_attempts = [

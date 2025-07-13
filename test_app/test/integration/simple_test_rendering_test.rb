@@ -35,6 +35,13 @@ class SimpleTestRenderingTest < ActionDispatch::IntegrationTest
       puts "\n=== Test 4 output ==="
       puts body_lines[test4_index..-1].take(20).join("\n")
     end
+    
+    # Add assertions
+    assert_response :success
+    assert response.body.include?("Test 1: Basic text"), "Should include Test 1"
+    assert response.body.include?("Test 2: Basic vstack"), "Should include Test 2"
+    assert response.body.include?("Test 3: Vstack with padding"), "Should include Test 3"
+    assert response.body.include?("Test 4: Full example"), "Should include Test 4"
   end
 end
 # Copyright 2025

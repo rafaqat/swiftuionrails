@@ -49,6 +49,11 @@ class ElementDebugTest < ViewComponent::TestCase
     element.view_context = component
     html = element.to_s
     puts "Rendered HTML: #{html}"
+    
+    # Add assertions
+    assert_equal :span, element.tag_name, "Element should have span tag"
+    assert_equal "Hello World", element.content, "Element should have correct content"
+    assert_match /<span>Hello World<\/span>/, html, "HTML should be properly rendered"
   end
 end
 # Copyright 2025

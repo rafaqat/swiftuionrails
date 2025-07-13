@@ -125,7 +125,7 @@ class ComprehensiveSecurityTest < ActiveSupport::TestCase
       validates_inclusion :variant, in: %i[primary secondary danger]
       validates_inclusion :size, in: %i[sm md lg]
       validates_presence :count
-      validate_options :count, validate: ->(val) { val >= 0 && val <= 100 }
+      validate_options :count, validate: ->(val) { val.nil? || (val >= 0 && val <= 100) }
 
       # Add a minimal swift_ui block
       swift_ui do
