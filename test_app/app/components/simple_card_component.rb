@@ -5,7 +5,7 @@
 class SimpleCardComponent < SwiftUIRails::Component::Base
   # Disable memoization since we have slots that can change
   enable_memoization false
-  
+
   renders_one :header
   renders_one :footer
 

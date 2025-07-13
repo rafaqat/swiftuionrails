@@ -33,7 +33,7 @@ class SwiftUIRailsDSLTest < ActiveSupport::TestCase
 
   test "button creates button element with text" do
     result = button("Click Me", class: "custom-class")
-    
+
     # Element needs to be rendered to HTML
     html = result.to_s
     assert_match /<button/, html
@@ -43,7 +43,7 @@ class SwiftUIRailsDSLTest < ActiveSupport::TestCase
 
   test "text creates span with text content" do
     result = text("Hello World")
-    
+
     # Element needs to be rendered to HTML
     html = result.to_s
     assert_match /<span/, html
@@ -54,7 +54,7 @@ class SwiftUIRailsDSLTest < ActiveSupport::TestCase
     result = card do
       text("Card Content")
     end
-    
+
     # Element needs to be rendered to HTML
     html = result.to_s
     assert_match /bg-white/, html

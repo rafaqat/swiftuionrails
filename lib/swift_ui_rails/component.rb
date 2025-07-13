@@ -136,9 +136,9 @@ module SwiftUIRails
           attr_reader name
 
           # Add validation if ComponentValidator is included and options are present
-          if self.respond_to?(:prop_validations) && (validate || enum || pattern || range)
+          if respond_to?(:prop_validations) && (validate || enum || pattern || range)
             # Access prop_validations through the class
-            current_validations = self.prop_validations.dup
+            current_validations = prop_validations.dup
             if validate
               current_validations[name] = { validate: validate }
             elsif enum
@@ -492,11 +492,11 @@ module SwiftUIRails
       # Handle missing methods that ViewComponent might be calling
       def method_missing(method_name, *args, **kwargs, &block)
         # ViewComponent 3.x seems to call these methods internally
-        if [:variant, :count, :size].include?(method_name)
+        if %i[variant count size].include?(method_name)
           # Log where these are being called from in test
           if Rails.env.test? && false # Disable logging for now
-            Rails.logger.debug "#{method_name} called on #{self.class.name}"
-            Rails.logger.debug "Backtrace: #{caller.first(5).join("\n")}"
+            Rails.logger.debug { "#{method_name} called on #{self.class.name}" }
+            Rails.logger.debug { "Backtrace: #{caller.first(5).join("\n")}" }
           end
           # Return nil to prevent error
           nil
@@ -506,7 +506,7 @@ module SwiftUIRails
       end
 
       def respond_to_missing?(method_name, include_private = false)
-        [:variant, :count, :size].include?(method_name) || super
+        %i[variant count size].include?(method_name) || super
       end
     end
   end

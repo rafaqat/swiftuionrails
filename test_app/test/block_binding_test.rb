@@ -15,7 +15,7 @@ class BlockBindingTest < ActiveSupport::TestCase
     end
     puts result1
     puts "vstack is empty? #{!result1.include?('This won')}"
-    
+
     # Assert the problem case
     assert_not result1.include?("This won't work as expected"), "Block should not bind to vstack when chained"
 
@@ -27,7 +27,7 @@ class BlockBindingTest < ActiveSupport::TestCase
       }).p(8).mx("auto")
     end
     puts result2
-    
+
     # Assert workaround 1 works
     assert result2.include?("This works!"), "Parentheses workaround should include the text"
     assert result2.include?("p-8"), "Should have padding"
@@ -42,7 +42,7 @@ class BlockBindingTest < ActiveSupport::TestCase
       container.p(8).mx("auto")
     end
     puts result3
-    
+
     # Assert workaround 2 works
     assert result3.include?("This also works!"), "Store intermediate workaround should include the text"
     assert result3.include?("p-8"), "Should have padding"
@@ -56,7 +56,7 @@ class BlockBindingTest < ActiveSupport::TestCase
       }.p(8).mx("auto")
     end
     puts result4
-    
+
     # Assert workaround 3 works
     assert result4.include?("Chain after block"), "Chain after block workaround should include the text"
     assert result4.include?("p-8"), "Should have padding"

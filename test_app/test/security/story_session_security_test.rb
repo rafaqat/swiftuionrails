@@ -106,7 +106,7 @@ class StorySessionSecurityTest < ActiveSupport::TestCase
       variant: "default",
       session_id: "test-session"
     )
-    
+
     # Try to get component instance which will trigger security check
     # This should raise SecurityError
     assert_raises(SecurityError) do

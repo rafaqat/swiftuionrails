@@ -35,7 +35,7 @@ class SimpleTestRenderingTest < ActionDispatch::IntegrationTest
       puts "\n=== Test 4 output ==="
       puts body_lines[test4_index..-1].take(20).join("\n")
     end
-    
+
     # Add assertions
     assert_response :success
     assert response.body.include?("Test 1: Basic text"), "Should include Test 1"

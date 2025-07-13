@@ -32,7 +32,7 @@ class SwiftUIDebugTest < ActiveSupport::TestCase
     puts "=== Result ==="
     puts "result.class: #{result.class}"
     puts "result: #{result.inspect}"
-    
+
     # Add assertions
     assert_not_nil result, "Result should not be nil"
     assert result.is_a?(String), "Result should be a string"
@@ -54,7 +54,7 @@ class SwiftUIDebugTest < ActiveSupport::TestCase
 
     html = chained.to_s
     puts "Direct DSL HTML: #{html}"
-    
+
     # Add assertions
     assert_not_nil vstack_result, "vstack should return a result"
     assert vstack_result.respond_to?(:p), "vstack result should respond to p method"

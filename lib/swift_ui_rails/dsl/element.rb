@@ -198,11 +198,11 @@ module SwiftUIRails
       end
 
       def pt(value = nil, &block)
-        tw(value ? "pt-#{value}" : "pt", &block)
+        tw(value ? "pt-#{value}" : 'pt', &block)
       end
 
       def pb(value = nil, &block)
-        tw(value ? "pb-#{value}" : "pb", &block)
+        tw(value ? "pb-#{value}" : 'pb', &block)
       end
 
       # Shadow utilities
@@ -1132,18 +1132,18 @@ module SwiftUIRails
         @options[:currency_symbol] = symbol
         self
       end
-      
+
       # Ruby's tap method for chaining
       def tap(&block)
-        block.call(self) if block
+        yield(self) if block
         self
       end
-      
+
       # Convert to symbol (used in some DSL patterns)
       def to_sym(&block)
         # This is a DSL modifier, not actually converting to symbol
         # It's used for symbolic references in the DSL
-        tw("to-sym", &block)
+        tw('to-sym', &block)
       end
     end
   end

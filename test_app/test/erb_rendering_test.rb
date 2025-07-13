@@ -26,12 +26,11 @@ class ERBRenderingTest < ActionDispatch::IntegrationTest
       error_match = response.body.match(/Error.*?<\/p>/m)
       puts error_match[0] if error_match
     end
-    
+
     # Add assertions
     assert_response :success, "Should render successfully"
     refute_match(/Error/, response.body, "Should not contain errors")
     assert_match(/SwiftUI Rails DSL Components/, response.body, "Should contain page content")
   end
-
 end
 # Copyright 2025

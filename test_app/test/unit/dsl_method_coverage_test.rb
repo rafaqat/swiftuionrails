@@ -129,7 +129,7 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
       status = implemented_methods.include?(method) ? "✅" : "❌"
       puts "  #{status} #{method}: #{count} uses"
     end
-    
+
     # Add assertion to verify coverage
     assert coverage >= 99.0, "DSL method coverage should be at least 99% (was #{coverage}%)"
   end

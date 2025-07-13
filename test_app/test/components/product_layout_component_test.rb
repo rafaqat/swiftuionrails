@@ -65,11 +65,11 @@ class ProductLayoutComponentTest < ViewComponent::TestCase
     assert_text "Blue"
     assert_text "Red"
     assert_text "Black"
-    
+
     # Should render product names
     assert_text "Classic T-Shirt"
     assert_text "Premium Jacket"
-    
+
     # Should render prices
     assert_text "$29.99"
     assert_text "$89.99"

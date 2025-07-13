@@ -37,7 +37,7 @@ class ProductCardComponent < ApplicationComponent
     div do
       # Product Image with overlay actions
       image_container = div.relative
-      
+
       # Render product image or placeholder
       if product[:image_url].present?
         img = image(src: product[:image_url], alt: product[:name])

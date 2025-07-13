@@ -10,16 +10,16 @@ class StorybookVariantsE2eTest < ActionDispatch::IntegrationTest
 
   def setup
     # Only test stories that are whitelisted in the controller
-    @whitelisted_stories = [ 
-      "dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple", 
-      "enhanced_grid", "auth_form", "simple_auth", "card_component", 
-      "enhanced_product_list_component" 
+    @whitelisted_stories = [
+      "dsl_button", "dsl_card", "dsl_product_card", "product_layout_simple",
+      "enhanced_grid", "auth_form", "simple_auth", "card_component",
+      "enhanced_product_list_component"
     ]
-    
+
     @story_classes = @whitelisted_stories.map do |story_name|
       file = Rails.root.join("test/components/stories/#{story_name}_stories.rb")
       next unless File.exist?(file)
-      
+
       story_class_name = "#{story_name.camelize}Stories"
 
       # Load the story file
@@ -198,7 +198,7 @@ class StorybookVariantsE2eTest < ActionDispatch::IntegrationTest
           "TURBO_STREAM request for variant #{variant} should work for story #{story_name}"
       end
     end
-    
+
     # Add assertion to ensure we tested at least one story
     assert working_stories.any?, "Should have at least one working story to test"
   end

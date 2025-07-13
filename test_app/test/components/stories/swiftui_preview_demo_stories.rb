@@ -6,7 +6,7 @@
 class SwiftuiPreviewDemoStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::DSL
   include SwiftUIRails::Helpers
-  
+
   def hero_section
     swift_ui do
       # Build complex UIs naturally with composition
@@ -165,7 +165,7 @@ class SwiftuiPreviewDemoStories < ViewComponent::Storybook::Stories
                   .text_color("gray-700")
 
                 hstack(spacing: 16) do
-                  ["Web App", "Mobile App", "API"].each do |type|
+                  [ "Web App", "Mobile App", "API" ].each do |type|
                     label.flex.items_center.gap(8) do
                       input(type: "radio", name: "project_type", value: type.downcase.gsub(" ", "_"))
                       text(type).text_size("sm").text_color("gray-700")

@@ -56,13 +56,13 @@ class StorybookControlsDebugTest < ActionDispatch::IntegrationTest
     end
 
     puts "=== END CONTROLS DEBUG ==="
-    
+
     # Add assertions to ensure the test validates something
     assert_not_nil story_class, "Story class should exist"
     assert_equal 5, controls_hash.size, "Should have 5 controls"
     assert_equal :text, controls_hash[:card_title][:type], "Card title should be text control"
     assert_equal :select, controls_hash[:elevation][:type], "Elevation should be select control"
-    assert_equal [1, 2, 3], controls_hash[:elevation][:options], "Elevation should have 3 options"
+    assert_equal [ 1, 2, 3 ], controls_hash[:elevation][:options], "Elevation should have 3 options"
   end
 end
 # Copyright 2025

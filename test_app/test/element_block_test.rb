@@ -29,7 +29,7 @@ class ElementBlockTest < ActiveSupport::TestCase
         puts "Creating Line 1 element"
         elem1 = text("Line 1")
         puts "elem1: #{elem1.inspect}"
-        puts "Creating Line 2 element"  
+        puts "Creating Line 2 element"
         elem2 = text("Line 2")
         puts "elem2: #{elem2.inspect}"
         # Don't need to return anything - elements are auto-registered
@@ -54,10 +54,10 @@ class ElementBlockTest < ActiveSupport::TestCase
     end
     html3 = element3.to_s
     puts "HTML: #{html3}"
-    
+
     # Add assertions to verify element block behavior
     assert html.include?("Test content"), "Block content should be included in HTML"
-    
+
     # Debug: Let's see what's actually happening with multiple elements
     if !html2.include?("Line 1") || !html2.include?("Line 2")
       puts "\n=== DEBUG: Checking DSL Context behavior ==="
@@ -69,13 +69,13 @@ class ElementBlockTest < ActiveSupport::TestCase
         end
       end
       puts "Direct result: #{result}"
-      assert result.include?("Direct Line 1") && result.include?("Direct Line 2"), 
+      assert result.include?("Direct Line 1") && result.include?("Direct Line 2"),
              "Direct DSL should include both elements"
     end
-    
-    assert html2.include?("Line 1") || html2.include?("Line 2"), 
+
+    assert html2.include?("Line 1") || html2.include?("Line 2"),
            "At least one element should be included (actual: #{html2})"
-    assert html3.include?("First") && html3.include?("Second"), 
+    assert html3.include?("First") && html3.include?("Second"),
            "All elements should be rendered regardless of block return value"
   end
 end

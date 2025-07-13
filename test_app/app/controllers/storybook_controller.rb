@@ -10,15 +10,15 @@ class StorybookController < ApplicationController
   helper StorybookDebugHelper
   def index
     # Show both DSL stories and component stories needed for tests
-    dsl_stories = [ 
-      "dsl_button", 
-      "dsl_card", 
-      "dsl_product_card", 
-      "product_layout_simple", 
-      "enhanced_grid", 
-      "auth_form", 
-      "simple_auth", 
-      "card_component", 
+    dsl_stories = [
+      "dsl_button",
+      "dsl_card",
+      "dsl_product_card",
+      "product_layout_simple",
+      "enhanced_grid",
+      "auth_form",
+      "simple_auth",
+      "card_component",
       "enhanced_product_list_component",
       "button_preview",
       "counter_component",
@@ -127,7 +127,7 @@ class StorybookController < ApplicationController
     # For DSL stories (like dsl_button), a backing component is not required
     # DSL stories create elements directly using the DSL, not components
     unless @component_class
-      if story_name.start_with?("dsl_") || story_name.include?("product_layout") || 
+      if story_name.start_with?("dsl_") || story_name.include?("product_layout") ||
          story_name == "enhanced_grid" || story_name == "auth_form" || story_name == "simple_auth" ||
          story_name == "button_preview" || story_name == "counter_debug" || story_name == "enhanced_auth" ||
          story_name == "new_dsl_methods" || story_name == "swiftui_preview_demo" || story_name == "test_grid"
@@ -156,7 +156,7 @@ class StorybookController < ApplicationController
     @component_props = build_component_props(@story_config)
 
     # Read actual story source code for DSL stories
-    is_dsl_story = story_name.start_with?("dsl_") || story_name.include?("product_layout") || 
+    is_dsl_story = story_name.start_with?("dsl_") || story_name.include?("product_layout") ||
                    story_name == "enhanced_grid" || story_name == "auth_form" || story_name == "simple_auth" ||
                    story_name == "button_preview" || story_name == "counter_debug" || story_name == "enhanced_auth" ||
                    story_name == "new_dsl_methods" || story_name == "swiftui_preview_demo" || story_name == "test_grid"

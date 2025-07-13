@@ -7,12 +7,12 @@ class EnhancedProductListComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
 
   # Define interactive controls
-  control :columns, as: :select, options: [:two, :three, :four, :auto], default: :three
+  control :columns, as: :select, options: [ :two, :three, :four, :auto ], default: :three
   control :filterable, as: :boolean, default: true
   control :sortable, as: :boolean, default: true
   control :filter_by_color, as: :boolean, default: true
-  control :background_color, as: :select, options: ["white", "gray-50", "blue-50"], default: "white"
-  control :gap, as: :select, options: ["4", "6", "8", "12"], default: "6"
+  control :background_color, as: :select, options: [ "white", "gray-50", "blue-50" ], default: "white"
+  control :gap, as: :select, options: [ "4", "6", "8", "12" ], default: "6"
 
   def default(columns: :three, filterable: true, sortable: true, filter_by_color: true, background_color: "white", gap: "6")
     # Sample product data

@@ -47,7 +47,7 @@ class ChainedBlocksTest < ActiveSupport::TestCase
 
     assert result.include?("Header"), "Should include header text"
     # Card styling classes might be in different order or combined
-    assert result.include?("rounded-lg") && result.include?("bg-white") && result.include?("shadow"), 
+    assert result.include?("rounded-lg") && result.include?("bg-white") && result.include?("shadow"),
            "Should include card styling classes (actual: #{result})"
     assert result.include?("flex flex-col"), "Should include vstack styling"
     assert result.include?("p-8"), "Should include padding"

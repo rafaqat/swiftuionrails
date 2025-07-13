@@ -7,17 +7,17 @@ class CardComponentStories < ViewComponent::Storybook::Stories
   include SwiftUIRails::Helpers
 
   # Define interactive controls
-  control :background_color, as: :select, 
-    options: ["white", "gray-50", "gray-100", "blue-50", "green-50"], 
+  control :background_color, as: :select,
+    options: [ "white", "gray-50", "gray-100", "blue-50", "green-50" ],
     default: "white"
-  control :elevation, as: :select, 
-    options: [0, 1, 2, 3, 4], 
+  control :elevation, as: :select,
+    options: [ 0, 1, 2, 3, 4 ],
     default: 1
   control :padding, as: :select,
-    options: ["8", "12", "16", "20", "24"],
+    options: [ "8", "12", "16", "20", "24" ],
     default: "16"
   control :corner_radius, as: :select,
-    options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl"],
+    options: [ "none", "sm", "md", "lg", "xl", "2xl", "3xl" ],
     default: "lg"
   control :border, as: :boolean, default: false
   control :hover_effect, as: :boolean, default: false
@@ -29,7 +29,7 @@ class CardComponentStories < ViewComponent::Storybook::Stories
           text("Card Title").font_size("xl").font_weight("semibold")
           text("This is a sample card component with customizable properties.")
             .text_color("gray-600")
-          
+
           hstack(spacing: 8) do
             button("Action").button_style(:primary).button_size(:sm)
             button("Cancel").button_style(:secondary).button_size(:sm)
@@ -52,7 +52,7 @@ class CardComponentStories < ViewComponent::Storybook::Stories
             .width("full")
             .height(200)
             .object_cover
-          
+
           vstack(spacing: 12) do
             text("Card with Image").font_size("lg").font_weight("semibold")
             text("This card includes an image at the top.")

@@ -15,12 +15,12 @@ class CounterComponentTest < ViewComponent::TestCase
     assert_selector "[data-counter-count-value='0']"
     assert_selector "[data-counter-step-value='1']"
     assert_selector "[data-counter-label-value='Counter']"
-    
+
     # Check for buttons
     assert_selector "button", text: "-"
     assert_selector "button", text: "Reset"
     assert_selector "button", text: "+"
-    
+
     # Check for targets
     assert_selector "[data-counter-target='label']"
     assert_selector "[data-counter-target='count']"

@@ -10,13 +10,15 @@ module SwiftUIRails
     # Helper methods for orientation-based layouts
     module Helpers
       # Conditionally render content based on orientation
-      def if_portrait(&block)
+      def if_portrait
         return unless orientation == :portrait
+
         yield if block_given?
       end
 
-      def if_landscape(&block)
+      def if_landscape
         return unless orientation == :landscape
+
         yield if block_given?
       end
 

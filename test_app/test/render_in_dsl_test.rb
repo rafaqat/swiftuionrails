@@ -38,7 +38,7 @@ class RenderInDslTest < ActiveSupport::TestCase
       result = dsl_context.render(component)
       puts "render returned: #{result.class}"
       puts "render content: #{result.inspect[0..200]}..."
-      
+
       # Add assertion to verify render returns the expected type
       assert_kind_of String, result, "render should return a String"
       assert result.include?("Debug Test"), "render output should include the component title"

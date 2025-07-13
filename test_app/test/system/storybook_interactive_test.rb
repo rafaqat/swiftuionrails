@@ -286,18 +286,18 @@ class StorybookInteractiveTest < ApplicationSystemTestCase
     # Test that boolean controls exist and can be toggled
     sortable_checkbox = find("input[name='sortable']", visible: false)
     sortable_label = sortable_checkbox.ancestor("label")
-    
+
     # Verify we can click the toggle
     sortable_label.click
     wait_for_preview_update
-    
+
     # Verify the checkbox state changed
     assert_not sortable_checkbox.checked?
-    
+
     # Toggle back
     sortable_label.click
     wait_for_preview_update
-    
+
     # Verify it's checked again
     assert sortable_checkbox.checked?
 

@@ -18,7 +18,7 @@ module SwiftUIRails
         # Use class instance variable instead of class_attribute to ensure complete isolation
         # This prevents any inheritance or sharing between classes
         @prop_validations = {}
-        
+
         # Define accessor methods at the class level
         class << self
           attr_accessor :prop_validations
@@ -32,7 +32,7 @@ module SwiftUIRails
           # Create a fresh hash for each class using class instance variable
           @prop_validations = {}
         end
-        
+
         # Also ensure that subclasses get their own prop_validations
         base.singleton_class.prepend(Module.new do
           def inherited(subclass)

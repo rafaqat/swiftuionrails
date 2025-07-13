@@ -278,7 +278,7 @@ class EnhancedAuthStories < ViewComponent::Storybook::Stories
           div.text_center.mb(32) do
             text("SwiftUI Rails").font_size("2xl").font_weight("bold").text_color("gray-900")
           end
-          
+
           # Login form
           default_login
         end
@@ -296,12 +296,12 @@ class EnhancedAuthStories < ViewComponent::Storybook::Stories
             div.text_center.mb(32) do
               text("SwiftUI Rails").font_size("2xl").font_weight("bold").text_color("gray-900")
             end
-            
+
             # Register form
             default_register
           end
         end
-        
+
         # Image side
         div.hidden.lg_block.relative.w(0).flex_1 do
           image(src: "https://images.unsplash.com/photo-1505904267569-f02eaeb45a4c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1908&q=80", alt: "")
@@ -338,12 +338,12 @@ class EnhancedAuthStories < ViewComponent::Storybook::Stories
                 text("Sign in to continue to your dashboard").text_size("sm").text_color("gray-600").mt(4)
               end
             end
-            
+
             # Form
             div.px(24).py(32) do
               default_login
             end
-            
+
             # Footer
             div.px(24).pb(24).border_t.pt(16) do
               div.flex.justify_center.gap(16) do

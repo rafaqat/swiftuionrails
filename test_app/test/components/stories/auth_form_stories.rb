@@ -67,7 +67,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
             text("Register with just email and password")
           end
         end
-        
+
         div.mt(8).sm("mx-auto w-full max-w-sm") do
           div.bg("white").py(8).px(4).shadow.rounded("lg").sm("px-10") do
             form(action: "/register", method: "POST").space_y(6) do
@@ -83,7 +83,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   required: true
                 ).mt(1).block.w_full.rounded("md").border_color("gray-300")
               end
-              
+
               # Password field
               div do
                 label(for: "password").block.text_size("sm").font_weight("medium").text_color("gray-700") do
@@ -96,7 +96,7 @@ class AuthFormStories < ViewComponent::Storybook::Stories
                   required: true
                 ).mt(1).block.w_full.rounded("md").border_color("gray-300")
               end
-              
+
               # Submit button
               button("Create account", type: "submit")
                 .w_full.flex.justify_center

@@ -68,7 +68,7 @@ group :test do
   # Code coverage reporting
   gem "simplecov", require: false
   gem "simplecov-html", require: false
-  
+
   # Mocking framework for tests
   gem "mocha", require: false
 end

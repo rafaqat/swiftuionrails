@@ -39,7 +39,7 @@ class HomePageRenderingTest < ActionDispatch::IntegrationTest
       puts "\n=== Error Response ==="
       puts response.body[0..1000]
     end
-    
+
     # Add assertions to validate the page content
     assert_response :success
     assert_select "div.min-h-screen.bg-gray-100", count: 1

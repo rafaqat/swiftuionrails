@@ -35,7 +35,7 @@ class ExampleComponentTest < ViewComponent::TestCase
     # Try to call the component directly
     result = component.call
     puts "Direct call result: #{result}"
-    
+
     # Add assertions
     assert_not_nil component.class.instance_variable_get(:@swift_ui_block), "Component should have swift_ui_block"
     assert_kind_of String, result, "Component call should return a String"

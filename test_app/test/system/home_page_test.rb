@@ -18,13 +18,13 @@ class HomePageTest < ApplicationSystemTestCase
     # Check that DSL component cards are rendered
     assert_text "DSL Button"
     assert_text "Interactive button component with chainable modifiers"
-    
+
     assert_text "DSL Card"
     assert_text "Composable card component with header, content, and footer"
-    
+
     assert_text "Product Layout"
     assert_text "E-commerce product grid demonstrating collection rendering"
-    
+
     # Check for story links
     assert_selector "a[href*='dsl_button']"
     assert_selector "a[href*='dsl_card']"

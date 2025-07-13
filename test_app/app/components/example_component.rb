@@ -6,7 +6,7 @@ class ExampleComponent < ApplicationComponent
   prop :title, type: String, default: "Hello from SwiftUI Rails!"
   prop :description, type: String
   prop :counter, type: Integer, default: 0
-  prop :show_details, type: [TrueClass, FalseClass], default: false
+  prop :show_details, type: [ TrueClass, FalseClass ], default: false
 
   swift_ui do
     vstack(spacing: 16) do
@@ -19,9 +19,9 @@ class ExampleComponent < ApplicationComponent
           .text_color("white")
           .rounded
           .data(action: "click->example#decrement")
-          
+
         text("Count: #{counter}").text_size("lg")
-        
+
         button("+")
           .px(4).py(2)
           .bg("green-500")

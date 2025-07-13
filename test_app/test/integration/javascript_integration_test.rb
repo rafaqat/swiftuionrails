@@ -6,7 +6,7 @@ class JavascriptIntegrationTest < ActionDispatch::IntegrationTest
     # With importmaps, we need to check that the file exists
     controller_path = Rails.root.join("app/javascript/controllers/swift_ui_controller.js")
     assert File.exist?(controller_path), "swift_ui_controller.js should exist"
-    
+
     # Check content
     content = File.read(controller_path)
     assert_match /Controller/, content
@@ -17,15 +17,15 @@ class JavascriptIntegrationTest < ActionDispatch::IntegrationTest
     # Check that stimulus is configured in the application
     app_js_path = Rails.root.join("app/javascript/application.js")
     assert File.exist?(app_js_path), "application.js should exist"
-    
+
     # Check that controllers are imported
     content = File.read(app_js_path)
     assert_match /import "controllers"/, content
-    
+
     # Check that stimulus is actually configured in controllers/application.js
     controllers_app_path = Rails.root.join("app/javascript/controllers/application.js")
     assert File.exist?(controllers_app_path), "controllers/application.js should exist"
-    
+
     controllers_content = File.read(controllers_app_path)
     assert_match /@hotwired\/stimulus/, controllers_content
     assert_match /Application.start/, controllers_content
@@ -64,7 +64,7 @@ class JavascriptIntegrationTest < ActionDispatch::IntegrationTest
     # Check that the controller has error handling
     controller_path = Rails.root.join("app/javascript/controllers/swift_ui_controller.js")
     content = File.read(controller_path)
-    
+
     # Look for try-catch blocks or error handling
     assert_match /catch|error|console/, content
   end
