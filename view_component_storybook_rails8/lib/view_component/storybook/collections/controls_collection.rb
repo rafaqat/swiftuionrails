@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 module ViewComponent
@@ -22,22 +23,20 @@ module ViewComponent
         def for_story(story_name)
           # build the controls for the story_name
           # pass through a hash to get the last valid control declared for each param
-          controls.map do |opts|
+          controls.filter_map do |opts|
             next unless valid_for_story?(story_name, **opts.slice(:only, :except))
 
             param = opts[:param]
-            unless opts.key?(:default)
-              opts = opts.merge(default: parse_default(story_name, param))
-            end
+            opts = opts.merge(default: parse_default(story_name, param)) unless opts.key?(:default)
             [param, build_control(param, **opts.except(:param, :only, :except))]
-          end.compact.to_h.values
+          end.to_h.values
         end
 
         private
 
         def parse_default(story_name, param)
           code_method = code_object.meths.find { |m| m.name == story_name }
-          default_value_parts = code_method.parameters.find { |parts| parts[0].chomp(":") == param.to_s }
+          default_value_parts = code_method.parameters.find { |parts| parts[0].chomp(':') == param.to_s }
           return unless default_value_parts
 
           code_method.instance_eval(default_value_parts[1])

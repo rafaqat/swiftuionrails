@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# CodeRabbit configuration for swift-on-rails repository
+# This enables auto-review for pull requests
+
+# Review settings
+reviews:
+  # Enable auto-review for all pull requests
+  auto_review:
+    enabled: true
+    # Optional: Only review PRs that match certain criteria
+    # base_branches:
+    #   - main
+    #   - develop
+  
+  # Show review status comments
+  review_status: true
+  
+  # Request changes for critical issues
+  request_changes_workflow: false
+  
+  # High-level summary at the top of PR
+  high_level_summary: true
+  
+  # Enable poem/haiku in reviews (fun feature)
+  poem: false
+  
+  # Review new files added in the PR
+  review_new_files: true
+  
+  # Review modified files
+  review_modified_files: true
+
+# Language-specific settings
+language_model:
+  model: "gpt-4"  # Options: gpt-4, gpt-3.5-turbo
+
+# Path filters - which files to review
+path_filters:
+  # Include patterns (review these files)
+  included_paths:
+    - "**/*.rb"
+    - "**/*.erb"
+    - "**/*.js"
+    - "**/*.yml"
+    - "**/*.yaml"
+    - "**/Gemfile"
+    - "**/Gemfile.lock"
+    - "**/*.md"
+  
+  # Exclude patterns (skip these files)
+  excluded_paths:
+    - "**/node_modules/**"
+    - "**/vendor/**"
+    - "**/tmp/**"
+    - "**/log/**"
+    - "**/coverage/**"
+    - "**/*.lock"
+    - "**/db/schema.rb"
+    - "**/db/migrate/*.rb"  # Skip auto-generated migrations
+
+# Custom review instructions
+instructions:
+  - "Focus on SwiftUI-inspired DSL patterns and Rails best practices"
+  - "Check for proper stateless component architecture (no component state)"
+  - "Ensure Stimulus is used for client-side state management"
+  - "Verify proper use of ViewComponent slots and props"
+  - "Check for security best practices in component prop validation"
+  - "Ensure DSL methods follow the chaining pattern correctly"
+  - "Verify no monkey patching of Rails or external gems"
+
+# Issue validation
+issue_validation:
+  # Automatically create GitHub issues for critical problems
+  create_issues: false
+  
+  # Add labels to PRs based on review
+  add_labels: true
+
+# Additional settings
+settings:
+  # Line length limit for code
+  line_length_limit: 120
+  
+  # Enable security scanning
+  security_scan: true
+  
+  # Enable performance suggestions
+  performance_suggestions: true
+  
+  # Enable best practices suggestions
+  best_practices: true

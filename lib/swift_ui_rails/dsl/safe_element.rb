@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 module SwiftUIRails
@@ -44,33 +45,33 @@ module SwiftUIRails
           # If we have CSS classes to add and content is a string, wrap it
           if @css_classes.any? && @content.is_a?(String)
             # Extract the tag and add classes
-            modified = @content.sub(/^<(\w+)([^>]*)>/) do |match|
-              tag = $1
-              attrs = $2
-              classes = @css_classes.join(" ")
-              
-              if attrs.include?('class=')
-                attrs = attrs.sub(/class=(["'])(.*?)\1/) do |m|
-                  quote = $1
-                  existing = $2
-                  "class=#{quote}#{existing} #{classes}#{quote}"
-                end
-              else
-                attrs = "#{attrs} class=\"#{classes}\""
-              end
-              
+            modified = @content.sub(/^<(\w+)([^>]*)>/) do |_match|
+              tag = ::Regexp.last_match(1)
+              attrs = ::Regexp.last_match(2)
+              classes = @css_classes.join(' ')
+
+              attrs = if attrs.include?('class=')
+                        attrs.sub(/class=(["'])(.*?)\1/) do |_m|
+                          quote = ::Regexp.last_match(1)
+                          existing = ::Regexp.last_match(2)
+                          "class=#{quote}#{existing} #{classes}#{quote}"
+                        end
+                      else
+                        "#{attrs} class=\"#{classes}\""
+                      end
+
               "<#{tag}#{attrs}>"
             end
-            
+
             # Add disabled attribute if needed
             if @attributes[:disabled]
-              modified = modified.sub(/^<(\w+)([^>]*)>/) do |match|
-                tag = $1
-                attrs = $2
+              modified = modified.sub(/^<(\w+)([^>]*)>/) do |_match|
+                tag = ::Regexp.last_match(1)
+                attrs = ::Regexp.last_match(2)
                 "<#{tag}#{attrs} disabled>"
               end
             end
-            
+
             modified.html_safe
           else
             @content.to_s
@@ -83,11 +84,11 @@ module SwiftUIRails
       def html_safe?
         true
       end
-      
+
       # Delegate other methods to content if it responds to them
-      def method_missing(method, *args, &block)
+      def method_missing(method, ...)
         if @content.respond_to?(method)
-          result = @content.send(method, *args, &block)
+          result = @content.send(method, ...)
           # Wrap the result if it's chainable
           if result == @content
             self

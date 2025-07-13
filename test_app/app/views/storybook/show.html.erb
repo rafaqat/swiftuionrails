@@ -237,6 +237,14 @@
           </div>
         <% end %>
         
+        <!-- Debug Information (only in test environment) -->
+        <% if Rails.env.test? %>
+          <!-- Debug output for test assertions -->
+          <div style="display: none;" data-debug="true">
+            @story_config: <%= @story_config.inspect %>
+          </div>
+        <% end %>
+        
         <!-- Story Variants -->
         <% if @available_stories && @available_stories.size > 1 %>
           <div class="mt-6 pt-6 border-t border-gray-200">

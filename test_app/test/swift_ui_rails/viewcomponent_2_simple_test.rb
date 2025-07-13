@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 require "test_helper"
@@ -18,7 +19,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
         .text_color("blue-600")
         .font_weight("bold")
     end
-    
+
     html = result.to_s
     assert_includes html, "Hello World"
     assert_includes html, "text-xl"
@@ -35,7 +36,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
         text("Item 3")
       end
     end
-    
+
     html = result.to_s
     assert_includes html, "flex flex-col"
     assert_includes html, "space-y-16"
@@ -51,7 +52,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
         .button_style(:primary)
         .button_size(:lg)
     end
-    
+
     html = result.to_s
     assert_includes html, "Click Me"
     assert_includes html, "<button"
@@ -65,12 +66,12 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
           text("Card Title")
             .font_size("lg")
             .font_weight("semibold")
-          
+
           text("Card content here")
             .text_color("gray-600")
-            
+
           # Simulate collection counter
-          span("Badge 1")
+          span { text("Badge 1") }
             .background("blue-100")
             .text_color("blue-800")
             .padding_x(2)
@@ -82,7 +83,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
       .background("white")
       .corner_radius("lg")
     end
-    
+
     html = result.to_s
     assert_includes html, "Card Title"
     assert_includes html, "Card content here"
@@ -94,8 +95,8 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
 
   # Test collection simulation with manual iteration
   def test_collection_simulation
-    items = ["Item A", "Item B", "Item C"]
-    
+    items = [ "Item A", "Item B", "Item C" ]
+
     result = swift_ui do
       vstack(spacing: 12) do
         items.each_with_index do |item, index|
@@ -109,7 +110,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
         end
       end
     end
-    
+
     html = result.to_s
     assert_includes html, "Item A (1)"
     assert_includes html, "Item B (2)"
@@ -125,7 +126,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
       text(nil)
         .font_size("md")
     end
-    
+
     # Should not crash
     assert_not_nil result.to_s
   end

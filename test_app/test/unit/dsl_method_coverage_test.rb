@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 require "test_helper"
@@ -13,15 +14,15 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
 
   test "all DSL methods used in stories are implemented in Element class" do
     missing_methods = find_missing_dsl_methods
-    
+
     if missing_methods.any?
       puts "\n🚨 Missing DSL Methods Found:"
       puts "=" * 40
-      
+
       missing_methods.each do |method_info|
         puts "📍 #{method_info[:method]} (used in #{method_info[:files].join(', ')})"
       end
-      
+
       puts "\n🛠️  Auto-generated method templates:"
       puts "-" * 35
       missing_methods.each do |method_info|
@@ -29,36 +30,36 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
         puts ""
       end
     end
-    
-    assert missing_methods.empty?, 
+
+    assert missing_methods.empty?,
       "Missing DSL methods: #{missing_methods.map { |m| m[:method] }.join(', ')}"
   end
 
   test "can instantiate all story components without errors" do
     failed_stories = []
-    
+
     @story_files.each do |file|
       story_name = File.basename(file, "_stories.rb")
-      
+
       begin
         # Load the story file
         load file
-        
+
         # Get the story class
         story_class_name = "#{story_name.camelize}Stories"
         story_class = story_class_name.constantize
-        
+
         # Try to instantiate and call default method
         story_instance = story_class.new
-        
+
         if story_instance.respond_to?(:default)
           # Get the controls to simulate real parameters
           controls = extract_controls_from_story(story_class)
           default_params = build_default_params(controls)
-          
+
           # Try to call the default story method
           result = story_instance.default(**default_params)
-          
+
           # If it's a component, try to render it
           if result.respond_to?(:call) && result.is_a?(ViewComponent::Base)
             # Mock view context for rendering
@@ -68,7 +69,7 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
             result.call
           end
         end
-        
+
       rescue => e
         if e.message.include?("undefined method") && e.message.include?("SwiftUIRails::DSL::Element")
           # Extract method name from error
@@ -86,15 +87,15 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     if failed_stories.any?
       puts "\n❌ Stories with missing DSL methods:"
       failed_stories.each do |failure|
         puts "  #{failure[:story]}: missing #{failure[:method]}"
       end
     end
-    
-    assert failed_stories.empty?, 
+
+    assert failed_stories.empty?,
       "Stories failed due to missing DSL methods: #{failed_stories.map { |f| "#{f[:story]}:#{f[:method]}" }.join(', ')}"
   end
 
@@ -104,29 +105,33 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
     tailwind_methods = @tailwind_file.scan(/def ([a-z_]+)/).flatten.uniq
     dsl_methods = @dsl_file.scan(/def ([a-z_]+)/).flatten.uniq
     implemented_methods = (element_methods + tailwind_methods + dsl_methods).uniq
-    
+
     # Get all used methods from stories
     used_methods = find_all_used_methods
-    
+
     puts "\n📊 DSL Method Usage Report:"
     puts "=" * 30
     puts "Implemented methods: #{implemented_methods.length}"
     puts "Used methods: #{used_methods.length}"
-    puts "Coverage: #{((implemented_methods & used_methods.keys).length.to_f / used_methods.length * 100).round(1)}%"
-    
+    coverage = ((implemented_methods & used_methods.keys).length.to_f / used_methods.length * 100).round(1)
+    puts "Coverage: #{coverage}%"
+
     # Find unused implemented methods
     unused = implemented_methods - used_methods.keys
     if unused.any?
       puts "\n🗑️  Unused implemented methods:"
       unused.each { |method| puts "  - #{method}" }
     end
-    
+
     # Find frequently used methods
     puts "\n🔥 Most used DSL methods:"
     used_methods.sort_by { |_, count| -count }.first(10).each do |method, count|
       status = implemented_methods.include?(method) ? "✅" : "❌"
       puts "  #{status} #{method}: #{count} uses"
     end
+
+    # Add assertion to verify coverage
+    assert coverage >= 99.0, "DSL method coverage should be at least 99% (was #{coverage}%)"
   end
 
   private
@@ -137,7 +142,7 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
     tailwind_methods = @tailwind_file.scan(/def ([a-z_]+)/).flatten
     dsl_methods = @dsl_file.scan(/def ([a-z_]+)/).flatten
     implemented_methods = (element_methods + tailwind_methods + dsl_methods).uniq
-    
+
     missing = []
     used_methods.each do |method, count|
       unless implemented_methods.include?(method)
@@ -149,7 +154,7 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
             files_using_method << File.basename(file)
           end
         end
-        
+
         missing << {
           method: method,
           count: count,
@@ -157,16 +162,16 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
         }
       end
     end
-    
+
     missing
   end
 
   def find_all_used_methods
     method_usage = Hash.new(0)
-    
+
     @story_files.each do |file|
       content = File.read(file)
-      
+
       # Find method calls like .method_name( or .method_name with word boundary
       method_calls = content.scan(/\.([a-z_]+)(?:\(|\s|$)/)
       method_calls.each do |match|
@@ -176,7 +181,7 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
         method_usage[method_name] += 1
       end
     end
-    
+
     method_usage
   end
 
@@ -215,8 +220,8 @@ class DslMethodCoverageTest < ActiveSupport::TestCase
     case method_name
     when /^w_(.+)$/, /^h_(.+)$/, /^m_(.+)$/, /^p_(.+)$/
       # Width, height, margin, padding with values
-      base = method_name.split('_').first
-      value = method_name.split('_', 2).last.tr('_', '/')
+      base = method_name.split("_").first
+      value = method_name.split("_", 2).last.tr("_", "/")
       "def #{method_name}(&block)\n  tw(\"#{base}-#{value}\", &block)\nend"
     when /^(.+)_color$/
       # Color methods

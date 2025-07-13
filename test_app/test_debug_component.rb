@@ -1,11 +1,11 @@
 # Copyright 2025
-#!/usr/bin/env ruby
+# !/usr/bin/env ruby
 require_relative 'config/environment'
 
 # Create a simple test component to debug the issue
 class SimpleTestComponent < SwiftUIRails::Component::Base
   prop :message, type: String, default: "Hello"
-  
+
   swift_ui do
     puts "In swift_ui block - self: #{self.class}, @component: #{@component.inspect}"
     div do

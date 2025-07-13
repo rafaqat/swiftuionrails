@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 module ViewComponent
@@ -8,7 +9,9 @@ module ViewComponent
         TYPES = %i[select radio inline-radio].freeze
 
         validates :type, inclusion: { in: TYPES }, unless: -> { type.nil? }
-        validates :default, inclusion: { in: ->(config) { config.options } }, unless: -> { options.nil? || default.nil? }
+        validates :default, inclusion: { in: ->(config) { config.options } }, unless: lambda {
+          options.nil? || default.nil?
+        }
 
         def parse_param_value(value)
           if value.is_a?(String) && symbol_value
