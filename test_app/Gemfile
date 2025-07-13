@@ -52,16 +52,25 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Security vulnerability scanner
+  gem "brakeman", require: false
+
+  # Security audit for gem dependencies
+  gem "bundle-audit", require: false
 end
 
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
-  
+
   # Code coverage reporting
   gem "simplecov", require: false
   gem "simplecov-html", require: false
+
+  # Mocking framework for tests
+  gem "mocha", require: false
 end
 
 group :development do

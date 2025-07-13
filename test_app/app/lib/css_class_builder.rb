@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright 2025
 
 # Utility class to build CSS classes while avoiding conflicts
@@ -15,10 +16,10 @@ class CssClassBuilder
   # Add a regular CSS class
   def add(css_class)
     return self if css_class.blank?
-    
+
     css_class_str = css_class.to_s.strip
     return self if css_class_str.empty?
-    
+
     # Check if this is a text-color or text-size class
     if css_class_str.match(/^text-(\w+)-(\d+)$/) # text-red-500, text-blue-600, etc.
       @text_color = css_class_str
@@ -27,7 +28,7 @@ class CssClassBuilder
     else
       @classes << css_class_str
     end
-    
+
     self
   end
 
@@ -54,11 +55,11 @@ class CssClassBuilder
   # Build the final CSS class string with proper ordering
   def build
     final_classes = @classes.dup
-    
+
     # Add text size first, then text color to ensure color takes precedence
     final_classes << @text_size if @text_size.present?
     final_classes << @text_color if @text_color.present?
-    
+
     final_classes.compact.uniq.join(" ")
   end
 

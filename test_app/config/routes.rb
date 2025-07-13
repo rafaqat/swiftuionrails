@@ -6,20 +6,20 @@ Rails.application.routes.draw do
   post "storybook/update_preview"
   post "storybook/component_action"
   get "storybook/state_inspector"
-  
+
   # Legacy storybook routes
   get "storybook/index"
   get "storybook/show"
-  
+
   # SwiftUI Rails action handling
   namespace :swift_ui do
-    resources :actions, only: [:create]
+    resources :actions, only: [ :create ]
   end
-  
-  
+
+
   # Stateless components demo
   get "stateless_demo", to: "stateless_demo#index"
-  
+
   # Rails-first patterns demo
   get "rails_first_demo", to: "rails_first_demo#index"
   post "rails_first_demo/increment_counter", to: "rails_first_demo#increment_counter"
@@ -28,7 +28,7 @@ Rails.application.routes.draw do
   post "rails_first_demo/search", to: "rails_first_demo#search"
   # Test routes
   get "test_grid", to: "application#test_grid"
-  
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -42,14 +42,15 @@ Rails.application.routes.draw do
   # Component showcase routes
   get "counter", to: "home#counter", as: :counter
   get "debug_demo", to: "home#debug_demo" if Rails.env.development?
-  
+  get "home/simple_test", to: "home#simple_test"
+
   # Product layout examples
-  resources :products, only: [:index] do
+  resources :products, only: [ :index ] do
     collection do
       get :catalog
     end
   end
-  
+
   # Defines the root path route ("/")
   root "home#index"
 end

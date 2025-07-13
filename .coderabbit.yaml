@@ -1,4 +1,6 @@
-# CodeRabbit Configuration
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# CodeRabbit Configuration for swift-on-rails repository
 # Documentation: https://docs.coderabbit.ai/guides/configure-coderabbit
 
 # Review Settings
@@ -14,8 +16,17 @@ reviews:
   # High-level summary of the PR
   high_level_summary: true
   
+  # Request changes for critical issues
+  request_changes_workflow: false
+  
   # Generate poem about the PR (fun feature)
   poem: false
+  
+  # Review new files added in the PR
+  review_new_files: true
+  
+  # Review modified files
+  review_modified_files: true
   
   # Review tool settings
   tools:
@@ -51,7 +62,16 @@ language_specific:
 path_filters:
   # Include all files for review
   included_paths:
-    - "**/*"
+    - "**/*.rb"
+    - "**/*.erb"
+    - "**/*.js"
+    - "**/*.yml"
+    - "**/*.yaml"
+    - "**/Gemfile"
+    - "**/Gemfile.lock"
+    - "**/*.md"
+    - "**/*.css"
+    - "**/*.html"
   
   # Exclude generated/compiled files
   excluded_paths:
@@ -65,6 +85,8 @@ path_filters:
     - "**/public/builds/**"
     - "**/*.log"
     - "**/cache/**"
+    - "**/db/schema.rb"
+    - "**/db/migrate/*.rb"  # Skip auto-generated migrations
 
 # Custom review instructions
 instructions:
@@ -81,6 +103,13 @@ instructions:
   - "Ensure proper authorization checks"
   - "Review for code duplication"
   - "Check test coverage for new code"
+  - "Focus on SwiftUI-inspired DSL patterns and Rails best practices"
+  - "Check for proper stateless component architecture (no component state)"
+  - "Ensure Stimulus is used for client-side state management"
+  - "Verify proper use of ViewComponent slots and props"
+  - "Check for security best practices in component prop validation"
+  - "Ensure DSL methods follow the chaining pattern correctly"
+  - "Verify no monkey patching of Rails or external gems"
 
 # Chat settings
 chat:
@@ -93,11 +122,20 @@ notifications:
   # Comment on PR when review is complete
   review_comment:
     enabled: true
+
+# Issue validation
+issue_validation:
+  # Automatically create GitHub issues for critical problems
+  create_issues: false
+  
+  # Add labels to PRs based on review
+  add_labels: true
     
 # Security settings
 security:
   # Enable security scanning
   enabled: true
+  security_scan: true
   
   # Fail PR if high severity issues found
   block_pr_on_high_severity: true
@@ -106,6 +144,7 @@ security:
 performance:
   # Enable performance analysis
   enabled: true
+  performance_suggestions: true
   
   # Check for N+1 queries
   n_plus_one_detection: true
@@ -138,6 +177,10 @@ code_quality:
   
   # Maximum line length
   max_line_length: 120
+  line_length_limit: 120
   
   # Cyclomatic complexity threshold
   complexity_threshold: 10
+  
+  # Enable best practices suggestions
+  best_practices: true
