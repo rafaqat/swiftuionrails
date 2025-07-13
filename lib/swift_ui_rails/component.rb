@@ -28,6 +28,12 @@ module SwiftUIRails
       class_attribute :swift_computed, default: {}
       class_attribute :swift_effects, default: {}
       class_attribute :swift_slots, default: {}
+      
+      # Check for deprecated component usage when class is loaded
+      def self.inherited(subclass)
+        super
+        SwiftUIRails::Deprecations.check_component_usage(subclass)
+      end
 
       # Memoization support for swift_ui content
       class_attribute :swift_ui_memoization_enabled, default: true

@@ -54,6 +54,17 @@ module SwiftUIRails
         # Override to ensure sanitization
         @class_name ||= name.gsub(/[^A-Za-z0-9_]/, '').camelize
       end
+      
+      def class_path
+        # SECURITY: Prevent path traversal by removing any .. or / sequences
+        @class_path ||= begin
+          path = name.include?('/') ? name.split('/') : name.split('::')
+          path.map! { |part| part.gsub(/[^a-zA-Z0-9_]/, '_').downcase }
+          # Remove any empty parts, current directory refs, or parent directory refs
+          path.reject! { |part| part.empty? || part == '.' || part == '..' }
+          path
+        end
+      end
 
       # Common validation for prop names
       def validate_prop_name!(name)
@@ -90,7 +101,10 @@ module SwiftUIRails
         all_allowed = allowed_types + rails_types
 
         # Clean the type string first - extract only the first valid type name
-        cleaned_type = type.to_s.strip.split(/[^A-Za-z0-9:_]/).first || ''
+        # SECURITY: Use simpler regex to avoid ReDoS
+        cleaned_type = type.to_s.strip
+        # Extract only alphanumeric characters, colons, and underscores
+        cleaned_type = cleaned_type[/\A[A-Za-z0-9:_]+/] || ''
 
         # Check if it's an allowed type
         if all_allowed.include?(cleaned_type) || cleaned_type.match?(/\A[A-Z][A-Za-z0-9]*(::[A-Z][A-Za-z0-9]*)*\z/)
