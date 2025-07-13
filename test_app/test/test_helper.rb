@@ -6,7 +6,11 @@ require "view_component/test_helpers"
 require "view_component/system_test_helpers"
 require "capybara/rails"
 require "capybara/minitest"
-require "mocha/minitest"
+begin
+  require "mocha/minitest"
+rescue LoadError
+  # Mocha not available in CI
+end
 
 # Load support files
 Dir[Rails.root.join("test/support/**/*.rb")].each { |f| require f }
