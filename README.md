@@ -17,6 +17,17 @@ A declarative, component-based view system for Rails that brings SwiftUI's intui
 - 📱 **Progressive enhancement** - Works without JavaScript, enhanced with it
 - 🧪 **Interactive Storybook** - Visual component development and testing
 
+## 📚 Documentation
+
+- [API Reference](docs/API_REFERENCE.md) - Complete DSL method documentation
+- [Security Guide](docs/SECURITY_GUIDE.md) - Security features and best practices  
+- [Performance Guide](docs/PERFORMANCE_GUIDE.md) - Optimization techniques and benchmarks
+- [Architecture Guide](docs/ARCHITECTURE.md) - System design and patterns
+- [Testing Guide](docs/TESTING_GUIDE.md) - Testing strategies and examples
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Component Examples](docs/COMPONENT_EXAMPLES.md) - Real-world component patterns
+- [DSL Quick Reference](docs/DSL_REFERENCE.md) - Cheat sheet for DSL methods
+
 ## Installation
 
 Add to your Gemfile:

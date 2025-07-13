@@ -9,6 +9,7 @@ require_relative 'swift_ui_rails/dsl'
 require_relative 'swift_ui_rails/component'
 require_relative 'swift_ui_rails/helpers'
 require_relative 'swift_ui_rails/orientation'
+require_relative 'swift_ui_rails/deprecations'
 
 # Only load storybook if view_component-storybook is available
 begin
