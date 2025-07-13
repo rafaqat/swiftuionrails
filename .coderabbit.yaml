@@ -1,0 +1,143 @@
+# CodeRabbit Configuration
+# Documentation: https://docs.coderabbit.ai/guides/configure-coderabbit
+
+# Review Settings
+reviews:
+  # Enable auto reviews for every PR
+  auto_review:
+    enabled: true
+    drafts: true  # Review draft PRs as well
+  
+  # Show review status in PR
+  review_status: true
+  
+  # High-level summary of the PR
+  high_level_summary: true
+  
+  # Generate poem about the PR (fun feature)
+  poem: false
+  
+  # Review tool settings
+  tools:
+    # Enable OpenAI-based review
+    openai:
+      enabled: true
+      model: "gpt-4"
+    
+    # Enable static analysis tools
+    ruff:
+      enabled: true
+    
+    # Enable Markdown formatting checks
+    markdownlint:
+      enabled: true
+
+# Language-specific settings
+language_specific:
+  ruby:
+    # Ruby/Rails specific checks
+    rubocop:
+      enabled: true
+    
+    # Security scanning for Ruby
+    brakeman:
+      enabled: true
+    
+    # Dependency vulnerability scanning
+    bundler_audit:
+      enabled: true
+
+# Path filters - review all files
+path_filters:
+  # Include all files for review
+  included_paths:
+    - "**/*"
+  
+  # Exclude generated/compiled files
+  excluded_paths:
+    - "**/node_modules/**"
+    - "**/vendor/**"
+    - "**/.git/**"
+    - "**/tmp/**"
+    - "**/log/**"
+    - "**/coverage/**"
+    - "**/public/assets/**"
+    - "**/public/builds/**"
+    - "**/*.log"
+    - "**/cache/**"
+
+# Custom review instructions
+instructions:
+  - "Pay special attention to security vulnerabilities"
+  - "Check for Rails best practices and conventions"
+  - "Ensure DSL methods follow SwiftUI patterns"
+  - "Verify Stimulus controllers are properly structured"
+  - "Check for proper use of ViewComponent patterns"
+  - "Look for performance issues in component rendering"
+  - "Ensure proper error handling and validation"
+  - "Check for SQL injection vulnerabilities"
+  - "Verify CSRF protection is in place"
+  - "Check for XSS vulnerabilities"
+  - "Ensure proper authorization checks"
+  - "Review for code duplication"
+  - "Check test coverage for new code"
+
+# Chat settings
+chat:
+  # Enable auto-reply to review comments
+  auto_reply:
+    enabled: true
+
+# Notification settings
+notifications:
+  # Comment on PR when review is complete
+  review_comment:
+    enabled: true
+    
+# Security settings
+security:
+  # Enable security scanning
+  enabled: true
+  
+  # Fail PR if high severity issues found
+  block_pr_on_high_severity: true
+
+# Performance settings
+performance:
+  # Enable performance analysis
+  enabled: true
+  
+  # Check for N+1 queries
+  n_plus_one_detection: true
+
+# Documentation settings
+documentation:
+  # Require docstrings for public methods
+  require_docstrings: true
+  
+  # Check for outdated documentation
+  check_outdated_docs: true
+
+# Testing settings
+testing:
+  # Suggest unit tests for new code
+  suggest_tests: true
+  
+  # Check test coverage
+  coverage:
+    enabled: true
+    threshold: 80  # Require 80% coverage
+
+# Code quality settings
+code_quality:
+  # Maximum method length
+  max_method_length: 20
+  
+  # Maximum class length
+  max_class_length: 200
+  
+  # Maximum line length
+  max_line_length: 120
+  
+  # Cyclomatic complexity threshold
+  complexity_threshold: 10
