@@ -29,6 +29,8 @@ module SwiftUIRails
         validate_additional_inputs!
       rescue Thor::Error => e
         say_error(e.message)
+        # Allow tests to catch the error instead of exiting
+        raise e if defined?(RSpec)
         exit 1
       end
 
@@ -55,13 +57,16 @@ module SwiftUIRails
         @class_name ||= name.gsub(/[^A-Za-z0-9_]/, '').camelize
       end
       
-      def class_path
-        # SECURITY: Prevent path traversal by removing any .. or / sequences
-        @class_path ||= begin
-          path = name.include?('/') ? name.split('/') : name.split('::')
+      # Override to sanitize the class path
+      def regular_class_path
+        @regular_class_path ||= begin
+          # Get the original path from the name
+          path = name.include?('/') ? name.split('/')[0...-1] : []
+          
+          # SECURITY: Sanitize each path component
           path.map! { |part| part.gsub(/[^a-zA-Z0-9_]/, '_').downcase }
           # Remove any empty parts, current directory refs, or parent directory refs
-          path.reject! { |part| part.empty? || part == '.' || part == '..' }
+          path.reject! { |part| part.empty? || part == '.' || part == '..' || part.start_with?('.') }
           path
         end
       end
