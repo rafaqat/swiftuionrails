@@ -46,13 +46,6 @@ module SwiftUIRails
         self
       end
 
-      # Define spacing utilities using metaprogramming
-      SPACING_UTILITIES = {
-        # Margin utilities
-        m: 'm', mt: 'mt', mr: 'mr', mb: 'mb', ml: 'ml', mx: 'mx', my: 'my',
-        # Padding utilities
-        p: 'p', pt: 'pt', pr: 'pr', pb: 'pb', pl: 'pl', px: 'px', py: 'py'
-      }.freeze
 
       # Define size utilities using metaprogramming
       SIZE_UTILITIES = {
@@ -71,12 +64,6 @@ module SwiftUIRails
       # Define parameterless text utilities
       TEXT_STYLE_UTILITIES = %i[italic underline].freeze
 
-      # Generate spacing utility methods
-      SPACING_UTILITIES.each do |method_name, css_prefix|
-        define_method(method_name) do |size, &block|
-          tw("#{css_prefix}-#{size}", &block)
-        end
-      end
 
       # Generate size utility methods
       SIZE_UTILITIES.each do |method_name, css_prefix|
@@ -99,10 +86,6 @@ module SwiftUIRails
         end
       end
 
-      # Special case: padding alias
-      def padding(size, &block)
-        Rails.logger.debug(size, &block)
-      end
 
       # Background utilities
       def bg(color, &block)

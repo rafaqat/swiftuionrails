@@ -3,6 +3,7 @@
 # Copyright 2025
 
 require_relative 'security/css_validator'
+require_relative 'tailwind/spacing_converter'
 
 module SwiftUIRails
   module Tailwind
@@ -10,7 +11,13 @@ module SwiftUIRails
       # Spacing utilities with SECURITY validation
       %i[p px py pt pr pb pl m mx my mt mr mb ml].each do |method|
         define_method method do |value, &block|
-          safe_class = Security::CSSValidator.safe_spacing_class(method.to_s, value)
+          # Convert pixel values to Tailwind spacing scale if needed
+          converted_value = if SpacingConverter.pixel_value?(value)
+                              SpacingConverter.convert(value)
+                            else
+                              value
+                            end
+          safe_class = Security::CSSValidator.safe_spacing_class(method.to_s, converted_value)
           add_class(safe_class, &block)
           self
         end
@@ -18,14 +25,26 @@ module SwiftUIRails
 
       # Alias for padding with SECURITY validation
       def padding(value, &block)
-        safe_class = Security::CSSValidator.safe_spacing_class('p', value)
+        # Convert pixel values to Tailwind spacing scale if needed
+        converted_value = if SpacingConverter.pixel_value?(value)
+                            SpacingConverter.convert(value)
+                          else
+                            value
+                          end
+        safe_class = Security::CSSValidator.safe_spacing_class('p', converted_value)
         add_class(safe_class, &block)
         self
       end
 
       # Alias for margin with SECURITY validation
       def margin(value, &block)
-        safe_class = Security::CSSValidator.safe_spacing_class('m', value)
+        # Convert pixel values to Tailwind spacing scale if needed
+        converted_value = if SpacingConverter.pixel_value?(value)
+                            SpacingConverter.convert(value)
+                          else
+                            value
+                          end
+        safe_class = Security::CSSValidator.safe_spacing_class('m', converted_value)
         add_class(safe_class, &block)
         self
       end
@@ -757,61 +776,6 @@ module SwiftUIRails
         self
       end
 
-      # Missing spacing methods
-      def p(value = nil)
-        add_class(value ? "p-#{value}" : 'p')
-        self
-      end
-
-      def px(value = nil)
-        add_class(value ? "px-#{value}" : 'px')
-        self
-      end
-
-      def py(value = nil)
-        add_class(value ? "py-#{value}" : 'py')
-        self
-      end
-
-      def mt(value = nil)
-        add_class(value ? "mt-#{value}" : 'mt')
-        self
-      end
-
-      def mb(value = nil)
-        add_class(value ? "mb-#{value}" : 'mb')
-        self
-      end
-
-      def ml(value = nil)
-        add_class(value ? "ml-#{value}" : 'ml')
-        self
-      end
-
-      def mr(value = nil)
-        add_class(value ? "mr-#{value}" : 'mr')
-        self
-      end
-
-      def mx(value = nil)
-        add_class(value ? "mx-#{value}" : 'mx')
-        self
-      end
-
-      def my(value = nil)
-        add_class(value ? "my-#{value}" : 'my')
-        self
-      end
-
-      def pl(value = nil)
-        add_class(value ? "pl-#{value}" : 'pl')
-        self
-      end
-
-      def pr(value = nil)
-        add_class(value ? "pr-#{value}" : 'pr')
-        self
-      end
 
       # Size methods
       def w(value = nil)

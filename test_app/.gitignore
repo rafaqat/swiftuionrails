@@ -50,3 +50,6 @@ TEST_CLEANUP_SUMMARY.md
 
 # Ignore spec directory (if using test instead)
 /spec/
+
+# Ignore development server logs
+server.log

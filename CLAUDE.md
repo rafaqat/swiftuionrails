@@ -81,6 +81,38 @@ This project includes a local fork of `view_component-storybook` in the `view_co
 - Simplified Ruby file parsing without YARD dependency
 - Maintained the same API as the original gem
 
+### SwiftUI Rails Playground
+
+The playground (`/playground`) provides an interactive development environment for the SwiftUI Rails DSL with:
+
+1. **Monaco Editor Integration**
+   - Syntax highlighting for Ruby
+   - Live code editing with Solarized Light theme
+   - Automatic indentation and formatting
+
+2. **Intelligent Code Completion (LSP-like)**
+   - **DSL Element Completions**: Type to see available DSL elements (vstack, hstack, text, button, etc.)
+   - **Method Chaining**: Type `.` after any element to see available modifiers
+   - **Parameter Value Completions**: Get suggestions for colors, sizes, spacing values when inside method parameters
+   - **Context-Aware**: Completions are filtered based on the current element type
+   
+   Examples:
+   ```ruby
+   button("Click").  # Shows: bg, text_color, padding, hover, etc.
+   text("Hello").bg( # Shows: blue-500, red-600, slate-100, etc.
+   vstack.padding(   # Shows: 0, 1, 2, 4, 8, 16, etc.
+   ```
+
+3. **Real-time Preview**
+   - Instant preview updates as you type
+   - Graceful error handling with helpful messages
+   - Turbo-powered smooth updates
+
+4. **Component Library**
+   - Pre-built component snippets
+   - Example templates
+   - One-click insertion into editor
+
 ### Interactive Storybook System
 
 1. **Access Interactive Storybook**: Visit `http://localhost:3030/storybook/index` when the server is running
@@ -1241,6 +1273,16 @@ The home page (`/`) demonstrates a clean implementation of our Rails-first archi
   label: "Counter"
 ) %>
 ```
+
+## Documentation
+
+- [API Reference](docs/API_REFERENCE.md) - Complete DSL method reference
+- [Security Guide](docs/SECURITY_GUIDE.md) - Security best practices and features
+- [Performance Guide](docs/PERFORMANCE_GUIDE.md) - 10x performance optimization guide
+- [Architecture Guide](docs/ARCHITECTURE.md) - Component lifecycle and architecture
+- [Migration Guide](docs/MIGRATION_GUIDE.md) - Upgrading between versions
+- [Development Rules](docs/DEVELOPMENT_RULES.md) - Critical development principles
+- [DSL Component Guide](docs/DSL_COMPONENT_GUIDE.md) - Building DSL-first components
 
 ## Recent Improvements (June 2025)
 

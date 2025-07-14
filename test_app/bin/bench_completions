@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+require_relative '../config/environment'
+
+puts "SwiftUI Rails Completion Service Benchmark"
+puts "=" * 50
+
+scenarios = [
+  { name: "Top-level completion", context: "tex", position: { "lineNumber" => 1, "column" => 4 } },
+  { name: "Method completion", context: 'text("Hello").', position: { "lineNumber" => 1, "column" => 15 } },
+  { name: "Parameter completion", context: 'text("Hello").bg("', position: { "lineNumber" => 1, "column" => 19 } },
+  { name: "Partial method", context: 'text("Hello").font_', position: { "lineNumber" => 1, "column" => 20 } },
+  { name: "Nested context", context: "vstack do\n  text('Hi').", position: { "lineNumber" => 2, "column" => 13 } }
+]
+
+# Clear cache for fair comparison
+Rails.cache.clear
+
+scenarios.each do |scenario|
+  puts "\n#{scenario[:name]}:"
+  puts "-" * 30
+  
+  service = Playground::CompletionService.new(scenario[:context], scenario[:position])
+  
+  # Warm up
+  service.generate_completions
+  
+  # Benchmark
+  times = []
+  10.times do
+    time = Benchmark.realtime { service.generate_completions }
+    times << time * 1000 # Convert to ms
+  end
+  
+  avg_time = times.sum / times.size
+  min_time = times.min
+  max_time = times.max
+  
+  puts "Average: #{avg_time.round(2)}ms"
+  puts "Min: #{min_time.round(2)}ms"
+  puts "Max: #{max_time.round(2)}ms"
+  
+  completions = service.generate_completions
+  puts "Results: #{completions.size} completions"
+  
+  # Performance assertion
+  if avg_time < 2.0
+    puts "✅ Performance target met (<2ms)"
+  else
+    puts "⚠️  Performance target missed (>2ms)"
+  end
+end
+
+puts "\n" + "=" * 50
+puts "Benchmark complete!"

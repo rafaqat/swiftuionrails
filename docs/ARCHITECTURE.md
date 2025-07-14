@@ -1368,8 +1368,503 @@ end
 # })
 ```
 
+## Component Lifecycle
+
+Understanding the SwiftUI Rails component lifecycle is crucial for building efficient, maintainable components. Unlike traditional SPA frameworks, our components follow a simple, predictable lifecycle that aligns with Rails' request-response model.
+
+### The Component Lifecycle Phases
+
+#### 1. Instantiation Phase
+When a component is rendered, it goes through these steps:
+
+```ruby
+# In the view
+<%= render MyComponent.new(title: "Hello", color: "blue") %>
+
+# What happens:
+# 1. Component class is instantiated
+# 2. Props are validated and type-checked
+# 3. Default values are applied
+# 4. Component is ready to render
+```
+
+**Key Points:**
+- Components are instantiated fresh for each request
+- No state is carried between requests
+- Props are immutable after instantiation
+- Validation happens immediately, failing fast on errors
+
+#### 2. Rendering Phase
+The rendering phase transforms the DSL into HTML:
+
+```ruby
+class MyComponent < SwiftUIRails::Component::Base
+  prop :title, type: String, required: true
+  
+  swift_ui do
+    # This block is evaluated during rendering
+    div do
+      text(title)
+    end
+  end
+end
+
+# Rendering process:
+# 1. swift_ui block is evaluated
+# 2. DSL methods create element objects
+# 3. Modifiers are chained and applied
+# 4. Elements are converted to HTML
+# 5. HTML is marked safe and returned
+```
+
+**Important Behaviors:**
+- The `swift_ui` block is evaluated once per render
+- Elements are built in a declarative, top-down manner
+- Modifiers return self for chaining
+- HTML is escaped by default unless explicitly marked safe
+
+#### 3. Slot Rendering
+Slots add complexity to the lifecycle:
+
+```ruby
+class CardComponent < SwiftUIRails::Component::Base
+  renders_one :header
+  renders_one :footer
+  renders_many :actions
+  
+  swift_ui do
+    div do
+      header if header?  # Slot content rendered here
+      yield              # Block content rendered here
+      footer if footer?  # Another slot
+    end
+  end
+end
+
+# Usage:
+<%= render CardComponent.new do |card| %>
+  <% card.with_header do %>
+    Header content (rendered when header is called)
+  <% end %>
+  Main content (rendered at yield)
+<% end %>
+```
+
+**Slot Lifecycle:**
+1. Component is instantiated
+2. Block is yielded with component instance
+3. `with_*` methods capture slot content
+4. During rendering, slots are evaluated when called
+5. Slot content can itself contain components
+
+#### 4. Collection Rendering (Optimized Path)
+ViewComponent 2.0 provides an optimized rendering path:
+
+```ruby
+# Traditional (slower)
+@products.each do |product|
+  render ProductComponent.new(product: product)
+end
+
+# Optimized (10x faster)
+render ProductComponent.with_collection(@products)
+
+# What happens in collection rendering:
+# 1. Component class prepares for batch rendering
+# 2. Template is compiled once (not per item)
+# 3. Each item is rendered with minimal overhead
+# 4. Results are concatenated efficiently
+```
+
+**Collection Benefits:**
+- Single template compilation
+- Reduced object allocation
+- Optimized string concatenation
+- Counter variables available
+
+### Component Lifecycle Hooks
+
+While SwiftUI Rails components don't have traditional lifecycle hooks, you can achieve similar patterns:
+
+#### Before Render
+Use initializer for setup:
+
+```ruby
+class MyComponent < SwiftUIRails::Component::Base
+  prop :user_id, type: Integer, required: true
+  
+  def initialize(**props)
+    super
+    # Setup that needs to happen before rendering
+    @user = User.find(user_id)
+  end
+  
+  swift_ui do
+    text(@user.name)
+  end
+end
+```
+
+#### Conditional Rendering
+Use Ruby's conditionals:
+
+```ruby
+swift_ui do
+  if user_signed_in?
+    user_menu
+  else
+    sign_in_button
+  end
+end
+```
+
+#### Lazy Evaluation
+Use procs for expensive operations:
+
+```ruby
+class ExpensiveComponent < SwiftUIRails::Component::Base
+  prop :data_source, type: Proc, required: true
+  
+  swift_ui do
+    # Only called when actually rendering
+    data = data_source.call
+    
+    vstack do
+      data.each do |item|
+        text(item.name)
+      end
+    end
+  end
+end
+```
+
+### Memory and Performance Considerations
+
+#### Component Instances
+- Components are garbage collected after each request
+- No memory leaks from retained state
+- Clean slate for each render
+
+#### String Building
+The DSL uses efficient string building:
+
+```ruby
+# Internally, the DSL does this efficiently:
+class Element
+  def to_html
+    buffer = ActiveSupport::SafeBuffer.new
+    buffer << "<#{tag_name}"
+    buffer << build_attributes
+    buffer << ">"
+    buffer << render_content
+    buffer << "</#{tag_name}>"
+    buffer
+  end
+end
+```
+
+#### Caching Strategies
+Cache at the component level:
+
+```ruby
+class CacheableComponent < SwiftUIRails::Component::Base
+  prop :product, type: Product, required: true
+  
+  def cache_key
+    [self.class.name, product.cache_key_with_version]
+  end
+  
+  swift_ui do
+    Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      expensive_rendering
+    end
+  end
+end
+```
+
+### Testing Component Lifecycle
+
+#### Unit Testing
+Test components in isolation:
+
+```ruby
+RSpec.describe MyComponent, type: :component do
+  it "renders with props" do
+    component = described_class.new(title: "Test")
+    
+    # Test instantiation
+    expect(component.title).to eq("Test")
+    
+    # Test rendering
+    rendered = render_inline(component)
+    expect(rendered).to have_text("Test")
+  end
+  
+  it "validates props" do
+    # Test validation in instantiation phase
+    expect {
+      described_class.new(title: nil)
+    }.to raise_error(SwiftUIRails::InvalidPropError)
+  end
+end
+```
+
+#### Integration Testing
+Test components in request cycle:
+
+```ruby
+class ComponentIntegrationTest < ActionDispatch::IntegrationTest
+  test "component renders in view context" do
+    get root_path
+    
+    # Component rendered with full Rails context
+    assert_select "[data-component='my-component']"
+  end
+  
+  test "collection rendering performance" do
+    products = create_list(:product, 100)
+    
+    time = Benchmark.realtime do
+      get products_path
+    end
+    
+    assert time < 0.1  # Should render 100 products in < 100ms
+  end
+end
+```
+
+### Common Lifecycle Patterns
+
+#### 1. Data Loading Pattern
+Load data in controller, pass to component:
+
+```ruby
+# Controller
+class ProductsController < ApplicationController
+  def show
+    @product = Product.find(params[:id])
+    @related = @product.related_products.limit(5)
+  end
+end
+
+# View
+<%= render ProductDetailComponent.new(
+  product: @product,
+  related_products: @related
+) %>
+
+# Component just renders, no data loading
+```
+
+#### 2. Event Handling Pattern
+Use Stimulus for client-side events:
+
+```ruby
+swift_ui do
+  div(data: { 
+    controller: "dropdown",
+    "dropdown-open-class": "block",
+    "dropdown-closed-class": "hidden"
+  }) do
+    button("Toggle")
+      .data(action: "click->dropdown#toggle")
+    
+    div(data: { "dropdown-target": "menu" })
+      .hidden do
+      # Menu content
+    end
+  end
+end
+```
+
+#### 3. Form Handling Pattern
+Forms work with standard Rails patterns:
+
+```ruby
+swift_ui do
+  form_with(model: @user) do |form|
+    vstack(spacing: 4) do
+      field_group do
+        form.label :name
+        form.text_field :name
+      end
+      
+      form.submit "Save"
+    end
+  end
+end
+```
+
+#### 4. Error Handling Pattern
+Handle errors gracefully:
+
+```ruby
+class SafeComponent < SwiftUIRails::Component::Base
+  prop :risky_data, type: Hash, required: true
+  
+  swift_ui do
+    vstack do
+      begin
+        process_risky_data
+      rescue StandardError => e
+        error_message(e.message)
+      end
+    end
+  end
+  
+  private
+  
+  def process_risky_data
+    # Risky operation
+  end
+  
+  def error_message(message)
+    div.bg("red-50").p(4).rounded do
+      text("Error: #{message}").text_color("red-800")
+    end
+  end
+end
+```
+
+### Lifecycle Best Practices
+
+1. **Keep Components Pure**
+   - No side effects in render
+   - No external API calls
+   - No database queries
+
+2. **Props Over State**
+   - Pass data as props
+   - Use controllers for data loading
+   - Keep components focused on rendering
+
+3. **Composition Over Inheritance**
+   - Use slots for flexibility
+   - Compose smaller components
+   - Share behavior through modules
+
+4. **Performance First**
+   - Use collection rendering
+   - Cache expensive components
+   - Minimize prop complexity
+
+5. **Test Each Phase**
+   - Test prop validation
+   - Test rendering output
+   - Test slot integration
+   - Test collection rendering
+
+### Debugging Component Lifecycle
+
+#### Debug Rendering
+Add debug output during development:
+
+```ruby
+class DebugComponent < SwiftUIRails::Component::Base
+  prop :data, type: Hash, required: true
+  
+  swift_ui do
+    if Rails.env.development?
+      div.bg("yellow-100").p(2).text_xs do
+        text("Component: #{self.class.name}")
+        text("Props: #{data.inspect}")
+        text("Rendered at: #{Time.current}")
+      end
+    end
+    
+    # Normal rendering
+    actual_content
+  end
+end
+```
+
+#### Performance Profiling
+Measure rendering time:
+
+```ruby
+class ProfiledComponent < SwiftUIRails::Component::Base
+  def call
+    result = nil
+    time = Benchmark.realtime do
+      result = super
+    end
+    
+    Rails.logger.info("#{self.class.name} rendered in #{(time * 1000).round(2)}ms")
+    result
+  end
+end
+```
+
+#### Memory Profiling
+Check for memory leaks:
+
+```ruby
+require 'memory_profiler'
+
+report = MemoryProfiler.report do
+  1000.times do
+    MyComponent.new(title: "Test").call
+  end
+end
+
+report.pretty_print
+```
+
+### Advanced Lifecycle Concepts
+
+#### Lazy Components
+Defer rendering until needed:
+
+```ruby
+class LazyComponent < SwiftUIRails::Component::Base
+  prop :lazy_loader, type: Proc, required: true
+  
+  swift_ui do
+    turbo_frame_tag("lazy_#{object_id}", src: lazy_loader.call, loading: :lazy) do
+      div.animate_pulse do
+        text("Loading...").text_color("gray-500")
+      end
+    end
+  end
+end
+```
+
+#### Streaming Components
+Use Turbo Streams for real-time updates:
+
+```ruby
+class StreamingComponent < SwiftUIRails::Component::Base
+  prop :channel, type: String, required: true
+  
+  swift_ui do
+    turbo_stream_from channel
+    
+    div(id: "live_content") do
+      # Content updated via streams
+    end
+  end
+end
+```
+
+#### Async Components
+Handle async data with Turbo:
+
+```ruby
+class AsyncComponent < SwiftUIRails::Component::Base
+  prop :async_path, type: String, required: true
+  
+  swift_ui do
+    turbo_frame_tag("async_#{object_id}", src: async_path) do
+      spinner.mx("auto")
+    end
+  end
+end
+```
+
 ## Summary
 
 SwiftUI Rails embraces Rails' stateless architecture while providing a rich, SwiftUI-inspired DSL for building modern web applications. By leveraging URL state, progressive enhancement, and Rails' built-in patterns, we create applications that are fast, accessible, and maintainable without the complexity of client-side state management frameworks.
 
 The key insight is that most "state" in web applications naturally belongs in URLs, sessions, or databases. By accepting this reality and building with it rather than against it, we create simpler, more robust applications that fully leverage the power of Rails and modern browser capabilities.
+
+The component lifecycle in SwiftUI Rails is intentionally simple: instantiate, render, garbage collect. This simplicity is a feature, not a limitation. It ensures predictable behavior, excellent performance, and easy debugging while maintaining the full power of Ruby and Rails.

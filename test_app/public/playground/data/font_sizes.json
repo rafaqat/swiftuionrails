@@ -1,0 +1,80 @@
+[
+  {
+    "value": "xs",
+    "label": "xs",
+    "category": "font-size",
+    "description": "0.75rem"
+  },
+  {
+    "value": "sm",
+    "label": "sm",
+    "category": "font-size",
+    "description": "0.875rem"
+  },
+  {
+    "value": "base",
+    "label": "base",
+    "category": "font-size",
+    "description": "1rem"
+  },
+  {
+    "value": "lg",
+    "label": "lg",
+    "category": "font-size",
+    "description": "1.125rem"
+  },
+  {
+    "value": "xl",
+    "label": "xl",
+    "category": "font-size",
+    "description": "1.25rem"
+  },
+  {
+    "value": "2xl",
+    "label": "2xl",
+    "category": "font-size",
+    "description": "1.5rem"
+  },
+  {
+    "value": "3xl",
+    "label": "3xl",
+    "category": "font-size",
+    "description": "1.875rem"
+  },
+  {
+    "value": "4xl",
+    "label": "4xl",
+    "category": "font-size",
+    "description": "2.25rem"
+  },
+  {
+    "value": "5xl",
+    "label": "5xl",
+    "category": "font-size",
+    "description": "3rem"
+  },
+  {
+    "value": "6xl",
+    "label": "6xl",
+    "category": "font-size",
+    "description": "3.75rem"
+  },
+  {
+    "value": "7xl",
+    "label": "7xl",
+    "category": "font-size",
+    "description": "4.5rem"
+  },
+  {
+    "value": "8xl",
+    "label": "8xl",
+    "category": "font-size",
+    "description": "6rem"
+  },
+  {
+    "value": "9xl",
+    "label": "9xl",
+    "category": "font-size",
+    "description": "8rem"
+  }
+]

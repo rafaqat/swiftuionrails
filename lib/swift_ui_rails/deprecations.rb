@@ -41,6 +41,7 @@ module SwiftUIRails
 
       def check_component_usage(klass)
         # Check if trying to use a removed component
+        return unless klass.name # Skip anonymous classes
         component_name = klass.name.demodulize
         warn_if_removed(component_name)
       end

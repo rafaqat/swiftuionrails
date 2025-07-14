@@ -32,15 +32,30 @@ module.exports = {
     'text-purple-50', 'text-purple-100', 'text-purple-200', 'text-purple-300', 'text-purple-400', 'text-purple-500', 'text-purple-600', 'text-purple-700', 'text-purple-800', 'text-purple-900',
     'text-pink-50', 'text-pink-100', 'text-pink-200', 'text-pink-300', 'text-pink-400', 'text-pink-500', 'text-pink-600', 'text-pink-700', 'text-pink-800', 'text-pink-900',
     'text-indigo-50', 'text-indigo-100', 'text-indigo-200', 'text-indigo-300', 'text-indigo-400', 'text-indigo-500', 'text-indigo-600', 'text-indigo-700', 'text-indigo-800', 'text-indigo-900',
-    // Background colors for all standard Tailwind color palette
+    // Base color names (without shade - defaults to 500)
+    'bg-slate', 'bg-gray', 'bg-zinc', 'bg-neutral', 'bg-stone', 'bg-red', 'bg-orange', 
+    'bg-amber', 'bg-yellow', 'bg-lime', 'bg-green', 'bg-emerald', 'bg-teal', 'bg-cyan', 
+    'bg-sky', 'bg-blue', 'bg-indigo', 'bg-violet', 'bg-purple', 'bg-fuchsia', 'bg-pink', 'bg-rose',
+    'text-slate', 'text-gray', 'text-zinc', 'text-neutral', 'text-stone', 'text-red', 'text-orange',
+    'text-amber', 'text-yellow', 'text-lime', 'text-green', 'text-emerald', 'text-teal', 'text-cyan',
+    'text-sky', 'text-blue', 'text-indigo', 'text-violet', 'text-purple', 'text-fuchsia', 'text-pink', 'text-rose',
+    'hover:bg-slate', 'hover:bg-gray', 'hover:bg-zinc', 'hover:bg-neutral', 'hover:bg-stone', 'hover:bg-red',
+    'hover:bg-orange', 'hover:bg-amber', 'hover:bg-yellow', 'hover:bg-lime', 'hover:bg-green', 'hover:bg-emerald',
+    'hover:bg-teal', 'hover:bg-cyan', 'hover:bg-sky', 'hover:bg-blue', 'hover:bg-indigo', 'hover:bg-violet',
+    'hover:bg-purple', 'hover:bg-fuchsia', 'hover:bg-pink', 'hover:bg-rose',
+    'border-slate', 'border-gray', 'border-zinc', 'border-neutral', 'border-stone', 'border-red',
+    'border-orange', 'border-amber', 'border-yellow', 'border-lime', 'border-green', 'border-emerald',
+    'border-teal', 'border-cyan', 'border-sky', 'border-blue', 'border-indigo', 'border-violet',
+    'border-purple', 'border-fuchsia', 'border-pink', 'border-rose',
+    // Background colors for all standard Tailwind color palette with shades
     {
       pattern: /bg-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)/,
     },
-    // Text colors
+    // Text colors with shades
     {
       pattern: /text-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)/,
     },
-    // Hover states
+    // Hover states with shades
     {
       pattern: /hover:bg-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)/,
     },

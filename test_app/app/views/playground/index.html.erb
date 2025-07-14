@@ -1,0 +1,416 @@
+<div class="min-h-screen bg-gray-50" data-controller="playground">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-gray-900">SwiftUI Rails Playground</h1>
+          <span class="text-sm text-gray-500">Live DSL Editor</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button data-action="click->playground#runCode" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Run</span>
+          </button>
+          <button data-action="click->playground#shareCode" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex h-[calc(100vh-64px)]">
+    <!-- Sidebar - Component Palette -->
+    <aside class="w-48 bg-white border-r overflow-y-auto flex-shrink-0">
+      <div class="p-3">
+        <h2 class="text-base font-semibold mb-3">Components</h2>
+        
+        <% @components.group_by { |c| c[:category] }.each do |category, components| %>
+          <div class="mb-4">
+            <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1"><%= category %></h3>
+            <div class="space-y-0.5">
+              <% components.each do |component| %>
+                <button 
+                  data-action="click->playground#insertComponent"
+                  data-playground-code-param="<%= component[:code] %>"
+                  class="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100 transition"
+                >
+                  <%= component[:name] %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        
+        <div class="mt-6 border-t pt-3">
+          <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Examples</h3>
+          <div class="space-y-0.5">
+            <% @examples.each do |example| %>
+              <button 
+                data-action="click->playground#loadExample"
+                data-playground-code-param="<%= example[:code] %>"
+                class="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100 transition"
+              >
+                <%= example[:name] %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex">
+      <!-- Code Editor (70% width) -->
+      <div class="w-[70%] flex flex-col bg-solarized-base3">
+        <div class="flex items-center justify-between px-4 py-2 bg-solarized-base2 border-b border-solarized-base1">
+          <span class="text-sm text-solarized-base00">Ruby DSL Code</span>
+          <div class="flex items-center space-x-2">
+            <button data-action="click->playground#formatCode" class="text-sm text-solarized-base00 hover:text-solarized-base01">
+              Format
+            </button>
+            <button data-action="click->playground#clearCode" class="text-sm text-solarized-base00 hover:text-solarized-base01">
+              Clear
+            </button>
+          </div>
+        </div>
+        <div class="flex-1 relative overflow-hidden">
+          <!-- Loading indicator -->
+          <div id="editor-loading" class="absolute inset-0 flex items-center justify-center bg-solarized-base3">
+            <div class="text-solarized-base00">Loading editor...</div>
+          </div>
+          
+          <!-- Monaco Editor Container -->
+          <div id="monaco-editor" data-playground-target="monacoContainer" class="absolute inset-0" style="display: none;"></div>
+          
+          <!-- Fallback textarea -->
+          <textarea
+            data-playground-target="codeEditor"
+            class="absolute inset-0 w-full h-full p-4 bg-solarized-base3 text-solarized-base01 font-mono text-sm resize-none focus:outline-none"
+            id="hidden-code-editor"
+            style="display: none;"
+            spellcheck="false"
+          ><%= raw @default_code %></textarea>
+        </div>
+      </div>
+
+      <!-- Preview (30% width) -->
+      <div class="w-[30%] flex flex-col bg-white">
+        <div class="flex items-center justify-between px-4 py-2 bg-gray-100 border-b">
+          <span class="text-sm text-gray-600">Live Preview</span>
+          <div class="flex items-center space-x-2">
+            <button data-action="click->playground#toggleDevice" class="text-sm text-gray-600 hover:text-gray-900">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </button>
+            <button data-action="click->playground#refreshPreview" class="text-sm text-gray-600 hover:text-gray-900">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-auto p-8">
+          <div id="preview-container" data-playground-target="preview" class="min-h-full">
+            <!-- Preview will be rendered here -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Hidden form for code submission -->
+  <%= form_with url: preview_playground_path, method: :post, data: { playground_target: "form" } do |f| %>
+    <%= f.hidden_field :code, data: { playground_target: "codeInput" } %>
+  <% end %>
+</div>
+
+<!-- Monaco Editor -->
+<script src="/monaco-editor/min/vs/loader.js"></script>
+<script>
+  // Configure Monaco Editor
+  require.config({ 
+    paths: { 
+      'vs': '/monaco-editor/min/vs' 
+    }
+  });
+  
+  // Store editor instance globally for Stimulus controller access
+  window.monacoEditorInstance = null;
+  
+  // Initialize Monaco Editor after DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM loaded, initializing Monaco...");
+    require(['vs/editor/editor.main'], function() {
+      console.log("Monaco loaded");
+      // Define Solarized Light theme
+      monaco.editor.defineTheme('solarized-light', {
+        base: 'vs',
+        inherit: true,
+        rules: [
+          { token: 'comment', foreground: '93a1a1', fontStyle: 'italic' },
+          { token: 'keyword', foreground: '859900' },
+          { token: 'string', foreground: '2aa198' },
+          { token: 'number', foreground: '2aa198' },
+          { token: 'regexp', foreground: 'dc322f' },
+          { token: 'type', foreground: 'b58900' },
+          { token: 'class', foreground: 'b58900' },
+          { token: 'function', foreground: '268bd2' },
+          { token: 'variable', foreground: '268bd2' },
+          { token: 'constant', foreground: 'cb4b16' },
+          { token: 'symbol', foreground: '6c71c4' },
+          { token: 'operator', foreground: '859900' }
+        ],
+        colors: {
+          'editor.background': '#fdf6e3',
+          'editor.foreground': '#586e75',
+          'editor.lineHighlightBackground': '#eee8d5',
+          'editorLineNumber.foreground': '#93a1a1',
+          'editorCursor.foreground': '#586e75',
+          'editor.selectionBackground': '#eee8d5',
+          'editor.inactiveSelectionBackground': '#eee8d5'
+        }
+      });
+      
+      try {
+        // Create editor instance
+        const editorContainer = document.getElementById('monaco-editor');
+        const codeTextarea = document.getElementById('hidden-code-editor');
+        const loadingIndicator = document.getElementById('editor-loading');
+        const initialCode = codeTextarea ? codeTextarea.value : '';
+        
+        console.log("Initial code:", initialCode);
+        
+        window.monacoEditorInstance = monaco.editor.create(editorContainer, {
+          value: initialCode,
+          language: 'ruby',
+          theme: 'solarized-light',
+          fontSize: 14,
+          fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          renderWhitespace: 'selection',
+          tabSize: 2,
+          insertSpaces: true,
+          automaticLayout: true,
+          padding: { top: 16, bottom: 16 },
+          suggestOnTriggerCharacters: true,
+          quickSuggestions: {
+            other: true,
+            comments: false,
+            strings: false
+          },
+          quickSuggestionsDelay: 200 // Delay before showing suggestions
+        });
+        
+        // Completion provider with debouncing and cancellation
+        let completionAbortController = null;
+        let completionCache = new Map();
+        let lastCompletionRequest = 0;
+        
+        // Helper to create cache key
+        function getCacheKey(text, position) {
+          return `${position.lineNumber}:${position.column}:${text.substring(0, position.column)}`;
+        }
+        
+        // Register completion provider for SwiftUI Rails DSL
+        monaco.languages.registerCompletionItemProvider('ruby', {
+          triggerCharacters: ['.', '('],
+          provideCompletionItems: async function(model, position, context, token) {
+            console.log("Completion triggered at position:", position);
+            
+            // Cancel previous request if still pending
+            if (completionAbortController) {
+              completionAbortController.abort();
+            }
+            
+            // Get the text content and cursor position
+            const textContent = model.getValue();
+            const cacheKey = getCacheKey(textContent, position);
+            
+            // Check cache first
+            if (completionCache.has(cacheKey)) {
+              console.log("Using cached completions");
+              return completionCache.get(cacheKey);
+            }
+            
+            // Rate limiting
+            const now = Date.now();
+            if (now - lastCompletionRequest < 100) {
+              return { suggestions: [] };
+            }
+            lastCompletionRequest = now;
+            
+            // Get word at position for proper range calculation
+            const wordInfo = model.getWordUntilPosition(position);
+            const range = {
+              startLineNumber: position.lineNumber,
+              startColumn: wordInfo.startColumn,
+              endLineNumber: position.lineNumber,
+              endColumn: wordInfo.endColumn
+            };
+            
+            const positionData = {
+              lineNumber: position.lineNumber,
+              column: position.column
+            };
+            
+            // Create new abort controller
+            completionAbortController = new AbortController();
+            
+            try {
+              // Fetch completions from Rails backend
+              const response = await fetch('/playground/completions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                  context: textContent,
+                  position: positionData
+                }),
+                signal: completionAbortController.signal
+              });
+              
+              if (!response.ok) {
+                console.error('Failed to fetch completions:', response.status);
+                return { suggestions: [] };
+              }
+              
+              const data = await response.json();
+              console.log("Received completions:", data.suggestions.length, "items");
+              
+              // Transform Rails completions to Monaco format
+              const suggestions = data.suggestions.map(item => {
+                try {
+                  return {
+                    label: item.label,
+                    kind: getCompletionItemKind(item.kind),
+                    detail: item.detail,
+                    documentation: item.documentation,
+                    insertText: item.insertText,
+                    insertTextRules: item.insertTextFormat === 2 ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : undefined,
+                    range: range
+                  };
+                } catch (e) {
+                  console.error('Error mapping completion item:', e, item);
+                  return {
+                    label: item.label,
+                    kind: monaco.languages.CompletionItemKind.Property,
+                    insertText: item.label
+                  };
+                }
+              });
+              
+              const result = { suggestions };
+              
+              // Cache the result
+              completionCache.set(cacheKey, result);
+              
+              // Clear cache after 5 seconds
+              setTimeout(() => {
+                completionCache.delete(cacheKey);
+              }, 5000);
+              
+              return result;
+            } catch (error) {
+              if (error.name === 'AbortError') {
+                console.log('Completion request aborted');
+              } else {
+                console.error('Error fetching completions:', error);
+              }
+              return { suggestions: [] };
+            } finally {
+              completionAbortController = null;
+            }
+          }
+        });
+        
+        // Helper to map completion kinds
+        function getCompletionItemKind(kind) {
+          const kindMap = {
+            'Function': monaco.languages.CompletionItemKind.Function,
+            'Method': monaco.languages.CompletionItemKind.Method,
+            'Value': monaco.languages.CompletionItemKind.Value,
+            'Color': monaco.languages.CompletionItemKind.Color,
+            'Variable': monaco.languages.CompletionItemKind.Variable,
+            'Property': monaco.languages.CompletionItemKind.Property
+          };
+          return kindMap[kind] || monaco.languages.CompletionItemKind.Property;
+        }
+        
+        // Hide loading, show editor
+        loadingIndicator.style.display = 'none';
+        editorContainer.style.display = 'block';
+        
+        // Sync editor content to hidden textarea
+        window.monacoEditorInstance.onDidChangeModelContent(() => {
+          if (codeTextarea) {
+            codeTextarea.value = window.monacoEditorInstance.getValue();
+          }
+        });
+        
+        // Dispatch custom event when editor is ready
+        window.dispatchEvent(new CustomEvent('monaco-editor-ready', { 
+          detail: { editor: window.monacoEditorInstance } 
+        }));
+      } catch (error) {
+        console.error("Failed to initialize Monaco:", error);
+        // Fallback to textarea
+        document.getElementById('editor-loading').style.display = 'none';
+        document.getElementById('hidden-code-editor').style.display = 'block';
+        document.getElementById('hidden-code-editor').classList.remove('hidden');
+      }
+    });
+  });
+  
+  // Fallback if Monaco fails to load
+  window.addEventListener('error', function(e) {
+    if (e.message && e.message.includes('monaco')) {
+      console.error("Monaco failed to load, using fallback textarea");
+      document.getElementById('editor-loading').style.display = 'none';
+      document.getElementById('hidden-code-editor').style.display = 'block';
+      document.getElementById('hidden-code-editor').classList.remove('hidden');
+    }
+  });
+</script>
+
+<style>
+  /* Solarized Light color definitions */
+  :root {
+    --solarized-base3: #fdf6e3;
+    --solarized-base2: #eee8d5;
+    --solarized-base1: #93a1a1;
+    --solarized-base0: #839496;
+    --solarized-base00: #657b83;
+    --solarized-base01: #586e75;
+  }
+  
+  /* Tailwind utility classes for Solarized colors */
+  .bg-solarized-base3 { background-color: var(--solarized-base3); }
+  .bg-solarized-base2 { background-color: var(--solarized-base2); }
+  .border-solarized-base1 { border-color: var(--solarized-base1); }
+  .text-solarized-base00 { color: var(--solarized-base00); }
+  .text-solarized-base01 { color: var(--solarized-base01); }
+  .hover\:text-solarized-base01:hover { color: var(--solarized-base01); }
+  
+  /* Monaco Editor container styling */
+  #monaco-editor {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .playground-error {
+    @apply bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg;
+  }
+  
+  .playground-error pre {
+    @apply mt-2 text-sm font-mono bg-red-100 p-2 rounded overflow-x-auto;
+  }
+</style>

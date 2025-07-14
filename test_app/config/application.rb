@@ -42,6 +42,13 @@ module TestApp
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    
+    # Serve Monaco Editor files from vendor directory
+    config.middleware.insert_before(
+      ActionDispatch::Static,
+      ActionDispatch::Static,
+      Rails.root.join("vendor").to_s
+    )
   end
 end
 # Copyright 2025

@@ -3,7 +3,6 @@
 # Copyright 2025
 
 require 'view_component/storybook/stories'
-require_relative 'storybook/stories'
 
 module SwiftUIRails
   # A SwiftUI-like base class for component stories that uses the DSL directly
