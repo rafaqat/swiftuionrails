@@ -15,7 +15,7 @@ swift_ui do
     text("Performance Demo")
       .font_size("2xl")
       .font_weight("bold")
-    
+
     # Color completions now load from compressed cached data
     # Original: 28.4KB → Compressed: 1.7KB (94% reduction)
     button("Cached Colors")
@@ -23,7 +23,7 @@ swift_ui do
       .text_color("yellow")
       .px(4).py(2)
       .rounded("lg")
-    
+
     # When typing methods, signature help shows parameters:
     hstack(spacing: 8) do  # Shows: spacing: Integer = 0, alignment: Symbol = :center
       card(elevation: 2) do  # Shows: elevation: Integer = 1
@@ -35,7 +35,7 @@ end
 
 # Performance Metrics:
 # - Tailwind colors: 28.4KB → 1.7KB compressed (94.1% reduction)
-# - Spacing values: 3.7KB → 0.4KB compressed (89.7% reduction)  
+# - Spacing values: 3.7KB → 0.4KB compressed (89.7% reduction)
 # - Font sizes: 1.3KB → 0.2KB compressed (85.2% reduction)
 # - Completion data: 37.2KB → 2.2KB compressed (94.0% reduction)
 #

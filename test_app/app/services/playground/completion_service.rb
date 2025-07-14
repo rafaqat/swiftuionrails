@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require_relative 'context_locator'
-require_relative 'dsl_registry'
+require_relative "context_locator"
+require_relative "dsl_registry"
 
 module Playground
   class CompletionService
     include SwiftUIRails::DSL
     include SwiftUIRails::Tailwind::Modifiers
-    
+
     # Cache for performance
     CACHE_TTL = 5.minutes
-    
+
     def initialize(context, position, cached_data = {})
       @context = context
       @position = position
@@ -18,22 +18,22 @@ module Playground
       @column = position["column"] || 1
       @cached_data = cached_data
     end
-    
+
     def generate_completions
       # Use cached results if available
       cache_key = "completions:#{Digest::MD5.hexdigest(@context)}:#{@line}:#{@column}"
-      
+
       Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
         # Extract text up to cursor for parsing
         text_before_cursor = extract_text_before_cursor
-        
+
         # Use AST parser for accurate context
         locator = ContextLocator.new(text_before_cursor)
         context = locator.completion_context
-        
+
         Rails.logger.debug "Completion context: #{context.inspect}"
         Rails.logger.debug "Text before cursor: #{text_before_cursor.inspect}"
-        
+
         case context[:type]
         when :method_completion
           generate_method_completions(context[:receiver], context[:partial])
@@ -46,29 +46,29 @@ module Playground
         end
       end
     end
-    
+
     private
-    
+
     def extract_text_before_cursor
       lines = @context.split("\n")
       before_lines = lines[0...(@line - 1)]
       current_line = lines[@line - 1] || ""
       current_line_before = current_line[0...@column]
-      
-      (before_lines + [current_line_before]).join("\n")
+
+      (before_lines + [ current_line_before ]).join("\n")
     end
-    
+
     def generate_top_level_completions(partial = "")
       registry = DslRegistry.instance
-      
+
       Rails.logger.debug "Registry has #{registry.all.size} elements"
       Rails.logger.debug "Looking for completions starting with: #{partial.inspect}"
-      
+
       results = registry.all.map do |name, metadata|
         name_str = name.to_s
         Rails.logger.debug "Checking #{name_str} against #{partial}"
         next unless name_str.start_with?(partial)
-        
+
         {
           label: name_str,
           kind: "Function",
@@ -78,35 +78,35 @@ module Playground
           insertTextFormat: 2 # Snippet format
         }
       end.compact
-      
+
       Rails.logger.debug "Found #{results.size} completions"
       results
     end
-    
+
     def generate_method_completions(receiver_chain, partial = "")
       return [] unless receiver_chain && receiver_chain.any?
-      
+
       Rails.logger.debug "Method completion - receiver: #{receiver_chain.inspect}, partial: #{partial.inspect}"
-      
+
       # Get the last element type
       last_element = receiver_chain.last
       element_meta = DslRegistry.instance[last_element]
-      
+
       # Get available modifiers for this element
       modifiers = element_meta ? (element_meta[:modifiers] || []) : []
       base_modifiers = get_base_modifiers
-      
+
       # Always include base modifiers for any DSL element
       all_modifiers = (modifiers + base_modifiers.keys).uniq
-      
+
       Rails.logger.debug "Available modifiers: #{all_modifiers.inspect}"
-      
+
       results = all_modifiers.map do |modifier|
         # Filter by partial if provided
         next unless partial.empty? || modifier.start_with?(partial)
-        
+
         modifier_meta = base_modifiers[modifier] || {}
-        
+
         {
           label: modifier,
           kind: "Method",
@@ -116,16 +116,16 @@ module Playground
           insertTextFormat: 2
         }
       end.compact
-      
+
       Rails.logger.debug "Method completions found: #{results.size}"
       results
     end
-    
+
     def generate_parameter_completions(method_name, receiver_chain)
       # Check modifier registry first
       modifier_meta = get_modifier_metadata(method_name)
       return [] unless modifier_meta
-      
+
       case modifier_meta[:values]
       when :tailwind_colors
         generate_tailwind_color_completions
@@ -150,7 +150,7 @@ module Playground
         []
       end
     end
-    
+
     def get_base_modifiers
       {
         # Spacing
@@ -160,35 +160,35 @@ module Playground
         "py" => { parameters: "value", description: "Vertical padding" },
         "margin" => { parameters: "value", description: "Add margin" },
         "m" => { parameters: "value", description: "Margin shorthand" },
-        
+
         # Colors
         "bg" => { parameters: "color", description: "Background color" },
         "background" => { parameters: "color", description: "Background color" },
         "text_color" => { parameters: "color", description: "Text color" },
         "border_color" => { parameters: "color", description: "Border color" },
-        
+
         # Typography
         "font_size" => { parameters: "size", description: "Font size" },
         "font_weight" => { parameters: "weight", description: "Font weight" },
         "text_align" => { parameters: "alignment", description: "Text alignment" },
-        
+
         # Layout
         "w" => { parameters: "value", description: "Width" },
         "h" => { parameters: "value", description: "Height" },
         "flex" => { description: "Make element flex container" },
         "hidden" => { description: "Hide element" },
-        
+
         # Effects
         "rounded" => { parameters: "size", description: "Border radius" },
         "shadow" => { parameters: "size", description: "Box shadow" },
         "opacity" => { parameters: "value", description: "Opacity (0-100)" },
-        
+
         # Interactivity
         "hover" => { parameters: "classes", description: "Hover state styling" },
         "data" => { parameters: "attributes", description: "Data attributes" }
       }
     end
-    
+
     def get_modifier_metadata(method_name)
       # This would be loaded from the registry
       modifiers = {
@@ -228,23 +228,23 @@ module Playground
         "width" => { values: :size_values },
         "height" => { values: :size_values }
       }
-      
+
       modifiers[method_name]
     end
-    
+
     def generate_tailwind_color_completions
       # Load from pre-generated file
       load_tailwind_colors.map do |color|
         {
           label: color[:label],
-          kind: "Color", 
+          kind: "Color",
           detail: color[:category] == "base-color" ? "Base color" : "Tailwind color",
           insertText: color[:value],
           insertTextFormat: 1
         }
       end.first(50) # Limit for performance
     end
-    
+
     def generate_spacing_completions
       load_spacing_values.map do |spacing|
         {
@@ -256,10 +256,10 @@ module Playground
         }
       end
     end
-    
+
     def generate_size_completions
       values = %w[0 1 2 4 8 16 24 32 48 64 96 full screen auto min max fit]
-      
+
       values.map do |value|
         detail = case value
         when /^\d+$/
@@ -267,7 +267,7 @@ module Playground
         else
           value.capitalize
         end
-        
+
         {
           label: value,
           kind: "Value",
@@ -277,7 +277,7 @@ module Playground
         }
       end
     end
-    
+
     def generate_font_size_completions
       load_font_sizes.map do |size|
         {
@@ -289,13 +289,13 @@ module Playground
         }
       end
     end
-    
+
     def load_tailwind_colors
       # Use client-provided cached data if available
       if @cached_data["tailwind_colors"].present?
         return @cached_data["tailwind_colors"]
       end
-      
+
       @tailwind_colors ||= Rails.cache.fetch("playground:tailwind_colors", expires_in: 1.hour) do
         path = Rails.root.join("public/playground/data/tailwind_colors.json")
         if File.exist?(path)
@@ -308,13 +308,13 @@ module Playground
         end
       end
     end
-    
+
     def load_spacing_values
       # Use client-provided cached data if available
       if @cached_data["spacing_values"].present?
         return @cached_data["spacing_values"]
       end
-      
+
       @spacing_values ||= Rails.cache.fetch("playground:spacing_values", expires_in: 1.hour) do
         path = Rails.root.join("public/playground/data/spacing_values.json")
         if File.exist?(path)
@@ -327,13 +327,13 @@ module Playground
         end
       end
     end
-    
+
     def load_font_sizes
       # Use client-provided cached data if available
       if @cached_data["font_sizes"].present?
         return @cached_data["font_sizes"]
       end
-      
+
       @font_sizes ||= Rails.cache.fetch("playground:font_sizes", expires_in: 1.hour) do
         path = Rails.root.join("public/playground/data/font_sizes.json")
         if File.exist?(path)
@@ -346,31 +346,31 @@ module Playground
         end
       end
     end
-    
+
     def format_parameters(params)
       return "()" if params.nil? || params.empty?
-      
+
       param_strings = params.map do |name, type|
         "#{name}: #{type}"
       end
-      
+
       "(#{param_strings.join(', ')})"
     end
-    
+
     def build_documentation(metadata)
-      parts = [metadata[:description]]
-      
+      parts = [ metadata[:description] ]
+
       if metadata[:examples]&.any?
         parts << "\n\nExamples:"
         parts.concat(metadata[:examples].map { |ex| "  #{ex}" })
       end
-      
+
       parts.join("\n")
     end
-    
+
     def build_insert_text(name, parameters)
       return name if parameters.nil? || parameters.empty?
-      
+
       # Build snippet with tab stops
       params = parameters.map.with_index do |(param_name, param_type), index|
         default = case param_type
@@ -378,13 +378,13 @@ module Playground
         when /^:/ then param_type
         else param_type
         end
-        
+
         "#{param_name}: ${#{index + 1}:#{default}}"
       end
-      
+
       "#{name}(#{params.join(', ')})"
     end
-    
+
     def build_modifier_insert_text(modifier, metadata)
       if metadata[:parameters]
         "#{modifier}(${1})"

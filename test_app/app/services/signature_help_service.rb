@@ -4,16 +4,16 @@ class SignatureHelpService
   def initialize
     @signatures = build_signature_map
   end
-  
+
   def get_signatures(method_name)
     return [] unless method_name.present?
-    
+
     # Get the signature for the method
     signature_info = @signatures[method_name.to_sym]
     return [] unless signature_info
-    
+
     # Format for Monaco signature help
-    [{
+    [ {
       label: signature_info[:label],
       documentation: signature_info[:documentation],
       parameters: signature_info[:parameters].map do |param|
@@ -23,11 +23,11 @@ class SignatureHelpService
         }
       end,
       activeParameter: 0
-    }]
+    } ]
   end
-  
+
   private
-  
+
   def build_signature_map
     {
       # Layout components
@@ -66,7 +66,7 @@ class SignatureHelpService
           { label: "&block", documentation: "Block containing grid items" }
         ]
       },
-      
+
       # Basic elements
       text: {
         label: "text(content)",
@@ -104,7 +104,7 @@ class SignatureHelpService
           { label: "&block", documentation: "Optional block for link content" }
         ]
       },
-      
+
       # Form elements
       form: {
         label: "form(action: String, method: Symbol = :post, **attrs, &block)",
@@ -166,7 +166,7 @@ class SignatureHelpService
           { label: "&block", documentation: "Optional block for label content" }
         ]
       },
-      
+
       # Components
       card: {
         label: "card(elevation: Integer = 1, &block)",
@@ -192,7 +192,7 @@ class SignatureHelpService
           { label: "&block", documentation: "Block containing item content" }
         ]
       },
-      
+
       # Modifiers with parameters
       bg: {
         label: "bg(color: String)",

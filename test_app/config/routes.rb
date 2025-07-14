@@ -1,13 +1,13 @@
 # Copyright 2025
 Rails.application.routes.draw do
   # SwiftUI Rails Playground
-  get 'playground', to: 'playground#index'
-  post 'playground/preview', to: 'playground#preview', as: :preview_playground
-  
+  get "playground", to: "playground#index"
+  post "playground/preview", to: "playground#preview", as: :preview_playground
+
   namespace :playground do
-    resources :completions, only: [:create]
+    resources :completions, only: [ :create ]
   end
-  get 'playground/signatures', to: 'playground#signatures'
+  get "playground/signatures", to: "playground#signatures"
 
   # Custom interactive storybook routes
   get "rails/stories" => "storybook#index"

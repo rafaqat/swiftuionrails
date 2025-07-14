@@ -3,8 +3,8 @@
 namespace :swift_ui do
   desc "Generate Tailwind color data for completions"
   task generate_tailwind_data: :environment do
-    require 'json'
-    
+    require "json"
+
     # Tailwind color palette
     colors = {
       slate: %w[50 100 200 300 400 500 600 700 800 900 950],
@@ -30,10 +30,10 @@ namespace :swift_ui do
       pink: %w[50 100 200 300 400 500 600 700 800 900 950],
       rose: %w[50 100 200 300 400 500 600 700 800 900 950]
     }
-    
+
     # Generate color completions
     color_completions = []
-    
+
     # Add base color names (without shade)
     colors.each_key do |color_name|
       color_completions << {
@@ -43,7 +43,7 @@ namespace :swift_ui do
         description: "Default shade (500) for #{color_name}"
       }
     end
-    
+
     # Add all color-shade combinations
     colors.each do |color_name, shades|
       shades.each do |shade|
@@ -55,7 +55,7 @@ namespace :swift_ui do
         }
       end
     end
-    
+
     # Add special base colors
     %w[white black transparent current inherit none].each do |color|
       color_completions.unshift({
@@ -64,10 +64,10 @@ namespace :swift_ui do
         category: "base-color"
       })
     end
-    
+
     # Spacing values
     spacing_values = %w[0 px 0.5 1 1.5 2 2.5 3 3.5 4 5 6 7 8 9 10 11 12 14 16 20 24 28 32 36 40 44 48 52 56 60 64 72 80 96]
-    
+
     spacing_completions = spacing_values.map do |value|
       {
         value: value,
@@ -76,7 +76,7 @@ namespace :swift_ui do
         description: value == "px" ? "1px" : "#{value} × 0.25rem"
       }
     end
-    
+
     # Font sizes
     font_sizes = {
       xs: "0.75rem",
@@ -93,7 +93,7 @@ namespace :swift_ui do
       "8xl": "6rem",
       "9xl": "8rem"
     }
-    
+
     font_size_completions = font_sizes.map do |size, rem|
       {
         value: size.to_s,
@@ -102,26 +102,26 @@ namespace :swift_ui do
         description: rem
       }
     end
-    
+
     # Write to JSON files
-    output_dir = Rails.root.join('public', 'playground', 'data')
+    output_dir = Rails.root.join("public", "playground", "data")
     FileUtils.mkdir_p(output_dir)
-    
+
     File.write(
-      output_dir.join('tailwind_colors.json'),
+      output_dir.join("tailwind_colors.json"),
       JSON.pretty_generate(color_completions)
     )
-    
+
     File.write(
-      output_dir.join('spacing_values.json'), 
+      output_dir.join("spacing_values.json"),
       JSON.pretty_generate(spacing_completions)
     )
-    
+
     File.write(
-      output_dir.join('font_sizes.json'),
+      output_dir.join("font_sizes.json"),
       JSON.pretty_generate(font_size_completions)
     )
-    
+
     # Generate combined data file
     all_data = {
       version: Time.now.to_i,
@@ -129,12 +129,12 @@ namespace :swift_ui do
       spacing: spacing_completions,
       font_sizes: font_size_completions
     }
-    
+
     File.write(
-      output_dir.join('completion_data.json'),
+      output_dir.join("completion_data.json"),
       JSON.pretty_generate(all_data)
     )
-    
+
     puts "Generated Tailwind completion data in #{output_dir}"
     puts "- Colors: #{color_completions.size} entries"
     puts "- Spacing: #{spacing_completions.size} entries"
