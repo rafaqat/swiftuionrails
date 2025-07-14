@@ -2,7 +2,6 @@
 
 class PlaygroundController < ApplicationController
   layout "playground"
-  skip_before_action :verify_authenticity_token, only: [:preview, :signatures]
   
   def index
     @default_code = default_playground_code

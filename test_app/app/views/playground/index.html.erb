@@ -438,12 +438,16 @@
                 }
               }
               
+              // Get CSRF token from meta tag
+              const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+              
               // Fetch completions from Rails backend
               const response = await fetch('/playground/completions', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Accept': 'application/json'
+                  'Accept': 'application/json',
+                  'X-CSRF-Token': csrfToken
                 },
                 body: JSON.stringify({
                   context: textContent,
@@ -528,12 +532,16 @@
             console.log("Getting signature help for method:", methodName);
             
             try {
+              // Get CSRF token from meta tag
+              const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+              
               const response = await fetch('/playground/signatures?' + new URLSearchParams({
                 method: methodName
               }), {
                 method: 'GET',
                 headers: {
-                  'Accept': 'application/json'
+                  'Accept': 'application/json',
+                  'X-CSRF-Token': csrfToken
                 }
               });
               

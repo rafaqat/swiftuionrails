@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Playground::CompletionsController < ApplicationController
-  skip_before_action :verify_authenticity_token
   
   def create
     context = params[:context] || ""
