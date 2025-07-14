@@ -1,0 +1,368 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">SwiftUI Rails Component Library</h1>
+      <p class="text-lg text-gray-600">
+        A collection of production-ready components built with our DSL. 
+        Each component demonstrates best practices and can be copied directly into your playground.
+      </p>
+    </div>
+
+    <!-- Component Categories -->
+    <div class="grid grid-cols-4 gap-6">
+      <!-- Sidebar Navigation -->
+      <div class="col-span-1">
+        <div class="bg-white rounded-lg shadow-sm p-4 sticky top-4">
+          <h3 class="font-semibold text-gray-900 mb-3">Categories</h3>
+          <nav class="space-y-1">
+            <% ["Layout", "Navigation", "Forms", "Data Display", "Feedback", "Commerce"].each do |category| %>
+              <a href="#<%= category.downcase.gsub(' ', '-') %>" 
+                 class="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                <%= category %>
+              </a>
+            <% end %>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Component Grid -->
+      <div class="col-span-3 space-y-12">
+        <!-- Layout Components -->
+        <section id="layout">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Layout Components</h2>
+          
+          <div class="space-y-8">
+            <!-- Split Layout -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold mb-2">Split Layout</h3>
+                <p class="text-gray-600">Two-column responsive layout with sidebar</p>
+              </div>
+              <div class="p-6 bg-gray-50">
+                <%= render inline: <<~ERB
+                  <% swift_ui do
+                    div.flex.flex_col.md_flex_row.gap(6) do
+                      # Sidebar
+                      div.w_full.md_w_64.flex_shrink_0 do
+                        card(elevation: 1) do
+                          vstack(spacing: 4) do
+                            text("Sidebar")
+                              .font_weight("semibold")
+                              .text_color("gray-700")
+                            
+                            vstack(spacing: 2) do
+                              ["Dashboard", "Analytics", "Reports", "Settings"].each do |item|
+                                link(item, destination: "#")
+                                  .block.px(3).py(2)
+                                  .rounded("md")
+                                  .text_color("gray-600")
+                                  .hover_bg("gray-100")
+                                  .hover_text_color("gray-900")
+                              end
+                            end
+                          end
+                        end
+                      end
+                      
+                      # Main content
+                      div.flex_1 do
+                        card(elevation: 1) do
+                          vstack(spacing: 4) do
+                            text("Main Content Area")
+                              .font_size("xl")
+                              .font_weight("semibold")
+                            
+                            text("This layout automatically stacks on mobile and shows side-by-side on larger screens.")
+                              .text_color("gray-600")
+                          end.p(8)
+                        end
+                      end
+                    end
+                  end %>
+                ERB
+                %>
+              </div>
+              <div class="px-6 py-3 bg-gray-100 border-t border-gray-200">
+                <button class="text-sm text-blue-600 hover:text-blue-700 font-medium" 
+                        onclick="copyToPlayground('split-layout')">
+                  Copy to Playground →
+                </button>
+              </div>
+            </div>
+
+            <!-- Centered Container -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold mb-2">Centered Container</h3>
+                <p class="text-gray-600">Content container with max width and responsive padding</p>
+              </div>
+              <div class="p-6 bg-gray-50">
+                <%= render inline: <<~ERB
+                  <% swift_ui do
+                    div.w_full.bg("gray-100").py(16) do
+                      div.max_w("4xl").mx("auto").px(4).sm_px(6).lg_px(8) do
+                        card(elevation: 2) do
+                          vstack(spacing: 6) do
+                            text("Centered Content")
+                              .font_size("2xl")
+                              .font_weight("bold")
+                              .text_center
+                            
+                            text("This container has a maximum width and responsive padding that adjusts based on screen size.")
+                              .text_color("gray-600")
+                              .text_center
+                              .max_w("2xl")
+                              .mx("auto")
+                            
+                            hstack(spacing: 4, justify: :center) do
+                              button("Primary Action")
+                                .bg("blue-600")
+                                .text_color("white")
+                                .px(6).py(3)
+                                .rounded("lg")
+                                .hover_bg("blue-700")
+                              
+                              button("Secondary")
+                                .border
+                                .border_color("gray-300")
+                                .px(6).py(3)
+                                .rounded("lg")
+                                .hover_bg("gray-50")
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end %>
+                ERB
+                %>
+              </div>
+              <div class="px-6 py-3 bg-gray-100 border-t border-gray-200">
+                <button class="text-sm text-blue-600 hover:text-blue-700 font-medium" 
+                        onclick="copyToPlayground('centered-container')">
+                  Copy to Playground →
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Forms Section -->
+        <section id="forms">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Form Components</h2>
+          
+          <div class="space-y-8">
+            <!-- Contact Form -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold mb-2">Contact Form</h3>
+                <p class="text-gray-600">Complete contact form with validation states</p>
+              </div>
+              <div class="p-6 bg-gray-50">
+                <%= render inline: <<~ERB
+                  <% swift_ui do
+                    card(elevation: 2) do
+                      form(action: "#", method: :post) do
+                        vstack(spacing: 6) do
+                          # Form header
+                          vstack(spacing: 2) do
+                            text("Get in Touch")
+                              .font_size("2xl")
+                              .font_weight("bold")
+                            text("We'd love to hear from you. Send us a message!")
+                              .text_color("gray-600")
+                          end
+                          
+                          # Name fields
+                          hstack(spacing: 4) do
+                            div.flex_1 do
+                              label("First Name", for: "first_name")
+                                .font_weight("medium")
+                                .text_sm
+                                .text_color("gray-700")
+                              textfield(
+                                name: "first_name",
+                                placeholder: "John",
+                                required: true
+                              ).mt(1)
+                            end
+                            
+                            div.flex_1 do
+                              label("Last Name", for: "last_name")
+                                .font_weight("medium")
+                                .text_sm
+                                .text_color("gray-700")
+                              textfield(
+                                name: "last_name",
+                                placeholder: "Doe",
+                                required: true
+                              ).mt(1)
+                            end
+                          end
+                          
+                          # Email field
+                          div do
+                            label("Email", for: "email")
+                              .font_weight("medium")
+                              .text_sm
+                              .text_color("gray-700")
+                            textfield(
+                              name: "email",
+                              type: "email",
+                              placeholder: "john@example.com",
+                              required: true
+                            ).mt(1)
+                          end
+                          
+                          # Subject field
+                          div do
+                            label("Subject", for: "subject")
+                              .font_weight("medium")
+                              .text_sm
+                              .text_color("gray-700")
+                            select(name: "subject").mt(1) do
+                              option("General Inquiry", value: "general")
+                              option("Technical Support", value: "support")
+                              option("Sales", value: "sales")
+                              option("Other", value: "other")
+                            end
+                          end
+                          
+                          # Message field
+                          div do
+                            label("Message", for: "message")
+                              .font_weight("medium")
+                              .text_sm
+                              .text_color("gray-700")
+                            textarea(
+                              name: "message",
+                              rows: 4,
+                              placeholder: "Your message here...",
+                              required: true
+                            ).mt(1)
+                          end
+                          
+                          # Submit button
+                          hstack(justify: :end) do
+                            button("Send Message", type: "submit")
+                              .bg("blue-600")
+                              .text_color("white")
+                              .px(6).py(3)
+                              .rounded("lg")
+                              .hover_bg("blue-700")
+                              .font_weight("medium")
+                          end
+                        end
+                      end
+                    end.max_w("2xl").mx("auto")
+                  end %>
+                ERB
+                %>
+              </div>
+              <div class="px-6 py-3 bg-gray-100 border-t border-gray-200">
+                <button class="text-sm text-blue-600 hover:text-blue-700 font-medium" 
+                        onclick="copyToPlayground('contact-form')">
+                  Copy to Playground →
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Data Display Section -->
+        <section id="data-display">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Data Display</h2>
+          
+          <div class="space-y-8">
+            <!-- Data Table -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold mb-2">Data Table</h3>
+                <p class="text-gray-600">Responsive table with sorting indicators</p>
+              </div>
+              <div class="p-6 bg-gray-50">
+                <%= render inline: <<~ERB
+                  <% swift_ui do
+                    card(elevation: 1) do
+                      div.overflow_x_auto do
+                        table.min_w_full do
+                          thead.bg("gray-50") do
+                            tr do
+                              ["Name", "Email", "Role", "Status", "Actions"].each do |header|
+                                th.px(6).py(3).text_left.text_xs.font_medium.text_color("gray-500").uppercase.tracking_wider do
+                                  if ["Name", "Email"].include?(header)
+                                    hstack(spacing: 2, alignment: :center) do
+                                      text(header)
+                                      text("↕").text_color("gray-400")
+                                    end
+                                  else
+                                    text(header)
+                                  end
+                                end
+                              end
+                            end
+                          end
+                          
+                          tbody.bg("white").divide_y.divide_gray_200 do
+                            [
+                              { name: "Jane Cooper", email: "jane@example.com", role: "Admin", status: "Active" },
+                              { name: "John Doe", email: "john@example.com", role: "User", status: "Active" },
+                              { name: "Alice Smith", email: "alice@example.com", role: "Editor", status: "Inactive" }
+                            ].each do |user|
+                              tr.hover_bg("gray-50") do
+                                td.px(6).py(4).whitespace_nowrap do
+                                  text(user[:name]).font_medium.text_color("gray-900")
+                                end
+                                td.px(6).py(4).whitespace_nowrap do
+                                  text(user[:email]).text_color("gray-600")
+                                end
+                                td.px(6).py(4).whitespace_nowrap do
+                                  text(user[:role]).text_color("gray-600")
+                                end
+                                td.px(6).py(4).whitespace_nowrap do
+                                  span(user[:status])
+                                    .px(2).py(1)
+                                    .text_xs.font_medium
+                                    .rounded("full")
+                                    .tap do |badge|
+                                      if user[:status] == "Active"
+                                        badge.bg("green-100").text_color("green-800")
+                                      else
+                                        badge.bg("gray-100").text_color("gray-800")
+                                      end
+                                    end
+                                end
+                                td.px(6).py(4).whitespace_nowrap.text_right do
+                                  link("Edit", destination: "#")
+                                    .text_sm.text_color("blue-600").hover_text_color("blue-900")
+                                end
+                              end
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end %>
+                ERB
+                %>
+              </div>
+              <div class="px-6 py-3 bg-gray-100 border-t border-gray-200">
+                <button class="text-sm text-blue-600 hover:text-blue-700 font-medium" 
+                        onclick="copyToPlayground('data-table')">
+                  Copy to Playground →
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyToPlayground(componentName) {
+  // This would copy the component code to clipboard or directly insert into playground
+  alert(`Copy ${componentName} to playground - implement this functionality`);
+}
+</script>

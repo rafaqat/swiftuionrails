@@ -3,6 +3,11 @@ Rails.application.routes.draw do
   # SwiftUI Rails Playground
   get "playground", to: "playground#index"
   post "playground/preview", to: "playground#preview", as: :preview_playground
+  
+  # Dogfooding showcase
+  get "dogfood", to: "dogfood#index"
+  get "dogfood/component_library", to: "dogfood#component_library"
+  get "dogfood/patterns", to: "dogfood#patterns"
 
   namespace :playground do
     resources :completions, only: [ :create ]

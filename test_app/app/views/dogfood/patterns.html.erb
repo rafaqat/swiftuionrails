@@ -1,0 +1,297 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">SwiftUI Rails Patterns & Best Practices</h1>
+      <p class="text-lg text-gray-600">
+        Common patterns discovered while dogfooding our playground and building real components.
+      </p>
+    </div>
+
+    <!-- Pattern sections -->
+    <div class="space-y-12">
+      <!-- State Management Pattern -->
+      <section class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">State Management Patterns</h2>
+        
+        <div class="prose max-w-none">
+          <p class="text-gray-600 mb-4">
+            SwiftUI Rails follows the Rails philosophy: components are stateless view builders. 
+            Here's how to handle different types of state:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 mt-6">
+          <!-- Client-side state -->
+          <div>
+            <h3 class="font-semibold text-lg mb-3">Client-Side State (Stimulus)</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <pre class="text-sm"><code>swift_ui do
+  div(data: { 
+    controller: "toggle",
+    toggle_open_value: false
+  }) do
+    button("Toggle")
+      .data(action: "click->toggle#toggle")
+    
+    div
+      .hidden
+      .data(toggle_target: "content") do
+      text("Hidden content")
+    end
+  end
+end</code></pre>
+            </div>
+          </div>
+
+          <!-- Server-side state -->
+          <div>
+            <h3 class="font-semibold text-lg mb-3">Server-Side State (Turbo)</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <pre class="text-sm"><code>swift_ui do
+  turbo_frame_tag "counter" do
+    text(@count)
+    
+    button_to "+", increment_path, 
+      method: :post,
+      class: "px-4 py-2 bg-blue-600"
+  end
+end</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Composition Pattern -->
+      <section class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Component Composition</h2>
+        
+        <div class="prose max-w-none mb-6">
+          <p class="text-gray-600">
+            Build complex UIs by composing simple, reusable components. Use slots for maximum flexibility:
+          </p>
+        </div>
+
+        <%= render inline: <<~ERB
+          <% swift_ui do
+            hstack(spacing: 8) do
+              # Example 1: Basic Composition
+              div.flex_1 do
+                card(elevation: 2) do
+                  vstack(spacing: 4) do
+                    text("Basic Composition")
+                      .font_weight("semibold")
+                      .mb(2)
+                    
+                    # Compose multiple elements
+                    div.space_y_3 do
+                      3.times do |i|
+                        hstack(spacing: 3) do
+                          div.w(3).h(3).rounded_full.bg("blue-#{(i+4)*100}")
+                          text("Item #{i + 1}").text_sm
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+              
+              # Example 2: With Slots
+              div.flex_1 do
+                card(elevation: 2) do
+                  vstack(spacing: 4) do
+                    text("Using Slots")
+                      .font_weight("semibold")
+                      .mb(2)
+                    
+                    div.p(4).bg("gray-50").rounded("lg") do
+                      text("Header Slot").text_sm.text_color("gray-600")
+                    end
+                    
+                    div.p(4).border.border_dashed.rounded("lg") do
+                      text("Content Slot").text_sm
+                    end
+                    
+                    div.p(4).bg("blue-50").rounded("lg") do
+                      text("Footer Slot").text_sm.text_color("blue-600")
+                    end
+                  end
+                end
+              end
+            end
+          end %>
+        ERB
+        %>
+      </section>
+
+      <!-- Responsive Design Pattern -->
+      <section class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Responsive Design Patterns</h2>
+        
+        <div class="prose max-w-none mb-6">
+          <p class="text-gray-600">
+            Use Tailwind's responsive prefixes with the DSL for adaptive layouts:
+          </p>
+        </div>
+
+        <%= render inline: <<~ERB
+          <% swift_ui do
+            # Responsive grid that adapts to screen size
+            div.grid.grid_cols_1.md_grid_cols_2.lg_grid_cols_3.gap(6) do
+              6.times do |i|
+                card(elevation: 1) do
+                  vstack(spacing: 3) do
+                    # Responsive text sizing
+                    text("Responsive Card #{i + 1}")
+                      .text_base.md_text_lg.lg_text_xl
+                      .font_weight("semibold")
+                    
+                    # Responsive spacing
+                    text("This card adapts its layout based on screen size")
+                      .text_sm.md_text_base
+                      .text_color("gray-600")
+                      .mt(2).md_mt(3).lg_mt(4)
+                    
+                    # Responsive visibility
+                    div.hidden.md_block do
+                      text("Visible on tablet and up")
+                        .text_xs.text_color("blue-600")
+                    end
+                  end
+                  .p(4).md_p(6).lg_p(8)
+                end
+              end
+            end
+          end %>
+        ERB
+        %>
+      </section>
+
+      <!-- Interactive Patterns -->
+      <section class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Interactive Patterns</h2>
+        
+        <div class="grid grid-cols-3 gap-6">
+          <!-- Hover Effects -->
+          <div>
+            <h3 class="font-semibold mb-3">Hover Effects</h3>
+            <%= render inline: <<~ERB
+              <% swift_ui do
+                vstack(spacing: 4) do
+                  button("Hover Me")
+                    .px(6).py(3)
+                    .bg("blue-600")
+                    .text_color("white")
+                    .rounded("lg")
+                    .hover_bg("blue-700")
+                    .hover_scale(105)
+                    .transition
+                  
+                  div.group.p(4).border.rounded("lg") do
+                    text("Group Hover")
+                      .group_hover_text_color("blue-600")
+                      .transition
+                  end
+                end
+              end %>
+            ERB
+            %>
+          </div>
+
+          <!-- Focus States -->
+          <div>
+            <h3 class="font-semibold mb-3">Focus States</h3>
+            <%= render inline: <<~ERB
+              <% swift_ui do
+                vstack(spacing: 4) do
+                  textfield(
+                    placeholder: "Focus me"
+                  ).focus_ring(2).focus_ring_color("blue-500")
+                  
+                  button("Tab to me")
+                    .px(6).py(3)
+                    .border
+                    .rounded("lg")
+                    .focus_outline_none
+                    .focus_ring(2)
+                    .focus_ring_color("purple-500")
+                end
+              end %>
+            ERB
+            %>
+          </div>
+
+          <!-- Loading States -->
+          <div>
+            <h3 class="font-semibold mb-3">Loading States</h3>
+            <%= render inline: <<~ERB
+              <% swift_ui do
+                vstack(spacing: 4) do
+                  button
+                    .px(6).py(3)
+                    .bg("gray-600")
+                    .text_color("white")
+                    .rounded("lg")
+                    .flex.items_center.gap(2) do
+                    div.animate_spin.w(4).h(4).border_2.border_white.border_t_transparent.rounded_full
+                    text("Loading...")
+                  end
+                  
+                  div.animate_pulse.h(4).bg("gray-300").rounded
+                end
+              end %>
+            ERB
+            %>
+          </div>
+        </div>
+      </section>
+
+      <!-- Performance Patterns -->
+      <section class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Performance Patterns</h2>
+        
+        <div class="space-y-6">
+          <div>
+            <h3 class="font-semibold mb-3">Lazy Loading Images</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <pre class="text-sm"><code>swift_ui do
+  grid(cols: 3, gap: 4) do
+    images.each do |img|
+      image(
+        src: img[:thumb],
+        alt: img[:alt],
+        loading: "lazy"  # Native lazy loading
+      )
+      .w("full")
+      .h(200)
+      .object_cover
+      .rounded("lg")
+    end
+  end
+end</code></pre>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold mb-3">Turbo Frames for Partial Updates</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <pre class="text-sm"><code>swift_ui do
+  turbo_frame_tag "search_results" do
+    form(action: search_path, method: :get) do
+      textfield(
+        name: "q",
+        placeholder: "Search...",
+        data: { turbo_submits_with: "change" }
+      )
+    end
+    
+    # Results update without full page reload
+    div { render @results }
+  end
+end</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
