@@ -69,7 +69,7 @@ namespace :playground do
         manifest[:files][filename] = {
           original_size: original_data.bytesize,
           compressed_size: compressed_data ? compressed_data.bytesize : nil,
-          checksum: Digest::MD5.hexdigest(original_data)
+          checksum: Digest::SHA256.hexdigest(original_data)
         }
       end
     end

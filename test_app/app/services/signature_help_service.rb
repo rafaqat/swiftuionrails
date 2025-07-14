@@ -32,20 +32,20 @@ class SignatureHelpService
     {
       # Layout components
       vstack: {
-        label: "vstack(spacing: Integer = 0, align: Symbol = :center, &block)",
+        label: "vstack(spacing: Integer = 0, alignment: Symbol = :center, &block)",
         documentation: "Creates a vertical stack layout",
         parameters: [
           { label: "spacing: Integer = 0", documentation: "Space between child elements in pixels" },
-          { label: "align: Symbol = :center", documentation: "Alignment of children (:start, :center, :end)" },
+          { label: "alignment: Symbol = :center", documentation: "Alignment of children (:start, :center, :end)" },
           { label: "&block", documentation: "Block containing child elements" }
         ]
       },
       hstack: {
-        label: "hstack(spacing: Integer = 0, align: Symbol = :center, &block)",
+        label: "hstack(spacing: Integer = 0, alignment: Symbol = :center, &block)",
         documentation: "Creates a horizontal stack layout",
         parameters: [
           { label: "spacing: Integer = 0", documentation: "Space between child elements in pixels" },
-          { label: "align: Symbol = :center", documentation: "Alignment of children (:start, :center, :end)" },
+          { label: "alignment: Symbol = :center", documentation: "Alignment of children (:start, :center, :end)" },
           { label: "&block", documentation: "Block containing child elements" }
         ]
       },
