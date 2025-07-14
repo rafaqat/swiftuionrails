@@ -140,6 +140,157 @@
     }
   });
   
+  // Playground Data Manager with compression and caching
+  class PlaygroundDataManager {
+    constructor() {
+      this.cache = {};
+      this.cacheKey = 'playground_data_v1';
+      this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
+    }
+    
+    // Decompress base64 encoded gzipped data
+    async decompressData(base64Data) {
+      try {
+        // Convert base64 to binary
+        const binaryString = atob(base64Data.trim());
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        // Decompress using native browser API if available
+        if ('DecompressionStream' in window) {
+          const stream = new Response(bytes).body
+            .pipeThrough(new DecompressionStream('gzip'));
+          const decompressed = await new Response(stream).arrayBuffer();
+          const decoder = new TextDecoder();
+          return decoder.decode(decompressed);
+        } else {
+          // Fallback: load uncompressed version
+          console.warn('DecompressionStream not available, using fallback');
+          return null;
+        }
+      } catch (error) {
+        console.error('Decompression error:', error);
+        return null;
+      }
+    }
+    
+    // Load data from sessionStorage cache or fetch from server
+    async loadData(dataType) {
+      // Check sessionStorage cache first
+      const cached = this.getFromCache(dataType);
+      if (cached) {
+        console.log(`Using cached ${dataType} data`);
+        return cached;
+      }
+      
+      // Try to load compressed version first
+      const compressedUrl = `/playground/data/${dataType}.json.b64`;
+      try {
+        const response = await fetch(compressedUrl);
+        if (response.ok) {
+          const base64Data = await response.text();
+          const decompressed = await this.decompressData(base64Data);
+          
+          if (decompressed) {
+            const data = JSON.parse(decompressed);
+            this.saveToCache(dataType, data);
+            console.log(`Loaded and cached compressed ${dataType} data`);
+            return data;
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to load compressed ${dataType}:`, error);
+      }
+      
+      // Fallback to uncompressed version
+      const uncompressedUrl = `/playground/data/${dataType}.json`;
+      try {
+        const response = await fetch(uncompressedUrl);
+        if (response.ok) {
+          const data = await response.json();
+          this.saveToCache(dataType, data);
+          console.log(`Loaded and cached uncompressed ${dataType} data`);
+          return data;
+        }
+      } catch (error) {
+        console.error(`Failed to load ${dataType}:`, error);
+      }
+      
+      return null;
+    }
+    
+    // Get data from sessionStorage cache
+    getFromCache(dataType) {
+      try {
+        const cacheData = sessionStorage.getItem(this.cacheKey);
+        if (!cacheData) return null;
+        
+        const cache = JSON.parse(cacheData);
+        const item = cache[dataType];
+        
+        if (!item) return null;
+        
+        // Check if cache is expired
+        if (Date.now() - item.timestamp > this.cacheExpiry) {
+          console.log(`Cache expired for ${dataType}`);
+          return null;
+        }
+        
+        return item.data;
+      } catch (error) {
+        console.error('Cache read error:', error);
+        return null;
+      }
+    }
+    
+    // Save data to sessionStorage cache
+    saveToCache(dataType, data) {
+      try {
+        const cacheData = sessionStorage.getItem(this.cacheKey);
+        const cache = cacheData ? JSON.parse(cacheData) : {};
+        
+        cache[dataType] = {
+          data: data,
+          timestamp: Date.now()
+        };
+        
+        sessionStorage.setItem(this.cacheKey, JSON.stringify(cache));
+      } catch (error) {
+        // Handle quota exceeded error
+        if (error.name === 'QuotaExceededError') {
+          console.warn('SessionStorage quota exceeded, clearing old data');
+          sessionStorage.removeItem(this.cacheKey);
+          // Try again with empty cache
+          try {
+            const cache = {};
+            cache[dataType] = {
+              data: data,
+              timestamp: Date.now()
+            };
+            sessionStorage.setItem(this.cacheKey, JSON.stringify(cache));
+          } catch (retryError) {
+            console.error('Failed to save to cache after clearing:', retryError);
+          }
+        } else {
+          console.error('Cache write error:', error);
+        }
+      }
+    }
+    
+    // Preload all data types
+    async preloadAll() {
+      const dataTypes = ['tailwind_colors', 'spacing_values', 'font_sizes', 'completion_data'];
+      const promises = dataTypes.map(type => this.loadData(type));
+      await Promise.all(promises);
+      console.log('All playground data preloaded');
+    }
+  }
+  
+  // Create global instance
+  window.playgroundDataManager = new PlaygroundDataManager();
+  
   // Store editor instance globally for Stimulus controller access
   window.monacoEditorInstance = null;
   
@@ -264,6 +415,29 @@
             completionAbortController = new AbortController();
             
             try {
+              // Prepare cached data to send based on context
+              const cachedData = {};
+              
+              // Only send specific data that might be needed for the current completion
+              const dataManager = window.playgroundDataManager;
+              if (dataManager) {
+                // Determine what data might be needed based on context
+                const needsColors = context.triggerCharacter === '(' || 
+                                  textContent.match(/\.(bg|text_color|border_color|hover_bg|hover_text_color)\s*\(?$/);
+                const needsSpacing = textContent.match(/\.(p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|spacing|gap)\s*\(?$/);
+                const needsFontSize = textContent.match(/\.font_size\s*\(?$/);
+                
+                if (needsColors) {
+                  cachedData.tailwind_colors = dataManager.getFromCache('tailwind_colors');
+                }
+                if (needsSpacing) {
+                  cachedData.spacing_values = dataManager.getFromCache('spacing_values');
+                }
+                if (needsFontSize) {
+                  cachedData.font_sizes = dataManager.getFromCache('font_sizes');
+                }
+              }
+              
               // Fetch completions from Rails backend
               const response = await fetch('/playground/completions', {
                 method: 'POST',
@@ -273,7 +447,8 @@
                 },
                 body: JSON.stringify({
                   context: textContent,
-                  position: positionData
+                  position: positionData,
+                  cached_data: cachedData
                 }),
                 signal: completionAbortController.signal
               });
@@ -332,6 +507,74 @@
           }
         });
         
+        // Register signature help provider for method parameters
+        monaco.languages.registerSignatureHelpProvider('ruby', {
+          signatureHelpTriggerCharacters: ['(', ','],
+          signatureHelpRetriggerCharacters: [','],
+          provideSignatureHelp: async function(model, position, token, context) {
+            console.log("Signature help triggered at position:", position);
+            
+            // Get the current line and find the method name
+            const line = model.getLineContent(position.lineNumber);
+            const beforeCursor = line.substring(0, position.column - 1);
+            
+            // Find the method name by looking backwards from the cursor
+            const methodMatch = beforeCursor.match(/(\w+)\s*\(/);
+            if (!methodMatch) {
+              return null;
+            }
+            
+            const methodName = methodMatch[1];
+            console.log("Getting signature help for method:", methodName);
+            
+            try {
+              const response = await fetch('/playground/signatures?' + new URLSearchParams({
+                method: methodName
+              }), {
+                method: 'GET',
+                headers: {
+                  'Accept': 'application/json'
+                }
+              });
+              
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              
+              const data = await response.json();
+              
+              if (!data.signatures || data.signatures.length === 0) {
+                return null;
+              }
+              
+              // Convert to Monaco signature help format
+              const signatures = data.signatures.map(sig => ({
+                label: sig.label,
+                documentation: sig.documentation,
+                parameters: sig.parameters.map(param => ({
+                  label: param.label,
+                  documentation: param.documentation
+                }))
+              }));
+              
+              // Find which parameter the cursor is in
+              let activeParameter = 0;
+              const afterMethod = beforeCursor.substring(beforeCursor.lastIndexOf('(') + 1);
+              const commaCount = (afterMethod.match(/,/g) || []).length;
+              activeParameter = commaCount;
+              
+              return {
+                signatures: signatures,
+                activeSignature: 0,
+                activeParameter: Math.min(activeParameter, signatures[0].parameters.length - 1)
+              };
+            } catch (error) {
+              console.error('Error fetching signature help:', error);
+              return null;
+            }
+          }
+        });
+        
         // Helper to map completion kinds
         function getCompletionItemKind(kind) {
           const kindMap = {
@@ -348,6 +591,13 @@
         // Hide loading, show editor
         loadingIndicator.style.display = 'none';
         editorContainer.style.display = 'block';
+        
+        // Preload all playground data for better performance
+        window.playgroundDataManager.preloadAll().then(() => {
+          console.log('Playground data preloaded and cached');
+        }).catch(error => {
+          console.error('Failed to preload playground data:', error);
+        });
         
         // Sync editor content to hidden textarea
         window.monacoEditorInstance.onDidChangeModelContent(() => {

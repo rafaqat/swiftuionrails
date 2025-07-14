@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   namespace :playground do
     resources :completions, only: [:create]
   end
+  get 'playground/signatures', to: 'playground#signatures'
 
   # Custom interactive storybook routes
   get "rails/stories" => "storybook#index"

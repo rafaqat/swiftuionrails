@@ -11,11 +11,12 @@ module Playground
     # Cache for performance
     CACHE_TTL = 5.minutes
     
-    def initialize(context, position)
+    def initialize(context, position, cached_data = {})
       @context = context
       @position = position
       @line = position["lineNumber"] || 1
       @column = position["column"] || 1
+      @cached_data = cached_data
     end
     
     def generate_completions
@@ -290,6 +291,11 @@ module Playground
     end
     
     def load_tailwind_colors
+      # Use client-provided cached data if available
+      if @cached_data["tailwind_colors"].present?
+        return @cached_data["tailwind_colors"]
+      end
+      
       @tailwind_colors ||= Rails.cache.fetch("playground:tailwind_colors", expires_in: 1.hour) do
         path = Rails.root.join("public/playground/data/tailwind_colors.json")
         if File.exist?(path)
@@ -304,6 +310,11 @@ module Playground
     end
     
     def load_spacing_values
+      # Use client-provided cached data if available
+      if @cached_data["spacing_values"].present?
+        return @cached_data["spacing_values"]
+      end
+      
       @spacing_values ||= Rails.cache.fetch("playground:spacing_values", expires_in: 1.hour) do
         path = Rails.root.join("public/playground/data/spacing_values.json")
         if File.exist?(path)
@@ -318,6 +329,11 @@ module Playground
     end
     
     def load_font_sizes
+      # Use client-provided cached data if available
+      if @cached_data["font_sizes"].present?
+        return @cached_data["font_sizes"]
+      end
+      
       @font_sizes ||= Rails.cache.fetch("playground:font_sizes", expires_in: 1.hour) do
         path = Rails.root.join("public/playground/data/font_sizes.json")
         if File.exist?(path)

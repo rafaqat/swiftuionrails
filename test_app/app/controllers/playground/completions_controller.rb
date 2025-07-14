@@ -6,8 +6,9 @@ class Playground::CompletionsController < ApplicationController
   def create
     context = params[:context] || ""
     position = params[:position] || {}
+    cached_data = params[:cached_data] || {}
     
-    service = Playground::CompletionService.new(context, position)
+    service = Playground::CompletionService.new(context, position, cached_data)
     completions = service.generate_completions
     
     render json: { 

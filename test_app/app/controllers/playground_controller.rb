@@ -2,12 +2,26 @@
 
 class PlaygroundController < ApplicationController
   layout "playground"
-  skip_before_action :verify_authenticity_token, only: [:preview]
+  skip_before_action :verify_authenticity_token, only: [:preview, :signatures]
   
   def index
     @default_code = default_playground_code
     @components = available_components
     @examples = code_examples
+  end
+  
+  def signatures
+    method_name = params[:method]
+    
+    begin
+      service = SignatureHelpService.new
+      signatures = service.get_signatures(method_name)
+      
+      render json: { signatures: signatures }
+    rescue => e
+      Rails.logger.error "Signature help error: #{e.message}"
+      render json: { signatures: [] }
+    end
   end
   
   def preview
