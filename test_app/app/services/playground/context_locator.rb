@@ -9,7 +9,7 @@ module Playground
       @source = source
       @sexp = safe_parse(source)
     end
-    
+
     # Find the last method call chain before cursor
     def last_receiver_chain
       # Try AST parsing first
@@ -21,11 +21,11 @@ module Playground
           return chain if chain
         end
       end
-      
+
       # Fallback to FastLexer for incomplete code
       FastLexer.chain_before_dot(@source)
     end
-    
+
     # Get the current context (what we're completing)
     def completion_context
       # Use FastLexer to check for open method call (parameter completion)
@@ -59,9 +59,9 @@ module Playground
         }
       end
     end
-    
+
     private
-    
+
     def safe_parse(source)
       # Try to parse, handle incomplete code gracefully
       Ripper.sexp(source)
@@ -72,33 +72,33 @@ module Playground
         source + " end",
         source + "\nend"
       ]
-      
+
       attempts.each do |attempt|
         result = Ripper.sexp(attempt)
         return result if result
       rescue StandardError
         next
       end
-      
+
       nil
     end
-    
+
     def find_nodes(type, node = @sexp, acc = [])
       return acc unless node.is_a?(Array)
-      
+
       acc << node if node[0] == type
       node.each { |child| find_nodes(type, child, acc) }
       acc
     end
-    
+
     def extract_receiver_chain(call_node)
       return nil unless call_node.is_a?(Array) && call_node[0] == :call
-      
+
       receiver = call_node[1]
       method = extract_method_name(call_node[2])
-      
+
       chain = []
-      
+
       # Walk up the receiver chain
       while receiver
         case receiver
@@ -119,13 +119,13 @@ module Playground
           break
         end
       end
-      
+
       # Add the current method
       chain << method if method
-      
+
       chain.empty? ? nil : chain
     end
-    
+
     def extract_method_name(node)
       case node
       when Array
@@ -134,7 +134,7 @@ module Playground
         end
       end
     end
-    
+
     def extract_identifier(node)
       case node
       when Array

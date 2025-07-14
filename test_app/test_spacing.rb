@@ -16,7 +16,7 @@ puts "convert(4): #{converter.convert(4)}"
 # Now test the DSL
 class TestComponent < SwiftUIRails::Component::Base
   include SwiftUIRails::DSL
-  
+
   def call
     swift_ui do
       button("Test")

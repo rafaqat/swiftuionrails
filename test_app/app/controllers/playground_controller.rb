@@ -2,37 +2,50 @@
 
 class PlaygroundController < ApplicationController
   layout "playground"
-  skip_before_action :verify_authenticity_token, only: [:preview]
-  
+
   def index
     @default_code = default_playground_code
     @components = available_components
     @examples = code_examples
   end
-  
+
+  def signatures
+    method_name = params[:method]
+
+    begin
+      service = SignatureHelpService.new
+      signatures = service.get_signatures(method_name)
+
+      render json: { signatures: signatures }
+    rescue => e
+      Rails.logger.error "Signature help error: #{e.message}"
+      render json: { signatures: [] }
+    end
+  end
+
   def preview
     code = params[:code]
-    
+
     # Security check - only allow DSL code in playground
     if Rails.env.production? && contains_dangerous_code?(code)
       render_error("Code contains potentially dangerous operations")
       return
     end
-    
+
     begin
       # First, validate the Ruby syntax
       RubyVM::InstructionSequence.compile(code)
-      
+
       # Detect if the code already has swift_ui wrapper
-      has_swift_ui_wrapper = code.strip.start_with?('swift_ui do')
-      
+      has_swift_ui_wrapper = code.strip.start_with?("swift_ui do")
+
       # Create a temporary component class to evaluate the DSL
       # Use const_set to give it a name to avoid anonymous class issues
       temp_class_name = "PlaygroundComponent#{SecureRandom.hex(8)}"
       component_class = Class.new(ApplicationComponent) do
         include SwiftUIRails::DSL
         include SwiftUIRails::Helpers
-        
+
         if has_swift_ui_wrapper
           # If code already has swift_ui wrapper, just evaluate it
           class_eval <<-RUBY
@@ -51,16 +64,16 @@ class PlaygroundController < ApplicationController
           RUBY
         end
       end
-      
+
       # Give the class a name to avoid nil name issues
       Object.const_set(temp_class_name, component_class)
-      
+
       # Render the component
       @rendered_html = component_class.new.call.to_s
-      
+
       # Clean up the temporary constant
       Object.send(:remove_const, temp_class_name)
-      
+
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: turbo_stream.update("preview-container", @rendered_html)
@@ -72,7 +85,7 @@ class PlaygroundController < ApplicationController
       formatted_error = SyntaxError.new(format_syntax_error(e, code))
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.update("preview-container", 
+          render turbo_stream: turbo_stream.update("preview-container",
             render_to_string(partial: "error", locals: { error: formatted_error }))
         end
         format.html { render partial: "error", locals: { error: formatted_error } }
@@ -81,16 +94,16 @@ class PlaygroundController < ApplicationController
       # Handle other errors
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.update("preview-container", 
+          render turbo_stream: turbo_stream.update("preview-container",
             render_to_string(partial: "error", locals: { error: e }))
         end
         format.html { render partial: "error", locals: { error: e } }
       end
     end
   end
-  
+
   private
-  
+
   def contains_dangerous_code?(code)
     dangerous_patterns = [
       /\b(eval|exec|system|backticks|%x|spawn|fork|load|require|open|File|Dir|IO)\b/,
@@ -102,45 +115,45 @@ class PlaygroundController < ApplicationController
       /\.send/,
       /\.public_send/
     ]
-    
+
     dangerous_patterns.any? { |pattern| code =~ pattern }
   end
-  
+
   def render_error(message)
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("preview-container", 
+        render turbo_stream: turbo_stream.update("preview-container",
           render_to_string(partial: "error", locals: { error: SecurityError.new(message) }))
       end
       format.html { render partial: "error", locals: { error: SecurityError.new(message) } }
     end
   end
-  
+
   def format_syntax_error(error, code)
     # Extract line number from error message
     if error.message =~ /:(\d+):/
       line_number = $1.to_i
       lines = code.split("\n")
-      
+
       # Build a nice error message with context
       message = "Syntax error on line #{line_number}\n\n"
-      
+
       # Show 2 lines before and after the error
-      start_line = [line_number - 3, 0].max
-      end_line = [line_number + 1, lines.length - 1].min
-      
+      start_line = [ line_number - 3, 0 ].max
+      end_line = [ line_number + 1, lines.length - 1 ].min
+
       (start_line..end_line).each do |i|
         line_num = i + 1
         prefix = line_num == line_number ? "→ " : "  "
         message += "#{prefix}#{line_num.to_s.rjust(3)}: #{lines[i]}\n" if lines[i]
       end
-      
+
       message += "\n#{error.message}"
     else
       error.message
     end
   end
-  
+
   def default_playground_code
     <<~RUBY
       swift_ui do
@@ -149,10 +162,10 @@ class PlaygroundController < ApplicationController
             .font_size("2xl")
             .font_weight("bold")
             .text_color("blue-600")
-          
+      #{'    '}
           text("Edit the code on the left to see live updates")
             .text_color("gray-600")
-          
+      #{'    '}
           hstack(spacing: 8) do
             button("Click Me")
               .bg("blue-500")
@@ -161,7 +174,7 @@ class PlaygroundController < ApplicationController
               .rounded("lg")
               .hover("bg-blue-600")
               .data(action: "click->playground#handleClick")
-            
+      #{'      '}
             button("Reset")
               .bg("gray-500")
               .text_color("white")
@@ -169,7 +182,7 @@ class PlaygroundController < ApplicationController
               .rounded("lg")
               .hover("bg-gray-600")
           end
-          
+      #{'    '}
           card(elevation: 2) do
             vstack(spacing: 8) do
               text("This is a card component")
@@ -183,7 +196,7 @@ class PlaygroundController < ApplicationController
       end
     RUBY
   end
-  
+
   def available_components
     [
       { name: "Text", category: "Basic", code: 'text("Hello World")' },
@@ -198,7 +211,7 @@ class PlaygroundController < ApplicationController
       { name: "TextField", category: "Forms", code: 'textfield(name: "email", placeholder: "Enter email")' }
     ]
   end
-  
+
   def code_examples
     [
       {
@@ -206,16 +219,16 @@ class PlaygroundController < ApplicationController
         description: "Interactive counter with Stimulus",
         code: <<~RUBY
           swift_ui do
-            div(data: { 
+            div(data: {#{' '}
               controller: "counter",
-              "counter-count-value": 0 
+              "counter-count-value": 0#{' '}
             }) do
               vstack(spacing: 16) do
                 text("")
                   .font_size("6xl")
                   .font_weight("bold")
                   .data("counter-target": "display")
-                
+          #{'      '}
                 hstack(spacing: 8) do
                   button("-")
                     .bg("red-500")
@@ -223,7 +236,7 @@ class PlaygroundController < ApplicationController
                     .px(4).py(2)
                     .rounded("lg")
                     .data(action: "click->counter#decrement")
-                  
+          #{'        '}
                   button("+")
                     .bg("green-500")
                     .text_color("white")
@@ -247,22 +260,22 @@ class PlaygroundController < ApplicationController
                   src: "https://via.placeholder.com/300x200",
                   alt: "Product"
                 ).rounded("lg").w("full")
-                
+          #{'      '}
                 vstack(spacing: 4, align: :start) do
                   text("Amazing Product")
                     .font_size("xl")
                     .font_weight("semibold")
-                  
+          #{'        '}
                   text("$99.99")
                     .font_size("2xl")
                     .font_weight("bold")
                     .text_color("green-600")
-                  
+          #{'        '}
                   text("In stock - Ships tomorrow")
                     .text_sm
                     .text_color("gray-600")
                 end
-                
+          #{'      '}
                 button("Add to Cart")
                   .bg("blue-600")
                   .text_color("white")
@@ -288,7 +301,7 @@ class PlaygroundController < ApplicationController
                     .font_size("2xl")
                     .font_weight("bold")
                     .text_align("center")
-                  
+          #{'        '}
                   vstack(spacing: 12) do
                     div do
                       label("Email", for: "email")
@@ -300,7 +313,7 @@ class PlaygroundController < ApplicationController
                         required: true
                       ).mt(4)
                     end
-                    
+          #{'          '}
                     div do
                       label("Password", for: "password")
                         .font_weight("medium")
@@ -312,7 +325,7 @@ class PlaygroundController < ApplicationController
                       ).mt(4)
                     end
                   end
-                  
+          #{'        '}
                   button("Sign In", type: "submit")
                     .bg("blue-600")
                     .text_color("white")

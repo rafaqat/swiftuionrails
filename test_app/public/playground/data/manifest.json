@@ -1,0 +1,25 @@
+{
+  "generated_at": "2025-07-14T21:40:22+01:00",
+  "files": {
+    "tailwind_colors.json": {
+      "original_size": 29043,
+      "compressed_size": 1714,
+      "checksum": "8111e803bb6e96a95dc0cd76f10192f14fd677b0db0b2a51aca79d0f861e72e1"
+    },
+    "spacing_values.json": {
+      "original_size": 3789,
+      "compressed_size": 391,
+      "checksum": "d49e728ab856795223ba1b8cbade30cd55db35165b8702b329418873dbba2153"
+    },
+    "font_sizes.json": {
+      "original_size": 1376,
+      "compressed_size": 204,
+      "checksum": "75a0ab1787f64a6efcf18654f11665fa25302a0178adaa25f7bc4dd9f3bba2dc"
+    },
+    "completion_data.json": {
+      "original_size": 38092,
+      "compressed_size": 2287,
+      "checksum": "f5b429e5e27e0ecbd86211a381c2026de49a68e49bd21d159a9cd68fc323a4b2"
+    }
+  }
+}

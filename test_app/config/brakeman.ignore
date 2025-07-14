@@ -1,0 +1,14 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "79610d888b6edc1dd518b863da499f03037888234bfffaa238eb4bb0f25c4c1c",
+      "note": "PlaygroundController eval is intentional - it's a development tool for testing DSL code in a sandboxed environment. The controller has dangerous_code checks and is only for development use."
+    },
+    {
+      "fingerprint": "8f011429fcb753cd675c97e1f3ed7c45c9afd99118b092694abe8c6641d2289b",
+      "note": "PlaygroundController eval is intentional - it's a development tool for testing DSL code in a sandboxed environment. The controller has dangerous_code checks and is only for development use."
+    }
+  ],
+  "updated": "2025-07-14 21:50:00 +0100",
+  "brakeman_version": "7.0.2"
+}
