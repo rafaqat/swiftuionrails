@@ -5,12 +5,19 @@ class SignatureHelpService
     @signatures = build_signature_map
   end
 
-  def get_signatures(method_name)
+  def get_signatures(method_name, active_parameter: nil)
     return [] unless method_name.present?
 
     # Get the signature for the method
     signature_info = @signatures[method_name.to_sym]
     return [] unless signature_info
+
+    # Calculate the actual active parameter, ensuring it doesn't exceed bounds
+    actual_active_parameter = if active_parameter
+      [ active_parameter, signature_info[:parameters].length - 1 ].min
+    else
+      0
+    end
 
     # Format for Monaco signature help
     [ {
@@ -22,7 +29,7 @@ class SignatureHelpService
           documentation: param[:documentation]
         }
       end,
-      activeParameter: 0
+      activeParameter: actual_active_parameter
     } ]
   end
 

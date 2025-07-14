@@ -11,10 +11,11 @@ class PlaygroundController < ApplicationController
 
   def signatures
     method_name = params[:method]
+    active_parameter = params[:active_parameter].to_i if params[:active_parameter].present?
 
     begin
       service = SignatureHelpService.new
-      signatures = service.get_signatures(method_name)
+      signatures = service.get_signatures(method_name, active_parameter: active_parameter)
 
       render json: { signatures: signatures }
     rescue => e

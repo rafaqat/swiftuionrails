@@ -17,6 +17,9 @@ namespace :playground do
       "completion_data.json"
     ]
 
+    # Store file metadata to avoid duplicate reads
+    file_metadata = {}
+
     files.each do |filename|
       input_path = data_dir.join(filename)
       output_path = data_dir.join(filename.gsub(".json", ".json.gz"))
@@ -24,13 +27,20 @@ namespace :playground do
       if File.exist?(input_path)
         puts "Compressing #{filename}..."
 
-        # Read the original file
+        # Read the original file once
         original_data = File.read(input_path)
         original_size = original_data.bytesize
 
-        # Compress using gzip
+        # Compress using deflate
         compressed_data = Zlib::Deflate.deflate(original_data, Zlib::BEST_COMPRESSION)
         compressed_size = compressed_data.bytesize
+
+        # Store metadata for manifest generation
+        file_metadata[filename] = {
+          original_data: original_data,
+          original_size: original_size,
+          compressed_size: compressed_size
+        }
 
         # Write compressed file
         File.binwrite(output_path, compressed_data)
@@ -59,17 +69,14 @@ namespace :playground do
       files: {}
     }
 
+    # Use stored metadata instead of re-reading files
     files.each do |filename|
-      input_path = data_dir.join(filename)
-      if File.exist?(input_path)
-        original_data = File.read(input_path)
-        compressed_path = data_dir.join(filename.gsub(".json", ".json.gz"))
-        compressed_data = File.exist?(compressed_path) ? File.read(compressed_path) : nil
-
+      if file_metadata[filename]
+        metadata = file_metadata[filename]
         manifest[:files][filename] = {
-          original_size: original_data.bytesize,
-          compressed_size: compressed_data ? compressed_data.bytesize : nil,
-          checksum: Digest::SHA256.hexdigest(original_data)
+          original_size: metadata[:original_size],
+          compressed_size: metadata[:compressed_size],
+          checksum: Digest::SHA256.hexdigest(metadata[:original_data])
         }
       end
     end

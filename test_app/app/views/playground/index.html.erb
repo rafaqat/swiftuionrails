@@ -531,12 +531,18 @@
             const methodName = methodMatch[1];
             console.log("Getting signature help for method:", methodName);
             
+            // Calculate active parameter based on comma count
+            const afterMethod = beforeCursor.substring(beforeCursor.lastIndexOf('(') + 1);
+            const commaCount = (afterMethod.match(/,/g) || []).length;
+            const activeParameter = commaCount;
+            
             try {
               // Get CSRF token from meta tag
               const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
               
               const response = await fetch('/playground/signatures?' + new URLSearchParams({
-                method: methodName
+                method: methodName,
+                active_parameter: activeParameter
               }), {
                 method: 'GET',
                 headers: {
@@ -565,16 +571,10 @@
                 }))
               }));
               
-              // Find which parameter the cursor is in
-              let activeParameter = 0;
-              const afterMethod = beforeCursor.substring(beforeCursor.lastIndexOf('(') + 1);
-              const commaCount = (afterMethod.match(/,/g) || []).length;
-              activeParameter = commaCount;
-              
               return {
                 signatures: signatures,
                 activeSignature: 0,
-                activeParameter: Math.min(activeParameter, signatures[0].parameters.length - 1)
+                activeParameter: data.signatures[0].activeParameter
               };
             } catch (error) {
               console.error('Error fetching signature help:', error);
