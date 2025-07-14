@@ -114,8 +114,7 @@ instructions:
 # Chat settings
 chat:
   # Enable auto-reply to review comments
-  auto_reply:
-    enabled: true
+  auto_reply: true
 
 # Notification settings
 notifications:
