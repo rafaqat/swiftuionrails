@@ -85,6 +85,8 @@ This project includes a local fork of `view_component-storybook` in the `view_co
 
 The playground (`/playground`) provides an interactive development environment for the SwiftUI Rails DSL with:
 
+**🚀 [Playground V2 Specification](./PLAYGROUND_V2.md)** - We're rebuilding the playground using SwiftUI Rails DSL itself!
+
 1. **Monaco Editor Integration**
    - Syntax highlighting for Ruby
    - Live code editing with Solarized Light theme

@@ -3,7 +3,7 @@
 
 module PlaygroundDogfoodExamples
   # 1. E-commerce Product Grid
-  PRODUCT_GRID = <<~RUBY
+  PRODUCT_GRID = <<~'RUBY'
     swift_ui do
       # Responsive product grid with hover effects
       grid(cols: 3, gap: 16) do
@@ -79,7 +79,7 @@ module PlaygroundDogfoodExamples
   RUBY
 
   # 2. Dashboard Stats Cards
-  DASHBOARD_STATS = <<~RUBY
+  DASHBOARD_STATS = <<~'RUBY'
     swift_ui do
       grid(cols: 4, gap: 16) do
         [
@@ -130,7 +130,7 @@ module PlaygroundDogfoodExamples
   RUBY
 
   # 3. Interactive Pricing Cards
-  PRICING_CARDS = <<~RUBY
+  PRICING_CARDS = <<~'RUBY'
     swift_ui do
       hstack(spacing: 16, alignment: :stretch) do
         [
@@ -232,7 +232,7 @@ module PlaygroundDogfoodExamples
   RUBY
 
   # 4. Interactive Todo List with Stimulus
-  TODO_LIST = <<~RUBY
+  TODO_LIST = <<~'RUBY'
     swift_ui do
       div(data: { 
         controller: "todo-list",
@@ -315,7 +315,7 @@ module PlaygroundDogfoodExamples
   RUBY
 
   # 5. Navigation Bar Component
-  NAVBAR = <<~RUBY
+  NAVBAR = <<~'RUBY'
     swift_ui do
       nav.bg("white").shadow("md").sticky.top(0).z(50) do
         div.max_w("7xl").mx("auto").px(4) do
