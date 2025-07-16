@@ -586,7 +586,7 @@ module SwiftUIRails
       end
 
       # Data attributes with SECURITY sanitization
-      def data(attributes)
+      def data(attributes, &block)
         # Handle different input formats
         if attributes.is_a?(Hash)
           # Sanitize all data attributes
@@ -605,6 +605,10 @@ module SwiftUIRails
             @attributes[key] = value
           end
         end
+        
+        # Handle block if provided - same as add_class method
+        @block = block if block
+        
         self
       end
 
@@ -785,56 +789,13 @@ module SwiftUIRails
         self
       end
 
-      # Advanced positioning
-      def sticky
-        tw('sticky')
-        self
-      end
+      # Advanced positioning methods removed - now handled by Tailwind::Modifiers
 
-      def fixed
-        tw('fixed')
-        self
-      end
+      # fixed method removed - now handled by Tailwind::Modifiers
 
-      def absolute
-        tw('absolute')
-        self
-      end
-
-      def relative
-        tw('relative')
-        self
-      end
-
-      def top(value)
-        tw("top-#{value}")
-        self
-      end
-
-      def bottom(value)
-        tw("bottom-#{value}")
-        self
-      end
-
-      def left(value)
-        tw("left-#{value}")
-        self
-      end
-
-      def right(value)
-        tw("right-#{value}")
-        self
-      end
-
-      def inset(value)
-        tw("inset-#{value}")
-        self
-      end
-
-      def z_index(value)
-        tw("z-#{value}")
-        self
-      end
+      # Removed duplicate methods that override Tailwind::Modifiers
+      # These methods are now handled by the included Tailwind::Modifiers module
+      # which provides superior block handling for chaining syntax like div.relative do
 
       # Convert to HTML string
       def to_s
@@ -868,31 +829,60 @@ module SwiftUIRails
           # If we already have a DSL context, use it directly
           # This prevents creating nested contexts and duplicate rendering
           if @dsl_context
-            # Create a new sub-context to isolate child elements
-            # Pass current depth to track nesting level
-            parent_depth = @dsl_context.respond_to?(:depth) ? @dsl_context.depth : 0
-            sub_context = SwiftUIRails::DSLContext.new(@dsl_context.view_context, parent_depth)
-
-            # Transfer component reference
-            if (comp = @dsl_context.instance_variable_get(:@component))
-              sub_context.instance_variable_set(:@component, comp)
-            elsif @component
-              sub_context.instance_variable_set(:@component, @component)
-            end
-
-            # Execute block in sub-context to collect child elements
-            result = sub_context.instance_eval(&@block)
-
-            # If the block returns an element that hasn't been registered, register it
-            if result.is_a?(Element) && sub_context.instance_variable_get(:@pending_elements).exclude?(result)
-              Rails.logger.debug do
-                "Element.to_s: Block returned unregistered element #{result.tag_name}, registering it"
+            # Check if the context is a component (Component-as-DSL-Context)
+            if @dsl_context.is_a?(SwiftUIRails::Component::Base)
+              # Execute block directly in component context
+              # This enables natural composition
+              Rails.logger.debug { "Element.to_s: Executing block in component context" }
+              
+              # Save the current pending elements
+              parent_elements = @dsl_context.instance_variable_get(:@pending_elements) || []
+              @dsl_context.instance_variable_set(:@pending_elements, [])
+              
+              # Execute the block in the component context
+              result = @dsl_context.instance_eval(&@block)
+              
+              # If the block returns an element that hasn't been registered, register it
+              if result.is_a?(Element) && @dsl_context.instance_variable_get(:@pending_elements).exclude?(result)
+                Rails.logger.debug do
+                  "Element.to_s: Block returned unregistered element #{result.tag_name}, registering it"
+                end
+                @dsl_context.register_element(result)
               end
-              sub_context.register_element(result)
-            end
+              
+              # Flush to get rendered content
+              content = @dsl_context.flush_elements
+              
+              # Restore parent elements
+              @dsl_context.instance_variable_set(:@pending_elements, parent_elements)
+            else
+              # Traditional DSLContext handling
+              # Create a new sub-context to isolate child elements
+              # Pass current depth to track nesting level
+              parent_depth = @dsl_context.respond_to?(:depth) ? @dsl_context.depth : 0
+              sub_context = SwiftUIRails::DSLContext.new(@dsl_context.view_context, parent_depth)
 
-            # Flush to get rendered content
-            content = sub_context.flush_elements
+              # Transfer component reference
+              if (comp = @dsl_context.instance_variable_get(:@component))
+                sub_context.instance_variable_set(:@component, comp)
+              elsif @component
+                sub_context.instance_variable_set(:@component, @component)
+              end
+
+              # Execute block in sub-context to collect child elements
+              result = sub_context.instance_eval(&@block)
+
+              # If the block returns an element that hasn't been registered, register it
+              if result.is_a?(Element) && sub_context.instance_variable_get(:@pending_elements).exclude?(result)
+                Rails.logger.debug do
+                  "Element.to_s: Block returned unregistered element #{result.tag_name}, registering it"
+                end
+                sub_context.register_element(result)
+              end
+
+              # Flush to get rendered content
+              content = sub_context.flush_elements
+            end
           elsif @view_context.respond_to?(:capture)
             # No DSL context - render block directly
             # This happens for elements created outside the DSL

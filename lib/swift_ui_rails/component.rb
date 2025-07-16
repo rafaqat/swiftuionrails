@@ -75,19 +75,15 @@ module SwiftUIRails
             # Check if memoization is enabled and we have a cached result
             return @memoized_swift_ui_content if self.class.swift_ui_memoization_enabled && memoized_content_valid?
 
-            # Create a DSL context for proper element management
-            dsl_context = SwiftUIRails::DSLContext.new(self)
+            # Initialize pending elements array for this render
+            @pending_elements = []
 
-            # Store component reference in the context
-            dsl_context.instance_variable_set(:@component, self)
+            # Execute the block directly in the component context
+            # This enables natural composition - helper methods can call DSL methods directly
+            instance_eval(&self.class.instance_variable_get(:@swift_ui_block))
 
-            # Execute the block in the DSL context
-            # The block execution will automatically register elements via create_element
-            dsl_context.instance_eval(&self.class.instance_variable_get(:@swift_ui_block))
-
-            # Don't double-register the result - it was already registered during creation
-            # Just flush all collected elements
-            rendered_content = dsl_context.flush_elements
+            # Flush all collected elements
+            rendered_content = flush_elements
 
             # Wrap with reactive container if enabled
             if respond_to?(:reactive_rendering_enabled) && reactive_rendering_enabled
@@ -243,6 +239,36 @@ module SwiftUIRails
 
         validate_and_set_props(our_props)
         super(**view_component_props)
+      end
+
+      # Register an element for rendering
+      def register_element(element)
+        @pending_elements ||= []
+        # Prevent duplicate registration
+        unless @pending_elements.include?(element)
+          Rails.logger.debug { "Component: Registering element #{element.tag_name} (#{element.object_id})" }
+          @pending_elements << element
+        end
+      end
+
+      # Flush all pending elements as HTML
+      def flush_elements
+        @pending_elements ||= []
+        Rails.logger.debug { "Component: Flushing #{@pending_elements.length} elements" }
+
+        html_parts = @pending_elements.map do |element|
+          # Ensure view context is set to self (the component)
+          element.view_context ||= self
+          Rails.logger.debug { "Component: Rendering element #{element.tag_name}" }
+          (element.to_s || '').html_safe
+        end
+
+        # Clear the pending elements after rendering
+        @pending_elements.clear
+
+        result = safe_join(html_parts)
+        Rails.logger.debug { "Component: Flushed #{html_parts.length} elements, total length: #{result.to_s.length}" }
+        result
       end
 
       # Register component actions for event handling

@@ -1,0 +1,148 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold mb-4">SwiftUI Rails DSL</h1>
+        <p class="text-xl opacity-90">Build beautiful UIs with Ruby using SwiftUI-inspired syntax</p>
+        <div class="mt-8 flex justify-center space-x-4">
+          <%= link_to "View Components", components_showcase_index_path, 
+              class: "px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition" %>
+          <%= link_to "Browse Examples", patterns_path, 
+              class: "px-6 py-3 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-800 transition" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature Grid -->
+  <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">Core Features</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Feature 1: Declarative Syntax -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="text-blue-600 mb-4">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Declarative Syntax</h3>
+        <p class="text-gray-600">Write UI code that reads like SwiftUI but runs on Rails. Chain modifiers naturally.</p>
+        <pre class="mt-4 text-sm bg-gray-100 p-3 rounded overflow-x-auto">
+text("Hello World")
+  .font_size("xl")
+  .text_color("blue-600")</pre>
+      </div>
+
+      <!-- Feature 2: Component Composition -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="text-green-600 mb-4">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Component Composition</h3>
+        <p class="text-gray-600">Build complex UIs by composing simple, reusable components.</p>
+        <pre class="mt-4 text-sm bg-gray-100 p-3 rounded overflow-x-auto">
+vstack do
+  header_component
+  main_content
+  footer_component
+end</pre>
+      </div>
+
+      <!-- Feature 3: Rails Integration -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="text-purple-600 mb-4">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Rails Integration</h3>
+        <p class="text-gray-600">Works seamlessly with Turbo, Stimulus, and ViewComponent for modern Rails apps.</p>
+        <pre class="mt-4 text-sm bg-gray-100 p-3 rounded overflow-x-auto">
+button("Save")
+  .data(action: "click->form#save")
+  .turbo_frame("modal")</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Examples -->
+  <div class="bg-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">Quick Examples</h2>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Example 1: Product Card -->
+        <div>
+          <h3 class="text-xl font-semibold mb-4">Product Card</h3>
+          <div class="bg-gray-100 p-4 rounded-lg">
+            <pre class="text-sm overflow-x-auto"><code>swift_ui do
+  card(elevation: 2) do
+    image(src: product.image_url)
+      .aspect("square")
+      .object_fit("cover")
+    
+    vstack(spacing: 2, class: "p-4") do
+      text(product.name)
+        .font_weight("semibold")
+      text("$#{product.price}")
+        .text_color("green-600")
+        .font_size("xl")
+      
+      button("Add to Cart")
+        .bg("blue-600")
+        .text_color("white")
+        .w("full")
+        .mt(4)
+    end
+  end
+end</code></pre>
+          </div>
+        </div>
+
+        <!-- Example 2: Navigation -->
+        <div>
+          <h3 class="text-xl font-semibold mb-4">Navigation Bar</h3>
+          <div class="bg-gray-100 p-4 rounded-lg">
+            <pre class="text-sm overflow-x-auto"><code>swift_ui do
+  nav.bg("white").shadow("md") do
+    hstack(justify: :between, class: "px-6 py-4") do
+      text("Logo")
+        .font_size("xl")
+        .font_weight("bold")
+      
+      hstack(spacing: 6) do
+        link("Home", destination: "/")
+        link("Products", destination: "/products")
+        link("About", destination: "/about")
+      end
+      
+      button("Sign In")
+        .button_style(:outline)
+        .button_size(:sm)
+    end
+  end
+end</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Call to Action -->
+  <div class="bg-gray-900 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 text-center sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+      <p class="text-xl mb-8 opacity-90">Explore the components and start building your UI</p>
+      <div class="flex justify-center space-x-4">
+        <%= link_to "Component Gallery", gallery_index_path, 
+            class: "px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition" %>
+        <%= link_to "View Documentation", "https://github.com/swift-ui-rails/docs", 
+            class: "px-6 py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition" %>
+      </div>
+    </div>
+  </div>
+</div>

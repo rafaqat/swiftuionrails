@@ -430,6 +430,15 @@ class InteractiveComponentsTest < ApplicationSystemTestCase
 end
 ```
 
+## Project Structure
+
+- **`lib/`** - SwiftUI Rails gem source code (the DSL framework)
+- **`spec/`** - RSpec tests for the gem
+- **`test_app/`** - Rails app showcasing DSL examples and patterns
+- **`playground_app/`** - Interactive playground for experimenting with the DSL
+- **`docs/`** - Comprehensive documentation
+- **`view_component_storybook_rails8/`** - Rails 8 fork of ViewComponent Storybook
+
 ## Development
 
 ### Setup
@@ -445,9 +454,17 @@ bundle install
 # Run tests
 bundle exec rake
 
-# Start the test app
+# Start the showcase app (examples and patterns)
 cd test_app
+bundle install
 bin/dev
+# Visit http://localhost:3000
+
+# Start the interactive playground
+cd ../playground_app
+bundle install
+bin/dev
+# Visit http://localhost:3000
 ```
 
 ### Running Tests

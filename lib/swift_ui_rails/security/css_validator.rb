@@ -56,11 +56,10 @@ module SwiftUIRails
           if VALID_COLORS.include?(color_str)
             if shade && VALID_SHADES.include?(shade.to_s)
               "bg-#{color_str}-#{shade}"
-            elsif %w[transparent current inherit].include?(color_str)
-              "bg-#{color_str}"
-            elsif %w[white black].include?(color_str)
+            elsif %w[transparent current inherit white black].include?(color_str)
               "bg-#{color_str}"
             else
+              # For colors like "blue", "red", "green" without shade, use -500 as default
               "bg-#{color_str}-500"
             end
           else
