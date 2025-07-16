@@ -1,0 +1,345 @@
+<%= render @playground %>
+
+<!-- Monaco Editor CSS -->
+<link rel="stylesheet" data-name="vs/editor/editor.main" href="/monaco-editor/min/vs/editor/editor.main.css">
+
+<!-- Monaco Editor Integration - Following Official AMD Pattern -->
+<script src="/monaco-editor/min/vs/loader.js"></script>
+<script>
+  // Configure RequireJS path for Monaco Editor
+  require.config({ paths: { vs: '/monaco-editor/min/vs' } });
+  
+  // Initialize Monaco Editor using official AMD pattern
+  require(['vs/editor/editor.main'], function () {
+    console.log("Monaco Editor modules loaded successfully");
+    
+    // Wait for DOM to be ready
+    function initializeEditor() {
+      const container = document.getElementById('monaco-editor');
+      const loading = document.getElementById('editor-loading');
+      
+      if (!container) {
+        console.error("Monaco container not found");
+        return;
+      }
+      
+      if (!loading) {
+        console.error("Loading indicator not found");  
+        return;
+      }
+      
+      console.log("Starting Monaco editor initialization...");
+      
+      // Show loading indicator initially
+      loading.style.display = 'flex';
+      container.style.display = 'none';
+      
+      try {
+        // Get initial code from container data attribute
+        const initialCode = container.getAttribute('data-initial-code') || 'swift_ui do\n  text("Hello World")\nend';
+        
+        // Ensure container has proper dimensions
+        const parent = container.parentElement;
+        if (parent) {
+          const parentHeight = parent.offsetHeight;
+          const parentWidth = parent.offsetWidth;
+          console.log(`Parent container dimensions: ${parentWidth}x${parentHeight}`);
+          
+          // Set minimum height if parent is too small
+          if (parentHeight < 400) {
+            parent.style.minHeight = '400px';
+          }
+        }
+        
+        // Create Monaco Editor instance
+        const editor = monaco.editor.create(container, {
+          value: initialCode,
+          language: 'ruby',
+          theme: 'vs-light',
+          fontSize: 14,
+          fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          renderWhitespace: 'selection',
+          tabSize: 2,
+          insertSpaces: true,
+          automaticLayout: true,
+          padding: { top: 16, bottom: 16 },
+          suggestOnTriggerCharacters: true,
+          quickSuggestions: {
+            other: true,
+            comments: false,
+            strings: false
+          },
+          acceptSuggestionOnCommitCharacter: true,
+          acceptSuggestionOnEnter: 'on',
+          parameterHints: {
+            enabled: true,
+            cycle: true
+          },
+          suggest: {
+            showMethods: true,
+            showProperties: true,
+            showConstants: true,
+            showValues: true,
+            showKeywords: true,
+            showSnippets: true,
+            filterGraceful: true,
+            snippetsPreventQuickSuggestions: false
+          }
+        });
+        
+        console.log("Monaco editor created successfully");
+        
+        // Store editor instance globally for Stimulus controller access
+        window.monacoEditorInstance = editor;
+        
+        // Register completion provider for SwiftUI DSL
+        monaco.languages.registerCompletionItemProvider('ruby', {
+          provideCompletionItems: function(model, position) {
+            return new Promise(function(resolve) {
+              const word = model.getWordUntilPosition(position);
+              const range = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn
+              };
+              
+              // Get text around cursor for context
+              const textBeforeCursor = model.getValueInRange({
+                startLineNumber: position.lineNumber,
+                startColumn: 1,
+                endLineNumber: position.lineNumber,
+                endColumn: position.column
+              });
+              
+              // Fetch completions from Rails backend
+              fetch('/playground/completions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  prefix: word.word,
+                  context: textBeforeCursor,
+                  line: position.lineNumber,
+                  column: position.column
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+                const suggestions = data.completions.map(completion => ({
+                  label: completion.label,
+                  kind: getCompletionKind(completion.kind),
+                  insertText: completion.insertText,
+                  insertTextRules: completion.snippet ? 
+                    monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : 
+                    monaco.languages.CompletionItemInsertTextRule.None,
+                  documentation: completion.documentation,
+                  detail: completion.detail,
+                  range: range,
+                  sortText: completion.sortText || completion.label
+                }));
+                
+                resolve({
+                  suggestions: suggestions
+                });
+              })
+              .catch(error => {
+                console.error('Error fetching completions:', error);
+                resolve({ suggestions: [] });
+              });
+            });
+          },
+          
+          triggerCharacters: ['.', '(', ' ', '\t']
+        });
+        
+        // Add keyboard shortcuts for IntelliSense
+        editor.addCommand(monaco.KeyCode.Tab, function() {
+          // Check if suggestion widget is visible
+          const suggestWidget = editor.getContribution('editor.contrib.suggestController');
+          if (suggestWidget && suggestWidget.widget && suggestWidget.widget.value.visible) {
+            // Accept current suggestion
+            editor.trigger('keyboard', 'acceptSelectedSuggestion', {});
+          } else {
+            // Trigger suggestions
+            editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
+          }
+        }, 'Trigger or accept IntelliSense');
+        
+        // Add Ctrl+Space as explicit trigger
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space, function() {
+          editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
+        }, 'Trigger IntelliSense');
+        
+        // Add escape to close suggestions
+        editor.addCommand(monaco.KeyCode.Escape, function() {
+          const suggestWidget = editor.getContribution('editor.contrib.suggestController');
+          if (suggestWidget && suggestWidget.widget && suggestWidget.widget.value.visible) {
+            suggestWidget.widget.value.hideWidget();
+          }
+        }, 'Close IntelliSense');
+        
+        // Helper function to convert completion kind to Monaco kind
+        function getCompletionKind(kind) {
+          const kindMap = {
+            'dsl_element': monaco.languages.CompletionItemKind.Class,
+            'modifier': monaco.languages.CompletionItemKind.Method,
+            'parameter': monaco.languages.CompletionItemKind.Property,
+            'value': monaco.languages.CompletionItemKind.Value,
+            'color': monaco.languages.CompletionItemKind.Color,
+            'keyword': monaco.languages.CompletionItemKind.Keyword
+          };
+          return kindMap[kind] || monaco.languages.CompletionItemKind.Text;
+        }
+        
+        // Register signature help provider
+        monaco.languages.registerSignatureHelpProvider('ruby', {
+          signatureHelpTriggerCharacters: ['(', ','],
+          provideSignatureHelp: function(model, position) {
+            return new Promise(function(resolve) {
+              const textBeforeCursor = model.getValueInRange({
+                startLineNumber: position.lineNumber,
+                startColumn: 1,
+                endLineNumber: position.lineNumber,
+                endColumn: position.column
+              });
+              
+              fetch('/playground/signatures', {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              })
+              .then(response => response.json())
+              .then(data => {
+                // Find method signature based on cursor position
+                const methodMatch = textBeforeCursor.match(/(\w+)\s*\(([^)]*)$/);
+                if (methodMatch) {
+                  const methodName = methodMatch[1];
+                  const signature = data.signatures.find(sig => sig.label.startsWith(methodName));
+                  
+                  if (signature) {
+                    resolve({
+                      value: {
+                        signatures: [{
+                          label: signature.label,
+                          documentation: signature.documentation,
+                          parameters: signature.parameters || []
+                        }],
+                        activeSignature: 0,
+                        activeParameter: 0
+                      }
+                    });
+                    return;
+                  }
+                }
+                
+                resolve({ value: { signatures: [], activeSignature: 0, activeParameter: 0 } });
+              })
+              .catch(error => {
+                console.error('Error fetching signatures:', error);
+                resolve({ value: { signatures: [], activeSignature: 0, activeParameter: 0 } });
+              });
+            });
+          }
+        });
+        
+        // Hide loading indicator and show editor
+        setTimeout(function() {
+          console.log("Hiding loading indicator and showing Monaco editor");
+          
+          // Force container to be visible
+          container.style.display = 'block';
+          container.style.width = '100%';
+          container.style.height = '100%';
+          container.style.minHeight = '400px';
+          
+          // Hide loading indicator
+          loading.style.display = 'none';
+          
+          // Force layout recalculation
+          editor.layout();
+          
+          // Dispatch ready event for Stimulus controller
+          window.dispatchEvent(new CustomEvent('monaco-editor-ready', {
+            detail: { editor: editor }
+          }));
+          
+          console.log("Monaco editor initialized successfully and made visible");
+          
+          // Additional debug info
+          const rect = container.getBoundingClientRect();
+          console.log(`Monaco container final dimensions: ${rect.width}x${rect.height}`);
+          
+        }, 100);
+        
+      } catch (error) {
+        console.error("Error creating Monaco editor:", error);
+        loading.innerHTML = '<div class="text-red-500 p-4">Failed to load Monaco editor: ' + error.message + '</div>';
+      }
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeEditor);
+    } else {
+      initializeEditor();
+    }
+  });
+</script>
+
+<style>
+  /* Solarized Light color definitions */
+  :root {
+    --solarized-base3: #fdf6e3;
+    --solarized-base2: #eee8d5;
+    --solarized-base1: #93a1a1;
+    --solarized-base0: #839496;
+    --solarized-base00: #657b83;
+    --solarized-base01: #586e75;
+  }
+  
+  /* Tailwind utility classes for Solarized colors */
+  .bg-solarized-base3 { background-color: var(--solarized-base3); }
+  .bg-solarized-base2 { background-color: var(--solarized-base2); }
+  .border-solarized-base1 { border-color: var(--solarized-base1); }
+  .text-solarized-base00 { color: var(--solarized-base00); }
+  .text-solarized-base01 { color: var(--solarized-base01); }
+  .hover\:text-solarized-base01:hover { color: var(--solarized-base01); }
+  
+  /* Monaco Editor container styling */
+  #monaco-editor {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* Debug styling to visualize container hierarchy */
+  #monaco-editor .monaco-editor {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* Ensure editor content container fills properly */
+  [data-playground-target="monacoContainer"] {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* Device preview classes */
+  .device-mobile #preview-container {
+    max-width: 375px;
+    margin: 0 auto;
+    border: 2px solid #e5e7eb;
+    border-radius: 1rem;
+  }
+  
+  .device-tablet #preview-container {
+    max-width: 768px;
+    margin: 0 auto;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+  }
+</style>

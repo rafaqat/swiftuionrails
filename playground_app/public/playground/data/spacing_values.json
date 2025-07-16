@@ -1,0 +1,212 @@
+[
+  {
+    "value": "0",
+    "label": "0",
+    "category": "spacing",
+    "description": "0 × 0.25rem"
+  },
+  {
+    "value": "px",
+    "label": "px",
+    "category": "spacing",
+    "description": "1px"
+  },
+  {
+    "value": "0.5",
+    "label": "0.5",
+    "category": "spacing",
+    "description": "0.5 × 0.25rem"
+  },
+  {
+    "value": "1",
+    "label": "1",
+    "category": "spacing",
+    "description": "1 × 0.25rem"
+  },
+  {
+    "value": "1.5",
+    "label": "1.5",
+    "category": "spacing",
+    "description": "1.5 × 0.25rem"
+  },
+  {
+    "value": "2",
+    "label": "2",
+    "category": "spacing",
+    "description": "2 × 0.25rem"
+  },
+  {
+    "value": "2.5",
+    "label": "2.5",
+    "category": "spacing",
+    "description": "2.5 × 0.25rem"
+  },
+  {
+    "value": "3",
+    "label": "3",
+    "category": "spacing",
+    "description": "3 × 0.25rem"
+  },
+  {
+    "value": "3.5",
+    "label": "3.5",
+    "category": "spacing",
+    "description": "3.5 × 0.25rem"
+  },
+  {
+    "value": "4",
+    "label": "4",
+    "category": "spacing",
+    "description": "4 × 0.25rem"
+  },
+  {
+    "value": "5",
+    "label": "5",
+    "category": "spacing",
+    "description": "5 × 0.25rem"
+  },
+  {
+    "value": "6",
+    "label": "6",
+    "category": "spacing",
+    "description": "6 × 0.25rem"
+  },
+  {
+    "value": "7",
+    "label": "7",
+    "category": "spacing",
+    "description": "7 × 0.25rem"
+  },
+  {
+    "value": "8",
+    "label": "8",
+    "category": "spacing",
+    "description": "8 × 0.25rem"
+  },
+  {
+    "value": "9",
+    "label": "9",
+    "category": "spacing",
+    "description": "9 × 0.25rem"
+  },
+  {
+    "value": "10",
+    "label": "10",
+    "category": "spacing",
+    "description": "10 × 0.25rem"
+  },
+  {
+    "value": "11",
+    "label": "11",
+    "category": "spacing",
+    "description": "11 × 0.25rem"
+  },
+  {
+    "value": "12",
+    "label": "12",
+    "category": "spacing",
+    "description": "12 × 0.25rem"
+  },
+  {
+    "value": "14",
+    "label": "14",
+    "category": "spacing",
+    "description": "14 × 0.25rem"
+  },
+  {
+    "value": "16",
+    "label": "16",
+    "category": "spacing",
+    "description": "16 × 0.25rem"
+  },
+  {
+    "value": "20",
+    "label": "20",
+    "category": "spacing",
+    "description": "20 × 0.25rem"
+  },
+  {
+    "value": "24",
+    "label": "24",
+    "category": "spacing",
+    "description": "24 × 0.25rem"
+  },
+  {
+    "value": "28",
+    "label": "28",
+    "category": "spacing",
+    "description": "28 × 0.25rem"
+  },
+  {
+    "value": "32",
+    "label": "32",
+    "category": "spacing",
+    "description": "32 × 0.25rem"
+  },
+  {
+    "value": "36",
+    "label": "36",
+    "category": "spacing",
+    "description": "36 × 0.25rem"
+  },
+  {
+    "value": "40",
+    "label": "40",
+    "category": "spacing",
+    "description": "40 × 0.25rem"
+  },
+  {
+    "value": "44",
+    "label": "44",
+    "category": "spacing",
+    "description": "44 × 0.25rem"
+  },
+  {
+    "value": "48",
+    "label": "48",
+    "category": "spacing",
+    "description": "48 × 0.25rem"
+  },
+  {
+    "value": "52",
+    "label": "52",
+    "category": "spacing",
+    "description": "52 × 0.25rem"
+  },
+  {
+    "value": "56",
+    "label": "56",
+    "category": "spacing",
+    "description": "56 × 0.25rem"
+  },
+  {
+    "value": "60",
+    "label": "60",
+    "category": "spacing",
+    "description": "60 × 0.25rem"
+  },
+  {
+    "value": "64",
+    "label": "64",
+    "category": "spacing",
+    "description": "64 × 0.25rem"
+  },
+  {
+    "value": "72",
+    "label": "72",
+    "category": "spacing",
+    "description": "72 × 0.25rem"
+  },
+  {
+    "value": "80",
+    "label": "80",
+    "category": "spacing",
+    "description": "80 × 0.25rem"
+  },
+  {
+    "value": "96",
+    "label": "96",
+    "category": "spacing",
+    "description": "96 × 0.25rem"
+  }
+]
