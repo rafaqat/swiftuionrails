@@ -1,0 +1,23 @@
+<div class="playground-error">
+  <div class="flex items-start space-x-3">
+    <svg class="w-6 h-6 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div class="flex-1">
+      <% if error.is_a?(SyntaxError) %>
+        <h3 class="text-sm font-medium text-red-800">Syntax Error</h3>
+        <div class="mt-2 font-mono text-sm whitespace-pre bg-red-50 p-3 rounded border border-red-200"><%= error.message %></div>
+        <p class="mt-2 text-sm text-gray-600">Check your Ruby syntax. Make sure all blocks are properly closed with 'end'.</p>
+      <% else %>
+        <h3 class="text-sm font-medium">Error in your code</h3>
+        <pre class="mt-2"><%= error.message %></pre>
+        <% if error.backtrace.present? && !error.is_a?(SyntaxError) %>
+          <details class="mt-2">
+            <summary class="text-sm text-red-600 cursor-pointer hover:text-red-800">View backtrace</summary>
+            <pre class="mt-2 text-xs"><%= error.backtrace.first(5).join("\n") %></pre>
+          </details>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -85,6 +85,8 @@ This project includes a local fork of `view_component-storybook` in the `view_co
 
 The playground (`/playground`) provides an interactive development environment for the SwiftUI Rails DSL with:
 
+**🚀 [Playground Specification](./PLAYGROUND_V2.md)** - Built using SwiftUI Rails DSL itself!
+
 1. **Monaco Editor Integration**
    - Syntax highlighting for Ruby
    - Live code editing with Solarized Light theme
@@ -115,7 +117,7 @@ The playground (`/playground`) provides an interactive development environment f
 
 ### Interactive Storybook System
 
-1. **Access Interactive Storybook**: Visit `http://localhost:3030/storybook/index` when the server is running
+1. **Access Interactive Storybook**: Visit `http://localhost:3000/rails/stories` when the server is running
 
 2. **Story Definition Display**: 
    - For DSL stories, the storybook automatically displays the actual source code of the story method
@@ -192,30 +194,67 @@ This is a Rails gem that brings SwiftUI-like declarative syntax to Rails views, 
   - **No component state serialization** or complex action registration
 - Leverage Turbo's page morphing for smooth updates without full page reloads
 
+### Core Architecture: Component-as-DSL-Context
+
+**The key innovation of SwiftUI Rails is that components ARE the DSL context.** This enables natural composition where helper methods "just work" without any context juggling or special wrappers.
+
 ### Core Structure
 
 1. **Main Gem (`lib/swift_ui_rails/`)**
-   - `component.rb`: Base component class extending ViewComponent
-   - `dsl.rb`: SwiftUI-inspired DSL implementation
+   - `component.rb`: Base component class that IS the DSL context
+   - `dsl.rb`: SwiftUI-inspired DSL methods included directly in components
    - `engine.rb`: Rails engine configuration
    - `helpers.rb`: View helpers for `swift_ui` blocks
    - `tailwind.rb`: Tailwind CSS integration with chainable modifiers
    - `storybook.rb`: ViewComponent Storybook integration
 
 2. **Component System**
-   - Components inherit from `ApplicationComponent < SwiftUIRails::Component`
+   - Components inherit from `ApplicationComponent < SwiftUIRails::Component::Base`
+   - Components include DSL methods directly - no separate context needed
    - Props with type validation: `prop :name, type: String, required: true`
    - Slots for composition: `slot :header`, `slot :content`
    - **NO STATE IN COMPONENTS** - Components are view builders only
    - Use Stimulus values for client-side state
    - Use Rails controllers for server-side state
 
-3. **DSL Pattern**
+3. **DSL Pattern with Natural Composition**
    - Components define views using `swift_ui do ... end` blocks
    - Layout components: `vstack`, `hstack`, `zstack`, `grid`
    - UI elements: `text`, `button`, `card`, `list`, etc.
    - Chainable Tailwind modifiers: `.bg("blue-500").text_color("white")`
    - Stimulus integration: `.attr("data-action", "click->controller#method")`
+   - **Helper methods work naturally** - no context passing needed:
+   
+   ```ruby
+   class ComplexComponent < ApplicationComponent
+     swift_ui do
+       page_layout do
+         header_section    # Just works!
+         content_area     # Just works!
+         footer_section   # Just works!
+       end
+     end
+     
+     private
+     
+     def header_section
+       header.bg("white").shadow("md") do
+         nav_bar
+         breadcrumbs
+       end
+     end
+     
+     def nav_bar
+       hstack(justify: :between) do
+         logo
+         navigation_links
+         user_menu
+       end
+     end
+     
+     # Infinite composition depth - everything just works!
+   end
+   ```
 
 4. **State Management Patterns**
 
@@ -1287,10 +1326,10 @@ The home page (`/`) demonstrates a clean implementation of our Rails-first archi
 ## Recent Improvements (June 2025)
 
 ### Architectural Insights
-- **Event Handlers**: Implemented `.on_tap`, `.on_click` etc. that bridge to Stimulus controllers
-- **Reactive State**: Added action handling through SwiftUI::ActionsController 
-- **Component Identity**: Discovered the need for stable, deterministic component IDs for morphing
-- **Hybrid State Model**: Identified the need for both client-side (ephemeral) and server-side (persistent) state
+- **Component-as-DSL-Context**: Components ARE the DSL context, enabling natural composition
+- **Natural Helper Methods**: Any method can create DSL elements that compose seamlessly
+- **No Context Juggling**: Eliminated the need for separate DSL contexts or context passing
+- **Deep Composition**: Helper methods can call other helpers infinitely deep
 
 ### Interactive Storybook Enhancements
 - **Fixed Interactive Controls**: Resolved HTML escaping issues in Stimulus actions across all components
@@ -1377,6 +1416,58 @@ The home page (`/`) demonstrates a clean implementation of our Rails-first archi
 ### THE GOAL IS SWIFTUI-LIKE SYNTAX IN RAILS - NOT SIMPLE COMPONENTS.
 
 ## 📚 DSL-FIRST COMPONENT ARCHITECTURE GUIDE
+
+### Core Architecture: Component-as-DSL-Context
+
+**The key innovation of SwiftUI Rails is that components ARE the DSL context.** This enables natural composition where helper methods "just work" without any context juggling or special wrappers.
+
+```ruby
+class MyComponent < ApplicationComponent
+  swift_ui do
+    # Helper methods can use DSL methods naturally
+    header_section
+    main_content
+    footer_section
+  end
+  
+  private
+  
+  def header_section
+    # This works! No context passing needed
+    header do
+      logo
+      navigation_menu
+    end
+  end
+  
+  def logo
+    # Deeply nested - still works!
+    image(src: "/logo.png").h(10)
+  end
+  
+  def navigation_menu
+    # Can compose infinitely deep
+    nav do
+      menu_items.each { |item| menu_link(item) }
+    end
+  end
+  
+  def menu_link(item)
+    # Natural DSL usage at any depth
+    link(item.name, destination: item.path)
+      .px(4).py(2)
+      .hover_bg("gray-100")
+  end
+end
+```
+
+### Benefits of Component-as-DSL-Context
+
+1. **Natural Composition**: Write helper methods that use DSL methods without any special syntax
+2. **Infinite Nesting**: Helper methods can call other helpers infinitely deep
+3. **No Context Juggling**: No need to pass contexts or use special wrappers
+4. **Clean Code**: Your component code looks like natural Ruby
+5. **Refactoring Freedom**: Extract any DSL code into a method without changing syntax
 
 ### Core Principles for Building DSL Components
 
@@ -1598,6 +1689,414 @@ The home page (`/`) demonstrates a clean implementation of our Rails-first archi
    ```
 
 ### Remember: Every modifier returns self for chaining. Every element is composable. State lives in Stimulus, not components.
+
+## Component Composition Best Practices
+
+### 1. Extract Reusable Patterns
+```ruby
+class MyComponent < ApplicationComponent
+  swift_ui do
+    page_layout do
+      hero_section
+      features_grid
+      cta_section
+    end
+  end
+  
+  private
+  
+  # Reusable layout wrapper
+  def page_layout(&block)
+    div do
+      navbar
+      main(&block)
+      footer
+    end
+    .min_h("screen")
+  end
+  
+  # Extracted sections
+  def hero_section
+    section do
+      container do
+        h1 { text("Welcome!") }.text_size("4xl")
+        subtitle("Build amazing UIs")
+      end
+    end
+    .py(20)
+  end
+  
+  def container(&block)
+    div(&block)
+      .max_w("7xl")
+      .mx("auto")
+      .px(4)
+  end
+  
+  def subtitle(text_content)
+    p { text(text_content) }
+      .text_size("xl")
+      .text_color("gray-600")
+  end
+end
+```
+
+### 2. Component Factory Methods
+```ruby
+# Create consistent UI elements
+def action_button(label, variant = :primary)
+  button(label)
+    .tap do |btn|
+      case variant
+      when :primary
+        btn.bg("blue-600").text_color("white").hover_bg("blue-700")
+      when :secondary
+        btn.border.border_color("gray-300").hover_bg("gray-50")
+      when :danger
+        btn.bg("red-600").text_color("white").hover_bg("red-700")
+      end
+    end
+    .px(4).py(2).rounded("md").transition
+end
+
+# Use it naturally
+def actions_section
+  hstack(spacing: 4) do
+    action_button("Save", :primary)
+    action_button("Cancel", :secondary)
+    action_button("Delete", :danger)
+  end
+end
+```
+
+### 3. Composition Over Configuration
+```ruby
+# Bad: Too many props
+def complex_card(title:, subtitle:, image:, actions:, footer:, ...)
+  # Complex logic to handle all cases
+end
+
+# Good: Composable helpers
+def card_container(&block)
+  div(&block)
+    .bg("white")
+    .rounded("lg")
+    .shadow
+    .overflow("hidden")
+end
+
+def card_header(title, subtitle = nil)
+  div do
+    h3 { text(title) }.font_weight("semibold")
+    p { text(subtitle) }.text_sm.text_color("gray-500") if subtitle
+  end
+  .p(4).border_b
+end
+
+def card_body(&block)
+  div(&block).p(4)
+end
+
+# Flexible usage
+def user_card(user)
+  card_container do
+    card_header(user.name, user.role)
+    card_body do
+      avatar(user.image_url)
+      user_details(user)
+    end
+    card_actions do
+      action_button("View Profile")
+    end
+  end
+end
+```
+
+### 4. Helper Method Patterns
+```ruby
+# Pattern 1: Builder methods that return elements
+def labeled_field(label, &block)
+  vstack(spacing: 2) do
+    label(label).font_weight("medium")
+    yield if block_given?
+  end
+end
+
+# Pattern 2: Configuration methods
+def with_error(field, error = nil)
+  vstack(spacing: 1) do
+    field
+    if error
+      text(error).text_sm.text_color("red-600")
+    end
+  end
+end
+
+# Pattern 3: Wrapper methods
+def form_section(title = nil, &block)
+  section do
+    h3 { text(title) }.mb(4) if title
+    yield
+  end
+  .mb(8)
+end
+
+# Usage
+swift_ui do
+  form_section("User Details") do
+    labeled_field("Email") do
+      with_error(
+        textfield(placeholder: "user@example.com"),
+        @errors[:email]
+      )
+    end
+  end
+end
+```
+
+### 5. Advanced Composition Techniques
+```ruby
+# Dynamic component generation
+def render_fields(fields)
+  vstack(spacing: 4) do
+    fields.each do |field|
+      send("#{field[:type]}_field", field)
+    end
+  end
+end
+
+def text_field(config)
+  labeled_field(config[:label]) do
+    textfield(placeholder: config[:placeholder])
+  end
+end
+
+def select_field(config)
+  labeled_field(config[:label]) do
+    select do
+      config[:options].each do |opt|
+        option(opt[:value], opt[:label])
+      end
+    end
+  end
+end
+
+# Conditional rendering helpers
+def if_present(value, &block)
+  yield(value) if value.present?
+end
+
+def unless_empty(collection, &block)
+  if collection.any?
+    yield(collection)
+  else
+    empty_state("No items found")
+  end
+end
+
+# Usage
+swift_ui do
+  unless_empty(@users) do |users|
+    user_list(users)
+  end
+  
+  if_present(@notification) do |notification|
+    alert(notification)
+  end
+end
+```
+
+## Component-as-DSL-Context Architecture
+
+### The Foundation: Natural Composition
+
+SwiftUI Rails implements a powerful architectural pattern where **components ARE the DSL context**. This eliminates the traditional separation between component logic and DSL rendering, enabling truly natural composition.
+
+### How It Works
+
+1. **Direct DSL Inclusion**: Components include the DSL module directly, making all DSL methods available as instance methods
+2. **Automatic Element Collection**: When `swift_ui` blocks execute, elements are automatically collected by the component
+3. **Helper Method Integration**: Any method defined in the component can create DSL elements that are automatically registered
+
+### Benefits
+
+#### 1. Natural Method Composition
+```ruby
+class DashboardComponent < ApplicationComponent
+  swift_ui do
+    dashboard_layout do
+      metrics_section
+      charts_section
+      activity_feed
+    end
+  end
+  
+  private
+  
+  def dashboard_layout(&block)
+    div.min_h("screen").bg("gray-50") do
+      sidebar
+      main_content(&block)
+    end
+  end
+  
+  def metrics_section
+    grid(columns: 4, gap: 6) do
+      metric_card("Users", @user_count, trend: "+12%")
+      metric_card("Revenue", @revenue, trend: "+8%")
+      metric_card("Orders", @orders, trend: "+23%")
+      metric_card("Conversion", @conversion, trend: "-2%")
+    end
+  end
+  
+  def metric_card(title, value, trend:)
+    card.p(6) do
+      vstack(spacing: 2) do
+        text(title).text_color("gray-600").text_sm
+        text(value).font_size("3xl").font_weight("bold")
+        trend_indicator(trend)
+      end
+    end
+  end
+  
+  def trend_indicator(trend)
+    color = trend.start_with?("+") ? "green" : "red"
+    hstack(spacing: 1) do
+      icon(trend.start_with?("+") ? "arrow-up" : "arrow-down")
+        .text_color("#{color}-500")
+      text(trend).text_color("#{color}-600").font_weight("medium")
+    end
+  end
+end
+```
+
+#### 2. Deep Composition Trees
+Helper methods can call other helpers infinitely deep - everything "just works":
+- `dashboard_layout` → `sidebar` → `nav_menu` → `menu_item` → `icon` + `text`
+- Each level adds abstraction without complexity
+
+#### 3. Reusable Component Patterns
+Extract common UI patterns into methods that can be shared:
+```ruby
+module UIPatterns
+  def card_layout(title: nil, &block)
+    div.bg("white").rounded("lg").shadow("md").overflow("hidden") do
+      if title
+        div.px(6).py(4).border_b do
+          text(title).font_size("lg").font_weight("semibold")
+        end
+      end
+      div.p(6) { yield if block_given? }
+    end
+  end
+  
+  def action_button(label, primary: false, &block)
+    button(label)
+      .px(4).py(2)
+      .rounded("md")
+      .font_weight("medium")
+      .transition
+      .tap do |btn|
+        if primary
+          btn.bg("blue-600").text_color("white").hover_bg("blue-700")
+        else
+          btn.bg("white").border.hover_bg("gray-50")
+        end
+      end
+  end
+end
+
+class MyComponent < ApplicationComponent
+  include UIPatterns
+  
+  swift_ui do
+    card_layout(title: "User Settings") do
+      # UIPatterns methods work seamlessly
+      action_button("Save", primary: true)
+    end
+  end
+end
+```
+
+#### 4. Clean Component Organization
+```ruby
+class ComplexFormComponent < ApplicationComponent
+  swift_ui do
+    form_wrapper do
+      form_header
+      form_body
+      form_footer
+    end
+  end
+  
+  private
+  
+  # Top-level structure
+  def form_wrapper(&block)
+    form.max_w("4xl").mx("auto").p(8) { yield }
+  end
+  
+  # Major sections
+  def form_header
+    vstack(spacing: 2) do
+      text("Application Form").font_size("3xl").font_weight("bold")
+      text("Please complete all required fields").text_color("gray-600")
+    end.mb(8)
+  end
+  
+  def form_body
+    vstack(spacing: 8) do
+      personal_information_section
+      contact_details_section
+      additional_information_section
+    end
+  end
+  
+  # Detailed sections
+  def personal_information_section
+    section_wrapper("Personal Information") do
+      grid(columns: 2, gap: 6) do
+        form_field("First Name", "first_name", required: true)
+        form_field("Last Name", "last_name", required: true)
+        form_field("Date of Birth", "dob", type: "date")
+        form_field("Gender", "gender", type: "select", options: gender_options)
+      end
+    end
+  end
+  
+  # Reusable components
+  def section_wrapper(title, &block)
+    div do
+      text(title).font_size("xl").font_weight("semibold").mb(4)
+      yield
+    end
+  end
+  
+  def form_field(label, name, type: "text", required: false, options: nil)
+    div do
+      label(label, for: name).font_weight("medium").mb(1) do
+        text(label)
+        text(" *").text_color("red-500") if required
+      end
+      
+      case type
+      when "select"
+        select(name: name).w("full").border.rounded.px(3).py(2) do
+          options.each { |opt| option(opt[:value], opt[:label]) }
+        end
+      when "textarea"
+        textarea(name: name, rows: 4).w("full").border.rounded.px(3).py(2)
+      else
+        input(type: type, name: name).w("full").border.rounded.px(3).py(2)
+      end
+    end
+  end
+end
+```
+
+### This Is The Power of SwiftUI Rails
+
+The Component-as-DSL-Context architecture enables the same composability that makes SwiftUI and Jetpack Compose so powerful. Every method can build UI, and they all compose naturally without any boilerplate or context management.
 
 4. **UNIFIED CSS ARCHITECTURE (TAILWIND-ONLY)**
    - **SINGLE CSS FILE ONLY**: All CSS managed via `application.css` and auto-generated `/builds/tailwind.css`

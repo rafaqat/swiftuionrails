@@ -1,0 +1,88 @@
+name: SwiftUI Rails Playground CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2.0
+        bundler-cache: true
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        bundle install
+        npm install
+        
+    - name: Set up database
+      run: |
+        cp config/database.yml.github config/database.yml
+        bundle exec rails db:create
+        bundle exec rails db:migrate
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/swift_ui_rails_test
+        
+    - name: Install Chrome for system tests
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        
+    - name: Run RSpec tests
+      run: bundle exec rspec
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/swift_ui_rails_test
+        
+    - name: Run Rails tests
+      run: bundle exec rails test
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/swift_ui_rails_test
+        CI: true
+        HEADLESS: true
+        
+    - name: Run CI regression tests
+      run: bundle exec rails test test/system/ci_regression_test.rb
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/swift_ui_rails_test
+        CI: true
+        HEADLESS: true
+        
+    - name: Run DSL syntax tests
+      run: bundle exec rails test test/system/position_methods_test.rb
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/swift_ui_rails_test
+        CI: true
+        HEADLESS: true

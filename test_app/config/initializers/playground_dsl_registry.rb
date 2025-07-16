@@ -9,25 +9,41 @@ Rails.application.reloader.to_prepare do
 
   # Text elements
   registry.register(:text, {
-    description: "Display text content",
-    parameters: { content: "String" },
-    modifiers: %w[font_size font_weight text_color text_align line_clamp],
-    examples: [ 'text("Hello World")', 'text("Welcome").font_size("xl")' ]
+    description: "Display styled text content with typography options",
+    parameters: { 
+      content: { type: "String", required: true, default: "Hello World" }
+    },
+    modifiers: %w[font_size font_weight text_color text_align line_clamp letter_spacing leading opacity],
+    examples: [ 
+      'text("Hello World")',
+      'text("Title").font_size("2xl").font_weight("bold")',
+      'text("Subtitle").text_color("gray-600").font_size("lg")',
+      'text("Body text").line_clamp(3).text_align("center")',
+      'text("Highlighted").bg("yellow-200").text_color("yellow-800").px(2).py(1).rounded("md")'
+    ]
   })
 
   # Layout containers
   registry.register(:vstack, {
     description: "Vertical stack layout",
-    parameters: { spacing: "Integer", align: "Symbol" },
-    modifiers: %w[padding margin background spacing align],
-    examples: [ "vstack { }", "vstack(spacing: 16) { }" ]
+    parameters: { 
+      spacing: { type: "Integer", required: false, default: 16 },
+      align: { type: "Symbol", required: false, default: ":start", options: [":start", ":center", ":end"] },
+      justify: { type: "Symbol", required: false, default: ":start", options: [":start", ":center", ":end", ":between", ":around", ":evenly"] }
+    },
+    modifiers: %w[padding margin background spacing align justify],
+    examples: [ "vstack { }", "vstack(spacing: 16) { }", "vstack(justify: :between) { }" ]
   })
 
   registry.register(:hstack, {
     description: "Horizontal stack layout",
-    parameters: { spacing: "Integer", align: "Symbol" },
-    modifiers: %w[padding margin background spacing align],
-    examples: [ "hstack { }", "hstack(spacing: 8) { }" ]
+    parameters: { 
+      spacing: { type: "Integer", required: false, default: 8 },
+      align: { type: "Symbol", required: false, default: ":start", options: [":start", ":center", ":end"] },
+      justify: { type: "Symbol", required: false, default: ":start", options: [":start", ":center", ":end", ":between", ":around", ":evenly"] }
+    },
+    modifiers: %w[padding margin background spacing align justify],
+    examples: [ "hstack { }", "hstack(spacing: 8) { }", "hstack(justify: :between) { }" ]
   })
 
   registry.register(:zstack, {
@@ -39,22 +55,34 @@ Rails.application.reloader.to_prepare do
 
   # Basic elements
   registry.register(:button, {
-    description: "Interactive button",
-    parameters: { label: "String", action: "String" },
-    modifiers: %w[bg text_color padding rounded hover disabled],
-    examples: [ 'button("Click Me")', 'button("Submit").bg("blue-500")' ]
+    description: "Interactive button with click handler",
+    parameters: { 
+      title: { type: "String", required: false, default: "Click Me" }
+    },
+    modifiers: %w[bg text_color padding rounded hover disabled data],
+    examples: [ 
+      'button("Click Me")',
+      'button("Submit").bg("blue-500")',
+      'button("Save").data(action: "click->form#save")',
+      'button("Toggle").data(controller: "toggle", action: "click->toggle#switch")'
+    ]
   })
 
   registry.register(:image, {
     description: "Display an image",
-    parameters: { src: "String", alt: "String" },
+    parameters: { 
+      src: { type: "String", required: true, default: "https://images.unsplash.com/photo-1470509037663-253afd7f0f51?w=400&h=300&fit=crop" },
+      alt: { type: "String", required: true, default: "Beautiful sunflower" }
+    },
     modifiers: %w[width height rounded object_cover],
-    examples: [ 'image(src: "photo.jpg", alt: "Photo")' ]
+    examples: [ 'image(src: "https://images.unsplash.com/photo-1470509037663-253afd7f0f51?w=400&h=300&fit=crop", alt: "Beautiful sunflower")' ]
   })
 
   registry.register(:card, {
     description: "Card container component",
-    parameters: { elevation: "Integer" },
+    parameters: { 
+      elevation: { type: "Integer", required: false, default: 1, options: [0, 1, 2, 3, 4, 5] }
+    },
     modifiers: %w[padding background rounded shadow],
     examples: [ "card { }", "card(elevation: 2) { }" ]
   })
@@ -68,7 +96,9 @@ Rails.application.reloader.to_prepare do
 
   registry.register(:span, {
     description: "Inline container element",
-    parameters: { content: "String" },
+    parameters: { 
+      content: { type: "String", required: false, default: "text" }
+    },
     modifiers: %w[text_color font_weight],
     examples: [ 'span("text")', 'span { "inline" }' ]
   })
@@ -83,21 +113,32 @@ Rails.application.reloader.to_prepare do
   # Form elements
   registry.register(:textfield, {
     description: "Text input field",
-    parameters: { name: "String", placeholder: "String", value: "String" },
+    parameters: { 
+      name: { type: "String", required: true, default: "field_name" },
+      placeholder: { type: "String", required: false, default: "Enter text" },
+      value: { type: "String", required: false, default: "" },
+      type: { type: "String", required: false, default: "text", options: ["text", "email", "password", "number", "tel", "url"] }
+    },
     modifiers: %w[width disabled required],
     examples: [ 'textfield(name: "email", placeholder: "Enter email")' ]
   })
 
   registry.register(:form, {
     description: "Form container",
-    parameters: { action: "String", method: "Symbol" },
+    parameters: { 
+      action: { type: "String", required: true, default: "/submit" },
+      method: { type: "Symbol", required: false, default: ":post", options: [":get", ":post", ":patch", ":put", ":delete"] }
+    },
     modifiers: %w[],
     examples: [ 'form(action: "/submit", method: :post) { }' ]
   })
 
   registry.register(:label, {
     description: "Form label",
-    parameters: { text: "String", for: "String" },
+    parameters: { 
+      text: { type: "String", required: true, default: "Label" },
+      for: { type: "String", required: false, default: "field_id" }
+    },
     modifiers: %w[font_weight text_color],
     examples: [ 'label("Email", for: "email")' ]
   })

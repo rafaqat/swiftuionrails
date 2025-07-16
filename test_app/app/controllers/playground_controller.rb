@@ -214,7 +214,36 @@ class PlaygroundController < ApplicationController
   end
 
   def code_examples
+    # Load dogfood examples
+    require Rails.root.join("examples/playground_dogfood_examples.rb")
+    dogfood_examples = PlaygroundDogfoodExamples.all_examples
+    
     [
+      {
+        name: "Product Grid",
+        description: "E-commerce product grid with hover effects",
+        code: dogfood_examples[:product_grid]
+      },
+      {
+        name: "Dashboard Stats",
+        description: "Analytics dashboard with stat cards",
+        code: dogfood_examples[:dashboard_stats]
+      },
+      {
+        name: "Pricing Cards",
+        description: "Interactive pricing table with popular badge",
+        code: dogfood_examples[:pricing_cards]
+      },
+      {
+        name: "Todo List",
+        description: "Interactive todo list with Stimulus",
+        code: dogfood_examples[:todo_list]
+      },
+      {
+        name: "Navigation Bar",
+        description: "Responsive navbar with dropdown menus",
+        code: dogfood_examples[:navbar]
+      },
       {
         name: "Counter Component",
         description: "Interactive counter with Stimulus",

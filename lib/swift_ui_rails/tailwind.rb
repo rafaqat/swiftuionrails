@@ -783,7 +783,18 @@ module SwiftUIRails
         self
       end
 
-      def h(value = nil)
+      def width(value = nil)
+        add_class(value ? "w-#{value}" : 'w')
+        self
+      end
+
+      # Temporarily disable h method to avoid Rails conflict
+      # def h(value = nil)
+      #   add_class(value ? "h-#{value}" : 'h')
+      #   self
+      # end
+
+      def height(value = nil)
         add_class(value ? "h-#{value}" : 'h')
         self
       end
@@ -803,21 +814,7 @@ module SwiftUIRails
         self
       end
 
-      # Typography methods
-      def text_size(size)
-        add_class("text-#{size}")
-        self
-      end
-
-      def text_color(color)
-        add_class("text-#{color}")
-        self
-      end
-
-      def font_weight(weight)
-        add_class("font-#{weight}")
-        self
-      end
+      # NOTE: Typography methods removed to avoid conflicts with security-validated methods above
 
       def leading(value = nil)
         add_class(value ? "leading-#{value}" : 'leading')

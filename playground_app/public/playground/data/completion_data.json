@@ -1,0 +1,1911 @@
+{
+  "version": 1752513996,
+  "colors": [
+    {
+      "value": "none",
+      "label": "none",
+      "category": "base-color"
+    },
+    {
+      "value": "inherit",
+      "label": "inherit",
+      "category": "base-color"
+    },
+    {
+      "value": "current",
+      "label": "current",
+      "category": "base-color"
+    },
+    {
+      "value": "transparent",
+      "label": "transparent",
+      "category": "base-color"
+    },
+    {
+      "value": "black",
+      "label": "black",
+      "category": "base-color"
+    },
+    {
+      "value": "white",
+      "label": "white",
+      "category": "base-color"
+    },
+    {
+      "value": "slate",
+      "label": "slate",
+      "category": "base-color",
+      "description": "Default shade (500) for slate"
+    },
+    {
+      "value": "gray",
+      "label": "gray",
+      "category": "base-color",
+      "description": "Default shade (500) for gray"
+    },
+    {
+      "value": "zinc",
+      "label": "zinc",
+      "category": "base-color",
+      "description": "Default shade (500) for zinc"
+    },
+    {
+      "value": "neutral",
+      "label": "neutral",
+      "category": "base-color",
+      "description": "Default shade (500) for neutral"
+    },
+    {
+      "value": "stone",
+      "label": "stone",
+      "category": "base-color",
+      "description": "Default shade (500) for stone"
+    },
+    {
+      "value": "red",
+      "label": "red",
+      "category": "base-color",
+      "description": "Default shade (500) for red"
+    },
+    {
+      "value": "orange",
+      "label": "orange",
+      "category": "base-color",
+      "description": "Default shade (500) for orange"
+    },
+    {
+      "value": "amber",
+      "label": "amber",
+      "category": "base-color",
+      "description": "Default shade (500) for amber"
+    },
+    {
+      "value": "yellow",
+      "label": "yellow",
+      "category": "base-color",
+      "description": "Default shade (500) for yellow"
+    },
+    {
+      "value": "lime",
+      "label": "lime",
+      "category": "base-color",
+      "description": "Default shade (500) for lime"
+    },
+    {
+      "value": "green",
+      "label": "green",
+      "category": "base-color",
+      "description": "Default shade (500) for green"
+    },
+    {
+      "value": "emerald",
+      "label": "emerald",
+      "category": "base-color",
+      "description": "Default shade (500) for emerald"
+    },
+    {
+      "value": "teal",
+      "label": "teal",
+      "category": "base-color",
+      "description": "Default shade (500) for teal"
+    },
+    {
+      "value": "cyan",
+      "label": "cyan",
+      "category": "base-color",
+      "description": "Default shade (500) for cyan"
+    },
+    {
+      "value": "sky",
+      "label": "sky",
+      "category": "base-color",
+      "description": "Default shade (500) for sky"
+    },
+    {
+      "value": "blue",
+      "label": "blue",
+      "category": "base-color",
+      "description": "Default shade (500) for blue"
+    },
+    {
+      "value": "indigo",
+      "label": "indigo",
+      "category": "base-color",
+      "description": "Default shade (500) for indigo"
+    },
+    {
+      "value": "violet",
+      "label": "violet",
+      "category": "base-color",
+      "description": "Default shade (500) for violet"
+    },
+    {
+      "value": "purple",
+      "label": "purple",
+      "category": "base-color",
+      "description": "Default shade (500) for purple"
+    },
+    {
+      "value": "fuchsia",
+      "label": "fuchsia",
+      "category": "base-color",
+      "description": "Default shade (500) for fuchsia"
+    },
+    {
+      "value": "pink",
+      "label": "pink",
+      "category": "base-color",
+      "description": "Default shade (500) for pink"
+    },
+    {
+      "value": "rose",
+      "label": "rose",
+      "category": "base-color",
+      "description": "Default shade (500) for rose"
+    },
+    {
+      "value": "slate-50",
+      "label": "slate-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-100",
+      "label": "slate-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-200",
+      "label": "slate-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-300",
+      "label": "slate-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-400",
+      "label": "slate-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-500",
+      "label": "slate-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-600",
+      "label": "slate-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-700",
+      "label": "slate-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-800",
+      "label": "slate-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-900",
+      "label": "slate-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "slate-950",
+      "label": "slate-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-50",
+      "label": "gray-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-100",
+      "label": "gray-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-200",
+      "label": "gray-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-300",
+      "label": "gray-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-400",
+      "label": "gray-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-500",
+      "label": "gray-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-600",
+      "label": "gray-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-700",
+      "label": "gray-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-800",
+      "label": "gray-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-900",
+      "label": "gray-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "gray-950",
+      "label": "gray-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-50",
+      "label": "zinc-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-100",
+      "label": "zinc-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-200",
+      "label": "zinc-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-300",
+      "label": "zinc-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-400",
+      "label": "zinc-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-500",
+      "label": "zinc-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-600",
+      "label": "zinc-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-700",
+      "label": "zinc-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-800",
+      "label": "zinc-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-900",
+      "label": "zinc-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "zinc-950",
+      "label": "zinc-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-50",
+      "label": "neutral-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-100",
+      "label": "neutral-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-200",
+      "label": "neutral-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-300",
+      "label": "neutral-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-400",
+      "label": "neutral-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-500",
+      "label": "neutral-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-600",
+      "label": "neutral-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-700",
+      "label": "neutral-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-800",
+      "label": "neutral-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-900",
+      "label": "neutral-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "neutral-950",
+      "label": "neutral-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-50",
+      "label": "stone-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-100",
+      "label": "stone-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-200",
+      "label": "stone-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-300",
+      "label": "stone-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-400",
+      "label": "stone-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-500",
+      "label": "stone-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-600",
+      "label": "stone-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-700",
+      "label": "stone-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-800",
+      "label": "stone-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-900",
+      "label": "stone-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "stone-950",
+      "label": "stone-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-50",
+      "label": "red-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-100",
+      "label": "red-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-200",
+      "label": "red-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-300",
+      "label": "red-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-400",
+      "label": "red-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-500",
+      "label": "red-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-600",
+      "label": "red-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-700",
+      "label": "red-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-800",
+      "label": "red-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-900",
+      "label": "red-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "red-950",
+      "label": "red-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-50",
+      "label": "orange-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-100",
+      "label": "orange-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-200",
+      "label": "orange-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-300",
+      "label": "orange-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-400",
+      "label": "orange-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-500",
+      "label": "orange-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-600",
+      "label": "orange-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-700",
+      "label": "orange-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-800",
+      "label": "orange-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-900",
+      "label": "orange-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "orange-950",
+      "label": "orange-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-50",
+      "label": "amber-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-100",
+      "label": "amber-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-200",
+      "label": "amber-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-300",
+      "label": "amber-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-400",
+      "label": "amber-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-500",
+      "label": "amber-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-600",
+      "label": "amber-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-700",
+      "label": "amber-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-800",
+      "label": "amber-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-900",
+      "label": "amber-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "amber-950",
+      "label": "amber-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-50",
+      "label": "yellow-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-100",
+      "label": "yellow-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-200",
+      "label": "yellow-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-300",
+      "label": "yellow-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-400",
+      "label": "yellow-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-500",
+      "label": "yellow-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-600",
+      "label": "yellow-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-700",
+      "label": "yellow-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-800",
+      "label": "yellow-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-900",
+      "label": "yellow-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "yellow-950",
+      "label": "yellow-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-50",
+      "label": "lime-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-100",
+      "label": "lime-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-200",
+      "label": "lime-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-300",
+      "label": "lime-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-400",
+      "label": "lime-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-500",
+      "label": "lime-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-600",
+      "label": "lime-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-700",
+      "label": "lime-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-800",
+      "label": "lime-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-900",
+      "label": "lime-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "lime-950",
+      "label": "lime-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-50",
+      "label": "green-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-100",
+      "label": "green-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-200",
+      "label": "green-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-300",
+      "label": "green-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-400",
+      "label": "green-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-500",
+      "label": "green-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-600",
+      "label": "green-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-700",
+      "label": "green-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-800",
+      "label": "green-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-900",
+      "label": "green-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "green-950",
+      "label": "green-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-50",
+      "label": "emerald-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-100",
+      "label": "emerald-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-200",
+      "label": "emerald-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-300",
+      "label": "emerald-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-400",
+      "label": "emerald-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-500",
+      "label": "emerald-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-600",
+      "label": "emerald-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-700",
+      "label": "emerald-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-800",
+      "label": "emerald-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-900",
+      "label": "emerald-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "emerald-950",
+      "label": "emerald-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-50",
+      "label": "teal-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-100",
+      "label": "teal-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-200",
+      "label": "teal-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-300",
+      "label": "teal-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-400",
+      "label": "teal-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-500",
+      "label": "teal-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-600",
+      "label": "teal-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-700",
+      "label": "teal-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-800",
+      "label": "teal-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-900",
+      "label": "teal-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "teal-950",
+      "label": "teal-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-50",
+      "label": "cyan-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-100",
+      "label": "cyan-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-200",
+      "label": "cyan-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-300",
+      "label": "cyan-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-400",
+      "label": "cyan-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-500",
+      "label": "cyan-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-600",
+      "label": "cyan-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-700",
+      "label": "cyan-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-800",
+      "label": "cyan-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-900",
+      "label": "cyan-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "cyan-950",
+      "label": "cyan-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-50",
+      "label": "sky-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-100",
+      "label": "sky-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-200",
+      "label": "sky-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-300",
+      "label": "sky-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-400",
+      "label": "sky-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-500",
+      "label": "sky-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-600",
+      "label": "sky-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-700",
+      "label": "sky-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-800",
+      "label": "sky-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-900",
+      "label": "sky-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "sky-950",
+      "label": "sky-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-50",
+      "label": "blue-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-100",
+      "label": "blue-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-200",
+      "label": "blue-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-300",
+      "label": "blue-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-400",
+      "label": "blue-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-500",
+      "label": "blue-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-600",
+      "label": "blue-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-700",
+      "label": "blue-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-800",
+      "label": "blue-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-900",
+      "label": "blue-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "blue-950",
+      "label": "blue-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-50",
+      "label": "indigo-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-100",
+      "label": "indigo-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-200",
+      "label": "indigo-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-300",
+      "label": "indigo-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-400",
+      "label": "indigo-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-500",
+      "label": "indigo-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-600",
+      "label": "indigo-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-700",
+      "label": "indigo-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-800",
+      "label": "indigo-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-900",
+      "label": "indigo-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "indigo-950",
+      "label": "indigo-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-50",
+      "label": "violet-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-100",
+      "label": "violet-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-200",
+      "label": "violet-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-300",
+      "label": "violet-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-400",
+      "label": "violet-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-500",
+      "label": "violet-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-600",
+      "label": "violet-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-700",
+      "label": "violet-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-800",
+      "label": "violet-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-900",
+      "label": "violet-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "violet-950",
+      "label": "violet-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-50",
+      "label": "purple-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-100",
+      "label": "purple-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-200",
+      "label": "purple-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-300",
+      "label": "purple-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-400",
+      "label": "purple-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-500",
+      "label": "purple-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-600",
+      "label": "purple-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-700",
+      "label": "purple-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-800",
+      "label": "purple-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-900",
+      "label": "purple-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "purple-950",
+      "label": "purple-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-50",
+      "label": "fuchsia-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-100",
+      "label": "fuchsia-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-200",
+      "label": "fuchsia-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-300",
+      "label": "fuchsia-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-400",
+      "label": "fuchsia-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-500",
+      "label": "fuchsia-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-600",
+      "label": "fuchsia-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-700",
+      "label": "fuchsia-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-800",
+      "label": "fuchsia-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-900",
+      "label": "fuchsia-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "fuchsia-950",
+      "label": "fuchsia-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-50",
+      "label": "pink-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-100",
+      "label": "pink-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-200",
+      "label": "pink-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-300",
+      "label": "pink-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-400",
+      "label": "pink-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-500",
+      "label": "pink-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-600",
+      "label": "pink-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-700",
+      "label": "pink-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-800",
+      "label": "pink-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-900",
+      "label": "pink-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "pink-950",
+      "label": "pink-950",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-50",
+      "label": "rose-50",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-100",
+      "label": "rose-100",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-200",
+      "label": "rose-200",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-300",
+      "label": "rose-300",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-400",
+      "label": "rose-400",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-500",
+      "label": "rose-500",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-600",
+      "label": "rose-600",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-700",
+      "label": "rose-700",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-800",
+      "label": "rose-800",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-900",
+      "label": "rose-900",
+      "category": "color",
+      "preview": true
+    },
+    {
+      "value": "rose-950",
+      "label": "rose-950",
+      "category": "color",
+      "preview": true
+    }
+  ],
+  "spacing": [
+    {
+      "value": "0",
+      "label": "0",
+      "category": "spacing",
+      "description": "0 × 0.25rem"
+    },
+    {
+      "value": "px",
+      "label": "px",
+      "category": "spacing",
+      "description": "1px"
+    },
+    {
+      "value": "0.5",
+      "label": "0.5",
+      "category": "spacing",
+      "description": "0.5 × 0.25rem"
+    },
+    {
+      "value": "1",
+      "label": "1",
+      "category": "spacing",
+      "description": "1 × 0.25rem"
+    },
+    {
+      "value": "1.5",
+      "label": "1.5",
+      "category": "spacing",
+      "description": "1.5 × 0.25rem"
+    },
+    {
+      "value": "2",
+      "label": "2",
+      "category": "spacing",
+      "description": "2 × 0.25rem"
+    },
+    {
+      "value": "2.5",
+      "label": "2.5",
+      "category": "spacing",
+      "description": "2.5 × 0.25rem"
+    },
+    {
+      "value": "3",
+      "label": "3",
+      "category": "spacing",
+      "description": "3 × 0.25rem"
+    },
+    {
+      "value": "3.5",
+      "label": "3.5",
+      "category": "spacing",
+      "description": "3.5 × 0.25rem"
+    },
+    {
+      "value": "4",
+      "label": "4",
+      "category": "spacing",
+      "description": "4 × 0.25rem"
+    },
+    {
+      "value": "5",
+      "label": "5",
+      "category": "spacing",
+      "description": "5 × 0.25rem"
+    },
+    {
+      "value": "6",
+      "label": "6",
+      "category": "spacing",
+      "description": "6 × 0.25rem"
+    },
+    {
+      "value": "7",
+      "label": "7",
+      "category": "spacing",
+      "description": "7 × 0.25rem"
+    },
+    {
+      "value": "8",
+      "label": "8",
+      "category": "spacing",
+      "description": "8 × 0.25rem"
+    },
+    {
+      "value": "9",
+      "label": "9",
+      "category": "spacing",
+      "description": "9 × 0.25rem"
+    },
+    {
+      "value": "10",
+      "label": "10",
+      "category": "spacing",
+      "description": "10 × 0.25rem"
+    },
+    {
+      "value": "11",
+      "label": "11",
+      "category": "spacing",
+      "description": "11 × 0.25rem"
+    },
+    {
+      "value": "12",
+      "label": "12",
+      "category": "spacing",
+      "description": "12 × 0.25rem"
+    },
+    {
+      "value": "14",
+      "label": "14",
+      "category": "spacing",
+      "description": "14 × 0.25rem"
+    },
+    {
+      "value": "16",
+      "label": "16",
+      "category": "spacing",
+      "description": "16 × 0.25rem"
+    },
+    {
+      "value": "20",
+      "label": "20",
+      "category": "spacing",
+      "description": "20 × 0.25rem"
+    },
+    {
+      "value": "24",
+      "label": "24",
+      "category": "spacing",
+      "description": "24 × 0.25rem"
+    },
+    {
+      "value": "28",
+      "label": "28",
+      "category": "spacing",
+      "description": "28 × 0.25rem"
+    },
+    {
+      "value": "32",
+      "label": "32",
+      "category": "spacing",
+      "description": "32 × 0.25rem"
+    },
+    {
+      "value": "36",
+      "label": "36",
+      "category": "spacing",
+      "description": "36 × 0.25rem"
+    },
+    {
+      "value": "40",
+      "label": "40",
+      "category": "spacing",
+      "description": "40 × 0.25rem"
+    },
+    {
+      "value": "44",
+      "label": "44",
+      "category": "spacing",
+      "description": "44 × 0.25rem"
+    },
+    {
+      "value": "48",
+      "label": "48",
+      "category": "spacing",
+      "description": "48 × 0.25rem"
+    },
+    {
+      "value": "52",
+      "label": "52",
+      "category": "spacing",
+      "description": "52 × 0.25rem"
+    },
+    {
+      "value": "56",
+      "label": "56",
+      "category": "spacing",
+      "description": "56 × 0.25rem"
+    },
+    {
+      "value": "60",
+      "label": "60",
+      "category": "spacing",
+      "description": "60 × 0.25rem"
+    },
+    {
+      "value": "64",
+      "label": "64",
+      "category": "spacing",
+      "description": "64 × 0.25rem"
+    },
+    {
+      "value": "72",
+      "label": "72",
+      "category": "spacing",
+      "description": "72 × 0.25rem"
+    },
+    {
+      "value": "80",
+      "label": "80",
+      "category": "spacing",
+      "description": "80 × 0.25rem"
+    },
+    {
+      "value": "96",
+      "label": "96",
+      "category": "spacing",
+      "description": "96 × 0.25rem"
+    }
+  ],
+  "font_sizes": [
+    {
+      "value": "xs",
+      "label": "xs",
+      "category": "font-size",
+      "description": "0.75rem"
+    },
+    {
+      "value": "sm",
+      "label": "sm",
+      "category": "font-size",
+      "description": "0.875rem"
+    },
+    {
+      "value": "base",
+      "label": "base",
+      "category": "font-size",
+      "description": "1rem"
+    },
+    {
+      "value": "lg",
+      "label": "lg",
+      "category": "font-size",
+      "description": "1.125rem"
+    },
+    {
+      "value": "xl",
+      "label": "xl",
+      "category": "font-size",
+      "description": "1.25rem"
+    },
+    {
+      "value": "2xl",
+      "label": "2xl",
+      "category": "font-size",
+      "description": "1.5rem"
+    },
+    {
+      "value": "3xl",
+      "label": "3xl",
+      "category": "font-size",
+      "description": "1.875rem"
+    },
+    {
+      "value": "4xl",
+      "label": "4xl",
+      "category": "font-size",
+      "description": "2.25rem"
+    },
+    {
+      "value": "5xl",
+      "label": "5xl",
+      "category": "font-size",
+      "description": "3rem"
+    },
+    {
+      "value": "6xl",
+      "label": "6xl",
+      "category": "font-size",
+      "description": "3.75rem"
+    },
+    {
+      "value": "7xl",
+      "label": "7xl",
+      "category": "font-size",
+      "description": "4.5rem"
+    },
+    {
+      "value": "8xl",
+      "label": "8xl",
+      "category": "font-size",
+      "description": "6rem"
+    },
+    {
+      "value": "9xl",
+      "label": "9xl",
+      "category": "font-size",
+      "description": "8rem"
+    }
+  ]
+}

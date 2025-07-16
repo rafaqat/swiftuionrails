@@ -1,0 +1,240 @@
+<% require Rails.root.join("examples/playground_dogfood_examples.rb") %>
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-br from-blue-600 to-purple-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold mb-4">SwiftUI Rails Playground</h1>
+        <p class="text-xl opacity-90 mb-8">Dogfooding our own tools to build amazing components</p>
+        <div class="flex gap-4 justify-center">
+          <%= link_to "Open Playground", playground_path, class: "px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition" %>
+          <%= link_to "View Components", "#components", class: "px-6 py-3 bg-blue-500 bg-opacity-20 text-white rounded-lg font-semibold hover:bg-opacity-30 transition" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="max-w-7xl mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Performance Improvements</h2>
+    
+    <% stats_component = Class.new(ApplicationComponent) do
+      include SwiftUIRails::DSL
+      include SwiftUIRails::Helpers
+      
+      def call
+        swift_ui do
+          grid(cols: 4, gap: 16) do
+            [
+              { label: "Response Time", value: "<2ms", subtitle: "Code completion" },
+              { label: "Data Compression", value: "94%", subtitle: "Size reduction" },
+              { label: "Cache Duration", value: "24hr", subtitle: "SessionStorage" },
+              { label: "Total Size", value: "4.5KB", subtitle: "Down from 70.6KB" }
+            ].each do |stat|
+              card(elevation: 2) do
+                vstack(spacing: 2, alignment: :center) do
+                  text(stat[:value])
+                    .font_size("4xl")
+                    .font_weight("black")
+                    .text_color("blue-600")
+                  
+                  text(stat[:label])
+                    .font_size("lg")
+                    .font_weight("semibold")
+                    .text_color("gray-900")
+                  
+                  text(stat[:subtitle])
+                    .text_sm
+                    .text_color("gray-600")
+                end.py(8)
+              end
+            end
+          end
+        end
+      end
+    end %>
+    
+    <%= render stats_component.new %>
+  </div>
+
+  <!-- Component Showcases -->
+  <div class="bg-white" id="components">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+      <h2 class="text-3xl font-bold text-center mb-12">Component Library</h2>
+      
+      <!-- Product Grid Example -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-semibold mb-6">E-commerce Product Grid</h3>
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <% product_grid_component = Class.new(ApplicationComponent) do
+            include SwiftUIRails::DSL
+            include SwiftUIRails::Helpers
+            
+            class_eval <<-RUBY
+              def call
+                #{PlaygroundDogfoodExamples::PRODUCT_GRID}
+              end
+            RUBY
+          end %>
+          <%= render product_grid_component.new %>
+        </div>
+      </div>
+
+      <!-- Dashboard Stats Example -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-semibold mb-6">Dashboard Statistics</h3>
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <% dashboard_component = Class.new(ApplicationComponent) do
+            include SwiftUIRails::DSL
+            include SwiftUIRails::Helpers
+            
+            class_eval <<-RUBY
+              def call
+                #{PlaygroundDogfoodExamples::DASHBOARD_STATS}
+              end
+            RUBY
+          end %>
+          <%= render dashboard_component.new %>
+        </div>
+      </div>
+
+      <!-- Pricing Cards Example -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-semibold mb-6">Pricing Plans</h3>
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <% pricing_component = Class.new(ApplicationComponent) do
+            include SwiftUIRails::DSL
+            include SwiftUIRails::Helpers
+            
+            class_eval <<-RUBY
+              def call
+                #{PlaygroundDogfoodExamples::PRICING_CARDS}
+              end
+            RUBY
+          end %>
+          <%= render pricing_component.new %>
+        </div>
+      </div>
+
+      <!-- Navigation Bar Example -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-semibold mb-6">Navigation Bar</h3>
+        <div class="bg-gray-50 rounded-lg overflow-hidden">
+          <% navbar_component = Class.new(ApplicationComponent) do
+            include SwiftUIRails::DSL
+            include SwiftUIRails::Helpers
+            
+            class_eval <<-RUBY
+              def call
+                #{PlaygroundDogfoodExamples::NAVBAR}
+              end
+            RUBY
+          end %>
+          <%= render navbar_component.new %>
+        </div>
+      </div>
+
+      <!-- Todo List Example -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-semibold mb-6">Interactive Todo List</h3>
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <div class="max-w-2xl mx-auto">
+            <% todo_component = Class.new(ApplicationComponent) do
+              include SwiftUIRails::DSL
+              include SwiftUIRails::Helpers
+              
+              class_eval <<-RUBY
+                def call
+                  #{PlaygroundDogfoodExamples::TODO_LIST}
+                end
+              RUBY
+            end %>
+            <%= render todo_component.new %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Grid -->
+  <div class="max-w-7xl mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Playground Features</h2>
+    
+    <% features_component = Class.new(ApplicationComponent) do
+      include SwiftUIRails::DSL
+      include SwiftUIRails::Helpers
+      
+      def call
+        swift_ui do
+          grid(cols: 3, gap: 8) do
+            [
+              {
+                icon: "🚀",
+                title: "Instant Preview",
+                description: "See your components render in real-time as you type"
+              },
+              {
+                icon: "🤖",
+                title: "Intelligent Completion",
+                description: "Context-aware suggestions for DSL methods and parameters"
+              },
+              {
+                icon: "📝",
+                title: "Signature Help",
+                description: "Parameter hints and documentation on hover"
+              },
+              {
+                icon: "🎨",
+                title: "Tailwind Support",
+                description: "Full Tailwind color palette and spacing values"
+              },
+              {
+                icon: "⚡",
+                title: "Fast Performance",
+                description: "Sub-2ms response times with client-side caching"
+              },
+              {
+                icon: "📦",
+                title: "Component Library",
+                description: "Pre-built examples and patterns to get started"
+              }
+            ].each do |feature|
+              card(elevation: 1) do
+                vstack(spacing: 4) do
+                  text(feature[:icon])
+                    .font_size("4xl")
+                    .text_center
+                  
+                  text(feature[:title])
+                    .font_size("xl")
+                    .font_weight("semibold")
+                    .text_center
+                  
+                  text(feature[:description])
+                    .text_color("gray-600")
+                    .text_center
+                    .text_sm
+                end.p(6)
+              end
+            end
+          end
+        end
+      end
+    end %>
+    
+    <%= render features_component.new %>
+  </div>
+
+  <!-- Call to Action -->
+  <div class="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+    <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+      <h2 class="text-3xl font-bold mb-4">Ready to Build Something Amazing?</h2>
+      <p class="text-xl opacity-90 mb-8">
+        Experience the power of SwiftUI-inspired syntax in your Rails applications
+      </p>
+      <%= link_to "Try the Playground", playground_path, 
+          class: "inline-block px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold text-lg hover:bg-gray-100 transition transform hover:scale-105" %>
+    </div>
+  </div>
+</div>

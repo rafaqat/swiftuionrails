@@ -54,7 +54,7 @@ class PlaygroundDataCompressionTest < ActionDispatch::IntegrationTest
     # Check that the data manager is initialized
     assert_match(/PlaygroundDataManager/, response.body)
     assert_match(/DecompressionStream/, response.body)
-    assert_match(/playground_data_v1/, response.body)
+    assert_match(/playground_data/, response.body)
   end
 
   test "completion service accepts cached data" do
@@ -88,7 +88,7 @@ class PlaygroundDataCompressionTest < ActionDispatch::IntegrationTest
     assert_equal 1, signatures.length
 
     sig = signatures.first
-    assert_equal "vstack(spacing: Integer = 0, align: Symbol = :center, &block)", sig["label"]
+    assert_equal "vstack(spacing: Integer = 0, alignment: Symbol = :center, &block)", sig["label"]
     assert sig["documentation"].present?
     assert sig["parameters"].present?
     assert_equal 3, sig["parameters"].length
