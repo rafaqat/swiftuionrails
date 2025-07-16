@@ -86,3 +86,8 @@ jobs:
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/swift_ui_rails_test
         CI: true
         HEADLESS: true
+        
+    - name: Run Brakeman security scan
+      run: bundle exec brakeman --ignore-config config/brakeman.ignore --exit-on-warn
+      env:
+        RAILS_ENV: test

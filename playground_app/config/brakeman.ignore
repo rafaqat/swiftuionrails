@@ -1,0 +1,22 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "79610d888b6edc1dd518b863da499f03037888234bfffaa238eb4bb0f25c4c1c",
+      "note": "PlaygroundController eval is intentional - this is a development tool for testing DSL code in a sandboxed environment. The controller includes input validation and is only for development use."
+    },
+    {
+      "fingerprint": "8f011429fcb753cd675c97e1f3ed7c45c9afd99118b092694abe8c6641d2289b",
+      "note": "PlaygroundController eval is intentional - this is a development tool for testing DSL code in a sandboxed environment. The controller includes input validation and is only for development use."
+    },
+    {
+      "fingerprint": "503297cb0fe18d371f92aed6b2887a613fdb92de8b7ed87f001b9c58b48c2a96",
+      "note": "Cross-site scripting in preview view is intentional - this is a controlled development environment for rendering DSL output. Input is validated in the controller."
+    },
+    {
+      "fingerprint": "8f6a46de9dbbbec0dac3022ebee63e5757dedbb489a330cc62ae5e1a5c6159f8",
+      "note": "SandboxExecutor eval is intentional - this service provides a controlled environment for executing DSL code with proper input validation and error handling."
+    }
+  ],
+  "updated": "2025-07-16 22:20:00 +0000",
+  "brakeman_version": "7.0.2"
+}
