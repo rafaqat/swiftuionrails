@@ -62,6 +62,14 @@ Gemfile.lock
 /tmp/
 *.pid
 *.log
+*.log.*
+
+# Playground app specific
+playground_app/log/
+playground_app/tmp/
+playground_app/app/assets/builds/
+playground_app/coverage/
+playground_app/node_modules/
 
 # Security: Never commit secrets
 config/master.key
