@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SwiftUIRails
-  module Components
+  module Component
     module Composed
       module Auth
         # LoginDialogComponent - A complete login dialog with built-in functionality
@@ -29,58 +29,213 @@ module SwiftUIRails
         #     <% end %>
         #   <% end %>
         class LoginDialogComponent < SwiftUIRails::Component::Base
-          include StatefulComponent
           
           # Props for configuration
           prop :open, type: [TrueClass, FalseClass], default: false
-          prop :login_url, type: String, required: true
+          prop :login_url, type: String, default: '/login'
           prop :register_url, type: String, default: nil
           prop :close_url, type: String, default: nil
           prop :show_social, type: [TrueClass, FalseClass], default: false
           prop :social_providers, type: Array, default: ['google', 'github']
           prop :size, type: Symbol, default: :md # :sm, :md, :lg, :xl
+          prop :errors, type: Hash, default: {}
+          prop :form_data, type: Hash, default: { email: '', password: '', remember_me: false }
           
-          # State management
-          state :loading, default: false
-          state :errors, default: {}
-          state :form_data, default: { email: '', password: '', remember_me: false }
-          
-          # Computed properties
-          computed :has_errors do
-            errors.any?
-          end
-          
-          computed :submit_disabled do
-            loading || form_data[:email].blank? || form_data[:password].blank?
-          end
-          
-          # Polymorphic slots for customization
-          slot :header, default: -> { default_header }
-          slot :social_buttons, default: -> { default_social_buttons }
-          slot :form_fields, types: {
-            email: ->(placeholder: "Enter your email") { email_field(placeholder: placeholder) },
-            password: ->(placeholder: "Enter your password") { password_field(placeholder: placeholder) },
-            custom: ->(field_type:, **options) { custom_field(field_type, **options) }
-          }
-          slot :footer_actions, many: true, types: {
-            button: ->(text:, variant: :primary, **options) { action_button(text, variant, **options) },
-            link: ->(text:, url:, **options) { action_link(text, url, **options) }
-          }
-          
-          # Effects for reactive behavior
-          effect :loading do |loading_state|
-            update_submit_button_state(loading_state)
-          end
+          # ViewComponent slots for customization  
+          renders_one :header
+          renders_many :footer_actions
           
           swift_ui do
+            Rails.logger.info "🔥 LoginDialogComponent swift_ui called with open=#{open}"
             if open
-              modal_overlay do
-                modal_container do
-                  modal_header
-                  modal_body
-                  modal_footer
+              Rails.logger.info "🔥 LoginDialogComponent rendering modal"
+              # Modal overlay with backdrop
+              div(style: "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 40; display: flex; align-items: center; justify-content: center; padding: 1rem;", 
+                  data: { 
+                    controller: "login-dialog",
+                    action: "click->login-dialog#closeOnBackdrop".html_safe,
+                    "login-dialog-close-url-value": close_url
+                  }) do
+                
+                # Modal container (prevent backdrop clicks when clicking on modal)
+                div(style: "position: relative; background: white; border-radius: 8px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 50; width: 100%; max-width: 28rem;",
+                    data: { 
+                      "login-dialog-target": "modal",
+                      action: "click->login-dialog#stopPropagation".html_safe
+                    }) do
+                  
+                  # Modal header
+                  div(style: "padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid #e5e7eb;") do
+                    div(style: "display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;") do
+                      text("Welcome Back").tap do |title|
+                        title.instance_variable_set(:@style, "font-size: 1.25rem; font-weight: 600; color: #111827;")
+                      end
+                      
+                      button("×")
+                        .text_color("gray-400")
+                        .hover_text_color("gray-600")
+                        .text_size("2xl")
+                        .leading("none")
+                        .data(action: "click->login-dialog#close".html_safe)
+                    end
+                    
+                    # Subtitle
+                    text("Sign in to your account").tap do |subtitle|
+                      subtitle.instance_variable_set(:@style, "font-size: 0.875rem; color: #6b7280;")
+                    end
+                  end
+                  
+                  # Modal body
+                  div(style: "padding: 1.5rem;") do
+                    # Error display placeholder
+                    div(style: "display: none; margin-bottom: 1rem; padding: 1rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;",
+                        data: { "login-dialog-target": "errorBanner" }) do
+                      text("Error messages will appear here")
+                    end
+                    
+                    # Login form
+                    form(style: "space-y: 1rem;",
+                         data: {
+                           action: "submit->login-dialog#submitForm",
+                           "login-dialog-url-value": login_url
+                         }) do
+                      
+                      # Email field
+                      div(style: "margin-bottom: 1rem;") do
+                        label("Email", for: "login_email", style: "display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem;")
+                        
+                        input(
+                          type: "email",
+                          name: "login[email]",
+                          id: "login_email",
+                          placeholder: "Enter your email",
+                          required: true,
+                          style: "width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;",
+                          data: {
+                            "login-dialog-target": "emailInput",
+                            action: "input->login-dialog#updateFormData blur->login-dialog#validateEmail"
+                          }
+                        )
+                        
+                        # Email error message
+                        div(style: "display: none; margin-top: 0.25rem; font-size: 0.875rem; color: #dc2626;",
+                            data: { "login-dialog-target": "emailError" }) do
+                          text("Email error message")
+                        end
+                      end
+                      
+                      # Password field
+                      div(style: "margin-bottom: 1rem;") do
+                        label("Password", for: "login_password", style: "display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem;")
+                        
+                        input(
+                          type: "password",
+                          name: "login[password]",
+                          id: "login_password",
+                          placeholder: "Enter your password",
+                          required: true,
+                          style: "width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;",
+                          data: {
+                            "login-dialog-target": "passwordInput",
+                            action: "input->login-dialog#updateFormData blur->login-dialog#validatePassword"
+                          }
+                        )
+                        
+                        # Password error message
+                        div(style: "display: none; margin-top: 0.25rem; font-size: 0.875rem; color: #dc2626;",
+                            data: { "login-dialog-target": "passwordError" }) do
+                          text("Password error message")
+                        end
+                        
+                        # Password strength indicator
+                        div(style: "margin-top: 0.5rem;", data: { "login-dialog-target": "passwordStrength" }) do
+                          div(style: "margin-bottom: 0.5rem;") do
+                            text("Password strength:", style: "font-size: 0.75rem; color: #6b7280; font-weight: 500;")
+                            text("Weak", style: "font-size: 0.75rem; color: #dc2626; font-weight: 500; margin-left: 0.5rem;", data: { "login-dialog-target": "strengthText strengthIndicator" })
+                          end
+                          div(style: "height: 0.25rem; background: #e5e7eb; border-radius: 0.125rem; overflow: hidden;") do
+                            div(style: "height: 100%; width: 0%; background: #dc2626; transition: all 0.3s ease;", data: { "login-dialog-target": "strengthBar" })
+                          end
+                        end
+                        
+                        # Password requirements
+                        div(style: "margin-top: 0.75rem; display: none;", data: { "login-dialog-target": "requirements" }) do
+                          text("Password must have:", style: "font-size: 0.75rem; color: #6b7280; font-weight: 500; margin-bottom: 0.5rem; display: block;")
+                          
+                          # Length requirement
+                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
+                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
+                                data: { "login-dialog-target": "requirementLengthIcon" })
+                            text("At least 8 characters", style: "font-size: 0.75rem; color: #6b7280;")
+                          end
+                          
+                          # Special character requirement
+                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
+                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
+                                data: { "login-dialog-target": "requirementSpecialIcon" })
+                            text("At least one special character", style: "font-size: 0.75rem; color: #6b7280;")
+                          end
+                          
+                          # Number requirement
+                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
+                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
+                                data: { "login-dialog-target": "requirementNumberIcon" })
+                            text("At least one number", style: "font-size: 0.75rem; color: #6b7280;")
+                          end
+                          
+                          # No repeating characters requirement
+                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
+                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
+                                data: { "login-dialog-target": "requirementRepeatingIcon" })
+                            text("No repeating characters", style: "font-size: 0.75rem; color: #6b7280;")
+                          end
+                          
+                          # No sequential characters requirement
+                          div(style: "display: flex; align-items: center;") do
+                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
+                                data: { "login-dialog-target": "requirementSequentialIcon" })
+                            text("No sequential characters", style: "font-size: 0.75rem; color: #6b7280;")
+                          end
+                        end
+                      end
+                      
+                      # Remember me checkbox
+                      div(style: "display: flex; align-items: center; margin-bottom: 1rem;") do
+                        input(
+                          type: "checkbox",
+                          name: "login[remember_me]",
+                          id: "login_remember_me",
+                          style: "height: 1rem; width: 1rem; color: #2563eb; border-radius: 4px; margin-right: 0.5rem;",
+                          data: {
+                            "login-dialog-target": "rememberInput",
+                            action: "change->login-dialog#updateFormData"
+                          }
+                        )
+                        label("Remember me", for: "login_remember_me", style: "font-size: 0.875rem; color: #374151;")
+                      end
+                      
+                      # Submit button
+                      button("Sign In",
+                             type: "submit",
+                             style: "width: 100%; padding: 0.75rem 1rem; background: #2563eb; color: white; font-weight: 500; border-radius: 6px; border: none; cursor: pointer; transition: background-color 0.2s;",
+                             data: { "login-dialog-target": "submitButton" })
+                    end
+                    
+                    # Register link
+                    if register_url
+                      div(style: "text-align: center; margin-top: 1rem;") do
+                        text("Don't have an account? ", style: "font-size: 0.875rem; color: #6b7280;")
+                        link("Sign up", destination: register_url, style: "font-size: 0.875rem; color: #2563eb; font-weight: 500; text-decoration: none;")
+                      end
+                    end
+                  end
                 end
               end
+              
+              # Embedded Stimulus script
+              embedded_stimulus_script
+            else
+              Rails.logger.info "🔥 LoginDialogComponent open=false, not rendering modal"
             end
           end
           
@@ -88,10 +243,10 @@ module SwiftUIRails
           
           # Modal structure methods
           def modal_overlay(&block)
-            div.fixed.inset(0).bg("black").opacity(50).z(40)
+            div.fixed.inset(0).bg("red-500").z(40)
               .data(
                 controller: "login-dialog",
-                action: "click->login-dialog#closeOnBackdrop",
+                action: "click->login-dialog#closeOnBackdrop".html_safe,
                 "login-dialog-close-url-value": close_url
               ) do
               yield
@@ -111,7 +266,7 @@ module SwiftUIRails
             div.px(6).py(4).border_b.border_color("gray-200") do
               hstack do
                 div.flex_1 do
-                  render_header { default_header }
+                  header || default_header
                 end
                 
                 # Close button
@@ -162,7 +317,7 @@ module SwiftUIRails
             div.mb(4).p(4).bg("red-50").border.border_color("red-200").rounded("md") do
               vstack(spacing: 2) do
                 hstack(spacing: 2) do
-                  icon("exclamation-triangle").text_color("red-400").size(20)
+                  icon("exclamation-triangle").text_color("red-400").width(5).height(5)
                   text("Please fix the following errors:").text_color("red-800").font_weight("medium")
                 end
                 
@@ -200,7 +355,7 @@ module SwiftUIRails
             .hover_bg("gray-50")
             .transition
             .data(
-              action: "click->login-dialog#socialLogin",
+              action: "click->login-dialog#socialLogin".html_safe,
               "login-dialog-provider-param": provider
             )
           end
@@ -220,7 +375,7 @@ module SwiftUIRails
             form.space_y(4)
               .data(
                 controller: "form-validation",
-                action: "submit->login-dialog#submitForm",
+                action: "submit->login-dialog#submitForm".html_safe,
                 "form-validation-url-value": login_url
               ) do
               
@@ -270,7 +425,7 @@ module SwiftUIRails
             .focus_outline_none.focus_ring(2).focus_ring_color("blue-500")
             .data(
               "login-dialog-target": "emailInput",
-              action: "input->login-dialog#updateFormData"
+              action: "input->login-dialog#updateFormData blur->login-dialog#validateEmail".html_safe
             )
           end
           
@@ -289,7 +444,7 @@ module SwiftUIRails
             .focus_outline_none.focus_ring(2).focus_ring_color("blue-500")
             .data(
               "login-dialog-target": "passwordInput",
-              action: "input->login-dialog#updateFormData"
+              action: "input->login-dialog#updateFormData blur->login-dialog#validatePassword".html_safe
             )
           end
           
@@ -304,7 +459,7 @@ module SwiftUIRails
               .h(4).w(4).text_color("blue-600").rounded
               .data(
                 "login-dialog-target": "rememberInput",
-                action: "change->login-dialog#updateFormData"
+                action: "change->login-dialog#updateFormData".html_safe
               )
               
               label("Remember me", for: "login_remember_me")
@@ -326,7 +481,7 @@ module SwiftUIRails
               .tap { |btn| btn.cursor("not-allowed") if submit_disabled }
               .data(
                 "login-dialog-target": "submitButton",
-                action: "click->login-dialog#submitForm"
+                action: "click->login-dialog#submitForm".html_safe
               )
               .disabled(submit_disabled)
           end
@@ -351,8 +506,8 @@ module SwiftUIRails
               .text_color("gray-400")
               .hover_text_color("gray-600")
               .text_size("2xl")
-              .leading_none
-              .data(action: "click->login-dialog#close")
+              .leading("none")
+              .data(action: "click->login-dialog#close".html_safe)
           end
           
           # Default slot implementations
@@ -381,19 +536,394 @@ module SwiftUIRails
           def social_icon(provider)
             case provider.to_s
             when 'google'
-              icon('google').size(20)
+              icon('google').width(5).height(5)
             when 'github'
-              icon('github').size(20)
+              icon('github').width(5).height(5)
             when 'facebook'
-              icon('facebook').size(20)
+              icon('facebook').width(5).height(5)
             else
-              icon('user-circle').size(20)
+              icon('user-circle').width(5).height(5)
             end
           end
           
-          def update_submit_button_state(loading_state)
-            # This would trigger UI updates via Stimulus
-            # Implementation depends on the Stimulus controller
+          # Helper methods to replace computed properties
+          def has_errors
+            errors.any?
+          end
+          
+          def submit_disabled
+            form_data[:email].blank? || form_data[:password].blank?
+          end
+          
+          def embedded_stimulus_script
+            script do
+              <<~JAVASCRIPT.html_safe
+                // Auto-register the LoginDialog Stimulus controller
+                if (window.Stimulus && !window.Stimulus.controllers.has("login-dialog")) {
+                  const { Controller } = window.Stimulus;
+                  
+                  class LoginDialogController extends Controller {
+                    static targets = [
+                      "modal", "form", "emailInput", "passwordInput", "rememberInput", "submitButton",
+                      "emailError", "passwordError", "emailIcon", "emailSuccessIcon", "errorBanner",
+                      "passwordStrength", "strengthText", "strengthBar", "strengthIndicator", "requirements",
+                      "requirementLengthIcon", "requirementSpecialIcon", "requirementNumberIcon",
+                      "requirementRepeatingIcon", "requirementSequentialIcon"
+                    ];
+                    
+                    static values = {
+                      closeUrl: String,
+                      loginUrl: String
+                    };
+                    
+                    connect() {
+                      this.isSubmitting = false;
+                      this.validationState = {
+                        email: false,
+                        password: false
+                      };
+                      
+                      // Password requirements state
+                      this.passwordRequirements = {
+                        length: false,
+                        special: false,
+                        number: false,
+                        repeating: false,
+                        sequential: false
+                      };
+                      
+                      // Common passwords list (simplified)
+                      this.commonPasswords = [
+                        'password', '123456', '123456789', 'password123', 'admin',
+                        'qwerty', 'letmein', 'welcome', 'monkey', '1234567890'
+                      ];
+                      
+                      // Set up escape key listener
+                      this.boundEscapeHandler = this.handleEscape.bind(this);
+                      document.addEventListener("keydown", this.boundEscapeHandler);
+                      
+                      // Focus email input
+                      if (this.hasEmailInputTarget) {
+                        setTimeout(() => this.emailInputTarget.focus(), 100);
+                      }
+                      
+                      // Show password requirements on password focus
+                      if (this.hasPasswordInputTarget && this.hasRequirementsTarget) {
+                        this.passwordInputTarget.addEventListener('focus', () => {
+                          this.requirementsTarget.style.display = 'block';
+                        });
+                      }
+                      
+                      // Prevent body scroll
+                      document.body.style.overflow = 'hidden';
+                    }
+                    
+                    disconnect() {
+                      document.removeEventListener("keydown", this.boundEscapeHandler);
+                      document.body.style.overflow = '';
+                    }
+                    
+                    // Modal control methods
+                    close() {
+                      window.location.href = this.closeUrlValue;
+                    }
+                    
+                    closeOnBackdrop(event) {
+                      if (event.target === event.currentTarget) {
+                        this.close();
+                      }
+                    }
+                    
+                    handleEscape(event) {
+                      if (event.key === 'Escape') {
+                        this.close();
+                      }
+                    }
+                    
+                    // Form validation
+                    validateEmail() {
+                      const email = this.emailInputTarget.value.trim();
+                      const isValid = email && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+                      
+                      this.validationState.email = isValid;
+                      
+                      // Show/hide email error
+                      if (this.hasEmailErrorTarget) {
+                        if (!isValid && email.length > 0) {
+                          this.emailErrorTarget.style.display = 'block';
+                          this.emailErrorTarget.textContent = 'Please enter a valid email address';
+                        } else {
+                          this.emailErrorTarget.style.display = 'none';
+                        }
+                      }
+                      
+                      this.updateSubmitButton();
+                      return isValid;
+                    }
+                    
+                    validatePassword() {
+                      const password = this.passwordInputTarget.value;
+                      
+                      // Check individual requirements
+                      this.passwordRequirements.length = password.length >= 8;
+                      this.passwordRequirements.special = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                      this.passwordRequirements.number = /\\d/.test(password);
+                      this.passwordRequirements.repeating = !this.hasRepeatingCharacters(password);
+                      this.passwordRequirements.sequential = !this.hasSequentialCharacters(password);
+                      
+                      // Check for common passwords
+                      const isCommonPassword = this.commonPasswords.includes(password.toLowerCase());
+                      
+                      // Update requirement icons
+                      this.updateRequirementIcon('requirementLengthIcon', this.passwordRequirements.length);
+                      this.updateRequirementIcon('requirementSpecialIcon', this.passwordRequirements.special);
+                      this.updateRequirementIcon('requirementNumberIcon', this.passwordRequirements.number);
+                      this.updateRequirementIcon('requirementRepeatingIcon', this.passwordRequirements.repeating);
+                      this.updateRequirementIcon('requirementSequentialIcon', this.passwordRequirements.sequential);
+                      
+                      // Calculate password strength
+                      const strength = this.calculatePasswordStrength(password);
+                      this.updatePasswordStrength(strength);
+                      
+                      // Overall password validity
+                      const isValid = Object.values(this.passwordRequirements).every(req => req) && !isCommonPassword;
+                      this.validationState.password = isValid;
+                      
+                      // Show/hide password error
+                      if (this.hasPasswordErrorTarget) {
+                        if (!isValid && password.length > 0) {
+                          let errorMsg = '';
+                          if (isCommonPassword) {
+                            errorMsg = 'This password is too common. Please choose a more secure password.';
+                          } else if (!this.passwordRequirements.length) {
+                            errorMsg = 'Password must be at least 8 characters long';
+                          } else if (!this.passwordRequirements.special) {
+                            errorMsg = 'Password must contain at least one special character';
+                          } else if (!this.passwordRequirements.number) {
+                            errorMsg = 'Password must contain at least one number';
+                          } else if (!this.passwordRequirements.repeating) {
+                            errorMsg = 'Password cannot contain repeating characters';
+                          } else if (!this.passwordRequirements.sequential) {
+                            errorMsg = 'Password cannot contain sequential characters';
+                          }
+                          this.passwordErrorTarget.style.display = 'block';
+                          this.passwordErrorTarget.textContent = errorMsg;
+                        } else {
+                          this.passwordErrorTarget.style.display = 'none';
+                        }
+                      }
+                      
+                      this.updateSubmitButton();
+                      return isValid;
+                    }
+                    
+                    updateFormData() {
+                      // Update form validation
+                      this.validateEmail();
+                      this.validatePassword();
+                    }
+                    
+                    updateSubmitButton() {
+                      const allValid = this.validationState.email && this.validationState.password;
+                      if (this.hasSubmitButtonTarget) {
+                        this.submitButtonTarget.disabled = !allValid || this.isSubmitting;
+                        this.submitButtonTarget.classList.toggle('opacity-50', !allValid);
+                        this.submitButtonTarget.classList.toggle('cursor-not-allowed', !allValid);
+                      }
+                    }
+                    
+                    // Password validation helpers
+                    hasRepeatingCharacters(password) {
+                      for (let i = 0; i < password.length - 2; i++) {
+                        if (password[i] === password[i + 1] && password[i] === password[i + 2]) {
+                          return true;
+                        }
+                      }
+                      return false;
+                    }
+                    
+                    hasSequentialCharacters(password) {
+                      const sequences = ['123', '234', '345', '456', '567', '678', '789', '890', 
+                                       'abc', 'bcd', 'cde', 'def', 'efg', 'fgh', 'ghi', 'hij', 
+                                       'ijk', 'jkl', 'klm', 'lmn', 'mno', 'nop', 'opq', 'pqr', 
+                                       'qrs', 'rst', 'stu', 'tuv', 'uvw', 'vwx', 'wxy', 'xyz'];
+                      const lower = password.toLowerCase();
+                      return sequences.some(seq => lower.includes(seq) || lower.includes(seq.split('').reverse().join('')));
+                    }
+                    
+                    calculatePasswordStrength(password) {
+                      let score = 0;
+                      
+                      // Length bonus
+                      if (password.length >= 8) score += 1;
+                      if (password.length >= 12) score += 1;
+                      
+                      // Character variety
+                      if (/[a-z]/.test(password)) score += 1;
+                      if (/[A-Z]/.test(password)) score += 1;
+                      if (/\\d/.test(password)) score += 1;
+                      if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 1;
+                      
+                      // Penalties
+                      if (this.hasRepeatingCharacters(password)) score -= 1;
+                      if (this.hasSequentialCharacters(password)) score -= 1;
+                      if (this.commonPasswords.includes(password.toLowerCase())) score -= 2;
+                      
+                      return Math.max(0, Math.min(5, score));
+                    }
+                    
+                    updatePasswordStrength(strength) {
+                      if (!this.hasPasswordStrengthTarget) return;
+                      
+                      const strengthText = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'][strength];
+                      const strengthColors = ['#dc2626', '#ea580c', '#ca8a04', '#65a30d', '#16a34a', '#059669'];
+                      const strengthWidths = ['10%', '20%', '40%', '60%', '80%', '100%'];
+                      
+                      if (this.hasStrengthTextTarget) {
+                        this.strengthTextTarget.textContent = strengthText;
+                        this.strengthTextTarget.style.color = strengthColors[strength];
+                      }
+                      
+                      if (this.hasStrengthBarTarget) {
+                        this.strengthBarTarget.style.width = strengthWidths[strength];
+                        this.strengthBarTarget.style.background = strengthColors[strength];
+                      }
+                    }
+                    
+                    updateRequirementIcon(targetName, isValid) {
+                      const target = this[targetName + 'Target'];
+                      if (!target) return;
+                      
+                      if (isValid) {
+                        target.style.background = '#16a34a'; // green
+                        target.classList.remove('bg-gray-300');
+                        target.classList.add('bg-green-500');
+                      } else {
+                        target.style.background = '#d1d5db'; // gray
+                        target.classList.remove('bg-green-500');
+                        target.classList.add('bg-gray-300');
+                      }
+                    }
+                    
+                    // Social login
+                    socialLogin(event) {
+                      const provider = event.target.dataset.loginDialogProviderParam;
+                      console.log('Social login with:', provider);
+                      // Implement social login logic here
+                    }
+                    
+                    // Form submission
+                    async submitForm(event) {
+                      event.preventDefault();
+                      
+                      if (this.isSubmitting) return;
+                      
+                      // Validate all fields
+                      const emailValid = this.validateEmail();
+                      const passwordValid = this.validatePassword();
+                      
+                      if (!emailValid || !passwordValid) {
+                        this.shake();
+                        return;
+                      }
+                      
+                      this.setLoading(true);
+                      
+                      try {
+                        const formData = new FormData();
+                        formData.append("login[email]", this.emailInputTarget.value);
+                        formData.append("login[password]", this.passwordInputTarget.value);
+                        
+                        if (this.hasRememberInputTarget) {
+                          formData.append("login[remember_me]", this.rememberInputTarget.checked);
+                        }
+                        
+                        // Add CSRF token
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                        if (csrfToken) {
+                          formData.append("authenticity_token", csrfToken.content);
+                        }
+                        
+                        const response = await fetch(this.loginUrlValue, {
+                          method: "POST",
+                          body: formData,
+                          headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Accept": "application/json"
+                          }
+                        });
+                        
+                        if (response.ok) {
+                          const data = await response.json();
+                          this.handleSuccess(data);
+                        } else {
+                          const errorData = await response.json();
+                          this.handleError(errorData);
+                        }
+                      } catch (error) {
+                        console.error("Login error:", error);
+                        this.handleError({ 
+                          errors: { 
+                            base: ["Network error. Please check your connection and try again."] 
+                          } 
+                        });
+                      } finally {
+                        this.setLoading(false);
+                      }
+                    }
+                    
+                    setLoading(loading) {
+                      this.isSubmitting = loading;
+                      
+                      if (this.hasSubmitButtonTarget) {
+                        this.submitButtonTarget.disabled = loading;
+                        this.submitButtonTarget.textContent = loading ? 'Signing In...' : 'Sign In';
+                        this.submitButtonTarget.classList.toggle('opacity-50', loading);
+                        this.submitButtonTarget.classList.toggle('cursor-not-allowed', loading);
+                      }
+                    }
+                    
+                    shake() {
+                      if (this.hasModalTarget) {
+                        this.modalTarget.style.animation = 'shake 0.5s ease-in-out';
+                        setTimeout(() => {
+                          this.modalTarget.style.animation = '';
+                        }, 500);
+                      }
+                    }
+                    
+                    handleSuccess(data) {
+                      console.log('Login successful:', data);
+                      setTimeout(() => {
+                        window.location.href = data.redirect_url || this.closeUrlValue;
+                      }, 1000);
+                    }
+                    
+                    handleError(data) {
+                      console.error('Login error:', data);
+                      this.shake();
+                    }
+                  }
+                  
+                  // Register the controller
+                  window.Stimulus.register("login-dialog", LoginDialogController);
+                  
+                  // Add shake animation CSS
+                  if (!document.querySelector('#login-dialog-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'login-dialog-styles';
+                    style.textContent = `
+                      @keyframes shake {
+                        0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+                        25% { transform: translate(-50%, -50%) translateX(-5px); }
+                        75% { transform: translate(-50%, -50%) translateX(5px); }
+                      }
+                    `;
+                    document.head.appendChild(style);
+                  }
+                }
+              JAVASCRIPT
+            end
           end
         end
       end

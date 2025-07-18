@@ -139,37 +139,60 @@ module SwiftUIRails
             return ''
           end
 
-          # HTML escape the value
-          ERB::Util.html_escape(value_str)
+          # HTML escape the value only if it's not already HTML safe
+          if value_str.respond_to?(:html_safe?) && value_str.html_safe?
+            value_str
+          else
+            ERB::Util.html_escape(value_str)
+          end
         end
 
         # Sanitize Stimulus action strings
         def sanitize_stimulus_action(action)
           return '' unless action
 
-          # Stimulus actions should be in format: event->controller#method
-          parts = action.to_s.split('->')
-          return '' unless parts.length == 2
+          # If action is already marked as html_safe, return it directly
+          if action.respond_to?(:html_safe?) && action.html_safe?
+            return action
+          end
 
-          event_part = parts[0].strip
-          controller_method = parts[1].strip
+          # Stimulus actions can be multiple actions separated by spaces
+          # Each action should be in format: event->controller#method
+          action_string = action.to_s.strip
+          return '' if action_string.empty?
 
-          # Validate event
-          allowed_events = %w[
-            click dblclick mousedown mouseup mouseover mouseout mousemove
-            keydown keyup keypress
-            submit change input focus blur
-            load unload resize scroll
-            touchstart touchend touchmove
-            dragstart dragend drop
-          ]
+          # Split by spaces to handle multiple actions
+          actions = action_string.split(/\s+/)
+          sanitized_actions = []
 
-          return '' unless allowed_events.include?(event_part)
+          actions.each do |single_action|
+            # Each action should be in format: event->controller#method
+            parts = single_action.split('->')
+            next unless parts.length == 2
 
-          # Validate controller#method
-          return '' unless controller_method.match?(/\A[a-zA-Z][a-zA-Z0-9\-_]*#[a-zA-Z][a-zA-Z0-9_]*\z/)
+            event_part = parts[0].strip
+            controller_method = parts[1].strip
 
-          "#{event_part}->#{controller_method}"
+            # Validate event
+            allowed_events = %w[
+              click dblclick mousedown mouseup mouseover mouseout mousemove
+              keydown keyup keypress
+              submit change input focus blur
+              load unload resize scroll
+              touchstart touchend touchmove
+              dragstart dragend drop
+            ]
+
+            next unless allowed_events.include?(event_part)
+
+            # Validate controller#method
+            next unless controller_method.match?(/\A[a-zA-Z][a-zA-Z0-9\-_]*#[a-zA-Z][a-zA-Z0-9_]*\z/)
+
+            sanitized_actions << "#{event_part}->#{controller_method}"
+          end
+
+          # Return the sanitized actions joined by spaces and mark as html_safe
+          sanitized_actions.join(' ').html_safe
         end
 
         # Sanitize Stimulus controller names
