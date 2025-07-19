@@ -504,28 +504,17 @@ module SwiftUIRails
           def render_slot_content(slot_content)
             return unless slot_content
             
-            # For ViewComponent slots, we need to render them in a view context
-            # Let's try using the render method directly
-            begin
-              if slot_content.is_a?(ViewComponent::Slot)
-                # For ViewComponent::Slot, we need to render it properly
-                html_content = view_context.capture(&slot_content.content)
-              else
-                # For other content, convert to string
-                html_content = slot_content.to_s
+            # Use ViewComponent's built-in slot rendering
+            # Simply yield the slot content - ViewComponent handles the rest
+            if slot_content.respond_to?(:content)
+              # For ViewComponent slots, delegate to the slot's content
+              slot_content
+            else
+              # For simple content, wrap in a basic container
+              div.class("toolbar-slot-content") do
+                text(slot_content.to_s)
               end
-            rescue => e
-              # Fallback: use the content directly if it's a string
-              html_content = slot_content.respond_to?(:content) ? slot_content.content.call : slot_content.to_s
             end
-            
-            # Create a raw element that contains the HTML
-            raw_element = create_element(:div, html_content.to_s.html_safe)
-            raw_element.add_class("toolbar-slot-content")
-            
-            # Register the element to be rendered
-            register_element(raw_element)
-            raw_element
           end
           
           def apply_button_variant(button, variant)
