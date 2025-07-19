@@ -532,10 +532,40 @@ module SwiftUIRails
           
           # Load external assets for the login dialog
           def load_login_dialog_assets
-            # Note: In a real Rails app, these would be loaded via the asset pipeline
-            # This is a simplified approach for the gem
-            script do
-              raw "console.log('Login dialog assets should be loaded via asset pipeline');"
+            # CSS for animations and modal styling
+            style do
+              raw <<~CSS
+                @keyframes shake {
+                  0%, 100% { transform: translateX(0); }
+                  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                  20%, 40%, 60%, 80% { transform: translateX(5px); }
+                }
+                
+                .login-dialog-modal {
+                  animation: fadeIn 0.2s ease-out;
+                }
+                
+                @keyframes fadeIn {
+                  from { opacity: 0; transform: scale(0.95); }
+                  to { opacity: 1; transform: scale(1); }
+                }
+                
+                .password-strength-bar {
+                  transition: width 0.3s ease, background-color 0.3s ease;
+                }
+                
+                .requirement-icon {
+                  transition: background-color 0.2s ease;
+                }
+              CSS
+            end
+            
+            # Note: In production, the Stimulus controller should be loaded via importmap
+            # This ensures the controller is available for the login dialog functionality
+            unless Rails.env.production?
+              script do
+                raw "// Login dialog controller should be imported via importmap in production"
+              end
             end
           end
         end

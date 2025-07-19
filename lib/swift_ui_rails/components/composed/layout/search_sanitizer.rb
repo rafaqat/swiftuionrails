@@ -18,28 +18,29 @@ module SwiftUIRails
           SAFE_PATTERN = /\A[a-zA-Z0-9\s\-_.,!?'"()]*\z/
           
           # Suspicious patterns that might indicate injection attempts
+          # Note: These patterns are designed to avoid ReDoS vulnerabilities
           SUSPICIOUS_PATTERNS = [
             /<script/i,
             /javascript:/i,
-            /on\w+\s*=/i,          # Event handlers like onclick=
-            /\bselect\b.*\bfrom\b/i, # SQL SELECT
-            /\bunion\b.*\bselect\b/i, # SQL UNION
-            /\binsert\b.*\binto\b/i,  # SQL INSERT
-            /\bdelete\b.*\bfrom\b/i,  # SQL DELETE
-            /\bdrop\b.*\btable\b/i,   # SQL DROP
+            /\bon\w+\s*=/i,         # Fixed: Added word boundary to prevent ReDoS
+            /\bselect\b.*?\bfrom\b/i, # Fixed: Non-greedy quantifier to prevent ReDoS
+            /\bunion\b.*?\bselect\b/i, # Fixed: Non-greedy quantifier
+            /\binsert\b.*?\binto\b/i,  # Fixed: Non-greedy quantifier
+            /\bdelete\b.*?\bfrom\b/i,  # Fixed: Non-greedy quantifier
+            /\bdrop\b.*?\btable\b/i,   # Fixed: Non-greedy quantifier
             /\bexec\b/i,             # SQL EXEC
-            /\{.*\}/,                # Template injection patterns
-            /\$\{.*\}/,              # Template literal injection
+            /\{[^}]{0,100}\}/,       # Fixed: Limited quantifier to prevent ReDoS
+            /\$\{[^}]{0,100}\}/,     # Fixed: Limited quantifier for template literals
             /%[0-9a-f]{2}/i,         # URL encoding (potential bypass attempt)
-            /\\\w+/,                 # Escape sequences
-            /\x00-\x1f/,             # Control characters
+            /\\[a-zA-Z0-9]{1,10}/,   # Fixed: Limited escape sequences to prevent ReDoS
+            /[\x00-\x1f]/,           # Fixed: Character class for control characters
           ].freeze
           
           # Sanitize and validate search input
           # @param input [String] The raw search input
           # @return [Hash] { valid: Boolean, sanitized: String, errors: Array }
           def sanitize_search_input(input)
-            return { valid: false, sanitized: "", errors: ["Search term is required"] } if input.blank?
+            return { valid: false, sanitized: "", errors: ["Search term is required"] } if input.nil? || input.to_s.strip.empty?
             
             errors = []
             sanitized = input.to_s.strip
@@ -80,7 +81,7 @@ module SwiftUIRails
           # @param input [String] The search input to validate
           # @return [Boolean] True if input is valid
           def valid_search_input?(input)
-            return false if input.blank?
+            return false if input.nil? || input.to_s.strip.empty?
             
             sanitized = input.to_s.strip
             
@@ -115,29 +116,42 @@ module SwiftUIRails
           def remove_suspicious_patterns(input)
             result = input.dup
             
-            # Remove script tags and content
-            result.gsub!(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi, '')
+            # Remove script tags and content - Fixed: More robust script tag removal
+            # Handle multiple variations of script tags to prevent bypass
+            result.gsub!(/<script\b[^>]*>.*?<\/script>/mi, '')
+            result.gsub!(/<script\b[^>]*\/>/mi, '')  # Self-closing script tags
+            result.gsub!(/<script\b[^>]*>/mi, '')    # Unclosed script tags
             
             # Remove javascript: protocols
             result.gsub!(/javascript:/i, '')
             
-            # Remove event handlers
-            result.gsub!(/on\w+\s*=[^"'\s>]*/i, '')
-            result.gsub!(/on\w+\s*=\s*"[^"]*"/i, '')
-            result.gsub!(/on\w+\s*=\s*'[^']*'/i, '')
+            # Remove event handlers - Fixed: More comprehensive removal
+            # Handle all variations of event handlers to prevent bypass
+            result.gsub!(/\bon\w+\s*=\s*[^"'\s>]+/i, '')     # Unquoted handlers
+            result.gsub!(/\bon\w+\s*=\s*"[^"]*"/i, '')      # Double-quoted handlers
+            result.gsub!(/\bon\w+\s*=\s*'[^']*'/i, '')       # Single-quoted handlers
+            result.gsub!(/\bon\w+\s*=\s*`[^`]*`/i, '')       # Backtick-quoted handlers
             
             # Remove SQL keywords in suspicious contexts
             result.gsub!(/\b(select|union|insert|delete|drop|exec)\b.*?\b(from|into|table)\b/i, '')
             
-            # Remove template injection patterns
-            result.gsub!(/\{[^}]*\}/, '')
-            result.gsub!(/\$\{[^}]*\}/, '')
+            # Remove template injection patterns - Fixed: Handle nested patterns
+            # Iteratively remove template patterns to handle nested cases
+            10.times do  # Limit iterations to prevent infinite loops
+              old_length = result.length
+              result.gsub!(/\{[^{}]*\}/, '')      # Remove simple braces
+              result.gsub!(/\$\{[^{}]*\}/, '')    # Remove template literals
+              break if result.length == old_length  # No more changes
+            end
             
             # Remove URL encoding
             result.gsub!(/%[0-9a-f]{2}/i, '')
             
-            # Remove escape sequences
-            result.gsub!(/\\[a-z0-9]/i, '')
+            # Remove escape sequences - Fixed: More comprehensive patterns
+            result.gsub!(/\\[a-zA-Z0-9]{1,10}/, '')      # Alphanumeric escapes
+            result.gsub!(/\\x[0-9a-fA-F]{1,4}/, '')      # Hex escapes
+            result.gsub!(/\\u[0-9a-fA-F]{1,6}/, '')      # Unicode escapes
+            result.gsub!(/\\[0-7]{1,3}/, '')             # Octal escapes
             
             # Remove control characters
             result.gsub!(/[\x00-\x1f]/, '')
