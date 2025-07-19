@@ -222,38 +222,65 @@ module SwiftUIRails
           end
         end
 
-        # Check if value matches valid CSS patterns
+        # Check if value matches valid CSS patterns using safe non-ReDoS methods
         def valid_css_pattern?(value)
-          valid_patterns = [
-            # Basic CSS identifiers and values
-            /\A[a-zA-Z0-9\-_]+\z/,
-            # Colors (hex, rgb, rgba, hsl, hsla, names)
-            /\A#[0-9a-fA-F]{3,8}\z/,
-            /\Argb\s*\([^)]+\)\z/i,
-            /\Argba\s*\([^)]+\)\z/i,
-            /\Ahsl\s*\([^)]+\)\z/i,
-            /\Ahsla\s*\([^)]+\)\z/i,
-            # Units (px, em, rem, %, vh, vw, etc.)
-            /\A\d*\.?\d+(px|em|rem|%|vh|vw|vmin|vmax|cm|mm|in|pt|pc|ex|ch)\z/i,
-            # Calc expressions
-            /\Acalc\s*\([^)]+\)\z/i,
-            # CSS variables
-            /\Avar\s*\([^)]+\)\z/i,
-            # Gradients
-            /\A(linear|radial|conic)-gradient\s*\([^)]+\)\z/i,
-            # Transform functions
-            /\A(translate|translateX|translateY|translateZ|translate3d|rotate|rotateX|rotateY|rotateZ|rotate3d|scale|scaleX|scaleY|scaleZ|scale3d|skew|skewX|skewY|matrix|matrix3d|perspective)\s*\([^)]+\)\z/i,
-            # Common keywords
-            /\A(auto|inherit|initial|unset|none|normal|bold|italic|underline|overline|line-through|left|right|center|justify|top|bottom|middle|baseline|sub|super|text-top|text-bottom)\z/i,
-            # Cubic bezier
-            /\Acubic-bezier\s*\([^)]+\)\z/i,
-            # Drop shadow and other filter functions
-            /\Adrop-shadow\s*\([^)]+\)\z/i,
-            # Complex expressions with spaces and operators
-            /\A[a-zA-Z0-9\-_\s.,()%#\/]+\z/
-          ]
+          # First check length to prevent DoS on very long strings
+          return false if value.length > 1000
           
-          valid_patterns.any? { |pattern| value.match?(pattern) }
+          # Use safe character-by-character validation instead of catastrophic backtracking patterns
+          return true if safe_basic_css_identifier?(value)
+          return true if safe_hex_color?(value)
+          return true if safe_css_function?(value)
+          return true if safe_css_unit?(value)
+          return true if safe_css_keyword?(value)
+          
+          false
+        end
+        
+        # Safe validation methods to avoid ReDoS
+        def safe_basic_css_identifier?(value)
+          # Allow only alphanumeric, hyphens, underscores (no quantifiers that cause ReDoS)
+          value.chars.all? { |char| char.match?(/[a-zA-Z0-9\-_]/) }
+        end
+        
+        def safe_hex_color?(value)
+          return false unless value.start_with?('#')
+          hex_part = value[1..-1]
+          return false unless [3, 4, 6, 8].include?(hex_part.length)
+          hex_part.chars.all? { |char| char.match?(/[0-9a-fA-F]/) }
+        end
+        
+        def safe_css_function?(value)
+          # Check for common CSS functions without ReDoS patterns
+          function_names = %w[rgb rgba hsl hsla calc var linear-gradient radial-gradient conic-gradient
+                             translate translateX translateY translateZ translate3d rotate rotateX rotateY
+                             rotateZ rotate3d scale scaleX scaleY scaleZ scale3d skew skewX skewY matrix
+                             matrix3d perspective cubic-bezier drop-shadow]
+          
+          function_names.any? do |func|
+            value.downcase.start_with?("#{func}(") && value.end_with?(')')
+          end
+        end
+        
+        def safe_css_unit?(value)
+          # Check for CSS units without ReDoS patterns
+          units = %w[px em rem % vh vw vmin vmax cm mm in pt pc ex ch]
+          
+          # Extract numeric part and unit part safely
+          numeric_match = value.match(/\A\d*\.?\d+/)
+          return false unless numeric_match
+          
+          unit_part = value[numeric_match.end..-1]
+          units.include?(unit_part.downcase)
+        end
+        
+        def safe_css_keyword?(value)
+          # Whitelist of safe CSS keywords (no regex quantifiers)
+          keywords = %w[auto inherit initial unset none normal bold italic underline overline
+                       line-through left right center justify top bottom middle baseline sub super
+                       text-top text-bottom transparent current]
+          
+          keywords.include?(value.downcase)
         end
 
         public
