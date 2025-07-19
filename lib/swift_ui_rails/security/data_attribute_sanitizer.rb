@@ -168,7 +168,9 @@ module SwiftUIRails
           actions.each do |single_action|
             # Each action should be in format: event->controller#method
             parts = single_action.split('->')
-            next unless parts.length == 2
+            if parts.length != 2
+              next
+            end
 
             event_part = parts[0].strip
             controller_method = parts[1].strip

@@ -46,30 +46,29 @@ module SwiftUIRails
           renders_many :footer_actions
           
           swift_ui do
-            Rails.logger.info "🔥 LoginDialogComponent swift_ui called with open=#{open}"
             if open
-              Rails.logger.info "🔥 LoginDialogComponent rendering modal"
               # Modal overlay with backdrop
-              div(style: "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 40; display: flex; align-items: center; justify-content: center; padding: 1rem;", 
-                  data: { 
-                    controller: "login-dialog",
-                    action: "click->login-dialog#closeOnBackdrop".html_safe,
-                    "login-dialog-close-url-value": close_url
-                  }) do
+              div.fixed.inset(0).bg("black").opacity(50).z(40).flex.items_center.justify_center.p(4)
+                .data(
+                  controller: "login-dialog",
+                  action: "click->login-dialog#closeOnBackdrop".html_safe,
+                  "login-dialog-close-url-value": close_url
+                ) do
                 
                 # Modal container (prevent backdrop clicks when clicking on modal)
-                div(style: "position: relative; background: white; border-radius: 8px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 50; width: 100%; max-width: 28rem;",
-                    data: { 
-                      "login-dialog-target": "modal",
-                      action: "click->login-dialog#stopPropagation".html_safe
-                    }) do
+                div.relative.bg("white").rounded("lg").shadow("2xl").z(50).w("full").max_w("md")
+                  .data(
+                    "login-dialog-target": "modal",
+                    action: "click->login-dialog#stopPropagation".html_safe
+                  ) do
                   
                   # Modal header
-                  div(style: "padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid #e5e7eb;") do
-                    div(style: "display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;") do
-                      text("Welcome Back").tap do |title|
-                        title.instance_variable_set(:@style, "font-size: 1.25rem; font-weight: 600; color: #111827;")
-                      end
+                  div.px(6).py(4).pt(6).pb(4).border_b.border_color("gray-200") do
+                    div.flex.items_center.justify_between.mb(2) do
+                      text("Welcome Back")
+                        .font_size("xl")
+                        .font_weight("semibold")
+                        .text_color("gray-900")
                       
                       button("×")
                         .text_color("gray-400")
@@ -80,152 +79,161 @@ module SwiftUIRails
                     end
                     
                     # Subtitle
-                    text("Sign in to your account").tap do |subtitle|
-                      subtitle.instance_variable_set(:@style, "font-size: 0.875rem; color: #6b7280;")
-                    end
+                    text("Sign in to your account")
+                      .text_sm
+                      .text_color("gray-500")
                   end
                   
                   # Modal body
-                  div(style: "padding: 1.5rem;") do
+                  div.p(6) do
                     # Error display placeholder
-                    div(style: "display: none; margin-bottom: 1rem; padding: 1rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;",
-                        data: { "login-dialog-target": "errorBanner" }) do
+                    div.hidden.mb(4).p(4).bg("red-50").border.border_color("red-200").rounded("md")
+                      .data("login-dialog-target": "errorBanner") do
                       text("Error messages will appear here")
                     end
                     
                     # Login form
-                    form(style: "space-y: 1rem;",
-                         data: {
-                           action: "submit->login-dialog#submitForm",
-                           "login-dialog-url-value": login_url
-                         }) do
+                    form.space_y(4)
+                      .data(
+                        action: "submit->login-dialog#submitForm",
+                        "login-dialog-url-value": login_url
+                      ) do
                       
                       # Email field
-                      div(style: "margin-bottom: 1rem;") do
-                        label("Email", for: "login_email", style: "display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem;")
+                      div.mb(4) do
+                        label("Email", for: "login_email")
+                          .block.text_sm.font_weight("medium").text_color("gray-700").mb(1)
                         
                         input(
                           type: "email",
                           name: "login[email]",
                           id: "login_email",
                           placeholder: "Enter your email",
-                          required: true,
-                          style: "width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;",
-                          data: {
-                            "login-dialog-target": "emailInput",
-                            action: "input->login-dialog#updateFormData blur->login-dialog#validateEmail"
-                          }
+                          required: true
+                        )
+                        .w("full").px(3).py(2).border.border_color("gray-300").rounded("md").text_sm
+                        .focus_outline_none.focus_ring(2).focus_ring_color("blue-500")
+                        .data(
+                          "login-dialog-target": "emailInput",
+                          action: "input->login-dialog#updateFormData blur->login-dialog#validateEmail"
                         )
                         
                         # Email error message
-                        div(style: "display: none; margin-top: 0.25rem; font-size: 0.875rem; color: #dc2626;",
-                            data: { "login-dialog-target": "emailError" }) do
+                        div.hidden.mt(1).text_sm.text_color("red-600")
+                          .data("login-dialog-target": "emailError") do
                           text("Email error message")
                         end
                       end
                       
                       # Password field
-                      div(style: "margin-bottom: 1rem;") do
-                        label("Password", for: "login_password", style: "display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem;")
+                      div.mb(4) do
+                        label("Password", for: "login_password")
+                          .block.text_sm.font_weight("medium").text_color("gray-700").mb(1)
                         
                         input(
                           type: "password",
                           name: "login[password]",
                           id: "login_password",
                           placeholder: "Enter your password",
-                          required: true,
-                          style: "width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;",
-                          data: {
-                            "login-dialog-target": "passwordInput",
-                            action: "input->login-dialog#updateFormData blur->login-dialog#validatePassword"
-                          }
+                          required: true
+                        )
+                        .w("full").px(3).py(2).border.border_color("gray-300").rounded("md").text_sm
+                        .focus_outline_none.focus_ring(2).focus_ring_color("blue-500")
+                        .data(
+                          "login-dialog-target": "passwordInput",
+                          action: "input->login-dialog#updateFormData blur->login-dialog#validatePassword"
                         )
                         
                         # Password error message
-                        div(style: "display: none; margin-top: 0.25rem; font-size: 0.875rem; color: #dc2626;",
-                            data: { "login-dialog-target": "passwordError" }) do
+                        div.hidden.mt(1).text_sm.text_color("red-600")
+                          .data("login-dialog-target": "passwordError") do
                           text("Password error message")
                         end
                         
                         # Password strength indicator
-                        div(style: "margin-top: 0.5rem;", data: { "login-dialog-target": "passwordStrength" }) do
-                          div(style: "margin-bottom: 0.5rem;") do
-                            text("Password strength:", style: "font-size: 0.75rem; color: #6b7280; font-weight: 500;")
-                            text("Weak", style: "font-size: 0.75rem; color: #dc2626; font-weight: 500; margin-left: 0.5rem;", data: { "login-dialog-target": "strengthText strengthIndicator" })
+                        div.mt(2).data("login-dialog-target": "passwordStrength") do
+                          div.mb(2) do
+                            text("Password strength:").text_xs.text_color("gray-500").font_weight("medium")
+                            text("Weak").text_xs.text_color("red-600").font_weight("medium").ml(2)
+                              .data("login-dialog-target": "strengthText strengthIndicator")
                           end
-                          div(style: "height: 0.25rem; background: #e5e7eb; border-radius: 0.125rem; overflow: hidden;") do
-                            div(style: "height: 100%; width: 0%; background: #dc2626; transition: all 0.3s ease;", data: { "login-dialog-target": "strengthBar" })
+                          div.h(1).bg("gray-200").rounded_sm.overflow("hidden") do
+                            div.h("full").w(0).bg("red-600").transition_all.duration(300)
+                              .data("login-dialog-target": "strengthBar")
                           end
                         end
                         
                         # Password requirements
-                        div(style: "margin-top: 0.75rem; display: none;", data: { "login-dialog-target": "requirements" }) do
-                          text("Password must have:", style: "font-size: 0.75rem; color: #6b7280; font-weight: 500; margin-bottom: 0.5rem; display: block;")
+                        div.mt(3).hidden.data("login-dialog-target": "requirements") do
+                          text("Password must have:").text_xs.text_color("gray-500").font_weight("medium").mb(2).block
                           
                           # Length requirement
-                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
-                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
-                                data: { "login-dialog-target": "requirementLengthIcon" })
-                            text("At least 8 characters", style: "font-size: 0.75rem; color: #6b7280;")
+                          div.flex.items_center.mb(1) do
+                            div.w(3).h(3).rounded_full.bg("gray-300").mr(2)
+                              .data("login-dialog-target": "requirementLengthIcon")
+                            text("At least 8 characters").text_xs.text_color("gray-500")
                           end
                           
                           # Special character requirement
-                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
-                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
-                                data: { "login-dialog-target": "requirementSpecialIcon" })
-                            text("At least one special character", style: "font-size: 0.75rem; color: #6b7280;")
+                          div.flex.items_center.mb(1) do
+                            div.w(3).h(3).rounded_full.bg("gray-300").mr(2)
+                              .data("login-dialog-target": "requirementSpecialIcon")
+                            text("At least one special character").text_xs.text_color("gray-500")
                           end
                           
                           # Number requirement
-                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
-                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
-                                data: { "login-dialog-target": "requirementNumberIcon" })
-                            text("At least one number", style: "font-size: 0.75rem; color: #6b7280;")
+                          div.flex.items_center.mb(1) do
+                            div.w(3).h(3).rounded_full.bg("gray-300").mr(2)
+                              .data("login-dialog-target": "requirementNumberIcon")
+                            text("At least one number").text_xs.text_color("gray-500")
                           end
                           
                           # No repeating characters requirement
-                          div(style: "display: flex; align-items: center; margin-bottom: 0.25rem;") do
-                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
-                                data: { "login-dialog-target": "requirementRepeatingIcon" })
-                            text("No repeating characters", style: "font-size: 0.75rem; color: #6b7280;")
+                          div.flex.items_center.mb(1) do
+                            div.w(3).h(3).rounded_full.bg("gray-300").mr(2)
+                              .data("login-dialog-target": "requirementRepeatingIcon")
+                            text("No repeating characters").text_xs.text_color("gray-500")
                           end
                           
                           # No sequential characters requirement
-                          div(style: "display: flex; align-items: center;") do
-                            div(style: "width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #d1d5db; margin-right: 0.5rem;",
-                                data: { "login-dialog-target": "requirementSequentialIcon" })
-                            text("No sequential characters", style: "font-size: 0.75rem; color: #6b7280;")
+                          div.flex.items_center do
+                            div.w(3).h(3).rounded_full.bg("gray-300").mr(2)
+                              .data("login-dialog-target": "requirementSequentialIcon")
+                            text("No sequential characters").text_xs.text_color("gray-500")
                           end
                         end
                       end
                       
                       # Remember me checkbox
-                      div(style: "display: flex; align-items: center; margin-bottom: 1rem;") do
+                      div.flex.items_center.mb(4) do
                         input(
                           type: "checkbox",
                           name: "login[remember_me]",
-                          id: "login_remember_me",
-                          style: "height: 1rem; width: 1rem; color: #2563eb; border-radius: 4px; margin-right: 0.5rem;",
-                          data: {
-                            "login-dialog-target": "rememberInput",
-                            action: "change->login-dialog#updateFormData"
-                          }
+                          id: "login_remember_me"
                         )
-                        label("Remember me", for: "login_remember_me", style: "font-size: 0.875rem; color: #374151;")
+                        .h(4).w(4).text_color("blue-600").rounded.mr(2)
+                        .data(
+                          "login-dialog-target": "rememberInput",
+                          action: "change->login-dialog#updateFormData"
+                        )
+                        label("Remember me", for: "login_remember_me")
+                          .text_sm.text_color("gray-700")
                       end
                       
                       # Submit button
-                      button("Sign In",
-                             type: "submit",
-                             style: "width: 100%; padding: 0.75rem 1rem; background: #2563eb; color: white; font-weight: 500; border-radius: 6px; border: none; cursor: pointer; transition: background-color 0.2s;",
-                             data: { "login-dialog-target": "submitButton" })
+                      button("Sign In", type: "submit")
+                        .w("full").px(4).py(3).bg("blue-600").text_color("white")
+                        .font_weight("medium").rounded("md").border("none")
+                        .cursor("pointer").transition.hover_bg("blue-700")
+                        .data("login-dialog-target": "submitButton")
                     end
                     
                     # Register link
                     if register_url
-                      div(style: "text-align: center; margin-top: 1rem;") do
-                        text("Don't have an account? ", style: "font-size: 0.875rem; color: #6b7280;")
-                        link("Sign up", destination: register_url, style: "font-size: 0.875rem; color: #2563eb; font-weight: 500; text-decoration: none;")
+                      div.text_center.mt(4) do
+                        text("Don't have an account? ").text_sm.text_color("gray-500")
+                        link("Sign up", destination: register_url)
+                          .text_sm.text_color("blue-600").font_weight("medium").no_underline.hover_text_color("blue-500")
                       end
                     end
                   end
@@ -234,8 +242,6 @@ module SwiftUIRails
               
               # Embedded Stimulus script
               embedded_stimulus_script
-            else
-              Rails.logger.info "🔥 LoginDialogComponent open=false, not rendering modal"
             end
           end
           
