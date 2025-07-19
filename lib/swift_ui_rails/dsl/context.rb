@@ -134,8 +134,27 @@ module SwiftUIRails
     end
 
     # Override the render method to use the view context
-    def render(...)
-      @view_context.render(...)
+    def render(component_or_string = nil, **options, &block)
+      puts "🚀 DSLContext.render called!"
+      Rails.logger.debug { "DSLContext.render called with: #{component_or_string.class.name}" }
+      
+      if component_or_string.is_a?(ViewComponent::Base)
+        puts "🎯 DSLContext: Rendering ViewComponent: #{component_or_string.class.name}"
+        Rails.logger.debug { "DSLContext: Rendering ViewComponent: #{component_or_string.class.name}" }
+        # Call ViewComponent's render method directly to avoid delegation
+        rendered_html = @view_context.render(component_or_string, **options, &block)
+        Rails.logger.debug { "DSLContext: Rendered HTML length: #{rendered_html.to_s.length}" }
+        
+        # Create a raw HTML element to hold the rendered content
+        raw_element = create_element(:div, rendered_html.html_safe)
+        raw_element.add_class("swift-ui-rendered-component")
+        Rails.logger.debug { "DSLContext: Created DSL element: #{raw_element.class.name}" }
+        raw_element
+      else
+        # Fallback to default render behavior
+        Rails.logger.debug { "DSLContext: Fallback to default render" }
+        @view_context.render(component_or_string, **options, &block)
+      end
     end
 
     # Use safe_join for combining HTML parts

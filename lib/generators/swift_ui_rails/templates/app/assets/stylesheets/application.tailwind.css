@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SwiftUI Rails custom styles */
+@layer components {
+  .swift-ui-grid-item {
+    @apply w-full h-auto block relative;
+  }
+  
+  .swift-ui-grid > .grid > * {
+    min-width: 0;
+    min-height: 0;
+  }
+}

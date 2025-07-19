@@ -7,10 +7,13 @@ require 'digest'
 require_relative 'component/collection_support'
 require_relative 'component/slots'
 require_relative 'component/caching'
+require_relative 'component/stateful_component'
+require_relative 'component/advanced_slots'
 require_relative 'reactive'
 require_relative 'security/component_validator'
 require_relative 'dev_tools/component_tree_debugger' if Rails.env.local?
 require_relative 'dev_tools/debug_helpers' if Rails.env.local?
+require_relative 'infrastructure_checker'
 
 module SwiftUIRails
   module Component
@@ -19,6 +22,8 @@ module SwiftUIRails
       include SwiftUIRails::Component::CollectionSupport
       include SwiftUIRails::Component::Slots
       include SwiftUIRails::Component::Caching
+      include SwiftUIRails::Component::StatefulComponent
+      include SwiftUIRails::Component::AdvancedSlots
       include SwiftUIRails::Reactive if defined?(SwiftUIRails::Reactive)
       include SwiftUIRails::Security::ComponentValidator
       include SwiftUIRails::DevTools::DebugHelpers if Rails.env.local?
@@ -32,7 +37,29 @@ module SwiftUIRails
       # Check for deprecated component usage when class is loaded
       def self.inherited(subclass)
         super
-        SwiftUIRails::Deprecations.check_component_usage(subclass)
+        SwiftUIRails::Deprecations.check_component_usage(subclass) if defined?(SwiftUIRails::Deprecations)
+        
+        # Check infrastructure on first component load
+        check_infrastructure_once!
+      end
+
+      # Check infrastructure only once per Rails boot
+      def self.check_infrastructure_once!
+        return if @infrastructure_checked
+        @infrastructure_checked = true
+        
+        begin
+          SwiftUIRails::InfrastructureChecker.check_infrastructure!
+        rescue SwiftUIRails::InfrastructureChecker::ConfigurationError => e
+          if Rails.env.development?
+            Rails.logger.error e.message
+            # In development, show helpful error but don't crash
+            puts "\n#{e.message}\n"
+          else
+            # In production, this is a serious configuration error
+            raise e
+          end
+        end
       end
 
       # Memoization support for swift_ui content
@@ -68,10 +95,15 @@ module SwiftUIRails
 
         # Define the swift_ui DSL block
         def swift_ui(&block)
+          # puts "🏗️  swift_ui class method called for #{self.name}"
+          
           # Store the block to be executed in the component context
           @swift_ui_block = block
 
           define_method :call do
+            # puts "🎯 Component.call method invoked!"
+            # puts "🔍 Component class: #{self.class.name}"
+            
             # Check if memoization is enabled and we have a cached result
             return @memoized_swift_ui_content if self.class.swift_ui_memoization_enabled && memoized_content_valid?
 
@@ -80,7 +112,9 @@ module SwiftUIRails
 
             # Execute the block directly in the component context
             # This enables natural composition - helper methods can call DSL methods directly
+            # puts "🚀 About to execute swift_ui block!"
             instance_eval(&self.class.instance_variable_get(:@swift_ui_block))
+            # puts "✅ Swift_ui block executed!"
 
             # Flush all collected elements
             rendered_content = flush_elements
@@ -260,7 +294,26 @@ module SwiftUIRails
           # Ensure view context is set to self (the component)
           element.view_context ||= self
           Rails.logger.debug { "Component: Rendering element #{element.tag_name}" }
-          (element.to_s || '').html_safe
+          
+          # CRITICAL FIX: Enhanced element rendering with better error handling
+          begin
+            rendered = element.to_s
+            # Check if element has content that should be rendered
+            if rendered.blank? && element.instance_variable_get(:@content).present?
+              Rails.logger.debug { "Component: Element #{element.tag_name} has content but blank rendering - forcing content" }
+              # Force render with content
+              content = element.instance_variable_get(:@content)
+              rendered = content_tag(element.tag_name, ERB::Util.html_escape(content.to_s), element.instance_variable_get(:@options) || {})
+            end
+            
+            Rails.logger.debug { "Component: Rendered element #{element.tag_name}: #{rendered.to_s[0..100]}..." }
+            (rendered || '').html_safe
+          rescue StandardError => e
+            Rails.logger.error { "Component: Failed to render element #{element.tag_name}: #{e.message}" }
+            Rails.logger.error { "Component: Element content: #{element.instance_variable_get(:@content).inspect}" }
+            # Return empty string to prevent breaking the entire render
+            ''.html_safe
+          end
         end
 
         # Clear the pending elements after rendering
@@ -268,8 +321,18 @@ module SwiftUIRails
 
         result = safe_join(html_parts)
         Rails.logger.debug { "Component: Flushed #{html_parts.length} elements, total length: #{result.to_s.length}" }
+        
+        # CRITICAL FIX: If result is empty but we had elements, log this for debugging
+        if result.to_s.strip.empty? && html_parts.any?
+          Rails.logger.warn { "Component: WARNING - Result is empty but had #{html_parts.length} elements to render" }
+          html_parts.each_with_index do |part, index|
+            Rails.logger.warn { "Component: Element #{index}: #{part.to_s[0..100]}..." }
+          end
+        end
+        
         result
       end
+
 
       # Register component actions for event handling
       def register_component_action(action_id, block)
@@ -456,11 +519,38 @@ module SwiftUIRails
         @needs_rerender || false
       end
 
-      # Make DSL methods available in components
-      include SwiftUIRails::DSL
+      # DSL methods are already included above at line 21
 
       # Ensure Element class is accessible
       Element = SwiftUIRails::DSL::Element
+
+      # DSL-compatible render method
+      # This captures rendered components as DSL elements
+      def render_component(component_or_string = nil, **options, &block)
+        puts "🚀 Component.render_component called!"
+        Rails.logger.debug { "Component.render_component called with: #{component_or_string.class.name}" }
+        
+        if component_or_string.is_a?(ViewComponent::Base)
+          puts "🎯 Rendering ViewComponent: #{component_or_string.class.name}"
+          Rails.logger.debug { "Rendering ViewComponent: #{component_or_string.class.name}" }
+          # Call ViewComponent's render method directly to avoid delegation
+          rendered_html = self.view_context.render(component_or_string, **options, &block)
+          Rails.logger.debug { "Rendered HTML length: #{rendered_html.to_s.length}" }
+          
+          # Create a raw HTML element to hold the rendered content
+          raw_element = create_element(:div, rendered_html.html_safe)
+          raw_element.add_class("swift-ui-rendered-component")
+          Rails.logger.debug { "Created DSL element: #{raw_element.class.name}" }
+          raw_element
+        else
+          # Fallback to default render behavior
+          Rails.logger.debug { "Fallback to default render" }
+          self.view_context.render(component_or_string, **options, &block)
+        end
+      end
+      
+      # Alias render to our custom method
+      alias_method :render, :render_component
 
       # Memoization helpers (public for testing)
       def calculate_memoization_key

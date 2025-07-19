@@ -27,12 +27,28 @@ module SwiftUIRails
             # If we're in a DSL context, the block will be handled properly
             # If not, we need to collect all elements created in the block
             if block
+              # Store the current pending elements count to track new elements
+              initial_element_count = (@pending_elements || []).length
+              
               # Execute the block and capture any returned element
               result = instance_eval(&block)
+              
               # If the block returns an element, ensure it's registered
-              register_element(result) if result.is_a?(Element) && !(@pending_elements || []).include?(result)
-              # Return nil to let the DSL context handle rendering via flush_elements
-              nil
+              if result.is_a?(Element) && !(@pending_elements || []).include?(result)
+                register_element(result)
+              end
+              
+              # Check if new elements were created during block execution
+              # This handles helper methods that create elements internally
+              current_element_count = (@pending_elements || []).length
+              if current_element_count > initial_element_count
+                # Elements were created during block execution - they're already registered
+                # Return nil to let the DSL context handle rendering via flush_elements
+                nil
+              else
+                # No new elements were created, return the block result if it's an element
+                result.is_a?(Element) ? result : nil
+              end
             end
           else
             # For non-DSL contexts, we need to capture elements created in the block
@@ -82,12 +98,28 @@ module SwiftUIRails
             # If we're in a DSL context, the block will be handled properly
             # If not, we need to collect all elements created in the block
             if block
+              # Store the current pending elements count to track new elements
+              initial_element_count = (@pending_elements || []).length
+              
               # Execute the block and capture any returned element
               result = instance_eval(&block)
+              
               # If the block returns an element, ensure it's registered
-              register_element(result) if result.is_a?(Element) && !(@pending_elements || []).include?(result)
-              # Return nil to let the DSL context handle rendering via flush_elements
-              nil
+              if result.is_a?(Element) && !(@pending_elements || []).include?(result)
+                register_element(result)
+              end
+              
+              # Check if new elements were created during block execution
+              # This handles helper methods that create elements internally
+              current_element_count = (@pending_elements || []).length
+              if current_element_count > initial_element_count
+                # Elements were created during block execution - they're already registered
+                # Return nil to let the DSL context handle rendering via flush_elements
+                nil
+              else
+                # No new elements were created, return the block result if it's an element
+                result.is_a?(Element) ? result : nil
+              end
             end
           else
             # For non-DSL contexts, we need to capture elements created in the block

@@ -36,11 +36,9 @@ module SwiftUIRails
       g.factory_bot dir: 'spec/factories'
     end
 
-    # Load generators
-    generators do
-      require_relative '../generators/swift_ui_rails/install/install_generator'
-      require_relative '../generators/swift_ui_rails/component/component_generator'
-      require_relative '../generators/swift_ui_rails/stories/stories_generator'
+    # Explicitly load generators in the initializer
+    initializer 'swift_ui_rails.generators' do
+      Rails.application.config.generators.templates.unshift File.expand_path('../generators/swift_ui_rails/templates', __dir__)
     end
   end
 end

@@ -1,5 +1,11 @@
 # SwiftUI Rails Playground
 
+⚠️ **SECURITY WARNING: DEVELOPMENT ONLY** ⚠️
+
+**This application contains intentional code execution capabilities for development purposes and should NEVER be deployed to production or exposed to untrusted networks. It executes arbitrary Ruby code and poses severe security risks if misused.**
+
+---
+
 An interactive playground for experimenting with the SwiftUI Rails DSL. This app provides a live code editor where you can write SwiftUI-style Ruby code and see the results instantly.
 
 ## Features
@@ -11,6 +17,13 @@ An interactive playground for experimenting with the SwiftUI Rails DSL. This app
 - **Error Handling**: Clear error messages when something goes wrong
 
 ## Setup
+
+⚠️ **SECURITY REQUIREMENTS** ⚠️
+
+- **Development environment only** - Never deploy to production
+- **Isolated network** - Run only on localhost or completely isolated networks
+- **Trusted users only** - Only allow access to developers you trust completely
+- **No sensitive data** - Never use with real user data or credentials
 
 1. Make sure you have Ruby 3.2+ installed
 2. Install dependencies:
@@ -24,6 +37,8 @@ An interactive playground for experimenting with the SwiftUI Rails DSL. This app
    ```
 
 4. Visit http://localhost:3000
+
+**⚠️ NEVER expose this application to the internet or untrusted networks ⚠️**
 
 ## Usage
 
@@ -62,8 +77,19 @@ end
 The playground is built as a separate Rails application that depends on the `swift_ui_rails` gem. This separation allows for:
 
 - Clean separation of concerns between the DSL framework and the playground
-- Independent deployment and scaling
-- Focused development and testing
+- **Security isolation** - Keeps intentional RCE capabilities separate from the main gem
+- Independent development and testing
+
+### Security Architecture
+
+⚠️ **INTENTIONAL SECURITY VULNERABILITIES** ⚠️
+
+This application intentionally includes:
+- **Remote Code Execution (RCE)** via `class_eval` of user input
+- **Dynamic file loading** for component exploration
+- **Unrestricted Ruby execution** for DSL experimentation
+
+These are **intentional features** for development, not security bugs. The application is designed to execute arbitrary Ruby code for DSL development and testing purposes.
 
 ## Development
 

@@ -6,7 +6,29 @@ module SwiftUIRails
     module HTMLElements
       def div(**attrs, &block)
         Rails.logger.debug { "DSL.div called with block: #{block}" }
-        create_element(:div, nil, **attrs, &block)
+        
+        # Use the same pattern as layout elements for proper block handling
+        create_element(:div, nil, **attrs) do
+          if block && (is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base))
+            # Execute the block and capture any returned element or string
+            result = instance_eval(&block)
+            
+            # If the block returns a string, create a text element for it
+            if result.is_a?(String)
+              text_element = create_element(:span, result)
+              register_element(text_element)
+            elsif result.is_a?(Element) && !(@pending_elements || []).include?(result)
+              # If the block returns an element, ensure it's registered
+              register_element(result)
+            end
+            
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
+          elsif block
+            # For non-DSL contexts, just execute the block
+            instance_eval(&block)
+          end
+        end
       end
 
       def span(**attrs, &block)
@@ -15,7 +37,29 @@ module SwiftUIRails
 
       def section(**attrs, &block)
         Rails.logger.debug { "DSL.section called with block: #{block}, attrs: #{attrs.inspect}" }
-        create_element(:section, nil, **attrs, &block)
+        
+        # Use the same pattern as div for proper block handling
+        create_element(:section, nil, **attrs) do
+          if block && (is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base))
+            # Execute the block and capture any returned element or string
+            result = instance_eval(&block)
+            
+            # If the block returns a string, create a text element for it
+            if result.is_a?(String)
+              text_element = create_element(:span, result)
+              register_element(text_element)
+            elsif result.is_a?(Element) && !(@pending_elements || []).include?(result)
+              # If the block returns an element, ensure it's registered
+              register_element(result)
+            end
+            
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
+          elsif block
+            # For non-DSL contexts, just execute the block
+            instance_eval(&block)
+          end
+        end
       end
 
       def article(**attrs, &block)
@@ -31,15 +75,82 @@ module SwiftUIRails
       end
 
       def nav(**attrs, &block)
-        create_element(:nav, nil, **attrs, &block)
+        Rails.logger.debug { "DSL.nav called with block: #{block}, attrs: #{attrs.inspect}" }
+        
+        # Use the same pattern as div for proper block handling
+        create_element(:nav, nil, **attrs) do
+          if block && (is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base))
+            # Execute the block and capture any returned element or string
+            result = instance_eval(&block)
+            
+            # If the block returns a string, create a text element for it
+            if result.is_a?(String)
+              text_element = create_element(:span, result)
+              register_element(text_element)
+            elsif result.is_a?(Element) && !(@pending_elements || []).include?(result)
+              # If the block returns an element, ensure it's registered
+              register_element(result)
+            end
+            
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
+          elsif block
+            # For non-DSL contexts, just execute the block
+            instance_eval(&block)
+          end
+        end
       end
 
       def a(**attrs, &block)
-        create_element(:a, nil, **attrs, &block)
+        Rails.logger.debug { "DSL.a called with block: #{block}, attrs: #{attrs.inspect}" }
+        
+        # Use the same pattern as div for proper block handling
+        create_element(:a, nil, **attrs) do
+          if block && (is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base))
+            # Execute the block and capture any returned element or string
+            result = instance_eval(&block)
+            
+            # If the block returns a string, create a text element for it
+            if result.is_a?(String)
+              text_element = create_element(:span, result)
+              register_element(text_element)
+            elsif result.is_a?(Element) && !(@pending_elements || []).include?(result)
+              # If the block returns an element, ensure it's registered
+              register_element(result)
+            end
+            
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
+          elsif block
+            # For non-DSL contexts, just execute the block
+            instance_eval(&block)
+          end
+        end
       end
 
       def h1(**attrs, &block)
-        create_element(:h1, nil, **attrs, &block)
+        # Use the same pattern as div for proper block handling
+        create_element(:h1, nil, **attrs) do
+          if block && (is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base))
+            # Execute the block and capture any returned element or string
+            result = instance_eval(&block)
+            
+            # If the block returns a string, create a text element for it
+            if result.is_a?(String)
+              text_element = create_element(:span, result)
+              register_element(text_element)
+            elsif result.is_a?(Element) && !(@pending_elements || []).include?(result)
+              # If the block returns an element, ensure it's registered
+              register_element(result)
+            end
+            
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
+          elsif block
+            # For non-DSL contexts, just execute the block
+            instance_eval(&block)
+          end
+        end
       end
 
       def h2(**attrs, &block)
@@ -62,8 +173,32 @@ module SwiftUIRails
         create_element(:h6, nil, **attrs, &block)
       end
 
-      def p(**attrs, &block)
-        create_element(:p, nil, **attrs, &block)
+      # HTML paragraph element - clean separation from Tailwind p() modifier
+      def paragraph(**attrs, &block)
+        Rails.logger.debug { "DSL.paragraph called with attrs: #{attrs.inspect}, block: #{block}" }
+        
+        # Use the same pattern as div for proper block handling
+        create_element(:p, nil, **attrs) do
+          if block && (is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base))
+            # Execute the block and capture any returned element or string
+            result = instance_eval(&block)
+            
+            # If the block returns a string, create a text element for it
+            if result.is_a?(String)
+              text_element = create_element(:span, result)
+              register_element(text_element)
+            elsif result.is_a?(Element) && !(@pending_elements || []).include?(result)
+              # If the block returns an element, ensure it's registered
+              register_element(result)
+            end
+            
+            # Return nil to let the DSL context handle rendering via flush_elements
+            nil
+          elsif block
+            # For non-DSL contexts, just execute the block
+            instance_eval(&block)
+          end
+        end
       end
 
       # Text element - special handling for inline text
@@ -79,6 +214,21 @@ module SwiftUIRails
         else
           create_element(:a, title, **attrs)
         end
+      end
+
+      # Script element for inline JavaScript
+      def script(**attrs, &block)
+        create_element(:script, nil, **attrs, &block)
+      end
+
+      # Main element for semantic HTML
+      def main(**attrs, &block)
+        create_element(:main, nil, **attrs, &block)
+      end
+
+      # Line break element - self-closing
+      def br(**attrs)
+        create_element(:br, nil, **attrs)
       end
     end
   end
