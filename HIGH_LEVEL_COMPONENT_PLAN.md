@@ -20,7 +20,7 @@ This document outlines a comprehensive plan for building sophisticated, reusable
 
 ## 📚 Component Library Structure
 
-```
+```text
 lib/swift_ui_rails/components/
 ├── foundation/                    # Base building blocks
 │   ├── base_component.rb         # Enhanced base with state management

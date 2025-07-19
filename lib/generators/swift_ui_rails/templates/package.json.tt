@@ -1,0 +1,11 @@
+{
+  "name": "<%= Rails.application.class.module_parent_name.downcase %>",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/tailwind.css --build",
+    "build:dev": "tailwindcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

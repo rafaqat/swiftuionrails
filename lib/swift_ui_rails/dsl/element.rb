@@ -24,6 +24,8 @@ module SwiftUIRails
         @css_classes = []
         @attributes = {}
         @dsl_context = dsl_context
+        
+        # puts "🔧 Element.initialize: #{tag_name}, dsl_context=#{dsl_context.class.name if dsl_context}"
       end
 
       # Add CSS classes via chaining
@@ -123,20 +125,20 @@ module SwiftUIRails
       end
 
       # Display utilities
-      def flex
-        tw('flex')
+      def flex(&block)
+        tw('flex', &block)
       end
 
-      def block
-        tw('block')
+      def block(&block)
+        tw('block', &block)
       end
 
-      def inline
-        tw('inline')
+      def inline(&block)
+        tw('inline', &block)
       end
 
-      def hidden
-        tw('hidden')
+      def hidden(&block)
+        tw('hidden', &block)
       end
 
       # Border utilities
@@ -178,6 +180,47 @@ module SwiftUIRails
 
       def overflow_hidden(&block)
         tw('overflow-hidden', &block)
+      end
+
+      def overflow(value = nil, &block)
+        if value
+          tw("overflow-#{value}", &block)
+        else
+          tw('overflow', &block)
+        end
+      end
+
+      def relative(&block)
+        tw('relative', &block)
+      end
+
+      def absolute(&block)
+        tw('absolute', &block)
+      end
+
+      def fixed(&block)
+        tw('fixed', &block)
+      end
+
+      def sticky(&block)
+        tw('sticky', &block)
+      end
+
+      # Typography utilities
+      def leading_tight(&block)
+        tw('leading-tight', &block)
+      end
+
+      def leading_relaxed(&block)
+        tw('leading-relaxed', &block)
+      end
+
+      def tracking(value = nil, &block)
+        if value
+          tw("tracking-#{value}", &block)
+        else
+          tw('tracking', &block)
+        end
       end
 
       def pt(value = nil, &block)
@@ -825,16 +868,19 @@ module SwiftUIRails
         # Handle the content/block
         if @block
           Rails.logger.debug { "Element.to_s: Processing block for #{@tag_name}" }
+          Rails.logger.info { "Element.to_s: @dsl_context is #{@dsl_context.inspect}" }
 
           # If we already have a DSL context, use it directly
           # This prevents creating nested contexts and duplicate rendering
           if @dsl_context
+            Rails.logger.info { "Element.to_s: @dsl_context is #{@dsl_context.class.name}" }
             # Check if the context is a component (Component-as-DSL-Context)
             if @dsl_context.is_a?(SwiftUIRails::Component::Base)
               # Execute block directly in component context
               # This enables natural composition
-              Rails.logger.debug { "Element.to_s: Executing block in component context" }
+              Rails.logger.info { "Element.to_s: Executing block in component context: #{@dsl_context.class.name}" }
               
+              # CRITICAL FIX: Properly isolate but preserve nested element registration
               # Save the current pending elements
               parent_elements = @dsl_context.instance_variable_get(:@pending_elements) || []
               @dsl_context.instance_variable_set(:@pending_elements, [])
@@ -850,10 +896,28 @@ module SwiftUIRails
                 @dsl_context.register_element(result)
               end
               
-              # Flush to get rendered content
-              content = @dsl_context.flush_elements
+              # Get the nested elements before flushing
+              nested_elements = @dsl_context.instance_variable_get(:@pending_elements) || []
               
-              # Restore parent elements
+              # CRITICAL FIX: If we have nested elements, render them individually
+              # instead of using flush_elements which may cause recursion
+              if nested_elements.any?
+                Rails.logger.debug { "Element.to_s: Rendering #{nested_elements.length} nested elements individually" }
+                rendered_elements = nested_elements.map do |element|
+                  # Set view context before rendering
+                  element.view_context ||= @dsl_context
+                  element.to_s
+                end
+                content = rendered_elements.join.html_safe
+              else
+                # No nested elements, check if we have a text result
+                content = result.is_a?(String) ? result.html_safe : ''.html_safe
+              end
+              
+              Rails.logger.debug { "Element.to_s: content=#{content.inspect}, result=#{result.inspect}" }
+              
+              # Restore parent elements WITHOUT losing nested elements
+              # The nested elements were already rendered, so we don't need to merge them back
               @dsl_context.instance_variable_set(:@pending_elements, parent_elements)
             else
               # Traditional DSLContext handling
@@ -882,6 +946,12 @@ module SwiftUIRails
 
               # Flush to get rendered content
               content = sub_context.flush_elements
+              
+              # CRITICAL FIX: Handle missing content in DSLContext
+              if content.to_s.strip.empty? && result.is_a?(String)
+                Rails.logger.debug { "Element.to_s: Using string result from DSLContext block: #{result.inspect}" }
+                content = result.html_safe
+              end
             end
           elsif @view_context.respond_to?(:capture)
             # No DSL context - render block directly
