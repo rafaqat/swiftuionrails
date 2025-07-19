@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'brand_component'
+require_relative 'search_component'
+require_relative 'notifications_component'
+require_relative 'user_menu_component'
+
 module SwiftUIRails
   module Component
     module Composed
@@ -188,23 +193,13 @@ module SwiftUIRails
             end
           end
           
-          # Brand section
+          # Brand section - now uses BrandComponent
           def brand_section
-            link(destination: brand_url) do
-              hstack(spacing: 3) do
-                if has_brand_logo
-                  image(src: brand_logo, alt: brand_text)
-                    .h(8).w(8).object_contain
-                end
-                
-                text(brand_text)
-                  .font_size("xl")
-                  .font_weight("bold")
-                  .text_color("gray-900")
-                  .tap { |text| text.block if has_brand_logo }
-              end
-            end
-            .flex.items_center
+            render BrandComponent.new(
+              brand_text: brand_text,
+              brand_logo: brand_logo,
+              brand_url: brand_url
+            )
           end
           
           # Mobile menu button
@@ -382,52 +377,24 @@ module SwiftUIRails
           end
           
           # Notifications widget
+          # Notifications widget - now uses NotificationsComponent
           def notifications_widget(**options)
-            div.relative do
-              button do
-                span { "🔔" }
-                
-                # Notification badge
-                if show_notifications
-                  span { "3" }
-                    .absolute.top(-1).right(-1)
-                    .bg("red-500").text_color("white")
-                    .text_xs.rounded_full
-                    .h(5).w(5)
-                    .flex.items_center.justify_center
-                end
-              end
-              .p(2)
-              .text_color("gray-400")
-              .hover_text_color("gray-600")
-              .rounded("md")
-              .hover_bg("gray-100")
-              .data(action: "click->toolbar#toggleNotifications")
-              
-              # Notifications dropdown (would be implemented)
-              # notifications_dropdown
-            end
+            render NotificationsComponent.new(
+              notification_count: 3, # This should come from props/state
+              notifications: [],     # This should come from props/state
+              show_badge: true
+            )
           end
           
-          # User menu widget
+          # User menu widget - now uses UserMenuComponent
           def user_menu_widget(**options)
-            div.relative do
-              button do
-                if current_user&.avatar_url
-                  image(src: current_user.avatar_url, alt: current_user.name)
-                    .h(8).w(8).rounded_full.object_cover
-                else
-                  div.h(8).w(8).bg("gray-300").rounded_full.flex.items_center.justify_center do
-                    text(current_user&.initials || "U")
-                      .text_sm.font_weight("medium").text_color("white")
-                  end
-                end
-              end
-              .data(action: "click->toolbar#toggleUserMenu")
-              
-              # User menu dropdown (would be shown via Stimulus)
-              # user_menu_dropdown if user_menu_open
-            end
+            return unless current_user
+            
+            render UserMenuComponent.new(
+              current_user: current_user,
+              user_menu_items: user_menu_items,
+              show_avatar: true
+            )
           end
           
           def user_menu_dropdown
