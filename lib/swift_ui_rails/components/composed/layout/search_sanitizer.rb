@@ -97,7 +97,8 @@ module SwiftUIRails
             # Use allowlist approach - only keep explicitly safe characters
             input
               .gsub(/[<>]/, '')                    # Remove angle brackets
-              .gsub(/javascript:/i, '')            # Remove javascript: protocol (simple match)
+              .gsub(/javascript\s*:/i, '')         # Handle optional spaces after javascript
+              .gsub(/java\s*script\s*:/i, '')      # Handle spaced variations
               .gsub(/[^\w\s\-_.,!?'"()]/, '')     # Keep only safe characters
               .gsub(/\s+/, ' ')                   # Normalize whitespace
               .strip
@@ -122,7 +123,11 @@ module SwiftUIRails
           def contains_event_handler?(input)
             # Simple string-based detection to avoid ReDoS
             lower_input = input.downcase
-            lower_input.include?('on') && lower_input.match?(/\bon[a-z]+=/i)
+            # Use multiple checks to avoid bypasses
+            lower_input.include?('on') && (
+              lower_input.match?(/\bon[a-z]+\s*=/i) || # Allow optional spaces before '='
+              lower_input.match?(/\bon[A-Z]+\s*=/i)    # Handle mixed-case event names
+            )
           end
           
           def remove_suspicious_patterns(input)

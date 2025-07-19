@@ -966,20 +966,8 @@ module SwiftUIRails
 
       # NOTE: Typography methods removed to avoid conflicts with security-validated methods above
 
-      def leading(value = nil)
-        add_class(value ? "leading-#{value}" : 'leading')
-        self
-      end
 
-      def tracking(value = nil)
-        add_class(value ? "tracking-#{value}" : 'tracking')
-        self
-      end
 
-      def text_align(align = nil)
-        add_class(align ? "text-#{align}" : 'text-align')
-        self
-      end
 
       # Layout methods
       def space_x(value = nil, &block)
@@ -994,10 +982,6 @@ module SwiftUIRails
 
       # Removed duplicate gap method (keeping the block-supporting version at line 509)
 
-      def grid_cols(value = nil)
-        add_class(value ? "grid-cols-#{value}" : 'grid-cols')
-        self
-      end
 
       def aspect(ratio = nil)
         add_class(ratio ? "aspect-#{ratio}" : 'aspect')
@@ -1019,25 +1003,7 @@ module SwiftUIRails
 
       # Removed duplicate hover_bg method (keeping the block-supporting version at line 614)
 
-      def hover_shadow(value = nil)
-        add_class(value ? "hover:shadow-#{value}" : 'hover:shadow')
-        self
-      end
 
-      def hover_scale(value = nil)
-        add_class(value ? "hover:scale-#{value}" : 'hover:scale')
-        self
-      end
-
-      def focus_outline_none
-        add_class('focus:outline-none')
-        self
-      end
-
-      def focus_border_color(color)
-        add_class("focus:border-#{color}")
-        self
-      end
 
       # Removed duplicate opacity method (keeping the block-supporting version at line 328)
 

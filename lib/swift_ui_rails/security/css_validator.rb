@@ -266,11 +266,24 @@ module SwiftUIRails
           # Check for CSS units without ReDoS patterns
           units = %w[px em rem % vh vw vmin vmax cm mm in pt pc ex ch]
           
-          # Extract numeric part and unit part safely
-          numeric_match = value.match(/\A\d*\.?\d+/)
-          return false unless numeric_match
+          # Safe extraction without ReDoS patterns - character by character approach
+          numeric_part = ""
+          unit_part = ""
+          decimal_found = false
           
-          unit_part = value[numeric_match.end..-1]
+          value.chars.each_with_index do |char, index|
+            if char.match?(/\d/)
+              numeric_part += char
+            elsif char == '.' && !decimal_found
+              numeric_part += char
+              decimal_found = true
+            else
+              unit_part = value[index..-1]
+              break
+            end
+          end
+          
+          return false if numeric_part.empty? || unit_part.empty?
           units.include?(unit_part.downcase)
         end
         
