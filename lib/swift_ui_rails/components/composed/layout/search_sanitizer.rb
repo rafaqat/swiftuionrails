@@ -138,11 +138,11 @@ module SwiftUIRails
               result.gsub!(keyword, '')
             end
             
-            # Remove simple patterns using safe regex with loop to handle overlapping matches
-            # Remove all (including overlapping) occurrences of '<script' (case-insensitive)
-            loop do
-              changed = result.gsub!(/<script/i, '')
-              break unless changed
+            # Remove complete script blocks safely to prevent HTML injection
+            # Remove complete script blocks with content
+            while result.match?(/<script/i)
+              result.gsub!(/<script[^>]*>.*?<\/script\s*>/mi, '')
+              result.gsub!(/<script[^>]*>/i, '') # Handle unclosed script tags
             end
             
             # Remove all (including overlapping) occurrences of 'javascript:' (case-insensitive)
