@@ -51,7 +51,7 @@ module SwiftUIRails
                   type: "search",
                   name: "q",
                   placeholder: search_placeholder,
-                  maxlength: 255,  # Prevent overly long inputs
+                  maxlength: SearchSanitizer::MAX_SEARCH_LENGTH,  # Use constant for consistency
                   pattern: sanitized_search_pattern,  # HTML5 pattern validation
                   title: "Search terms (letters, numbers, spaces, and basic punctuation only)"
                 )
@@ -92,9 +92,10 @@ module SwiftUIRails
             end
           end
           
-          # Safe search pattern - only allow alphanumeric, spaces, and safe punctuation
+          # Safe search pattern - use SearchSanitizer constant for consistency
           def sanitized_search_pattern
-            "[a-zA-Z0-9\\s\\-_.,!?'\"()]*"
+            # Extract pattern from SearchSanitizer::SAFE_PATTERN constant
+            SearchSanitizer::SAFE_PATTERN.source.gsub(/\\A|\\z/, '')
           end
           
           def mobile_search_section

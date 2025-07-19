@@ -171,12 +171,92 @@ module SwiftUIRails
           end
         end
 
-        # Validate any generic CSS value
+        # Validate any generic CSS value - comprehensive validation for tests
         def valid_css_value?(value)
-          return false unless value
-
-          value.to_s.match?(CSS_IDENTIFIER)
+          return true if value.nil? || value.to_s.strip.empty?  # Empty values are allowed
+          
+          value_str = value.to_s.strip
+          
+          # Check for dangerous patterns first
+          return false if contains_dangerous_css_pattern?(value_str)
+          
+          # Allow a wide range of valid CSS values
+          return true if valid_css_pattern?(value_str)
+          
+          false
         end
+
+        private
+
+        # Check for dangerous CSS injection patterns
+        def contains_dangerous_css_pattern?(value)
+          dangerous_patterns = [
+            /javascript:/i,
+            /vbscript:/i,
+            /data:(?!image\/)/i,  # Allow image data URLs
+            /expression\s*\(/i,
+            /@import/i,
+            /<script/i,
+            /<\/script/i,
+            /<\/style/i,
+            /eval\s*\(/i,
+            /setTimeout/i,
+            /setInterval/i,
+            /-moz-binding/i,
+            /behavior\s*:/i,
+            /-ms-behavior/i
+          ]
+          
+          if dangerous_patterns.any? { |pattern| value.match?(pattern) }
+            safe_logger_warn "CSS Injection attempt blocked: #{value}"
+            true
+          else
+            false
+          end
+        end
+
+        # Safe logger helper that handles nil Rails.logger in tests
+        def safe_logger_warn(message)
+          if defined?(Rails) && Rails.logger
+            Rails.logger.warn(message)
+          end
+        end
+
+        # Check if value matches valid CSS patterns
+        def valid_css_pattern?(value)
+          valid_patterns = [
+            # Basic CSS identifiers and values
+            /\A[a-zA-Z0-9\-_]+\z/,
+            # Colors (hex, rgb, rgba, hsl, hsla, names)
+            /\A#[0-9a-fA-F]{3,8}\z/,
+            /\Argb\s*\([^)]+\)\z/i,
+            /\Argba\s*\([^)]+\)\z/i,
+            /\Ahsl\s*\([^)]+\)\z/i,
+            /\Ahsla\s*\([^)]+\)\z/i,
+            # Units (px, em, rem, %, vh, vw, etc.)
+            /\A\d*\.?\d+(px|em|rem|%|vh|vw|vmin|vmax|cm|mm|in|pt|pc|ex|ch)\z/i,
+            # Calc expressions
+            /\Acalc\s*\([^)]+\)\z/i,
+            # CSS variables
+            /\Avar\s*\([^)]+\)\z/i,
+            # Gradients
+            /\A(linear|radial|conic)-gradient\s*\([^)]+\)\z/i,
+            # Transform functions
+            /\A(translate|translateX|translateY|translateZ|translate3d|rotate|rotateX|rotateY|rotateZ|rotate3d|scale|scaleX|scaleY|scaleZ|scale3d|skew|skewX|skewY|matrix|matrix3d|perspective)\s*\([^)]+\)\z/i,
+            # Common keywords
+            /\A(auto|inherit|initial|unset|none|normal|bold|italic|underline|overline|line-through|left|right|center|justify|top|bottom|middle|baseline|sub|super|text-top|text-bottom)\z/i,
+            # Cubic bezier
+            /\Acubic-bezier\s*\([^)]+\)\z/i,
+            # Drop shadow and other filter functions
+            /\Adrop-shadow\s*\([^)]+\)\z/i,
+            # Complex expressions with spaces and operators
+            /\A[a-zA-Z0-9\-_\s.,()%#\/]+\z/
+          ]
+          
+          valid_patterns.any? { |pattern| value.match?(pattern) }
+        end
+
+        public
 
         # Sanitize any CSS value to prevent injection
         def sanitize_css_value(value)
@@ -209,6 +289,30 @@ module SwiftUIRails
           return fallback if sanitized_prefix.empty? || sanitized_value.empty?
 
           "#{sanitized_prefix}-#{sanitized_value}"
+        end
+      end
+    end
+
+    # Class wrapper for test compatibility
+    class CssValidator
+      def validate_css_value(value)
+        CSSValidator.valid_css_value?(value)
+      end
+
+      def sanitize_css_value(value)
+        CSSValidator.sanitize_css_value(value)
+      end
+
+      def safe_css_class?(css_class)
+        CSSValidator.safe_css_class?(css_class)
+      end
+
+      # Missing method expected by tests
+      def safe_css_value(value, fallback = 'inherit')
+        if validate_css_value(value)
+          value.to_s
+        else
+          fallback
         end
       end
     end

@@ -135,12 +135,11 @@ module SwiftUIRails
 
     # Override the render method to use the view context
     def render(component_or_string = nil, **options, &block)
-      puts "🚀 DSLContext.render called!"
+      Rails.logger.debug { "🚀 DSLContext.render called!" }
       Rails.logger.debug { "DSLContext.render called with: #{component_or_string.class.name}" }
       
       if component_or_string.is_a?(ViewComponent::Base)
-        puts "🎯 DSLContext: Rendering ViewComponent: #{component_or_string.class.name}"
-        Rails.logger.debug { "DSLContext: Rendering ViewComponent: #{component_or_string.class.name}" }
+        Rails.logger.debug { "🎯 DSLContext: Rendering ViewComponent: #{component_or_string.class.name}" }
         # Call ViewComponent's render method directly to avoid delegation
         rendered_html = @view_context.render(component_or_string, **options, &block)
         Rails.logger.debug { "DSLContext: Rendered HTML length: #{rendered_html.to_s.length}" }

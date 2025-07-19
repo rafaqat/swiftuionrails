@@ -60,7 +60,7 @@ module SwiftUIRails
           
           📋 Manual Setup (if preferred):
           #{missing_items.include?("application layout") ? "  • Create app/views/layouts/application.html.erb with CSS loading\n" : ""}#{missing_items.include?("asset configuration") ? "  • Add app/assets/builds to Rails asset paths\n" : ""}#{missing_items.include?("CSS build file") ? "  • Build Tailwind CSS to app/assets/builds/tailwind.css\n" : ""}
-          📖 Documentation: https://github.com/your-repo/swift-ui-rails#installation
+          📖 Documentation: https://github.com/rafaqat/swiftuionrails#installation
         ERROR
       end
     end

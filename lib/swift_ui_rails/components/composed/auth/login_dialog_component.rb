@@ -247,326 +247,43 @@ module SwiftUIRails
           
           private
           
-          # Note: modal_overlay and modal_container methods removed as they were unused
+          # Note: Unused helper methods removed per CodeRabbit feedback
           
-          def modal_header
-            div.px(6).py(4).border_b.border_color("gray-200") do
-              hstack do
-                div.flex_1 do
-                  header || default_header
-                end
-                
-                # Close button
-                close_button
-              end
-            end
-          end
+          # Component sections (used by older unused methods - can be removed)
+          # The error display, social login, and form are now inline in the main DSL block
           
-          def modal_body
-            div.px(6).py(6) do
-              # Error display
-              if has_errors
-                error_banner
-              end
-              
-              # Social login section
-              if show_social
-                social_login_section
-                divider_with_text("or")
-              end
-              
-              # Login form
-              login_form
-            end
-          end
+          # All these helper methods are unused since the UI is defined inline in the main DSL block
+          # Removed per CodeRabbit feedback to reduce code duplication and maintenance burden
           
-          def modal_footer
-            div.px(6).py(4).bg("gray-50").rounded_b("lg") do
-              vstack(spacing: 4) do
-                # Submit button
-                submit_button
-                
-                # Footer actions
-                if footer_actions.any?
-                  footer_actions_section
-                end
-                
-                # Register link
-                if register_url
-                  register_link_section
-                end
-              end
-            end
-          end
-          
-          # Component sections
-          def error_banner
-            div.mb(4).p(4).bg("red-50").border.border_color("red-200").rounded("md") do
-              vstack(spacing: 2) do
-                hstack(spacing: 2) do
-                  icon("exclamation-triangle").text_color("red-400").width(5).height(5)
-                  text("Please fix the following errors:").text_color("red-800").font_weight("medium")
-                end
-                
-                vstack(spacing: 1) do
-                  errors.each do |field, messages|
-                    Array(messages).each do |message|
-                      text("• #{field.humanize}: #{message}").text_color("red-700").text_sm
-                    end
-                  end
-                end
-              end
-            end
-          end
-          
-          def social_login_section
-            vstack(spacing: 3) do
-              social_providers.each do |provider|
-                social_login_button(provider)
-              end
-            end.mb(6)
-          end
-          
-          def social_login_button(provider)
-            button do
-              hstack(spacing: 3, justify: :center) do
-                social_icon(provider)
-                text("Continue with #{provider.humanize}")
-              end
-            end
-            .w("full")
-            .py(3)
-            .border
-            .border_color("gray-300")
-            .rounded("md")
-            .hover_bg("gray-50")
-            .transition
-            .data(
-              action: "click->login-dialog#socialLogin",
-              "login-dialog-provider-param": provider
-            )
-          end
-          
-          def divider_with_text(text)
-            div.relative.my(6) do
-              div.absolute.inset(0).flex.items_center do
-                div.w("full").border_t.border_color("gray-300")
-              end
-              div.relative.flex.justify_center.text_sm do
-                span.px(2).bg("white").text_color("gray-500") { text(text) }
-              end
-            end
-          end
-          
-          def login_form
-            form.space_y(4)
-              .data(
-                controller: "form-validation",
-                action: "submit->login-dialog#submitForm",
-                "form-validation-url-value": login_url
-              ) do
-              
-              # Email field
-              form_field_group(:email) do
-                email_input
-              end
-              
-              # Password field
-              form_field_group(:password) do
-                password_input
-              end
-              
-              # Remember me checkbox
-              remember_me_field
-            end
-          end
-          
-          def form_field_group(field_name, &block)
-            div.space_y(1) do
-              label(field_name.to_s.humanize, for: "login_#{field_name}")
-                .text_sm.font_weight("medium").text_color("gray-700")
-              
-              yield
-              
-              # Field-specific errors
-              if errors[field_name]
-                text(errors[field_name].first)
-                  .text_sm.text_color("red-600").mt(1)
-              end
-            end
-          end
-          
-          def email_input
-            textfield(
-              name: "login[email]",
-              id: "login_email",
-              type: "email",
-              value: form_data[:email],
-              placeholder: "Enter your email",
-              required: true
-            )
-            .w("full")
-            .px(3).py(2)
-            .border.border_color("gray-300")
-            .rounded("md")
-            .focus_outline_none.focus_ring(2).focus_ring_color("blue-500")
-            .data(
-              "login-dialog-target": "emailInput",
-              action: "input->login-dialog#updateFormData blur->login-dialog#validateEmail"
-            )
-          end
-          
-          def password_input
-            textfield(
-              name: "login[password]",
-              id: "login_password",
-              type: "password",
-              placeholder: "Enter your password",
-              required: true
-            )
-            .w("full")
-            .px(3).py(2)
-            .border.border_color("gray-300")
-            .rounded("md")
-            .focus_outline_none.focus_ring(2).focus_ring_color("blue-500")
-            .data(
-              "login-dialog-target": "passwordInput",
-              action: "input->login-dialog#updateFormData blur->login-dialog#validatePassword"
-            )
-          end
-          
-          def remember_me_field
-            div.flex.items_center do
-              input(
-                type: "checkbox",
-                name: "login[remember_me]",
-                id: "login_remember_me",
-                checked: form_data[:remember_me]
-              )
-              .h(4).w(4).text_color("blue-600").rounded
-              .data(
-                "login-dialog-target": "rememberInput",
-                action: "change->login-dialog#updateFormData"
-              )
-              
-              label("Remember me", for: "login_remember_me")
-                .ml(2).text_sm.text_color("gray-700")
-            end
-          end
-          
-          def submit_button
-            button("Sign In", type: "submit")
-              .w("full")
-              .py(3)
-              .px(4)
-              .bg(submit_disabled ? "gray-400" : "blue-600")
-              .text_color("white")
-              .font_weight("medium")
-              .rounded("md")
-              .hover_bg(submit_disabled ? "gray-400" : "blue-700")
-              .transition
-              .tap { |btn| btn.cursor("not-allowed") if submit_disabled }
-              .data(
-                "login-dialog-target": "submitButton",
-                action: "click->login-dialog#submitForm"
-              )
-              .disabled(submit_disabled)
-          end
-          
-          def footer_actions_section
-            hstack(spacing: 4, justify: :center) do
-              footer_actions.each { |action| action }
-            end
-          end
-          
-          def register_link_section
-            div.text_center.mt(4) do
-              text("Don't have an account? ").text_sm.text_color("gray-600")
-              link("Sign up", destination: register_url)
-                .text_sm.text_color("blue-600").hover_text_color("blue-500")
-                .font_weight("medium")
-            end
-          end
-          
-          def close_button
-            button("×")
-              .text_color("gray-400")
-              .hover_text_color("gray-600")
-              .text_size("2xl")
-              .leading("none")
-              .data(action: "click->login-dialog#close")
-          end
-          
-          # Default slot implementations
-          def default_header
-            text("Sign In").font_size("xl").font_weight("semibold").text_color("gray-900")
-          end
-          
-          def default_social_buttons
-            render_social_buttons if show_social
-          end
-          
-          # Helper methods
-          
-          def social_icon(provider)
-            case provider.to_s
-            when 'google'
-              icon('google').width(5).height(5)
-            when 'github'
-              icon('github').width(5).height(5)
-            when 'facebook'
-              icon('facebook').width(5).height(5)
-            else
-              icon('user-circle').width(5).height(5)
-            end
-          end
-          
-          # Helper methods to replace computed properties
-          def has_errors
-            errors.any?
-          end
-          
-          def submit_disabled
-            form_data[:email].blank? || form_data[:password].blank?
-          end
+          # Helper methods (removed unused methods per CodeRabbit feedback)
           
           # Load external assets for the login dialog
           def load_login_dialog_assets
-            # CSS for animations and modal styling
-            style do
-              raw <<~CSS
-                @keyframes shake {
-                  0%, 100% { transform: translateX(0); }
-                  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-                  20%, 40%, 60%, 80% { transform: translateX(5px); }
-                }
-                
-                .login-dialog-modal {
-                  animation: fadeIn 0.2s ease-out;
-                }
-                
-                @keyframes fadeIn {
-                  from { opacity: 0; transform: scale(0.95); }
-                  to { opacity: 1; transform: scale(1); }
-                }
-                
-                .password-strength-bar {
-                  transition: width 0.3s ease, background-color 0.3s ease;
-                }
-                
-                .requirement-icon {
-                  transition: background-color 0.2s ease;
-                }
-              CSS
-            end
+            # Note: In a proper Rails 8 setup with Propshaft:
+            # 1. CSS animations should be in app/assets/stylesheets/login_dialog.css
+            # 2. Stimulus controller loaded via importmap in config/importmap.rb
+            # 3. This method would only ensure the controller is properly registered
             
-            # Note: In production, the Stimulus controller should be loaded via importmap
-            # This ensures the controller is available for the login dialog functionality
-            unless Rails.env.production?
-              script do
-                raw "// Login dialog controller should be imported via importmap in production"
+            # For now, we only add minimal inline styles that are absolutely necessary
+            # and cannot be handled by Tailwind CSS utilities
+            if Rails.env.development?
+              style do
+                raw <<~CSS
+                  /* Only essential animations that can't be done with Tailwind */
+                  @keyframes fadeIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                  }
+                  
+                  .login-dialog-modal {
+                    animation: fadeIn 0.2s ease-out;
+                  }
+                CSS
               end
             end
+            
+            # Stimulus controller should be loaded via importmap, not inline scripts
+            # In production, ensure the controller is available via asset pipeline
           end
         end
       end

@@ -200,13 +200,16 @@ module SwiftUIRails
           old_elements = @pending_elements
           @pending_elements = []
           
-          result = instance_eval(&block)
-          captured_elements = @pending_elements
-          
-          @pending_elements = old_elements
-          
-          # Return elements if any were captured, otherwise return the result
-          captured_elements.any? ? captured_elements : result
+          begin
+            result = instance_eval(&block)
+            captured_elements = @pending_elements
+            
+            # Return elements if any were captured, otherwise return the result
+            captured_elements.any? ? captured_elements : result
+          ensure
+            # Always restore the previous state, even if an exception occurs
+            @pending_elements = old_elements
+          end
         end
       end
       

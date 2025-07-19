@@ -527,12 +527,11 @@ module SwiftUIRails
       # DSL-compatible render method
       # This captures rendered components as DSL elements
       def render_component(component_or_string = nil, **options, &block)
-        puts "🚀 Component.render_component called!"
+        Rails.logger.debug { "🚀 Component.render_component called!" }
         Rails.logger.debug { "Component.render_component called with: #{component_or_string.class.name}" }
         
         if component_or_string.is_a?(ViewComponent::Base)
-          puts "🎯 Rendering ViewComponent: #{component_or_string.class.name}"
-          Rails.logger.debug { "Rendering ViewComponent: #{component_or_string.class.name}" }
+          Rails.logger.debug { "🎯 Rendering ViewComponent: #{component_or_string.class.name}" }
           # Call ViewComponent's render method directly to avoid delegation
           rendered_html = self.view_context.render(component_or_string, **options, &block)
           Rails.logger.debug { "Rendered HTML length: #{rendered_html.to_s.length}" }

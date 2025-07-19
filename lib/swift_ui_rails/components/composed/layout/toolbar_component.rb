@@ -64,6 +64,11 @@ module SwiftUIRails
           prop :current_user, type: Object, default: nil
           prop :user_menu_items, type: Array, default: []
           
+          # Notification configuration
+          prop :notification_count, type: Integer, default: 0
+          prop :notifications, type: Array, default: []
+          prop :show_badge, type: [TrueClass, FalseClass], default: true
+          
           # Breadcrumb data
           prop :breadcrumbs, type: Array, default: []
           
@@ -380,9 +385,9 @@ module SwiftUIRails
           # Notifications widget - now uses NotificationsComponent
           def notifications_widget(**options)
             render NotificationsComponent.new(
-              notification_count: 3, # This should come from props/state
-              notifications: [],     # This should come from props/state
-              show_badge: true
+              notification_count: notification_count,
+              notifications: notifications,
+              show_badge: show_badge
             )
           end
           
@@ -503,18 +508,8 @@ module SwiftUIRails
           # Helper methods for slot content rendering
           def render_slot_content(slot_content)
             return unless slot_content
-            
-            # Use ViewComponent's built-in slot rendering
-            # Simply yield the slot content - ViewComponent handles the rest
-            if slot_content.respond_to?(:content)
-              # For ViewComponent slots, delegate to the slot's content
-              slot_content
-            else
-              # For simple content, wrap in a basic container
-              div.class("toolbar-slot-content") do
-                text(slot_content.to_s)
-              end
-            end
+            # ViewComponent slots render directly
+            slot_content
           end
           
           def apply_button_variant(button, variant)
@@ -544,9 +539,15 @@ module SwiftUIRails
           
           # Extracted user info section
           def user_info_section
+            return nil unless current_user
+            
             div.px(4).py(3).border_b.border_color("gray-100") do
-              text(current_user.name).font_weight("medium").text_color("gray-900")
-              text(current_user.email).text_sm.text_color("gray-500")
+              if current_user.respond_to?(:name) && current_user.name
+                text(current_user.name).font_weight("medium").text_color("gray-900")
+              end
+              if current_user.respond_to?(:email) && current_user.email
+                text(current_user.email).text_sm.text_color("gray-500")
+              end
             end
           end
           
@@ -585,12 +586,21 @@ module SwiftUIRails
           
           # Extracted mobile user avatar
           def mobile_user_avatar
-            if current_user&.avatar_url
-              image(src: current_user.avatar_url, alt: current_user.name)
+            return nil unless current_user
+            
+            if current_user.respond_to?(:avatar_url) && current_user.avatar_url
+              image(src: current_user.avatar_url, alt: current_user.name || "User")
                 .h(10).w(10).rounded_full.object_cover
             else
               div.h(10).w(10).bg("gray-300").rounded_full.flex.items_center.justify_center do
-                text(current_user&.initials || "U")
+                initials = if current_user.respond_to?(:initials) && current_user.initials
+                             current_user.initials
+                           elsif current_user.respond_to?(:name) && current_user.name
+                             current_user.name.split.map(&:first).join[0..1].upcase
+                           else
+                             "U"
+                           end
+                text(initials)
                   .font_weight("medium").text_color("white")
               end
             end
@@ -598,9 +608,15 @@ module SwiftUIRails
           
           # Extracted mobile user details
           def mobile_user_details
+            return nil unless current_user
+            
             vstack(spacing: 1) do
-              text(current_user.name).font_weight("medium").text_color("gray-900")
-              text(current_user.email).text_sm.text_color("gray-500")
+              if current_user.respond_to?(:name) && current_user.name
+                text(current_user.name).font_weight("medium").text_color("gray-900")
+              end
+              if current_user.respond_to?(:email) && current_user.email
+                text(current_user.email).text_sm.text_color("gray-500")
+              end
             end
           end
           

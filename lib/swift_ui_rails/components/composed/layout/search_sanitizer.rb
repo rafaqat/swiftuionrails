@@ -17,23 +17,17 @@ module SwiftUIRails
           # Safe characters pattern - alphanumeric, spaces, and basic punctuation
           SAFE_PATTERN = /\A[a-zA-Z0-9\s\-_.,!?'"()]*\z/
           
-          # Suspicious patterns that might indicate injection attempts
-          # Note: These patterns are designed to avoid ReDoS vulnerabilities
-          SUSPICIOUS_PATTERNS = [
+          # Safe keyword-based detection instead of complex regex to prevent ReDoS
+          FORBIDDEN_KEYWORDS = %w[
+            <script javascript: select union insert delete drop exec
+          ].freeze
+          
+          # Only simple, safe regex patterns without quantifiers that could cause ReDoS
+          SIMPLE_PATTERNS = [
             /<script/i,
             /javascript:/i,
-            /\bon\w+\s*=/i,         # Fixed: Added word boundary to prevent ReDoS
-            /\bselect\b.*?\bfrom\b/i, # Fixed: Non-greedy quantifier to prevent ReDoS
-            /\bunion\b.*?\bselect\b/i, # Fixed: Non-greedy quantifier
-            /\binsert\b.*?\binto\b/i,  # Fixed: Non-greedy quantifier
-            /\bdelete\b.*?\bfrom\b/i,  # Fixed: Non-greedy quantifier
-            /\bdrop\b.*?\btable\b/i,   # Fixed: Non-greedy quantifier
-            /\bexec\b/i,             # SQL EXEC
-            /\{[^}]{0,100}\}/,       # Fixed: Limited quantifier to prevent ReDoS
-            /\$\{[^}]{0,100}\}/,     # Fixed: Limited quantifier for template literals
-            /%[0-9a-f]{2}/i,         # URL encoding (potential bypass attempt)
-            /\\[a-zA-Z0-9]{1,10}/,   # Fixed: Limited escape sequences to prevent ReDoS
-            /[\x00-\x1f]/,           # Fixed: Character class for control characters
+            /%[0-9a-f]{2}/i,         # URL encoding (specific, limited)
+            /[\x00-\x1f]/,           # Control characters (character class)
           ].freeze
           
           # Sanitize and validate search input
@@ -100,63 +94,68 @@ module SwiftUIRails
           private
           
           def sanitize_characters(input)
+            # Use allowlist approach - only keep explicitly safe characters
             input
               .gsub(/[<>]/, '')                    # Remove angle brackets
-              .gsub(/javascript:/i, '')            # Remove javascript: protocol
-              .gsub(/on\w+\s*=/i, '')             # Remove event handlers
+              .gsub(/javascript:/i, '')            # Remove javascript: protocol (simple match)
               .gsub(/[^\w\s\-_.,!?'"()]/, '')     # Keep only safe characters
               .gsub(/\s+/, ' ')                   # Normalize whitespace
               .strip
           end
           
           def contains_suspicious_patterns?(input)
-            SUSPICIOUS_PATTERNS.any? { |pattern| pattern.match?(input) }
+            # Use simple keyword detection to avoid ReDoS vulnerabilities
+            lower_input = input.downcase
+            
+            # Check forbidden keywords
+            return true if FORBIDDEN_KEYWORDS.any? { |keyword| lower_input.include?(keyword) }
+            
+            # Check simple patterns that don't cause ReDoS
+            return true if SIMPLE_PATTERNS.any? { |pattern| pattern.match?(input) }
+            
+            # Check for event handlers safely
+            return true if contains_event_handler?(input)
+            
+            false
+          end
+          
+          def contains_event_handler?(input)
+            # Simple string-based detection to avoid ReDoS
+            lower_input = input.downcase
+            lower_input.include?('on') && lower_input.match?(/\bon[a-z]+=/i)
           end
           
           def remove_suspicious_patterns(input)
             result = input.dup
             
-            # Remove script tags and content - Fixed: More robust script tag removal
-            # Handle multiple variations of script tags to prevent bypass
-            result.gsub!(/<script\b[^>]*>.*?<\/script>/mi, '')
-            result.gsub!(/<script\b[^>]*\/>/mi, '')  # Self-closing script tags
-            result.gsub!(/<script\b[^>]*>/mi, '')    # Unclosed script tags
-            
-            # Remove javascript: protocols
-            result.gsub!(/javascript:/i, '')
-            
-            # Remove event handlers - Fixed: More comprehensive removal
-            # Handle all variations of event handlers to prevent bypass
-            result.gsub!(/\bon\w+\s*=\s*[^"'\s>]+/i, '')     # Unquoted handlers
-            result.gsub!(/\bon\w+\s*=\s*"[^"]*"/i, '')      # Double-quoted handlers
-            result.gsub!(/\bon\w+\s*=\s*'[^']*'/i, '')       # Single-quoted handlers
-            result.gsub!(/\bon\w+\s*=\s*`[^`]*`/i, '')       # Backtick-quoted handlers
-            
-            # Remove SQL keywords in suspicious contexts
-            result.gsub!(/\b(select|union|insert|delete|drop|exec)\b.*?\b(from|into|table)\b/i, '')
-            
-            # Remove template injection patterns - Fixed: Handle nested patterns
-            # Iteratively remove template patterns to handle nested cases
-            10.times do  # Limit iterations to prevent infinite loops
-              old_length = result.length
-              result.gsub!(/\{[^{}]*\}/, '')      # Remove simple braces
-              result.gsub!(/\$\{[^{}]*\}/, '')    # Remove template literals
-              break if result.length == old_length  # No more changes
+            # Remove forbidden keywords using simple string replacement
+            FORBIDDEN_KEYWORDS.each do |keyword|
+              result.gsub!(keyword, '')
             end
             
-            # Remove URL encoding
+            # Remove simple patterns using safe regex
+            result.gsub!(/<script/i, '')
+            result.gsub!(/javascript:/i, '')
             result.gsub!(/%[0-9a-f]{2}/i, '')
-            
-            # Remove escape sequences - Fixed: More comprehensive patterns
-            result.gsub!(/\\[a-zA-Z0-9]{1,10}/, '')      # Alphanumeric escapes
-            result.gsub!(/\\x[0-9a-fA-F]{1,4}/, '')      # Hex escapes
-            result.gsub!(/\\u[0-9a-fA-F]{1,6}/, '')      # Unicode escapes
-            result.gsub!(/\\[0-7]{1,3}/, '')             # Octal escapes
-            
-            # Remove control characters
             result.gsub!(/[\x00-\x1f]/, '')
             
+            # Remove event handlers using simple string operations
+            result = remove_event_handlers_safely(result)
+            
+            # Final cleanup - only keep allowlisted characters
+            result.gsub!(/[^\w\s\-_.,!?'"()]/, '')
+            result.gsub!(/\s+/, ' ')
             result.strip
+          end
+          
+          def remove_event_handlers_safely(input)
+            # Simple approach: remove any "on" followed by letters and "="
+            # Split into words and filter out event handler patterns
+            words = input.split(/\s+/)
+            clean_words = words.reject do |word|
+              word.downcase.match?(/\bon[a-z]+=/)
+            end
+            clean_words.join(' ')
           end
           
           def final_sanitization(input)

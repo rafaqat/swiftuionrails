@@ -133,16 +133,20 @@ module SwiftUIRails
       end
 
       def install_npm_dependencies
-        if File.exist?("package.json")
+        if File.exist?("package.json") && !options[:skip_npm]
           say "Installing Tailwind CSS dependencies...", :green
           run "npm install"
+        elsif options[:skip_npm]
+          say "Skipping npm install (--skip-npm flag used)", :yellow
         end
       end
 
       def build_tailwind_css
-        if File.exist?("config/tailwind.config.js")
+        if File.exist?("config/tailwind.config.js") && !options[:skip_build]
           say "Building initial Tailwind CSS...", :green
           run "npx tailwindcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/tailwind.css --build"
+        elsif options[:skip_build]
+          say "Skipping Tailwind CSS build (--skip-build flag used)", :yellow
         end
       end
 
@@ -593,7 +597,7 @@ module SwiftUIRails
                 
                 icon(feature[:icon] || "star")
                   .w(8).h(8)
-                  .text_color("\#{(feature[:color] || 'blue')}-600")
+                  .text_color("#{(feature[:color] || 'blue')}-600")
               end
             end
             
@@ -627,7 +631,7 @@ module SwiftUIRails
             
             def apply_icon_style(container, feature)
               color = feature[:color] || "blue"
-              container.bg("\#{color}-100")
+              container.bg("#{color}-100")
             end
             
             # Class method for quick feature creation
@@ -910,12 +914,12 @@ module SwiftUIRails
                 end
                 
                 link(button_text, destination: button_url)
-                  .bg("\#{color}-600")
+                  .bg("#{color}-600")
                   .text_color("white")
                   .px(6).py(3)
                   .rounded("lg")
                   .font_weight("semibold")
-                  .hover_bg("\#{color}-700")
+                  .hover_bg("#{color}-700")
                   .transition
                   .shadow("md")
               end
@@ -1235,7 +1239,7 @@ module SwiftUIRails
         say "• Click 'Sign up' button → See RegisterDialogComponent"
         say "• Switch between them using modal links"
         say "• All validation and interactions work out of the box!"
-        say "\nFor more information, visit: https://github.com/your-repo/swift-ui-rails"
+        say "\nFor more information, visit: https://github.com/rafaqat/swiftuionrails"
       end
 
       private

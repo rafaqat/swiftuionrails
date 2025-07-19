@@ -992,10 +992,7 @@ module SwiftUIRails
         self
       end
 
-      def gap(value = nil)
-        add_class(value ? "gap-#{value}" : 'gap')
-        self
-      end
+      # Removed duplicate gap method (keeping the block-supporting version at line 509)
 
       def grid_cols(value = nil)
         add_class(value ? "grid-cols-#{value}" : 'grid-cols')
@@ -1007,10 +1004,7 @@ module SwiftUIRails
         self
       end
 
-      def overflow(value = nil)
-        add_class(value ? "overflow-#{value}" : 'overflow')
-        self
-      end
+      # Removed duplicate overflow method (keeping the block-supporting version at line 344)
 
       def object(value = nil)
         add_class(value ? "object-#{value}" : 'object')
@@ -1023,10 +1017,7 @@ module SwiftUIRails
         self
       end
 
-      def hover_bg(color = nil)
-        add_class(color ? "hover:bg-#{color}" : 'hover:bg')
-        self
-      end
+      # Removed duplicate hover_bg method (keeping the block-supporting version at line 614)
 
       def hover_shadow(value = nil)
         add_class(value ? "hover:shadow-#{value}" : 'hover:shadow')
@@ -1048,16 +1039,9 @@ module SwiftUIRails
         self
       end
 
-      # Utility methods
-      def opacity(value = nil)
-        add_class(value ? "opacity-#{value}" : 'opacity')
-        self
-      end
+      # Removed duplicate opacity method (keeping the block-supporting version at line 328)
 
-      def duration(value = nil)
-        add_class(value ? "duration-#{value}" : 'duration')
-        self
-      end
+      # Removed duplicate duration method (keeping the block-supporting version at line 582)
 
       def inset_y(value = nil)
         add_class(value ? "inset-y-#{value}" : 'inset-y')
