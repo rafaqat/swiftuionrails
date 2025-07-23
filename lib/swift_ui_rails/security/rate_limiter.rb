@@ -26,7 +26,7 @@ module SwiftUIRails
         current_count = store.read(key, raw: true).to_i
 
         if current_count >= threshold
-          Rails.logger.warn "[SECURITY] Rate limit exceeded for #{identifier} - action: #{action_name}"
+          safe_logger&.warn "[SECURITY] Rate limit exceeded for #{identifier} - action: #{action_name}"
           false
         else
           true
@@ -50,13 +50,13 @@ module SwiftUIRails
           end
 
           if new_count > threshold
-            Rails.logger.warn "[SECURITY] Rate limit exceeded for #{identifier} - count: #{new_count}"
+            safe_logger&.warn "[SECURITY] Rate limit exceeded for #{identifier} - count: #{new_count}"
             raise RateLimitExceeded, 'Rate limit exceeded. Please try again later.'
           end
 
           true
         rescue StandardError => e
-          Rails.logger.error "[SECURITY] Rate limiter error: #{e.message}"
+          safe_logger&.error "[SECURITY] Rate limiter error: #{e.message}"
           # Fail open in case of errors to not break functionality
           true
         end
@@ -105,6 +105,13 @@ module SwiftUIRails
         else
           "#{base}:#{id_hash}"
         end
+      end
+
+      # Safe logger that handles nil Rails.logger in test environments
+      def safe_logger
+        return Rails.logger if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+        return Logger.new(STDOUT) if defined?(Logger)
+        nil
       end
     end
 

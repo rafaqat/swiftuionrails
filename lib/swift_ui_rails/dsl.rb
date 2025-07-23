@@ -67,10 +67,10 @@ module SwiftUIRails
 
       # Store component reference for event handling
       if respond_to?(:component_id)
-        Rails.logger.debug { "Storing component on element: #{self.class.name}, component_id=#{component_id}" }
+        safe_logger&.debug { "Storing component on element: #{self.class.name}, component_id=#{component_id}" }
         element.instance_variable_set(:@component, self)
       elsif is_a?(DSLContext) && @component
-        Rails.logger.debug do
+        safe_logger&.debug do
           "Storing component from context: #{@component.class.name}, component_id=#{@component&.component_id}"
         end
         element.instance_variable_set(:@component, @component)
@@ -79,13 +79,22 @@ module SwiftUIRails
       # Register the element if we're in a DSL context or component
       # This prevents double registration when blocks return elements
       if is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base)
-        Rails.logger.debug { "[DSL] Registering element #{tag_name} to #{self.class.name} #{object_id}" }
+        safe_logger&.debug { "[DSL] Registering element #{tag_name} to #{self.class.name} #{object_id}" }
         register_element(element)
       else
-        Rails.logger.debug { "[DSL] Created element #{tag_name} outside DSL context/component - not registering" }
+        safe_logger&.debug { "[DSL] Created element #{tag_name} outside DSL context/component - not registering" }
       end
 
       element
+    end
+
+    private
+
+    # Safe logger that handles nil Rails.logger in test environments
+    def safe_logger
+      return Rails.logger if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+      return Logger.new(STDOUT) if defined?(Logger)
+      nil
     end
   end
 end

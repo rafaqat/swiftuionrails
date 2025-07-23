@@ -52,7 +52,7 @@ module SwiftUIRails
           SwiftUIRails::InfrastructureChecker.check_infrastructure!
         rescue SwiftUIRails::InfrastructureChecker::ConfigurationError => e
           if Rails.env.development?
-            Rails.logger.error e.message
+            safe_logger&.error e.message
             # In development, show helpful error but don't crash
             puts "\n#{e.message}\n"
           else
@@ -280,7 +280,7 @@ module SwiftUIRails
         @pending_elements ||= []
         # Prevent duplicate registration
         unless @pending_elements.include?(element)
-          Rails.logger.debug { "Component: Registering element #{element.tag_name} (#{element.object_id})" }
+          safe_logger&.debug { "Component: Registering element #{element.tag_name} (#{element.object_id})" }
           @pending_elements << element
         end
       end
@@ -288,29 +288,29 @@ module SwiftUIRails
       # Flush all pending elements as HTML
       def flush_elements
         @pending_elements ||= []
-        Rails.logger.debug { "Component: Flushing #{@pending_elements.length} elements" }
+        safe_logger&.debug { "Component: Flushing #{@pending_elements.length} elements" }
 
         html_parts = @pending_elements.map do |element|
           # Ensure view context is set to self (the component)
           element.view_context ||= self
-          Rails.logger.debug { "Component: Rendering element #{element.tag_name}" }
+          safe_logger&.debug { "Component: Rendering element #{element.tag_name}" }
           
           # CRITICAL FIX: Enhanced element rendering with better error handling
           begin
             rendered = element.to_s
             # Check if element has content that should be rendered
             if rendered.blank? && element.instance_variable_get(:@content).present?
-              Rails.logger.debug { "Component: Element #{element.tag_name} has content but blank rendering - forcing content" }
+              safe_logger&.debug { "Component: Element #{element.tag_name} has content but blank rendering - forcing content" }
               # Force render with content
               content = element.instance_variable_get(:@content)
               rendered = content_tag(element.tag_name, ERB::Util.html_escape(content.to_s), element.instance_variable_get(:@options) || {})
             end
             
-            Rails.logger.debug { "Component: Rendered element #{element.tag_name}: #{rendered.to_s[0..100]}..." }
+            safe_logger&.debug { "Component: Rendered element #{element.tag_name}: #{rendered.to_s[0..100]}..." }
             (rendered || '').html_safe
           rescue StandardError => e
-            Rails.logger.error { "Component: Failed to render element #{element.tag_name}: #{e.message}" }
-            Rails.logger.error { "Component: Element content: #{element.instance_variable_get(:@content).inspect}" }
+            safe_logger&.error { "Component: Failed to render element #{element.tag_name}: #{e.message}" }
+            safe_logger&.error { "Component: Element content: #{element.instance_variable_get(:@content).inspect}" }
             # Return empty string to prevent breaking the entire render
             ''.html_safe
           end
@@ -320,13 +320,13 @@ module SwiftUIRails
         @pending_elements.clear
 
         result = safe_join(html_parts)
-        Rails.logger.debug { "Component: Flushed #{html_parts.length} elements, total length: #{result.to_s.length}" }
+        safe_logger&.debug { "Component: Flushed #{html_parts.length} elements, total length: #{result.to_s.length}" }
         
         # CRITICAL FIX: If result is empty but we had elements, log this for debugging
         if result.to_s.strip.empty? && html_parts.any?
-          Rails.logger.warn { "Component: WARNING - Result is empty but had #{html_parts.length} elements to render" }
+          safe_logger&.warn { "Component: WARNING - Result is empty but had #{html_parts.length} elements to render" }
           html_parts.each_with_index do |part, index|
-            Rails.logger.warn { "Component: Element #{index}: #{part.to_s[0..100]}..." }
+            safe_logger&.warn { "Component: Element #{index}: #{part.to_s[0..100]}..." }
           end
         end
         
@@ -392,7 +392,7 @@ module SwiftUIRails
       def component_id
         @component_id ||= begin
           id = "swift_ui_component_#{object_id}"
-          Rails.logger.debug { "Generating component_id: #{id} for #{self.class.name}" }
+          safe_logger&.debug { "Generating component_id: #{id} for #{self.class.name}" }
           id
         end
       end
@@ -407,13 +407,13 @@ module SwiftUIRails
 
           # Only allow updates to defined props
           unless prop_def
-            Rails.logger.warn "[SECURITY] Attempted to update undefined prop: #{prop_name}"
+            safe_logger&.warn "[SECURITY] Attempted to update undefined prop: #{prop_name}"
             next
           end
 
           # Type validation
           if prop_def[:type] && new_value && !new_value.is_a?(prop_def[:type])
-            Rails.logger.warn "[SECURITY] Type mismatch for prop #{prop_name}: expected #{prop_def[:type]}, got #{new_value.class}"
+            safe_logger&.warn "[SECURITY] Type mismatch for prop #{prop_name}: expected #{prop_def[:type]}, got #{new_value.class}"
             next
           end
 
@@ -527,23 +527,23 @@ module SwiftUIRails
       # DSL-compatible render method
       # This captures rendered components as DSL elements
       def render_component(component_or_string = nil, **options, &block)
-        Rails.logger.debug { "🚀 Component.render_component called!" }
-        Rails.logger.debug { "Component.render_component called with: #{component_or_string.class.name}" }
+        safe_logger&.debug { "🚀 Component.render_component called!" }
+        safe_logger&.debug { "Component.render_component called with: #{component_or_string.class.name}" }
         
         if component_or_string.is_a?(ViewComponent::Base)
-          Rails.logger.debug { "🎯 Rendering ViewComponent: #{component_or_string.class.name}" }
+          safe_logger&.debug { "🎯 Rendering ViewComponent: #{component_or_string.class.name}" }
           # Call ViewComponent's render method directly to avoid delegation
           rendered_html = self.view_context.render(component_or_string, **options, &block)
-          Rails.logger.debug { "Rendered HTML length: #{rendered_html.to_s.length}" }
+          safe_logger&.debug { "Rendered HTML length: #{rendered_html.to_s.length}" }
           
           # Create a raw HTML element to hold the rendered content
           raw_element = create_element(:div, rendered_html.html_safe)
           raw_element.add_class("swift-ui-rendered-component")
-          Rails.logger.debug { "Created DSL element: #{raw_element.class.name}" }
+          safe_logger&.debug { "Created DSL element: #{raw_element.class.name}" }
           raw_element
         else
           # Fallback to default render behavior
-          Rails.logger.debug { "Fallback to default render" }
+          safe_logger&.debug { "Fallback to default render" }
           self.view_context.render(component_or_string, **options, &block)
         end
       end
@@ -616,8 +616,8 @@ module SwiftUIRails
         if %i[variant count size].include?(method_name)
           # Log where these are being called from in test
           if Rails.env.test? && false # Disable logging for now
-            Rails.logger.debug { "#{method_name} called on #{self.class.name}" }
-            Rails.logger.debug { "Backtrace: #{caller.first(5).join("\n")}" }
+            safe_logger&.debug { "#{method_name} called on #{self.class.name}" }
+            safe_logger&.debug { "Backtrace: #{caller.first(5).join("\n")}" }
           end
           # Return nil to prevent error
           nil
@@ -628,6 +628,15 @@ module SwiftUIRails
 
       def respond_to_missing?(method_name, include_private = false)
         %i[variant count size].include?(method_name) || super
+      end
+
+      private
+
+      # Safe logger that handles nil Rails.logger in test environments
+      def safe_logger
+        return Rails.logger if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+        return Logger.new(STDOUT) if defined?(Logger)
+        nil
       end
     end
   end

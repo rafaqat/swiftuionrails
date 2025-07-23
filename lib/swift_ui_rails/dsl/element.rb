@@ -33,7 +33,7 @@ module SwiftUIRails
         @css_classes.concat(classes.flatten.compact)
         # If a block is provided, treat it as the element's content block
         if block
-          Rails.logger.debug { "Element.tw: Block provided for #{@tag_name}" }
+          safe_logger&.debug { "Element.tw: Block provided for #{@tag_name}" }
           @block = block
         end
         self
@@ -41,7 +41,7 @@ module SwiftUIRails
 
       # Core method for adding classes - used by Tailwind module
       def add_class(class_name, &block)
-        Rails.logger.debug { "Element.add_class: #{class_name}, block_given: #{block}" }
+        safe_logger&.debug { "Element.add_class: #{class_name}, block_given: #{block}" }
         # Avoid duplicate classes
         @css_classes << class_name unless @css_classes.include?(class_name)
         @block = block if block
@@ -452,11 +452,11 @@ module SwiftUIRails
         if component
           comp_id = component.component_id
           comp_class = component.class.name
-          Rails.logger.debug { "Adding component metadata to element: component_id=#{comp_id}, class=#{comp_class}" }
+          safe_logger&.debug { "Adding component metadata to element: component_id=#{comp_id}, class=#{comp_class}" }
           @attributes["data-#{controller_name}-component-id-value"] = comp_id
           @attributes["data-#{controller_name}-component-class-value"] = comp_class
         else
-          Rails.logger.debug do
+          safe_logger&.debug do
             "No component metadata available. view_context=#{@view_context&.class&.name}, component=#{@component&.class&.name}"
           end
         end
@@ -555,26 +555,26 @@ module SwiftUIRails
       def style(style_string)
         # SECURITY: Validate style string to prevent CSS injection
         if /javascript:|expression\(|@import|<script|behavior:|binding:|include-source:|moz-binding:|vbscript:/i.match?(style_string)
-          Rails.logger.warn "[SECURITY] Potentially dangerous style blocked: #{style_string}"
+          safe_logger&.warn "[SECURITY] Potentially dangerous style blocked: #{style_string}"
           return self
         end
 
         # Additional validation for common XSS patterns
         # Use simpler, non-backtracking patterns to avoid ReDoS
         if style_string.include?('javascript:') || style_string.include?('vbscript:')
-          Rails.logger.warn "[SECURITY] Script URL detected in style: #{style_string}"
+          safe_logger&.warn "[SECURITY] Script URL detected in style: #{style_string}"
           return self
         end
 
         # Check for event handlers separately with a simpler pattern
         if style_string.match?(/\bon[a-z]+\s*=/i)
-          Rails.logger.warn "[SECURITY] Event handler detected in style: #{style_string}"
+          safe_logger&.warn "[SECURITY] Event handler detected in style: #{style_string}"
           return self
         end
 
         # Check data: URLs separately with a simpler pattern
         if style_string.include?('data:') && style_string !~ %r{data:image/(?:png|jpg|jpeg|gif|webp|svg\+xml);}i
-          Rails.logger.warn "[SECURITY] Potentially dangerous data URL in style: #{style_string}"
+          safe_logger&.warn "[SECURITY] Potentially dangerous data URL in style: #{style_string}"
           return self
         end
 
@@ -842,7 +842,7 @@ module SwiftUIRails
 
       # Convert to HTML string
       def to_s
-        Rails.logger.debug do
+        safe_logger&.debug do
           "Element.to_s: tag=#{@tag_name}, has_block=#{!@block.nil?}, content=#{@content.inspect[0..50]}"
         end
 
@@ -867,18 +867,18 @@ module SwiftUIRails
 
         # Handle the content/block
         if @block
-          Rails.logger.debug { "Element.to_s: Processing block for #{@tag_name}" }
-          Rails.logger.info { "Element.to_s: @dsl_context is #{@dsl_context.inspect}" }
+          safe_logger&.debug { "Element.to_s: Processing block for #{@tag_name}" }
+          safe_logger&.info { "Element.to_s: @dsl_context is #{@dsl_context.inspect}" }
 
           # If we already have a DSL context, use it directly
           # This prevents creating nested contexts and duplicate rendering
           if @dsl_context
-            Rails.logger.info { "Element.to_s: @dsl_context is #{@dsl_context.class.name}" }
+            safe_logger&.info { "Element.to_s: @dsl_context is #{@dsl_context.class.name}" }
             # Check if the context is a component (Component-as-DSL-Context)
             if @dsl_context.is_a?(SwiftUIRails::Component::Base)
               # Execute block directly in component context
               # This enables natural composition
-              Rails.logger.info { "Element.to_s: Executing block in component context: #{@dsl_context.class.name}" }
+              safe_logger&.info { "Element.to_s: Executing block in component context: #{@dsl_context.class.name}" }
               
               # CRITICAL FIX: Properly isolate but preserve nested element registration
               # Save the current pending elements
@@ -890,7 +890,7 @@ module SwiftUIRails
               
               # If the block returns an element that hasn't been registered, register it
               if result.is_a?(Element) && @dsl_context.instance_variable_get(:@pending_elements).exclude?(result)
-                Rails.logger.debug do
+                safe_logger&.debug do
                   "Element.to_s: Block returned unregistered element #{result.tag_name}, registering it"
                 end
                 @dsl_context.register_element(result)
@@ -902,7 +902,7 @@ module SwiftUIRails
               # CRITICAL FIX: If we have nested elements, render them individually
               # instead of using flush_elements which may cause recursion
               if nested_elements.any?
-                Rails.logger.debug { "Element.to_s: Rendering #{nested_elements.length} nested elements individually" }
+                safe_logger&.debug { "Element.to_s: Rendering #{nested_elements.length} nested elements individually" }
                 rendered_elements = nested_elements.map do |element|
                   # Set view context before rendering
                   element.view_context ||= @dsl_context
@@ -914,7 +914,7 @@ module SwiftUIRails
                 content = result.is_a?(String) ? result.html_safe : ''.html_safe
               end
               
-              Rails.logger.debug { "Element.to_s: content=#{content.inspect}, result=#{result.inspect}" }
+              safe_logger&.debug { "Element.to_s: content=#{content.inspect}, result=#{result.inspect}" }
               
               # Restore parent elements WITHOUT losing nested elements
               # The nested elements were already rendered, so we don't need to merge them back
@@ -938,7 +938,7 @@ module SwiftUIRails
 
               # If the block returns an element that hasn't been registered, register it
               if result.is_a?(Element) && sub_context.instance_variable_get(:@pending_elements).exclude?(result)
-                Rails.logger.debug do
+                safe_logger&.debug do
                   "Element.to_s: Block returned unregistered element #{result.tag_name}, registering it"
                 end
                 sub_context.register_element(result)
@@ -949,7 +949,7 @@ module SwiftUIRails
               
               # CRITICAL FIX: Handle missing content in DSLContext
               if content.to_s.strip.empty? && result.is_a?(String)
-                Rails.logger.debug { "Element.to_s: Using string result from DSLContext block: #{result.inspect}" }
+                safe_logger&.debug { "Element.to_s: Using string result from DSLContext block: #{result.inspect}" }
                 content = result.html_safe
               end
             end
@@ -1008,8 +1008,8 @@ module SwiftUIRails
           @view_context.tag(@tag_name, @options)
         end
       rescue StandardError => e
-        Rails.logger.error "Element.to_s failed: #{e.message} for tag #{@tag_name.inspect}"
-        Rails.logger.error e.backtrace.join("\n")
+        safe_logger&.error "Element.to_s failed: #{e.message} for tag #{@tag_name.inspect}"
+        safe_logger&.error e.backtrace.join("\n")
         raise e
       end
 
@@ -1187,6 +1187,15 @@ module SwiftUIRails
         # This is a DSL modifier, not actually converting to symbol
         # It's used for symbolic references in the DSL
         tw('to-sym', &block)
+      end
+
+      private
+
+      # Safe logger that handles nil Rails.logger in test environments
+      def safe_logger
+        return Rails.logger if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+        return Logger.new(STDOUT) if defined?(Logger)
+        nil
       end
     end
   end
