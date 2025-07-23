@@ -157,7 +157,7 @@ module SwiftUIRails
                             text("Weak").text_xs.text_color("red-600").font_weight("medium").ml(2)
                               .data("login-dialog-target": "strengthText strengthIndicator")
                           end
-                          div.h(1).bg("gray-200").rounded_sm.overflow("hidden") do
+                          div.h(1).bg("gray-200").rounded("sm").overflow("hidden") do
                             div.h("full").w(0).bg("red-600").transition_all.duration(300)
                               .data("login-dialog-target": "strengthBar")
                           end
@@ -267,7 +267,8 @@ module SwiftUIRails
             # For now, we only add minimal inline styles that are absolutely necessary
             # and cannot be handled by Tailwind CSS utilities
             if Rails.env.development?
-              style do
+              # Use content_tag to generate style tag instead of conflicting with Tailwind .style() modifier
+              content_tag(:style, type: "text/css") do
                 raw <<~CSS
                   /* Only essential animations that can't be done with Tailwind */
                   @keyframes fadeIn {

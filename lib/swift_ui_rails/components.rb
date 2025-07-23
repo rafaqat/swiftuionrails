@@ -4,6 +4,7 @@
 require_relative 'components/composed/auth/login_dialog_component'
 require_relative 'components/composed/auth/register_dialog_component'
 require_relative 'components/composed/layout/toolbar_component'
+require_relative 'components/composed/layout/hero_landing_component'
 
 module SwiftUIRails
   module Component

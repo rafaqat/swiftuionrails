@@ -1,4 +1,0 @@
-#!/bin/sh
-set -euo pipefail
-
-echo "Rebooting kamal-proxy on ${KAMAL_HOSTS:-}..."

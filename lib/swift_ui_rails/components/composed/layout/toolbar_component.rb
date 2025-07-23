@@ -49,6 +49,10 @@ module SwiftUIRails
           prop :background, type: String, default: "white"
           prop :border, type: [TrueClass, FalseClass], default: true
           
+          # DSL-native props for content blocks
+          prop :center_content_block, type: Proc, default: nil
+          prop :right_actions_block, type: Proc, default: nil
+          
           # Feature toggles
           prop :show_search, type: [TrueClass, FalseClass], default: false
           prop :show_notifications, type: [TrueClass, FalseClass], default: false
@@ -93,11 +97,48 @@ module SwiftUIRails
           
           
           swift_ui do
-            toolbar_container do
-              if responsive
-                responsive_toolbar
-              else
-                desktop_toolbar
+            nav.h(height).bg(background) do
+              div.px(6) do
+                hstack(justify: :between) do
+                  # Brand with logo
+                  div.flex.items_center do
+                    # Blue wavy logo icon
+                    div.w(8).h(8).bg("blue-600").rounded("md").flex.items_center.justify_center.mr(3) do
+                      text("~").text_color("white").font_weight("bold").text_xl
+                    end
+                    text(brand_text).font_weight("semibold").text_color("gray-900")
+                  end
+                  
+                  # Center content - DSL block or ViewComponent slot
+                  div.flex_1.flex.justify_center do
+                    if center_content_block
+                      # Execute DSL block in this component's context
+                      instance_eval(&center_content_block)
+                    elsif center_content?
+                      # Render ViewComponent slot
+                      center_content
+                    end
+                  end
+                  
+                  # Right content - DSL block or ViewComponent slots
+                  div.flex.items_center.space_x(2) do
+                    if right_actions_block
+                      # Execute DSL block in this component's context
+                      instance_eval(&right_actions_block)
+                    else
+                      # Fallback to ViewComponent slots
+                      right_actions&.each do |action|
+                        action
+                      end
+                    end
+                    
+                    if show_notifications
+                      button.p(2) do
+                        span { "🔔" }
+                      end
+                    end
+                  end
+                end
               end
             end
           end
@@ -158,7 +199,7 @@ module SwiftUIRails
               brand_section
               
               # Left actions (hidden on mobile if responsive)
-              if left_actions.any?
+              if left_actions&.any?
                 hstack(spacing: 2) do
                   left_actions.each { |action| render_slot_content(action) }
                 end
@@ -170,7 +211,8 @@ module SwiftUIRails
           def center_section
             div.flex_1.flex.justify_center do
               if center_content?
-                render_slot_content(center_content)
+                # Render the slot content directly in the DSL context
+                center_content.call
               else
                 default_center_content
               end
@@ -184,8 +226,8 @@ module SwiftUIRails
                 search_toggle_button
               end
               
-              # Right actions
-              right_actions.each { |action| render_slot_content(action) }
+              # Right actions - Call each slot directly
+              right_actions&.each { |action| action.call }
               
               # Built-in widgets
               if show_notifications
@@ -198,13 +240,27 @@ module SwiftUIRails
             end
           end
           
-          # Brand section - now uses BrandComponent
+          # Brand section - inline DSL implementation
           def brand_section
-            render BrandComponent.new(
-              brand_text: brand_text,
-              brand_logo: brand_logo,
-              brand_url: brand_url
-            )
+            link(destination: brand_url) do
+              hstack(spacing: 3) do
+                if has_brand_logo
+                  image(src: brand_logo, alt: brand_text)
+                    .h(8).w(8).object_contain
+                end
+                
+                text(brand_text)
+                  .font_size("xl")
+                  .font_weight("bold")
+                  .text_color("gray-900")
+                  .tap { |text| text.block if has_brand_logo }
+              end
+            end
+            .flex.items_center
+          end
+          
+          def has_brand_logo
+            brand_logo.present?
           end
           
           # Mobile menu button
@@ -381,25 +437,79 @@ module SwiftUIRails
             end
           end
           
-          # Notifications widget
-          # Notifications widget - now uses NotificationsComponent
+          # Notifications widget - inline DSL implementation
           def notifications_widget(**options)
-            render NotificationsComponent.new(
-              notification_count: notification_count,
-              notifications: notifications,
-              show_badge: show_badge
-            )
+            div.relative do
+              button.p(2).text_color("gray-400").hover_text_color("gray-600")
+                .rounded("md").hover_bg("gray-100")
+                .data(
+                  controller: "notifications",
+                  action: "click->notifications#toggle",
+                  "notifications-target": "button"
+                ) do
+                span { "🔔" }
+              end
+              
+              # Dropdown
+              div.hidden.absolute.right(0).top("full").mt(2).w(80)
+                .bg("white").border.border_color("gray-200").rounded("lg").shadow("lg").z(50)
+                .data("notifications-target": "dropdown") do
+                
+                # Header
+                div.px(4).py(3).border_b.border_color("gray-100") do
+                  hstack(justify: :between) do
+                    text("Notifications").font_weight("semibold").text_color("gray-900")
+                  end
+                end
+                
+                # Content
+                div.max_h(96).overflow_y("auto") do
+                  div.px(4).py(2).text_center do
+                    text("No new notifications").text_color("gray-500").text_sm
+                  end
+                end
+                
+                # Footer
+                div.px(4).py(3).border_t.border_color("gray-100") do
+                  link("View all notifications", destination: "/notifications")
+                    .text_sm.text_color("blue-600").hover_text_color("blue-500")
+                    .block.text_center
+                end
+              end
+            end
           end
           
-          # User menu widget - now uses UserMenuComponent
+          # User menu widget - inline DSL implementation  
           def user_menu_widget(**options)
             return unless current_user
             
-            render UserMenuComponent.new(
-              current_user: current_user,
-              user_menu_items: user_menu_items,
-              show_avatar: true
-            )
+            div.relative do
+              button.flex.items_center.p(2).text_color("gray-400").hover_text_color("gray-600")
+                .rounded("md").hover_bg("gray-100")
+                .data(
+                  controller: "user-menu",
+                  action: "click->user-menu#toggle",
+                  "user-menu-target": "button"
+                ) do
+                
+                # Avatar or initials
+                if current_user.respond_to?(:avatar_url) && current_user.avatar_url
+                  image(src: current_user.avatar_url, alt: current_user.name || "User")
+                    .h(8).w(8).rounded_full.object_cover
+                else
+                  div.h(8).w(8).bg("gray-300").rounded_full.flex.items_center.justify_center do
+                    initials = if current_user.respond_to?(:name) && current_user.name
+                                 current_user.name.split.map(&:first).join[0..1].upcase
+                               else
+                                 "U"
+                               end
+                    text(initials).font_weight("medium").text_color("white")
+                  end
+                end
+              end
+              
+              # Dropdown menu would go here if needed
+            end
           end
           
           def user_menu_dropdown
@@ -508,8 +618,12 @@ module SwiftUIRails
           # Helper methods for slot content rendering
           def render_slot_content(slot_content)
             return unless slot_content
-            # ViewComponent slots render directly
-            slot_content
+            # In SwiftUI DSL context, we need to call the slot content to render it
+            if slot_content.respond_to?(:call)
+              slot_content.call
+            else
+              slot_content
+            end
           end
           
           def apply_button_variant(button, variant)
