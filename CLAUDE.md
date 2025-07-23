@@ -2,6 +2,46 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚨 CRITICAL DIRECTIVE - COMPONENT LIBRARY FOCUS 🚨
+
+**NEVER CREATE NEW COMPONENTS. ALWAYS USE EXISTING GEM LIBRARY COMPONENTS.**
+
+### MANDATORY RULES:
+1. **USE EXISTING COMPONENTS ONLY**: Always use components from `/lib/swift_ui_rails/components/`
+2. **NO NEW COMPONENT CREATION**: Never create new components in generators or examples
+3. **LIBRARY FIRST**: The goal is to build a stable LIBRARY of reusable components
+4. **SHOWCASE EXISTING**: Generators should showcase EXISTING components, not create new ones
+5. **COMPOSITION OVER CREATION**: Compose existing components, don't build new ones
+
+### EXISTING LIBRARY COMPONENTS TO USE:
+- `SwiftUIRails::Component::Composed::Layout::ToolbarComponent` - Master navigation component
+- `SwiftUIRails::Component::Composed::Auth::LoginDialogComponent` - Authentication UI
+- All DSL elements: `text`, `button`, `vstack`, `hstack`, `div`, etc.
+
+### WHEN YOU WANT TO CREATE A NEW COMPONENT, STOP AND:
+1. Check if an existing component can be used instead
+2. Use composition with existing DSL elements
+3. Focus on showcasing the existing library components
+
+### GENERATOR REQUIREMENTS:
+**PREFERRED GENERATOR**: `swift_u_i_rails:enhance` - Minimal Rails 8 enhancement
+- **GOAL**: Update standard Rails 8 files in-place, don't create showcase
+- **SETUP**: Add Tailwind CSS + SwiftUI Rails integration
+- **TOOLBAR**: Use existing `ToolbarComponent` in layout
+- **HERO**: Simple hero section in home view
+- **NO SHOWCASE**: Just enhance existing Rails files, not full demo
+- **MINIMAL**: Touch as few files as possible, respect existing Rails structure
+
+### TARGET DESIGN PATTERN:
+**REFERENCE**: Clean, modern SaaS landing page layout
+- **NAVIGATION**: Horizontal navbar with logo on left, menu items in center, login/CTA on right
+- **HERO LAYOUT**: Centered content with large headline, subtitle, and action buttons
+- **TYPOGRAPHY**: Bold, large headlines with supporting body text
+- **BUTTONS**: Primary (solid color) and secondary (outline/ghost) button styles
+- **SPACING**: Clean, generous whitespace and proper visual hierarchy
+- **COLOR SCHEME**: Professional color palette with accent colors for CTAs
+- **LAYOUT**: Single-column centered design with max-width container
+
 ## Project Vision: SwiftUI Rails
 
 SwiftUI Rails is a research project exploring how to bring SwiftUI-like declarative syntax to Rails while fully embracing the Rails philosophy and HTTP's request-response model. Rather than fighting against Rails' stateless nature, we leverage it with Turbo morphing for smooth updates.
@@ -1365,6 +1405,16 @@ The home page (`/`) demonstrates a clean implementation of our Rails-first archi
    - DO NOT use `class_eval` or `module_eval` on external classes
    - If you need to change behavior, create wrapper classes or use composition
    - Monkey patching leads to brittle code and upgrade nightmares
+
+0.5. **NEVER CREATE SIMPLIFIED COMPONENT VERSIONS**
+   - DO NOT create simplified/reduced versions of complex gem components
+   - ALWAYS use the full gem components with all their features and complexity
+   - Simplified versions lead to missing Stimulus targets and broken functionality
+   - Example: Use `LoginDialogComponent` directly, not a simplified modal in `HeroLandingComponent`
+   - Keep reference to deprecated simplified implementations in `old_doc/` folder only
+   - **RULE**: Make complex components work, don't simplify them down
+   - **LESSON**: Creating simplified versions causes JavaScript errors and maintenance burden
+   - **SOLUTION**: Fix integration issues, don't reduce component complexity
 
 1. **RICH DSL IS THE PRIMARY GOAL**
    - We are developing a deep and rich DSL based on SwiftUI

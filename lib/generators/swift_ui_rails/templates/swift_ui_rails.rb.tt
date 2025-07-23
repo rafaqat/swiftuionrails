@@ -1,0 +1,24 @@
+# SwiftUI Rails configuration
+
+# Load all gem composed components
+begin
+  gem_root = Gem.loaded_specs['swift_ui_rails'].full_gem_path
+  Dir[File.join(gem_root, 'lib/swift_ui_rails/components/**/*.rb')].each do |component_file|
+    require component_file
+  end
+rescue => e
+  Rails.logger.warn "Could not load SwiftUI Rails components: #{e.message}"
+end
+
+# Uncomment and configure as needed:
+
+# SwiftUIRails.configure do |config|
+#   # Enable development mode helpers (default: Rails.env.development?)
+#   # config.development_mode = Rails.env.development?
+#   
+#   # Configure Tailwind CSS classes validation (default: true)
+#   # config.validate_css_classes = true
+#   
+#   # Configure component memoization (default: true)
+#   # config.enable_memoization = true
+# end

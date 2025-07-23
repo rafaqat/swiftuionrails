@@ -38,6 +38,11 @@ module SwiftUIRails
 
       # Override call to add caching
       def call
+        Rails.logger.debug { "🔧 Caching.call method invoked!" }
+        Rails.logger.debug { "🔧 Component class: #{self.class.name}" }
+        Rails.logger.debug { "🔧 Caching enabled: #{caching_enabled?}" }
+        Rails.logger.debug { "🔧 Helpers respond to cache: #{helpers.respond_to?(:cache)}" }
+        
         return super unless caching_enabled? && helpers.respond_to?(:cache)
 
         helpers.cache(component_cache_key, expires_in: cache_expiry) do

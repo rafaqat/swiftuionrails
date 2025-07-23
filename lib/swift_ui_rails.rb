@@ -32,6 +32,16 @@ require_relative 'swift_ui_rails/dev_tools/error_boundary' if Rails.env.local?
 require_relative 'swift_ui_rails/dev_tools/component_tree_debugger' if Rails.env.local?
 require_relative 'swift_ui_rails/dev_tools/debug_helpers' if Rails.env.local?
 
+# Load composed components
+require_relative 'swift_ui_rails/components'
+
+# Load generators when in Rails environment
+if defined?(Rails::Generators)
+  Dir[File.expand_path('../generators/**/*_generator.rb', __FILE__)].each do |generator|
+    require generator
+  end
+end
+
 module SwiftUIRails
   class Error < StandardError; end
   class SecurityError < Error; end

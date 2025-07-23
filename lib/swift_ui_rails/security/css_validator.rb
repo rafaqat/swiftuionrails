@@ -171,12 +171,132 @@ module SwiftUIRails
           end
         end
 
-        # Validate any generic CSS value
+        # Validate any generic CSS value - comprehensive validation for tests
         def valid_css_value?(value)
-          return false unless value
-
-          value.to_s.match?(CSS_IDENTIFIER)
+          return true if value.nil? || value.to_s.strip.empty?  # Empty values are allowed
+          
+          value_str = value.to_s.strip
+          
+          # Check for dangerous patterns first
+          return false if contains_dangerous_css_pattern?(value_str)
+          
+          # Allow a wide range of valid CSS values
+          return true if valid_css_pattern?(value_str)
+          
+          false
         end
+
+        private
+
+        # Check for dangerous CSS injection patterns
+        def contains_dangerous_css_pattern?(value)
+          dangerous_patterns = [
+            /javascript:/i,
+            /vbscript:/i,
+            /data:(?!image\/)/i,  # Allow image data URLs
+            /expression\s*\(/i,
+            /@import/i,
+            /<script/i,
+            /<\/script/i,
+            /<\/style/i,
+            /eval\s*\(/i,
+            /setTimeout/i,
+            /setInterval/i,
+            /-moz-binding/i,
+            /behavior\s*:/i,
+            /-ms-behavior/i
+          ]
+          
+          if dangerous_patterns.any? { |pattern| value.match?(pattern) }
+            safe_logger_warn "CSS Injection attempt blocked: #{value}"
+            true
+          else
+            false
+          end
+        end
+
+        # Safe logger helper that handles nil Rails.logger in tests
+        def safe_logger_warn(message)
+          if defined?(Rails) && Rails.logger
+            Rails.logger.warn(message)
+          end
+        end
+
+        # Check if value matches valid CSS patterns using safe non-ReDoS methods
+        def valid_css_pattern?(value)
+          # First check length to prevent DoS on very long strings
+          return false if value.length > 1000
+          
+          # Use safe character-by-character validation instead of catastrophic backtracking patterns
+          return true if safe_basic_css_identifier?(value)
+          return true if safe_hex_color?(value)
+          return true if safe_css_function?(value)
+          return true if safe_css_unit?(value)
+          return true if safe_css_keyword?(value)
+          
+          false
+        end
+        
+        # Safe validation methods to avoid ReDoS
+        def safe_basic_css_identifier?(value)
+          # Allow only alphanumeric, hyphens, underscores (no quantifiers that cause ReDoS)
+          value.chars.all? { |char| char.match?(/[a-zA-Z0-9\-_]/) }
+        end
+        
+        def safe_hex_color?(value)
+          return false unless value.start_with?('#')
+          hex_part = value[1..-1]
+          return false unless [3, 4, 6, 8].include?(hex_part.length)
+          hex_part.chars.all? { |char| char.match?(/[0-9a-fA-F]/) }
+        end
+        
+        def safe_css_function?(value)
+          # Check for common CSS functions without ReDoS patterns
+          function_names = %w[rgb rgba hsl hsla calc var linear-gradient radial-gradient conic-gradient
+                             translate translateX translateY translateZ translate3d rotate rotateX rotateY
+                             rotateZ rotate3d scale scaleX scaleY scaleZ scale3d skew skewX skewY matrix
+                             matrix3d perspective cubic-bezier drop-shadow]
+          
+          function_names.any? do |func|
+            value.downcase.start_with?("#{func}(") && value.end_with?(')')
+          end
+        end
+        
+        def safe_css_unit?(value)
+          # Check for CSS units without ReDoS patterns
+          units = %w[px em rem % vh vw vmin vmax cm mm in pt pc ex ch]
+          
+          # Safe extraction without ReDoS patterns - character by character approach
+          numeric_part = ""
+          unit_part = ""
+          decimal_found = false
+          
+          value.chars.each_with_index do |char, index|
+            if char.match?(/\d/)
+              numeric_part += char
+            elsif char == '.' && !decimal_found
+              numeric_part += char
+              decimal_found = true
+            else
+              unit_part = value[index..-1]
+              break
+            end
+          end
+          
+          return false if numeric_part.empty? || unit_part.empty?
+          units.include?(unit_part.downcase)
+        end
+        
+        def safe_css_keyword?(value)
+          # Whitelist of safe CSS keywords (no regex quantifiers)
+          keywords = %w[auto inherit initial unset none normal bold italic underline overline
+                       line-through left right center justify top bottom middle baseline sub super
+                       text-top text-bottom transparent current]
+          
+          keywords.include?(value.downcase)
+        end
+
+        public
 
         # Sanitize any CSS value to prevent injection
         def sanitize_css_value(value)
@@ -209,6 +329,30 @@ module SwiftUIRails
           return fallback if sanitized_prefix.empty? || sanitized_value.empty?
 
           "#{sanitized_prefix}-#{sanitized_value}"
+        end
+      end
+    end
+
+    # Class wrapper for test compatibility
+    class CssValidator
+      def validate_css_value(value)
+        CSSValidator.valid_css_value?(value)
+      end
+
+      def sanitize_css_value(value)
+        CSSValidator.sanitize_css_value(value)
+      end
+
+      def safe_css_class?(css_class)
+        CSSValidator.safe_css_class?(css_class)
+      end
+
+      # Missing method expected by tests
+      def safe_css_value(value, fallback = 'inherit')
+        if validate_css_value(value)
+          value.to_s
+        else
+          fallback
         end
       end
     end
