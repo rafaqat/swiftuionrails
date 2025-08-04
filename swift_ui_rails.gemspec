@@ -45,7 +45,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rails', '>= 6.1.0'
   spec.add_dependency 'stimulus-rails', '~> 1.0'
   spec.add_dependency 'turbo-rails', '>= 1.0'
-  spec.add_dependency 'view_component', '~> 3.0'
+  spec.add_dependency 'view_component', '>= 3', '< 5'
 
   # Development dependencies
   spec.add_development_dependency 'bundler', '~> 2.0'
