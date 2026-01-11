@@ -28,14 +28,39 @@ module SwiftUIRails
     end
 
     class SystemScanner
-      def self.all_models
-        # Eager load models in development to ensure descendants are populated
-        Rails.application.eager_load! if Rails.env.development?
-        
-        ActiveRecord::Base.descendants
-          .reject { |m| m.abstract_class? || m.name.include?("HABTM") || m.name.start_with?("ActiveStorage") }
-          .map(&:name)
-          .sort
+      # Cache eager_load status to avoid repeated calls
+      @eager_loaded = false
+
+      class << self
+        def all_models
+          ensure_eager_loaded
+
+          ActiveRecord::Base.descendants
+            .reject { |m| should_exclude?(m) }
+            .map(&:name)
+            .compact  # Filter out nil names from anonymous classes
+            .sort
+        end
+
+        private
+
+        def ensure_eager_loaded
+          return if @eager_loaded || !Rails.env.development?
+
+          Rails.application.eager_load!
+          @eager_loaded = true
+        end
+
+        def should_exclude?(model)
+          return true if model.abstract_class?
+
+          name = model.name
+          return true if name.nil?  # Anonymous classes have nil names
+          return true if name.include?("HABTM_")  # More specific pattern
+          return true if name.start_with?("ActiveStorage")
+
+          false
+        end
       end
     end
   end

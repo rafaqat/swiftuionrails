@@ -7,19 +7,19 @@ module SwiftUIRails
     class OmniBrowserComponent < Component::Base
       # Props
       prop :models, default: [] # List of model class names as strings ["User", "Post"]
-      
+
       # State
       state :selected_model_name, nil
       state :selected_record_id, nil
-      state :editing_attributes, {} 
+      state :editing_attributes, {}
       state :flash_message, nil
       state :available_models, []
       state :model_search, ""
 
       def mount
-        # ... (rest of mount)
+        @available_models = models.presence || Introspection::SystemScanner.all_models
       end
-      
+
       def filtered_models
         if model_search.blank?
           available_models
@@ -28,18 +28,66 @@ module SwiftUIRails
         end
       end
 
-      # ... (Helpers) ...
+      def current_model_class
+        return nil unless selected_model_name.present?
+        selected_model_name.constantize
+      rescue NameError
+        nil
+      end
 
-      # ... (Actions) ...
+      def current_records
+        current_model_class&.all || []
+      end
 
-      # ... (UI) ...
+      def reflector
+        @reflector ||= current_model_class ? Introspection::ModelReflector.new(current_model_class) : nil
+      end
+
+      def select_model(name)
+        @selected_model_name = name
+        @selected_record_id = nil
+        @editing_attributes = {}
+      end
+
+      def select_record(id)
+        @selected_record_id = id
+        record = current_model_class&.find(id)
+        @editing_attributes = record&.attributes&.symbolize_keys || {}
+      end
+
+      def save_record(form_data)
+        record = current_model_class&.find(@selected_record_id)
+        return unless record
+
+        form_data.each do |k, v|
+          record.send("#{k}=", v) if record.respond_to?("#{k}=")
+        end
+        record.save
+        @flash_message = "Saved!"
+      end
+
+      swift_ui do
+        vstack.h("screen").bg(:gray_100) do
+          # Top Bar
+          hstack.padding.bg(:white).border_b do
+            Text("OmniBrowser").font(:headline)
+            Spacer()
+            if flash_message
+              Text(flash_message).fg(:green).font(:caption)
+            end
+          end
+
+          # Miller Columns
+          scroll_view(axes: :horizontal).flex_1 do
+            hstack(spacing: 0).h(:full) do
+
               # COLUMN 1: Models
               vstack(spacing: 0).w(250).bg(:gray_50).border_r do
                 # Search
                 div.padding(2).border_b do
                   TextField("Search models...", text: :model_search)
                 end
-                
+
                 List(style: :sidebar) do
                   Section(header: "Tables") do
                     ForEach(filtered_models, id: :self) do |name|
@@ -69,23 +117,23 @@ module SwiftUIRails
                     Spacer()
                     Text("#{current_model_class.count} records").font(:caption).fg(:gray)
                   end
-                  
+
                   # List
                   LazyVStack do
                     ForEach(current_records, id: :id) do |record|
                       # Guess a title
-                      title = reflector.title_column ? record.send(reflector.title_column) : record.id
-                      
+                      title = reflector&.title_column ? record.send(reflector.title_column) : record.id
+
                       Button { select_record(record.id) }
                         .bg(selected_record_id == record.id ? :blue_600 : :white)
                         .fg(selected_record_id == record.id ? :white : :black)
                         .on_server_click(:select_record).data(server_action_params_value: [record.id].to_json) do
-                          
+
                           vstack(alignment: :leading).padding(3).border_b do
                             Text(title.to_s).font_bold.line_clamp(1)
                             Text("ID: #{record.id}").font(:caption).opacity(0.8)
                           end
-                          
+
                         end
                     end
                   end
@@ -103,18 +151,18 @@ module SwiftUIRails
                       .bg(:blue).fg(:white).padding(:x, 3).padding(:y, 1).rounded
                       # Form submit handles this, but button can too if outside form
                   end
-                  
+
                   # Auto-Generated Form
                   scroll_view.padding(4) do
                     Form(onSubmit: :save_record) do
-                      
+
                       # Iterate over REAL columns
-                      ForEach(reflector.columns, id: :name) do |col|
+                      ForEach(reflector&.columns || [], id: :name) do |col|
                         value = editing_attributes[col.name]
-                        
+
                         vstack(alignment: :leading, spacing: 1).padding(:bottom, 4) do
                           Text(col.name.humanize).font(:caption).fg(:gray)
-                          
+
                           case col.type
                           when :boolean
                             Toggle("", isOn: !!value)
@@ -133,14 +181,14 @@ module SwiftUIRails
                           end
                         end
                       end
-                      
+
                       Button("Save Changes", type: "submit")
                         .w(:full).bg(:blue).fg(:white).rounded(:lg).padding(:y, 2)
                     end
                   end
                 end
               end
-              
+
               # Empty State
               div.flex_1.bg(:gray_50).flex.items_center.justify_center do
                 unless selected_record_id

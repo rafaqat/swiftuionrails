@@ -8,28 +8,28 @@ module OmniBrowserDemo
     include ActiveModel::Model
     include ActiveModel::Attributes
     attr_accessor :id
-    
+
     def self.columns
       # Mocking ActiveRecord columns
       @columns ||= []
     end
-    
+
     def self.add_column(name, type)
       attribute name, type
       @columns ||= []
       @columns << OpenStruct.new(name: name.to_s, type: type)
     end
-    
+
     def self.all; @records ||= []; end
     def self.find(id); all.find { |r| r.id == id }; end
     def self.create(attrs); r = new(attrs); r.id = rand(10000); all << r; r; end
-    
+
     # Mock Reflection
     def self.reflect_on_all_associations(type)
       @associations ||= {}
       @associations[type] || []
     end
-    
+
     def self.has_many(name)
       @associations ||= {}
       @associations[:has_many] ||= []
@@ -58,8 +58,11 @@ module OmniBrowserDemo
     Task.create(description: "Implement CSS", completed: false, project_id: p1.id)
   end
 
+  # Allowlist of valid model names for this demo
+  ALLOWED_MODELS = %w[Project Task].freeze
+
   # --- THE OMNI BROWSER ---
-  
+
   APP_UI = <<~'RUBY'
     class OmniBrowser < SwiftUIRails::Component::Base
       state :selected_model, "Project"
@@ -67,27 +70,37 @@ module OmniBrowserDemo
       state :editing_record, nil # Hash of attributes
       state :flash, nil
 
+      # Allowlist of valid model names
+      ALLOWED_MODELS = %w[Project Task].freeze
+
       def models
-        ["Project", "Task"]
+        ALLOWED_MODELS
       end
 
       def current_model_class
+        # Security: Validate model name before constantize to prevent RCE
+        return nil unless ALLOWED_MODELS.include?(selected_model)
         "OmniBrowserDemo::#{selected_model}".constantize
+      rescue NameError
+        nil
       end
 
       def current_records
-        current_model_class.all
+        current_model_class&.all || []
       end
 
       def select_record(id)
         @selected_id = id
-        record = current_model_class.find(id)
+        record = current_model_class&.find(id)
+        return unless record
         # Clone attributes for editing
         @editing_record = record.attributes.symbolize_keys
       end
 
       def save_record(form_data)
-        record = current_model_class.find(@selected_id)
+        record = current_model_class&.find(@selected_id)
+        return unless record
+
         # Update attributes
         form_data.each do |k, v|
           # Type casting mock
@@ -113,7 +126,7 @@ module OmniBrowserDemo
           # Miller Columns
           scroll_view(axes: :horizontal).flex_1 do
             hstack(spacing: 0).h(:full) do
-              
+
               # COL 1: Models
               vstack(spacing: 0).w(250).bg(:gray_50).border_r do
                 List(style: :sidebar) do
@@ -144,24 +157,24 @@ module OmniBrowserDemo
                   Spacer()
                   Button("+") { }.fg(:blue)
                 end
-                
+
                 # List
                 LazyVStack do
                   ForEach(current_records, id: :id) do |record|
                     # Introspect title
                     title = record.attributes.values[1].to_s # Hack for demo
-                    
+
                     Button { select_record(record.id) }
                       .bg(selected_id == record.id ? :blue_600 : :white)
                       .fg(selected_id == record.id ? :white : :black)
                       .on_server_click(:select_record)
                       .data(server_action_params_value: [record.id].to_json) do
-                        
+
                         vstack(alignment: :leading).padding(3).border_b do
                           Text(title).font_bold
                           Text("ID: #{record.id}").font(:caption).opacity(0.8)
                         end
-                        
+
                       end
                   end
                 end
@@ -178,27 +191,27 @@ module OmniBrowserDemo
                       .bg(:blue).fg(:white).padding(:x, 3).padding(:y, 1).rounded
                       .on_server_click(:save_record) # Form submit triggers this
                   end
-                  
+
                   # The AutoForm
                   scroll_view.padding(4) do
                     Form(onSubmit: :save_record) do
                       # Introspect Columns
                       # In a real app, use the ModelReflector
                       # Here we iterate the hash
-                      
+
                       ForEach(editing_record.keys, id: :self) do |key|
                         value = editing_record[key]
                         next if key == :id
-                        
+
                         vstack(alignment: :leading, spacing: 1).padding(:bottom, 4) do
                           Text(key.to_s.humanize).font(:caption).fg(:gray)
-                          
+
                           if value.is_a?(TrueClass) || value.is_a?(FalseClass)
                             Toggle("", isOn: value)
                               # Hack: ReactiveForm doesn't auto-bind to the hash yet without a key
                               # In a real impl, we'd use proper input names
                               .attr("name", key)
-                              .attr("value", "on") 
+                              .attr("value", "on")
                               .attr("checked", value)
                           elsif value.is_a?(Integer)
                              create_element(:input, type: "number", name: key, value: value, class: "border p-2 rounded w-full")
@@ -211,7 +224,7 @@ module OmniBrowserDemo
                   end
                 end
               end
-              
+
               # Placeholder for Right Side
               div.flex_1.bg(:gray_50).flex.items_center.justify_center do
                 if !selected_id
@@ -224,7 +237,7 @@ module OmniBrowserDemo
         end
       end
     end
-    
+
     render OmniBrowser.new
   RUBY
 end
