@@ -21,6 +21,12 @@ require_relative 'dsl/collections'
 require_relative 'dsl/commerce'
 require_relative 'dsl/utilities'
 
+require_relative 'dsl/iterators'
+
+require_relative 'dsl/environment'
+
+require_relative 'dsl/shapes'
+
 module SwiftUIRails
   module DSL
     extend ActiveSupport::Concern
@@ -36,8 +42,24 @@ module SwiftUIRails
     include Media
     include Containers
     include Collections
-    include Commerce
     include Utilities
+    include Iterators
+    include Navigation
+    include Environment
+    include Shapes
+    include Label
+    include Gestures
+    include Charts
+    include Commerce
+    include ServerActions
+    include ReactiveFormElements
+    
+    # Modifier Registry
+    mattr_accessor :modifiers, default: {}
+    
+    def self.register_modifier(name, &block)
+      self.modifiers[name] = block
+    end
     
     # Thread-local storage for current DSL context
     # This enables helper methods to work within the DSL
@@ -76,11 +98,11 @@ module SwiftUIRails
         element.instance_variable_set(:@component, @component)
       end
 
-      # Register the element if we're in a DSL context or component
-      # This prevents double registration when blocks return elements
-      if is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base)
-        safe_logger&.debug { "[DSL] Registering element #{tag_name} to #{self.class.name} #{object_id}" }
-        register_element(element)
+      # Register the element to the current active DSL context
+      context_for_registration = SwiftUIRails::DSL.current_context || dsl_context
+      if context_for_registration.is_a?(SwiftUIRails::DSLContext) || context_for_registration.is_a?(SwiftUIRails::Component::Base)
+        safe_logger&.debug { "[DSL] Registering element #{tag_name} to #{context_for_registration.class.name} #{context_for_registration.object_id}" }
+        context_for_registration.register_element(element)
       else
         safe_logger&.debug { "[DSL] Created element #{tag_name} outside DSL context/component - not registering" }
       end
@@ -98,4 +120,3 @@ module SwiftUIRails
     end
   end
 end
-# Copyright 2025

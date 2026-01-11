@@ -1,0 +1,154 @@
+<% content_for :title, "Combined Auth Components Test" %>
+
+<!-- Test page for both Login and Register components -->
+<div class="max-w-6xl mx-auto p-6 space-y-8">
+  
+  <!-- Test Controls -->
+  <div class="bg-white rounded-lg border p-6">
+    <h2 class="text-xl font-semibold mb-4">Combined Auth Test Controls</h2>
+    <div class="flex flex-wrap gap-4">
+      <button id="open-login-btn" 
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        Open Login Dialog
+      </button>
+      <button id="open-register-btn"
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+        Open Register Dialog
+      </button>
+      <button id="open-both-btn"
+              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+        Open Both (Z-Index Test)
+      </button>
+      <button id="close-all-btn"
+              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+        Close All
+      </button>
+    </div>
+  </div>
+
+  <!-- Auth Flow Simulation -->
+  <div class="bg-gray-50 rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Authentication Flow Test</h2>
+    <p class="text-gray-600 mb-4">
+      Test the complete authentication flow: Login → Register link → Register → Login link
+    </p>
+    <div class="flex gap-4">
+      <button id="start-login-flow-btn"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        Start Login Flow
+      </button>
+      <button id="start-register-flow-btn"
+              class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
+        Start Register Flow
+      </button>
+    </div>
+  </div>
+
+  <!-- Login Dialog Component -->
+  <%= render SwiftUIRails::Component::Composed::Auth::LoginDialogComponent.new(
+    open: @show_login || false,
+    login_url: auth_test_login_submit_path,
+    register_url: auth_test_combined_path(show_register: true),
+    close_url: auth_test_combined_path,
+    show_social: true,
+    social_providers: ['google', 'github'],
+    errors: {},
+    form_data: { email: '', password: '', remember_me: false }
+  ) %>
+
+  <!-- Register Dialog Component -->
+  <%= render SwiftUIRails::Component::Composed::Auth::RegisterDialogComponent.new(
+    open: @show_register || false,
+    register_url: auth_test_register_submit_path,
+    login_url: auth_test_combined_path(show_login: true),
+    close_url: auth_test_combined_path,
+    show_social: true,
+    social_providers: ['google', 'github'],
+    errors: {},
+    form_data: { 
+      first_name: '', 
+      last_name: '', 
+      email: '', 
+      password: '', 
+      password_confirmation: '',
+      terms_accepted: false 
+    }
+  ) %>
+
+  <!-- Test Results Panel -->
+  <div class="bg-white rounded-lg border p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Integration Test Scenarios</h2>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium text-gray-900 mb-2">Modal Interactions:</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>• Open/close individual dialogs</li>
+          <li>• Switch between login and register</li>
+          <li>• Multiple modal z-index handling</li>
+          <li>• Backdrop click behavior</li>
+          <li>• Escape key functionality</li>
+          <li>• Focus management</li>
+        </ul>
+        
+        <h3 class="font-medium text-gray-900 mb-2 mt-4">Cross-Component Navigation:</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>• Login → "Sign up" link → Register</li>
+          <li>• Register → "Sign in" link → Login</li>
+          <li>• State preservation during switches</li>
+          <li>• Error state handling across transitions</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h3 class="font-medium text-gray-900 mb-2">Integration Points:</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>• Shared social login providers</li>
+          <li>• Consistent styling and behavior</li>
+          <li>• Form data persistence</li>
+          <li>• Error message consistency</li>
+          <li>• Loading state coordination</li>
+          <li>• Success flow integration</li>
+        </ul>
+        
+        <h3 class="font-medium text-gray-900 mb-2 mt-4">Performance Tests:</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>• Component rendering speed</li>
+          <li>• Memory usage with multiple modals</li>
+          <li>• Event listener cleanup</li>
+          <li>• Stimulus controller initialization</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Individual dialog controls
+  document.getElementById('open-login-btn').addEventListener('click', function() {
+    window.location.href = '<%= auth_test_combined_path(show_login: true) %>';
+  });
+  
+  document.getElementById('open-register-btn').addEventListener('click', function() {
+    window.location.href = '<%= auth_test_combined_path(show_register: true) %>';
+  });
+  
+  document.getElementById('open-both-btn').addEventListener('click', function() {
+    window.location.href = '<%= auth_test_combined_path(show_login: true, show_register: true) %>';
+  });
+  
+  document.getElementById('close-all-btn').addEventListener('click', function() {
+    window.location.href = '<%= auth_test_combined_path %>';
+  });
+  
+  // Flow simulation controls
+  document.getElementById('start-login-flow-btn').addEventListener('click', function() {
+    // Start with login dialog and test the flow
+    window.location.href = '<%= auth_test_combined_path(show_login: true) %>';
+  });
+  
+  document.getElementById('start-register-flow-btn').addEventListener('click', function() {
+    // Start with register dialog and test the flow
+    window.location.href = '<%= auth_test_combined_path(show_register: true) %>';
+  });
+</script>

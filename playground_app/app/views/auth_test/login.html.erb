@@ -1,0 +1,124 @@
+<% content_for :title, "Login Dialog Component Test" %>
+
+<!-- Test page for LoginDialogComponent -->
+<div class="max-w-4xl mx-auto p-6 space-y-8">
+  
+  <!-- Test Controls -->
+  <div class="bg-white rounded-lg border p-6">
+    <h2 class="text-xl font-semibold mb-4">Login Dialog Test Controls</h2>
+    <div class="flex flex-wrap gap-4">
+      <button id="open-login-btn" 
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        Open Login Dialog
+      </button>
+      <button id="open-login-with-errors-btn"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+        Open with Validation Errors
+      </button>
+      <button id="open-login-with-data-btn"
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+        Open with Pre-filled Data
+      </button>
+      <button id="open-login-no-social-btn"
+              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+        Open without Social Login
+      </button>
+    </div>
+  </div>
+
+  <!-- Login Dialog Component -->
+  <%= render SwiftUIRails::Component::Composed::Auth::LoginDialogComponent.new(
+    open: @show_login || false,
+    login_url: auth_test_login_submit_path,
+    register_url: auth_test_register_path,
+    close_url: auth_test_login_path,
+    show_social: @show_social.nil? ? true : @show_social,
+    social_providers: ['google', 'github'],
+    errors: @errors,
+    form_data: @form_data
+  ) %>
+
+  <!-- Test Information Panel -->
+  <div class="bg-gray-50 rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Login Dialog Component Test</h2>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium text-gray-900 mb-2">Component Details:</h3>
+        <code class="text-sm text-gray-700 block bg-white p-3 rounded border">
+          SwiftUIRails::Component::Composed::Auth::LoginDialogComponent
+        </code>
+        
+        <h3 class="font-medium text-gray-900 mb-2 mt-4">Test Scenarios:</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>• Modal open/close behavior</li>
+          <li>• Form validation (empty fields, invalid email)</li>
+          <li>• Successful login flow</li>
+          <li>• Error message display</li>
+          <li>• Social login integration</li>
+          <li>• Remember me functionality</li>
+          <li>• Responsive design</li>
+          <li>• Keyboard accessibility</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h3 class="font-medium text-gray-900 mb-2">Test Data:</h3>
+        <div class="text-sm text-gray-700 space-y-2">
+          <div class="bg-white p-3 rounded border">
+            <strong>Valid Login:</strong><br>
+            Email: user@example.com<br>
+            Password: validpassword123
+          </div>
+          <div class="bg-white p-3 rounded border">
+            <strong>Success Test:</strong><br>
+            Email: success@example.com<br>
+            Password: any
+          </div>
+          <div class="bg-white p-3 rounded border">
+            <strong>Error Test:</strong><br>
+            Email: error@example.com<br>
+            Password: any
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Test control buttons
+  document.getElementById('open-login-btn').addEventListener('click', function() {
+    window.location.href = '<%= auth_test_login_path(show_login: true) %>';
+  });
+  
+  document.getElementById('open-login-with-errors-btn').addEventListener('click', function() {
+    const errors = {
+      email: ['Please enter a valid email address'],
+      password: ['Password is required']
+    };
+    const params = new URLSearchParams({
+      show_login: 'true',
+      'errors[email][]': 'Please enter a valid email address',
+      'errors[password][]': 'Password is required'
+    });
+    window.location.href = '<%= auth_test_login_path %>?' + params.toString();
+  });
+  
+  document.getElementById('open-login-with-data-btn').addEventListener('click', function() {
+    const params = new URLSearchParams({
+      show_login: 'true',
+      'form_data[email]': 'user@example.com',
+      'form_data[remember_me]': 'true'
+    });
+    window.location.href = '<%= auth_test_login_path %>?' + params.toString();
+  });
+  
+  document.getElementById('open-login-no-social-btn').addEventListener('click', function() {
+    const params = new URLSearchParams({
+      show_login: 'true',
+      show_social: 'false'
+    });
+    window.location.href = '<%= auth_test_login_path %>?' + params.toString();
+  });
+</script>

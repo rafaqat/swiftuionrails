@@ -51,10 +51,22 @@ module Playground
     
     def action_buttons
       hstack(spacing: 3) do
+        component_test_link
         run_button
-        share_button
+        share_button  
         export_button
       end
+    end
+    
+    def component_test_link
+      link("Test Hero", destination: "/test/hero")
+        .px(3).py(2)
+        .bg("indigo-100")
+        .text_color("indigo-700")
+        .rounded("md")
+        .hover_bg("indigo-200")
+        .font_weight("medium")
+        .text_sm
     end
     
     def run_button

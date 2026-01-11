@@ -1,0 +1,32 @@
+{
+  "name": "playground_app",
+  "version": "1.0.0",
+  "description": "⚠️ **SECURITY WARNING: DEVELOPMENT ONLY** ⚠️",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@hotwired/stimulus": "^3.2.2",
+    "@playwright/test": "^1.54.1",
+    "babel-jest": "^30.0.5",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "jsdom": "^26.1.0",
+    "playwright": "^1.54.1"
+  }
+}

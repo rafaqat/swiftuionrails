@@ -5,7 +5,26 @@ module SwiftUIRails
     # Layout components for SwiftUI Rails DSL
     # Provides stack-based layouts similar to SwiftUI
     module Layout
-      def vstack(alignment: :center, spacing: 8, justify: :start, **attrs, &block)
+      def vstack(*args, **attrs, &block)
+        # Parse positional args: vstack(spacing, alignment) or vstack(alignment)
+        spacing = attrs[:spacing] || 8
+        alignment = attrs[:alignment] || :center
+        justify = attrs[:justify] || :start
+
+        args.each do |arg|
+          if arg.is_a?(Integer)
+            spacing = arg
+          elsif arg.is_a?(Symbol)
+            # Check if it's a justify value or alignment value
+            if [:start, :center, :end, :between, :around, :evenly].include?(arg)
+              # Ambiguity: :start/:center/:end could be alignment or justify
+              # Convention: If it's the second symbol, it might be justify. 
+              # For now, let's treat symbols as alignment unless specified
+              alignment = arg
+            end
+          end
+        end
+
         classes = ['flex', 'flex-col', "items-#{alignment_class(alignment)}", justify_class(justify)]
         
         # Only add spacing classes for justify values that don't handle spacing automatically
@@ -21,62 +40,24 @@ module SwiftUIRails
         
         attrs[:class] = class_names(classes, attrs[:class])
 
-        # Create element with special handling for collecting children
-        create_element(:div, nil, **attrs) do
-          if is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base)
-            # If we're in a DSL context, the block will be handled properly
-            # If not, we need to collect all elements created in the block
-            if block
-              # Store the current pending elements count to track new elements
-              initial_element_count = (@pending_elements || []).length
-              
-              # Execute the block and capture any returned element
-              result = instance_eval(&block)
-              
-              # If the block returns an element, ensure it's registered
-              if result.is_a?(Element) && !(@pending_elements || []).include?(result)
-                register_element(result)
-              end
-              
-              # Check if new elements were created during block execution
-              # This handles helper methods that create elements internally
-              current_element_count = (@pending_elements || []).length
-              if current_element_count > initial_element_count
-                # Elements were created during block execution - they're already registered
-                # Return nil to let the DSL context handle rendering via flush_elements
-                nil
-              else
-                # No new elements were created, return the block result if it's an element
-                result.is_a?(Element) ? result : nil
-              end
-            end
-          else
-            # For non-DSL contexts, we need to capture elements created in the block
-            elements = []
-            original_create = method(:create_element)
-            define_singleton_method(:create_element) do |*args, &inner_block|
-              element = original_create.call(*args, &inner_block)
-              elements << element
-              element
-            end
-
-            # Execute the block
-            result = instance_eval(&block) if block
-
-            # Restore original method
-            define_singleton_method(:create_element, original_create)
-
-            # Return all collected elements or the block result if it's an array
-            if result.is_a?(Array)
-              result
-            else
-              elements
-            end
-          end
-        end
+        # Create element and pass the block directly
+        create_element(:div, nil, **attrs, &block)
       end
 
-      def hstack(alignment: :center, spacing: 8, justify: :start, **attrs, &block)
+      def hstack(*args, **attrs, &block)
+        # Parse positional args: hstack(spacing, alignment)
+        spacing = attrs[:spacing] || 8
+        alignment = attrs[:alignment] || :center
+        justify = attrs[:justify] || :start
+
+        args.each do |arg|
+          if arg.is_a?(Integer)
+            spacing = arg
+          elsif arg.is_a?(Symbol)
+            alignment = arg
+          end
+        end
+
         classes = ['flex', 'flex-row', "items-#{alignment_class(alignment)}", justify_class(justify)]
         
         # Only add spacing classes for justify values that don't handle spacing automatically
@@ -92,59 +73,8 @@ module SwiftUIRails
         
         attrs[:class] = class_names(classes, attrs[:class])
 
-        # Create element with special handling for collecting children
-        create_element(:div, nil, **attrs) do
-          if is_a?(SwiftUIRails::DSLContext) || is_a?(SwiftUIRails::Component::Base)
-            # If we're in a DSL context, the block will be handled properly
-            # If not, we need to collect all elements created in the block
-            if block
-              # Store the current pending elements count to track new elements
-              initial_element_count = (@pending_elements || []).length
-              
-              # Execute the block and capture any returned element
-              result = instance_eval(&block)
-              
-              # If the block returns an element, ensure it's registered
-              if result.is_a?(Element) && !(@pending_elements || []).include?(result)
-                register_element(result)
-              end
-              
-              # Check if new elements were created during block execution
-              # This handles helper methods that create elements internally
-              current_element_count = (@pending_elements || []).length
-              if current_element_count > initial_element_count
-                # Elements were created during block execution - they're already registered
-                # Return nil to let the DSL context handle rendering via flush_elements
-                nil
-              else
-                # No new elements were created, return the block result if it's an element
-                result.is_a?(Element) ? result : nil
-              end
-            end
-          else
-            # For non-DSL contexts, we need to capture elements created in the block
-            elements = []
-            original_create = method(:create_element)
-            define_singleton_method(:create_element) do |*args, &inner_block|
-              element = original_create.call(*args, &inner_block)
-              elements << element
-              element
-            end
-
-            # Execute the block
-            result = instance_eval(&block) if block
-
-            # Restore original method
-            define_singleton_method(:create_element, original_create)
-
-            # Return all collected elements or the block result if it's an array
-            if result.is_a?(Array)
-              result
-            else
-              elements
-            end
-          end
-        end
+        # Create element and pass the block directly
+        create_element(:div, nil, **attrs, &block)
       end
 
       def zstack(**attrs, &block)
@@ -318,6 +248,21 @@ module SwiftUIRails
       def divider(**attrs)
         attrs[:class] = class_names('border-t border-gray-300', attrs[:class])
         create_element(:hr, nil, **attrs)
+      end
+
+      # GridRow { ... }
+      # Used inside a Grid to define a row that bypasses the auto-flow
+      def GridRow(alignment: :top, **attrs, &block)
+        attrs[:class] = class_names("contents", attrs[:class]) # 'contents' makes children act as direct grid items
+        
+        # In CSS Grid, we don't strictly need a row container if we use subgrid,
+        # but for compatibility, we just yield content. 
+        # SwiftUI's GridRow actually just tells the Grid container "these items belong on one row".
+        
+        # A true implementation might use a specific class to force a row break
+        # or rely on the parent Grid being configured as a manual 2D grid.
+        
+        create_element(:div, nil, **attrs, &block)
       end
 
       private

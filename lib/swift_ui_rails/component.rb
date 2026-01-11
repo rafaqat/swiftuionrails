@@ -239,6 +239,29 @@ module SwiftUIRails
             end
           end
         end
+
+        # Preview Macro (SwiftUI-style)
+        # preview { ... }
+        def preview(&block)
+          @preview_block = block
+        end
+
+        def render_preview
+          return "No preview defined" unless @preview_block
+          
+          # Render the preview block in a context that includes DSL
+          # We create an anonymous component just to render the block
+          preview_component = Class.new(SwiftUIRails::Component::Base) do
+            define_method(:call) do
+              swift_ui do
+                instance_eval(&self.class.instance_variable_get(:@block))
+              end
+            end
+          end
+          
+          preview_component.instance_variable_set(:@block, @preview_block)
+          preview_component.new.call
+        end
       end
 
       def initialize(**props)
@@ -280,7 +303,7 @@ module SwiftUIRails
         @pending_elements ||= []
         # Prevent duplicate registration
         unless @pending_elements.include?(element)
-          safe_logger&.debug { "Component: Registering element #{element.tag_name} (#{element.object_id})" }
+          safe_logger&.debug { "Component: Registering element #{element.tag_name} (#{element.object_id}) to @pending_elements. Current count: #{@pending_elements.length + 1}" }
           @pending_elements << element
         end
       end
@@ -288,12 +311,12 @@ module SwiftUIRails
       # Flush all pending elements as HTML
       def flush_elements
         @pending_elements ||= []
-        safe_logger&.debug { "Component: Flushing #{@pending_elements.length} elements" }
+            safe_logger&.debug { "Component: Flushing #{@pending_elements.length} elements." }
 
         html_parts = @pending_elements.map do |element|
           # Ensure view context is set to self (the component)
           element.view_context ||= self
-          safe_logger&.debug { "Component: Rendering element #{element.tag_name}" }
+          safe_logger&.debug { "Component: Rendering element #{element.tag_name} (object_id: #{element.object_id})" }
           
           # CRITICAL FIX: Enhanced element rendering with better error handling
           begin
@@ -349,6 +372,30 @@ module SwiftUIRails
 
         # Execute the action block in the component context
         instance_exec(event, &@component_actions[action_id])
+      end
+      
+      # Handle server-side action execution
+      def perform_action(action_name, params = {})
+        # Update state from params if needed
+        # Execute the method
+        if respond_to?(action_name)
+          send(action_name)
+          # Return self for re-rendering
+          self
+        else
+          raise ArgumentError, "Action #{action_name} not found on #{self.class.name}"
+        end
+      end
+      
+      # Generic state updater for bindings
+      # Called by reactive form elements
+      def update_binding(key, value)
+        # Ensure the state key exists
+        if self.class.swift_states.key?(key.to_sym)
+          send("#{key}=", value)
+        else
+          safe_logger&.warn "Attempted to bind to unknown state: #{key}"
+        end
       end
 
       # Get all registered actions (for debugging)
@@ -482,6 +529,9 @@ module SwiftUIRails
 
         # Store component class for client-side reconstruction
         component_class = self.class.name
+        
+        # Serialize state
+        serialized_state = @state_values.to_json
 
         # NOTE: Components don't have direct access to session
         # Props and state management should be handled by the controller
@@ -493,6 +543,7 @@ module SwiftUIRails
             controller: 'swift-ui-component',
             'swift-ui-component-component-id-value': @component_id,
             'swift-ui-component-component-class-value': component_class,
+            'swift-ui-component-state-value': serialized_state,
             'turbo-permanent': true
           }
         }

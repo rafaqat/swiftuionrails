@@ -61,6 +61,7 @@ module SwiftUIRails
           
           swift_ui do
             Rails.logger.info "🔥 RegisterDialogComponent swift_ui called with open=#{open}"
+            Rails.logger.debug "RegisterDialog form_data: #{form_data.inspect}" if Rails.env.development?
             if open
               Rails.logger.info "🔥 RegisterDialogComponent rendering modal"
               # Modal overlay with backdrop
@@ -145,6 +146,7 @@ module SwiftUIRails
                             id: "register_first_name",
                             placeholder: "First name",
                             required: true,
+                            value: (form_data[:first_name] || form_data['first_name'] || '').to_s,
                             style: "width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;",
                             data: {
                               "register-dialog-target": "firstNameInput",
@@ -169,6 +171,7 @@ module SwiftUIRails
                             id: "register_last_name",
                             placeholder: "Last name",
                             required: true,
+                            value: (form_data[:last_name] || form_data['last_name'] || '').to_s,
                             style: "width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;",
                             data: {
                               "register-dialog-target": "lastNameInput",
@@ -194,6 +197,7 @@ module SwiftUIRails
                           id: "register_email",
                           placeholder: "Enter your email address",
                           required: true,
+                          value: (form_data[:email] || form_data['email'] || '').to_s,
                           style: "width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem;",
                           data: {
                             "register-dialog-target": "emailInput",
@@ -368,8 +372,7 @@ module SwiftUIRails
                 end
               end
               
-              # Embedded Stimulus script
-              embedded_stimulus_script
+              # Stimulus controller loaded via importmap - no embedded assets needed
             else
               Rails.logger.info "🔥 RegisterDialogComponent open=false, not rendering modal"
             end

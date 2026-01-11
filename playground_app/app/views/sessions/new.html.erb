@@ -1,0 +1,6 @@
+<!-- Temporarily use basic auth form for reliable testing -->
+<%= render Auth::LoginFormComponent.new(
+  email_value: params[:email_address] || "",
+  show_error: flash[:alert].present?,
+  error_message: flash[:alert] || ""
+) %>

@@ -54,7 +54,7 @@ module SwiftUIRails
         # Width utilities
         w: 'w', min_w: 'min-w', max_w: 'max-w',
         # Height utilities
-        h: 'h', min_h: 'min-h', max_h: 'max-h'
+        h: 'h', min_h: 'min-h', max_h: 'h'
       }.freeze
 
       # Define text utilities using metaprogramming
@@ -91,16 +91,18 @@ module SwiftUIRails
 
       # Background utilities
       def bg(color, &block)
-        tw("bg-#{color}", &block)
+        color_class = resolve_color(color)
+        tw("bg-#{color_class}", &block)
       end
 
       def background(color, &block)
-        if color.to_s.start_with?('#')
+        color_class = resolve_color(color)
+        if color_class.start_with?('#')
           # Hex color - use inline style
-          @options[:style] = [@options[:style], "background-color: #{color}"].compact.join('; ')
+          @options[:style] = [@options[:style], "background-color: #{color_class}"].compact.join('; ')
         else
           # Tailwind class
-          tw("bg-#{color}")
+          tw("bg-#{color_class}")
         end
         # If a block is provided, treat it as the element's content block
         @block = block if block
@@ -567,7 +569,7 @@ module SwiftUIRails
         end
 
         # Check for event handlers separately with a simpler pattern
-        if style_string.match?(/\bon[a-z]+\s*=/i)
+        if style_string.match?(/on[a-z]+\s*=/i)
           safe_logger&.warn "[SECURITY] Event handler detected in style: #{style_string}"
           return self
         end
@@ -579,7 +581,7 @@ module SwiftUIRails
         end
 
         existing_style = @options[:style] || ''
-        @options[:style] = [existing_style, style_string].compact_blank.join('; ')
+        @options[:style] = [existing_style, style_string].compact.join('; ')
         self
       end
 
@@ -665,6 +667,26 @@ module SwiftUIRails
       def morph_id(id)
         @attributes['id'] = id
         @attributes['data-morph-id'] = id
+        self
+      end
+
+      # Lifecycle
+      def on_appear(&block)
+        # Register the action with a unique ID
+        add_stimulus_action("appear", &block)
+        
+        # Add the lifecycle controller to observe visibility
+        stimulus_controller("lifecycle")
+        self
+      end
+
+      # Server Actions (LiveView-like)
+      def on_server_click(method_name)
+        data(
+          controller: "server-action",
+          action: "click->server-action#trigger",
+          server_action_name_value: method_name
+        )
         self
       end
 
@@ -846,6 +868,17 @@ module SwiftUIRails
           "Element.to_s: tag=#{@tag_name}, has_block=#{!@block.nil?}, content=#{@content.inspect[0..50]}"
         end
 
+        # X-Ray Debug Mode: Inject DSL node information
+        if defined?(Rails) && Rails.env.development?
+          # Try to infer a useful name from tag name or class
+          debug_name = @tag_name
+          debug_name = "vstack" if @css_classes.include?("flex-col")
+          debug_name = "hstack" if @css_classes.include?("flex-row")
+          debug_name = "text" if @tag_name == :span || @tag_name == :p
+          
+          @options["data-dsl-node"] = debug_name
+        end
+
         # Merge CSS classes - deduplicate to avoid repetition
         if @css_classes.any?
           existing_classes = @options[:class] || ''
@@ -865,28 +898,28 @@ module SwiftUIRails
           end
         end
 
-        # Handle the content/block
+        # Determine the inner HTML content to be rendered
+        inner_html_content = ''
+
         if @block
           safe_logger&.debug { "Element.to_s: Processing block for #{@tag_name}" }
           safe_logger&.info { "Element.to_s: @dsl_context is #{@dsl_context.inspect}" }
 
-          # If we already have a DSL context, use it directly
-          # This prevents creating nested contexts and duplicate rendering
           if @dsl_context
-            safe_logger&.info { "Element.to_s: @dsl_context is #{@dsl_context.class.name}" }
-            # Check if the context is a component (Component-as-DSL-Context)
             if @dsl_context.is_a?(SwiftUIRails::Component::Base)
-              # Execute block directly in component context
-              # This enables natural composition
-              safe_logger&.info { "Element.to_s: Executing block in component context: #{@dsl_context.class.name}" }
+              safe_logger&.info { "Element.to_s: @dsl_context is #{@dsl_context.class.name}" }
               
-              # CRITICAL FIX: Properly isolate but preserve nested element registration
-              # Save the current pending elements
               parent_elements = @dsl_context.instance_variable_get(:@pending_elements) || []
               @dsl_context.instance_variable_set(:@pending_elements, [])
               
+              original_current_context = SwiftUIRails::DSL.current_context
+              SwiftUIRails::DSL.current_context = @dsl_context # Set component as current context
+              
               # Execute the block in the component context
               result = @dsl_context.instance_eval(&@block)
+              
+              # Restore current_context
+              SwiftUIRails::DSL.current_context = original_current_context
               
               # If the block returns an element that hasn't been registered, register it
               if result.is_a?(Element) && @dsl_context.instance_variable_get(:@pending_elements).exclude?(result)
@@ -896,47 +929,44 @@ module SwiftUIRails
                 @dsl_context.register_element(result)
               end
               
-              # Get the nested elements before flushing
               nested_elements = @dsl_context.instance_variable_get(:@pending_elements) || []
               
               # CRITICAL FIX: If we have nested elements, render them individually
               # instead of using flush_elements which may cause recursion
               if nested_elements.any?
                 safe_logger&.debug { "Element.to_s: Rendering #{nested_elements.length} nested elements individually" }
-                rendered_elements = nested_elements.map do |element|
-                  # Set view context before rendering
+                inner_html_content = nested_elements.map do |element|
                   element.view_context ||= @dsl_context
                   element.to_s
-                end
-                content = rendered_elements.join.html_safe
+                end.join.html_safe
               else
-                # No nested elements, check if we have a text result
-                content = result.is_a?(String) ? result.html_safe : ''.html_safe
+                inner_html_content = if result.is_a?(String)
+                                      result.html_safe
+                                    elsif result.is_a?(Element)
+                                      result.to_s
+                                    else
+                                      ''.html_safe
+                                    end
               end
               
-              safe_logger&.debug { "Element.to_s: content=#{content.inspect}, result=#{result.inspect}" }
+              safe_logger&.debug { "Element.to_s: content=#{inner_html_content.inspect}, result=#{result.inspect}" }
               
               # Restore parent elements WITHOUT losing nested elements
               # The nested elements were already rendered, so we don't need to merge them back
               @dsl_context.instance_variable_set(:@pending_elements, parent_elements)
-            else
-              # Traditional DSLContext handling
-              # Create a new sub-context to isolate child elements
-              # Pass current depth to track nesting level
+
+            else # Traditional DSLContext handling
               parent_depth = @dsl_context.respond_to?(:depth) ? @dsl_context.depth : 0
               sub_context = SwiftUIRails::DSLContext.new(@dsl_context.view_context, parent_depth)
 
-              # Transfer component reference
               if (comp = @dsl_context.instance_variable_get(:@component))
                 sub_context.instance_variable_set(:@component, comp)
               elsif @component
                 sub_context.instance_variable_set(:@component, @component)
               end
 
-              # Execute block in sub-context to collect child elements
               result = sub_context.instance_eval(&@block)
 
-              # If the block returns an element that hasn't been registered, register it
               if result.is_a?(Element) && sub_context.instance_variable_get(:@pending_elements).exclude?(result)
                 safe_logger&.debug do
                   "Element.to_s: Block returned unregistered element #{result.tag_name}, registering it"
@@ -944,23 +974,16 @@ module SwiftUIRails
                 sub_context.register_element(result)
               end
 
-              # Flush to get rendered content
-              content = sub_context.flush_elements
+              inner_html_content = sub_context.flush_elements
               
-              # CRITICAL FIX: Handle missing content in DSLContext
-              if content.to_s.strip.empty? && result.is_a?(String)
+              if inner_html_content.to_s.strip.empty? && result.is_a?(String)
                 safe_logger&.debug { "Element.to_s: Using string result from DSLContext block: #{result.inspect}" }
-                content = result.html_safe
+                inner_html_content = result.html_safe
               end
             end
           elsif @view_context.respond_to?(:capture)
-            # No DSL context - render block directly
-            # This happens for elements created outside the DSL
-            # We need to capture the result properly
-            content = @view_context.capture do
-              # Execute the block and collect any returned elements
+            inner_html_content = @view_context.capture do
               result = @block.call
-              # If the result is an array of elements, join them
               if result.is_a?(Array)
                 result.map(&:to_s).join.html_safe
               elsif result.respond_to?(:to_s)
@@ -970,42 +993,40 @@ module SwiftUIRails
               end
             end
           else
-            # Fallback if capture is not available
             result = @block.call
-            content = if result.is_a?(Array)
-                        result.map(&:to_s).join.html_safe
-                      elsif result.respond_to?(:to_s)
-                        result.to_s.html_safe
-                      else
-                        ''
-                      end
-          end
-
-          # Content from DSL context is already safe, don't re-sanitize
-          # Otherwise we lose nested HTML elements like buttons inside hstacks
-          if content.is_a?(ActiveSupport::SafeBuffer)
-            # Already marked as safe by DSL context flush
-            @view_context.content_tag(@tag_name, content, @options)
-          else
-            # Sanitize the content before marking as html_safe
-            sanitized_content = if @view_context.respond_to?(:sanitize)
-                                  @view_context.sanitize((content || '').to_s)
+            inner_html_content = if result.is_a?(Array)
+                                  result.map(&:to_s).join.html_safe
+                                elsif result.respond_to?(:to_s)
+                                  result.to_s.html_safe
                                 else
-                                  ERB::Util.html_escape((content || '').to_s)
+                                  ''
+                                end
+          end
+        end
+
+        # If @content (direct content) exists and block did not produce content, prioritize it.
+        # Otherwise, use the content generated by the block.
+        final_content_to_render = if @content.present? && inner_html_content.blank?
+                                    ERB::Util.html_escape(@content.to_s)
+                                  else
+                                    inner_html_content
+                                  end
+
+        # Final rendering using content_tag or tag
+        if final_content_to_render.is_a?(ActiveSupport::SafeBuffer)
+          @view_context.content_tag(@tag_name, final_content_to_render, @options)
+        else
+          # For self-closing tags, or elements that should be empty
+          if final_content_to_render.blank? && %i[br img input hr svg path].include?(@tag_name)
+            @view_context.tag(@tag_name, @options)
+          else
+            sanitized_content = if @view_context.respond_to?(:sanitize)
+                                  @view_context.sanitize((final_content_to_render || '').to_s)
+                                else
+                                  ERB::Util.html_escape((final_content_to_render || '').to_s)
                                 end
             @view_context.content_tag(@tag_name, sanitized_content.html_safe, @options)
           end
-        elsif @content
-          # Escape HTML content to prevent XSS
-          # For text elements, we should escape HTML rather than sanitize it
-          # This preserves the content while making it safe
-          escaped_content = ERB::Util.html_escape(@content.to_s)
-          @view_context.content_tag(@tag_name, escaped_content, @options)
-        elsif %i[span p h1 h2 h3 h4 h5 h6 div label button].include?(@tag_name)
-          # For text-like elements, use content_tag with empty string
-          @view_context.content_tag(@tag_name, '', @options)
-        else
-          @view_context.tag(@tag_name, @options)
         end
       rescue StandardError => e
         safe_logger&.error "Element.to_s failed: #{e.message} for tag #{@tag_name.inspect}"
@@ -1027,18 +1048,49 @@ module SwiftUIRails
       # SwiftUI-Style Chainable Modifiers
       # ========================================
 
+      # Custom Modifiers
+      def modifier(name)
+        block = SwiftUIRails::DSL.modifiers[name]
+        if block
+          block.call(self)
+        else
+          safe_logger&.warn "Modifier :#{name} not found"
+        end
+        self
+      end
+      alias_method :style, :modifier
+
       # Background and Foreground Colors
       # (background method is defined earlier with block support)
 
       def foreground_color(color)
-        if color.start_with?('#')
-          # Hex color - use inline style
-          @options[:style] = [@options[:style], "color: #{color}"].compact.join('; ')
+        color_class = resolve_color(color)
+        if color_class.start_with?('#')
+          @options[:style] = [@options[:style], "color: #{color_class}"].compact.join('; ')
         else
-          # Tailwind class
-          tw("text-#{color}")
+          tw("text-#{color_class}")
         end
         self
+      end
+      alias_method :foreground, :foreground_color
+      alias_method :fg, :foreground_color
+
+      def resolve_color(color)
+        return color.to_s if color.to_s.start_with?('#')
+        
+        # Intelligent symbol mapping
+        if color.is_a?(Symbol)
+          str = color.to_s
+          # Handle :blue_500 -> blue-500
+          str = str.gsub('_', '-')
+          # Handle :blue -> blue-500 (default shade)
+          unless str.match?(/\-\d+$/) || ['white', 'black', 'transparent', 'current'].include?(str)
+            str = "#{str}-500"
+          end
+          str
+        else
+          color.to_s
+        end
       end
 
       # Corner Radius (SwiftUI-style)
@@ -1063,9 +1115,74 @@ module SwiftUIRails
         self
       end
 
-      # Padding (SwiftUI-style)
-      def padding(amount = 4)
-        tw("p-#{amount}")
+      # SwiftUI Modifiers
+      
+      # .fill(:blue) -> .bg(:blue)
+      def fill(color)
+        bg(color)
+      end
+      
+      # .foregroundStyle(:white) -> .fg(:white)
+      def foregroundStyle(style)
+        foreground_color(style)
+      end
+      
+      # .frame(width: 12, height: 12) -> w-12 h-12
+      # .frame(12) -> w-12 h-12 (Square shorthand)
+      def frame(*args, **kwargs)
+        width = kwargs[:width]
+        height = kwargs[:height]
+        
+        # Handle positional shorthand frame(12) -> width: 12, height: 12
+        if args.first.is_a?(Integer)
+          width ||= args.first
+          height ||= args.first
+        end
+        
+        tw("w-#{width}") if width
+        tw("h-#{height}") if height
+        
+        # Handle alignment (e.g. alignment: :topLeading) if we were using flex
+        # For now, simplistic size frame
+        
+        self
+      end
+
+      # Padding (SwiftUI-style with smart defaults)
+      # .padding -> p-4
+      # .padding(8) -> p-8
+      # .padding(:x) -> px-4
+      # .padding(:horizontal) -> px-4
+      # .padding(:horizontal, 8) -> px-8
+      def padding(*args)
+        if args.empty?
+          tw("p-4")
+        else
+          first = args.first
+          second = args[1]
+          
+          if first.is_a?(Integer) || first.is_a?(String)
+            tw("p-#{first}")
+          elsif first.is_a?(Symbol)
+            amount = second || 4
+            case first
+            when :x, :horizontal
+              tw("px-#{amount}")
+            when :y, :vertical
+              tw("py-#{amount}")
+            when :top, :t
+              tw("pt-#{amount}")
+            when :bottom, :b
+              tw("pb-#{amount}")
+            when :leading, :l, :left
+              tw("pl-#{amount}")
+            when :trailing, :r, :right
+              tw("pr-#{amount}")
+            else
+              tw("p-#{amount}")
+            end
+          end
+        end
         self
       end
 
@@ -1080,8 +1197,29 @@ module SwiftUIRails
       end
 
       # Font Styling (SwiftUI-style)
-      def font_size(size)
-        tw("text-#{size}")
+      def font(style)
+        case style
+        when :large_title then tw("text-4xl font-bold")
+        when :title then tw("text-2xl font-bold")
+        when :title2 then tw("text-xl font-bold")
+        when :title3 then tw("text-lg font-semibold")
+        when :headline then tw("text-base font-semibold")
+        when :body then tw("text-base")
+        when :callout then tw("text-sm")
+        when :subheadline then tw("text-sm text-gray-500")
+        when :footnote then tw("text-xs text-gray-500")
+        when :caption then tw("text-xs text-gray-400")
+        else
+          # Fallback to direct size
+          tw("text-#{style}")
+        end
+        self
+      end
+      alias_method :font_size, :font
+
+      def font_weight(weight)
+        # Support :bold, :semibold symbols
+        tw("font-#{weight}")
         self
       end
 
@@ -1200,4 +1338,3 @@ module SwiftUIRails
     end
   end
 end
-# Copyright 2025

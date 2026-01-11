@@ -5,6 +5,53 @@ module SwiftUIRails
     # Collection components for SwiftUI Rails DSL
     # Provides methods for rendering collections with ViewComponent 2.0 optimizations
     module Collections
+      # List(style: :plain) { ... }
+      # Styles: :plain, :grouped, :inset_grouped, :sidebar
+      def List(style: :plain, **attrs, &block)
+        base_classes = case style
+                       when :plain
+                         "divide-y divide-gray-200 bg-white"
+                       when :grouped
+                         "space-y-4 bg-gray-50 p-4"
+                       when :inset_grouped
+                         "space-y-4 bg-gray-50 px-4 py-6"
+                       when :sidebar
+                         "space-y-1 p-2"
+                       else
+                         "divide-y divide-gray-200"
+                       end
+
+        # Wrapper logic for grouped lists
+        wrapper_class = style == :inset_grouped ? "max-w-3xl mx-auto" : ""
+        
+        attrs[:class] = class_names(base_classes, wrapper_class, attrs[:class])
+        
+        # Determine tag based on style
+        tag = style == :sidebar ? :nav : :ul
+        
+        create_element(tag, nil, **attrs) do
+          # Context for child items (Section, etc.) could be managed here
+          yield
+        end
+      end
+      
+      # Section(header: "Title", footer: "Note") { ... }
+      def Section(header: nil, footer: nil, **attrs, &block)
+        create_element(:div, nil, class: "space-y-1") do
+          if header
+            div(class: "px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider") { text(header) }
+          end
+          
+          div(class: "bg-white overflow-hidden shadow-sm sm:rounded-md divide-y divide-gray-200") do
+            yield
+          end
+
+          if footer
+            div(class: "px-4 py-2 text-xs text-gray-400") { text(footer) }
+          end
+        end
+      end
+
       # E-commerce Components with ViewComponent 2.0 Collection Optimization
       # Generic collection list method - composition-based approach
       def collection_list(items:, **attrs, &block)

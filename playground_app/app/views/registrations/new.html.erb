@@ -1,0 +1,6 @@
+<!-- Temporarily use basic auth form for reliable testing -->
+<%= render Auth::RegisterFormComponent.new(
+  email_value: @user&.email_address || params[:email_address] || "",
+  user: @user,
+  show_errors: @user&.errors&.any? || false
+) %>

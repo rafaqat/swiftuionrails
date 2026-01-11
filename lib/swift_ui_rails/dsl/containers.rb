@@ -114,10 +114,61 @@ module SwiftUIRails
         create_element(:li, nil, **attrs, &block)
       end
 
-      def scroll_view(**attrs, &block)
-        attrs[:class] = class_names('overflow-auto', attrs[:class])
+      def scroll_view(axes: :vertical, shows_indicators: true, **attrs, &block)
+        classes = ["overflow-auto"]
+        classes << (axes == :horizontal ? "overflow-x-auto flex-row" : "overflow-y-auto flex-col")
+        classes << "scrollbar-hide" unless shows_indicators
+        
+        attrs[:class] = class_names(classes, attrs[:class])
+        
+        # Flex container to ensure scrolling works as expected
         create_element(:div, nil, **attrs, &block)
       end
-    end
-  end
-end
+
+      # Sheet(is_presented: boolean) { ... }
+      def Sheet(is_presented: false, **attrs, &block)
+        # Using HTML <dialog>
+        classes = class_names(
+          "backdrop:bg-gray-900/50 fixed inset-0 z-50 m-auto p-0 rounded-t-xl sm:rounded-xl shadow-2xl w-full sm:w-auto sm:min-w-[400px] h-[90%] sm:h-auto overflow-hidden", 
+          attrs[:class]
+        )
+        
+        attrs[:class] = classes
+        attrs[:open] = true if is_presented
+        
+        create_element(:dialog, nil, **attrs) do
+          div(class: "h-full flex flex-col bg-white") do
+            # Drag handle for mobile feel
+            div(class: "w-full flex justify-center py-2 bg-white") do
+              div(class: "w-12 h-1.5 bg-gray-300 rounded-full")
+            end
+            
+            # Content
+            div(class: "flex-1 overflow-y-auto p-4") do
+              yield
+            end
+          end
+        end
+      end
+
+      # Virtualized Stack (Uses CSS content-visibility for performance)
+      def LazyVStack(spacing: nil, **attrs, &block)
+        attrs[:class] = class_names(
+          "flex flex-col",
+          spacing ? "space-y-#{spacing}" : nil,
+          attrs[:class]
+        )
+        
+        # Enable CSS virtualization
+        # content-visibility: auto skips layout work for off-screen content
+        attrs[:style] = [attrs[:style], "content-visibility: auto; contain-intrinsic-size: 100px"].compact.join(";")
+        
+        create_element(:div, nil, **attrs, &block)
+      end
+
+      # Grid variant
+      def LazyVGrid(columns:, **attrs, &block)
+        # Reuse standard grid logic but add virtualization
+        attrs[:style] = [attrs[:style], "content-visibility: auto; contain-intrinsic-size: 100px"].compact.join(";")
+        grid(columns: columns, **attrs, &block)
+      end

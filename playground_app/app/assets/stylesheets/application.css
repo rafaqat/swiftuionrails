@@ -8,3 +8,12 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* Modal dialog body scroll prevention */
+body.overflow-hidden {
+  overflow: hidden !important;
+}
+
+html.overflow-hidden {
+  overflow: hidden !important;
+}

@@ -45,18 +45,32 @@ module SwiftUIRails
 
       def parsed_props
         props.map do |prop|
-          parts = prop.split(':', 2)
+          parts = prop.split(':')
           name = parts[0]&.strip
           type = parts[1]&.strip || 'String'
+          default_value = parts[2]&.strip
 
           # Handle missing prop name
-          raise Thor::Error, "Invalid prop definition: '#{prop}'. Expected format: 'name:type'" if name.blank?
+          raise Thor::Error, "Invalid prop definition: '#{prop}'. Expected format: 'name:type' or 'name:type:default'" if name.blank?
 
           # SECURITY: Validate and sanitize prop names and types
           validate_prop_name!(name)
           type = sanitize_type(type)
 
-          { name: name, type: type }
+          { name: name, type: type, default: process_default(default_value, type) }
+        end
+      end
+
+      def process_default(value, type)
+        return nil if value.nil?
+
+        case type
+        when 'String'
+          value.start_with?('"') || value.start_with?("'") ? value : "\"#{value}\""
+        when 'Symbol'
+          value.start_with?(':') ? value : ":#{value}"
+        else
+          value
         end
       end
     end

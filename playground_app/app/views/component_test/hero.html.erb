@@ -1,0 +1,35 @@
+<% content_for :title, "Hero Landing Component Test" %>
+
+<!-- Test the HeroLandingComponent in isolation -->
+<%= render SwiftUIRails::Component::Composed::Layout::HeroLandingComponent.new %>
+
+<!-- Test Data Information -->
+<div class="bg-white border-t border-gray-200 p-6">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Component Test Details</h2>
+    <div class="bg-gray-50 rounded-lg p-4">
+      <h3 class="font-medium text-gray-900 mb-2">Component:</h3>
+      <code class="text-sm text-gray-700">SwiftUIRails::Component::Composed::Layout::HeroLandingComponent</code>
+      
+      <h3 class="font-medium text-gray-900 mb-2 mt-4">Default Props:</h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        <li><strong>brand_name:</strong> "SwiftUI Rails"</li>
+        <li><strong>brand_emoji:</strong> "🌊"</li>
+        <li><strong>headline:</strong> "Data to enrich your"</li>
+        <li><strong>headline_accent:</strong> "online business"</li>
+        <li><strong>description:</strong> Default lorem ipsum text</li>
+        <li><strong>announcement:</strong> "Announcing our next round of funding."</li>
+      </ul>
+      
+      <h3 class="font-medium text-gray-900 mb-2 mt-4">DSL Features Tested:</h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        <li>✅ Gradient backgrounds (<code>bg-gradient-to-br</code>)</li>
+        <li>✅ Responsive text sizing (<code>text-6xl lg:text-7xl</code>)</li>
+        <li>✅ Tailwind spacing and layout utilities</li>
+        <li>✅ Button styling with hover states</li>
+        <li>✅ Link components with hover effects</li>
+        <li>✅ Flexbox layout with spacing</li>
+      </ul>
+    </div>
+  </div>
+</div>

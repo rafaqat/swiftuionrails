@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SwiftUI Rails Component Test</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <!-- Tailwind CSS -->
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    
+    <!-- Rails UJS & Turbo -->
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50">
+    <!-- Component Test Container -->
+    <div class="min-h-screen">
+      <!-- Test Header -->
+      <div class="bg-white border-b border-gray-200 px-4 py-2">
+        <div class="flex items-center justify-between">
+          <h1 class="text-lg font-semibold text-gray-900">Component Test: <%= params[:action].humanize %></h1>
+          <%= link_to "← Back to Playground", root_path, class: "text-blue-600 hover:text-blue-700 font-medium" %>
+        </div>
+      </div>
+      
+      <!-- Component Under Test -->
+      <div class="component-test-area">
+        <%= yield %>
+      </div>
+    </div>
+  </body>
+</html>
