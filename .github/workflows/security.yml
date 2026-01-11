@@ -22,35 +22,35 @@ jobs:
       with:
         ruby-version: '3.2'
         bundler-cache: true
-        working-directory: test_app
-    
+        working-directory: playground_app
+
     - name: Run RuboCop
-      working-directory: test_app
+      working-directory: playground_app
       run: bundle exec rubocop --format json --out rubocop-results.json
-    
+
     - name: Upload RuboCop results
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: rubocop-results
-        path: test_app/rubocop-results.json
+        path: playground_app/rubocop-results.json
 
   bundler-audit:
     name: Bundler Audit
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.2'
         bundler-cache: true
-        working-directory: test_app
-    
+        working-directory: playground_app
+
     - name: Run bundler-audit
-      working-directory: test_app
+      working-directory: playground_app
       run: |
         bundle exec bundle-audit update
         bundle exec bundle-audit check
@@ -58,24 +58,24 @@ jobs:
   brakeman:
     name: Brakeman Security Scan
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.2'
         bundler-cache: true
-        working-directory: test_app
-    
+        working-directory: playground_app
+
     - name: Install dependencies
       run: |
         gem install brakeman
         sudo apt-get update && sudo apt-get install -y jq
-    
-    - name: Run Brakeman on test_app
-      working-directory: test_app
+
+    - name: Run Brakeman on playground_app
+      working-directory: playground_app
       run: |
         # Run Brakeman and save report (allow it to fail)
         brakeman --no-pager --format json --output ../brakeman-report.json || true
@@ -107,36 +107,36 @@ jobs:
   thread-safety:
     name: Thread Safety Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.2'
         bundler-cache: true
-        working-directory: test_app
-    
+        working-directory: playground_app
+
     # Thread safety checks removed - requires rubocop-thread_safety gem
     # which is not currently in the Gemfile
 
   security-tests:
     name: Security Tests
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.2'
         bundler-cache: true
-        working-directory: test_app
-    
+        working-directory: playground_app
+
     - name: Run security tests
-      working-directory: test_app
+      working-directory: playground_app
       run: bundle exec rails test test/security/
 
   codeql:
