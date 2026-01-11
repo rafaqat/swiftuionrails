@@ -39,16 +39,18 @@ Rails.application.routes.draw do
   get "/compressed_signatures.json", to: "playground_data#signatures"
   get "/compressed_completions.json", to: "playground_data#completions"
   
-  # Component testing routes
-  get "/test/hero", to: "component_test#hero", as: :test_hero
-  
-  # Auth component testing routes
-  namespace :auth_test do
-    get :login
-    get :register
-    get :combined
-    post :login_submit
-    post :register_submit
+  # Component testing routes - only expose in development/test
+  if Rails.env.development? || Rails.env.test?
+    get "/test/hero", to: "component_test#hero", as: :test_hero
+
+    # Auth component testing routes
+    namespace :auth_test do
+      get :login
+      get :register
+      get :combined
+      post :login_submit
+      post :register_submit
+    end
   end
   
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -54,7 +54,7 @@ module SwiftUIRails
         # Width utilities
         w: 'w', min_w: 'min-w', max_w: 'max-w',
         # Height utilities
-        h: 'h', min_h: 'min-h', max_h: 'h'
+        h: 'h', min_h: 'min-h', max_h: 'max-h'
       }.freeze
 
       # Define text utilities using metaprogramming

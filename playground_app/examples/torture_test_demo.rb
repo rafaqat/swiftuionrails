@@ -2,13 +2,15 @@
 
 module TortureTestDemo
   # Mock Data for Crypto
-  COINS = [
+  # Use deep duplication to avoid shared mutable state between duplicated items
+  BASE_COINS = [
     { s: "BTC", n: "Bitcoin", p: 45000, c: 2.5, h: [44,45,46,44,45,47,45] },
     { s: "ETH", n: "Ethereum", p: 3200, c: -1.2, h: [33,32,31,32,32,31,32] },
     { s: "SOL", n: "Solana", p: 110, c: 5.4, h: [100,105,108,110,112,110,110] },
     { s: "ADA", n: "Cardano", p: 0.55, c: 0.1, h: [5,5,6,5,6,5,6] },
     { s: "DOT", n: "Polkadot", p: 7.2, c: -0.5, h: [8,7,7,7,7,8,7] }
-  ] * 20 # Duplicate to make 100 items
+  ].freeze
+  COINS = (1..20).flat_map { BASE_COINS.map { |coin| coin.deep_dup } }.freeze
 
   CRYPTO_UI = <<~'RUBY'
     class CryptoDashboard < SwiftUIRails::Component::Base
@@ -40,8 +42,10 @@ module TortureTestDemo
 
       def filtered_coins
         TortureTestDemo::COINS.each_with_index.select do |c, i|
-          matches_search = search_query.empty? || c[:n].downcase.include?(search_query.downcase) || c[:s].downcase.include?(search_query.downcase)
-          
+          # Nil-safe search matching using to_s for safety
+          query = search_query.to_s.downcase
+          matches_search = query.empty? || c[:n].to_s.downcase.include?(query) || c[:s].to_s.downcase.include?(query)
+
           matches_filter = case filter
                            when "gainers" then c[:c] > 0
                            when "losers" then c[:c] < 0

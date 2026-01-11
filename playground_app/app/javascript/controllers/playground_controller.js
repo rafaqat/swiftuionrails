@@ -7,16 +7,32 @@ export default class extends Controller {
     console.log("Playground controller connected")
     this.initializeMonaco()
     this.loadFavorites()
-    
-    // Listen for Studio code updates
-    window.addEventListener("studio:code-update", (e) => {
+
+    // Store bound reference for cleanup
+    this.boundStudioCodeUpdate = (e) => {
       if (this.editor) {
         this.editor.setValue(e.detail.code)
       }
-    })
-    
+    }
+
+    // Listen for Studio code updates
+    window.addEventListener("studio:code-update", this.boundStudioCodeUpdate)
+
     // Inject X-Ray styles
     this.injectXRayStyles()
+  }
+
+  disconnect() {
+    // Clean up event listeners to prevent memory leaks
+    if (this.boundStudioCodeUpdate) {
+      window.removeEventListener("studio:code-update", this.boundStudioCodeUpdate)
+    }
+
+    // Dispose Monaco editor if it exists
+    if (this.editor) {
+      this.editor.dispose()
+      this.editor = null
+    }
   }
   
   injectXRayStyles() {
@@ -101,28 +117,44 @@ export default class extends Controller {
   setupCompletionProvider() {
     monaco.languages.registerCompletionItemProvider('ruby', {
       provideCompletionItems: async (model, position) => {
-        const textUntilPosition = model.getValueInRange({
-          startLineNumber: 1,
-          startColumn: 1,
-          endLineNumber: position.lineNumber,
-          endColumn: position.column
-        });
-        
-        const response = await fetch('/playground/completions', { // Updated path
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-          },
-          body: JSON.stringify({
-            context: textUntilPosition,
-            line: position.lineNumber,
-            column: position.column
-          })
-        });
-        
-        const data = await response.json();
-        return { suggestions: data.completions };
+        try {
+          const textUntilPosition = model.getValueInRange({
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column
+          });
+
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+          if (!csrfToken) {
+            console.warn('CSRF token not found, completions disabled')
+            return { suggestions: [] }
+          }
+
+          const response = await fetch('/playground/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfToken
+            },
+            body: JSON.stringify({
+              context: textUntilPosition,
+              line: position.lineNumber,
+              column: position.column
+            })
+          });
+
+          if (!response.ok) {
+            console.warn('Completion request failed:', response.status)
+            return { suggestions: [] }
+          }
+
+          const data = await response.json();
+          return { suggestions: data.completions || [] };
+        } catch (error) {
+          console.error('Completion error:', error)
+          return { suggestions: [] }
+        }
       }
     });
   }
@@ -222,28 +254,60 @@ export default class extends Controller {
   }
 
   loadFavorites() {
-    if (!this.favoritesListTarget) return
-    
-    const favorites = JSON.parse(localStorage.getItem('playground-favorites') || '[]')
+    if (!this.hasFavoritesListTarget) return
+
+    let favorites = []
+    try {
+      favorites = JSON.parse(localStorage.getItem('playground-favorites') || '[]')
+      if (!Array.isArray(favorites)) favorites = []
+    } catch (e) {
+      console.warn('Failed to parse favorites:', e)
+      favorites = []
+    }
+
     const container = this.favoritesListTarget
-    
+    container.innerHTML = ''
+
     if (favorites.length === 0) {
-      container.innerHTML = '<div class="text-xs text-gray-500 italic">No favorites yet</div>'
+      const emptyDiv = document.createElement('div')
+      emptyDiv.className = 'text-xs text-gray-500 italic'
+      emptyDiv.textContent = 'No favorites yet'
+      container.appendChild(emptyDiv)
       return
     }
-    
-    container.innerHTML = ''
+
     favorites.forEach(fav => {
+      // Validate fav object has required properties
+      if (!fav || typeof fav.name !== 'string' || typeof fav.code !== 'string') return
+
       const div = document.createElement('div')
       div.className = 'flex justify-between items-center group py-1'
-      div.innerHTML = `
-        <button class="text-sm text-gray-700 hover:text-blue-600 text-left truncate flex-1" data-action="click->playground#loadExample" data-playground-code-param="${this.escapeHtml(fav.code)}">
-          ${this.escapeHtml(fav.name)}
-        </button>
-        <button class="text-xs text-red-500 opacity-0 group-hover:opacity-100 px-2" onclick="this.parentElement.remove(); const favs = JSON.parse(localStorage.getItem('playground-favorites')); const newFavs = favs.filter(f => f.id !== ${fav.id}); localStorage.setItem('playground-favorites', JSON.stringify(newFavs));">
-          ×
-        </button>
-      `
+
+      // Create load button using DOM instead of innerHTML
+      const loadBtn = document.createElement('button')
+      loadBtn.className = 'text-sm text-gray-700 hover:text-blue-600 text-left truncate flex-1'
+      loadBtn.textContent = fav.name
+      loadBtn.dataset.action = 'click->playground#loadExample'
+      loadBtn.dataset.playgroundCodeParam = fav.code
+
+      // Create delete button using DOM instead of innerHTML with onclick
+      const deleteBtn = document.createElement('button')
+      deleteBtn.className = 'text-xs text-red-500 opacity-0 group-hover:opacity-100 px-2'
+      deleteBtn.textContent = '×'
+      deleteBtn.dataset.favId = fav.id
+      deleteBtn.addEventListener('click', () => {
+        div.remove()
+        try {
+          const storedFavs = JSON.parse(localStorage.getItem('playground-favorites') || '[]')
+          const newFavs = storedFavs.filter(f => f.id !== fav.id)
+          localStorage.setItem('playground-favorites', JSON.stringify(newFavs))
+        } catch (e) {
+          console.warn('Failed to update favorites:', e)
+        }
+      })
+
+      div.appendChild(loadBtn)
+      div.appendChild(deleteBtn)
       container.appendChild(div)
     })
   }

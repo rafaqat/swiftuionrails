@@ -5,11 +5,21 @@ export default class extends Controller {
 
   connect() {
     console.log("Studio controller connected")
-    
+
+    // Store bound reference for cleanup
+    this.boundDebouncedSync = this.debouncedSync.bind(this)
+
     // Listen for Monaco editor changes (Code -> UI)
-    window.addEventListener("monaco:change", this.debouncedSync.bind(this))
-    
+    window.addEventListener("monaco:change", this.boundDebouncedSync)
+
     this.isUpdatingFromStudio = false
+  }
+
+  disconnect() {
+    // Clean up event listeners to prevent memory leaks
+    if (this.boundDebouncedSync) {
+      window.removeEventListener("monaco:change", this.boundDebouncedSync)
+    }
   }
 
   async loadComponent(componentName) {
@@ -81,7 +91,11 @@ export default class extends Controller {
     label.className = "text-sm font-medium text-gray-700"
     label.textContent = prop.name
     if (prop.required) {
-      label.innerHTML += ' <span class="text-red-500">*</span>'
+      // Use DOM manipulation instead of innerHTML to prevent XSS
+      const asterisk = document.createElement("span")
+      asterisk.className = "text-red-500"
+      asterisk.textContent = " *"
+      label.appendChild(asterisk)
     }
 
     let input

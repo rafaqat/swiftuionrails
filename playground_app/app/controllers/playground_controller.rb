@@ -3,8 +3,8 @@
 require_relative "../../examples/playground_dogfood_examples"
 
 class PlaygroundController < ApplicationController
-  # Skip CSRF for read-only endpoints only. Preview still requires CSRF or Origin validation.
-  skip_before_action :verify_authenticity_token, only: [:completions, :signatures]
+  # Skip CSRF for read-only signature lookup only. Preview and completions still require CSRF.
+  skip_before_action :verify_authenticity_token, only: [:signatures]
   before_action :validate_same_origin, only: [:preview]
 
   def index
@@ -59,11 +59,13 @@ class PlaygroundController < ApplicationController
       # Give the class a name to avoid nil name issues
       Object.const_set(temp_class_name, component_class)
 
-      # Render the component
-      @rendered_html = component_class.new.call.to_s
-
-      # Clean up the temporary constant
-      Object.send(:remove_const, temp_class_name)
+      begin
+        # Render the component
+        @rendered_html = component_class.new.call.to_s
+      ensure
+        # Clean up the temporary constant - always run even if rendering fails
+        Object.send(:remove_const, temp_class_name) if Object.const_defined?(temp_class_name, false)
+      end
 
       respond_to do |format|
         format.turbo_stream do
@@ -167,14 +169,27 @@ class PlaygroundController < ApplicationController
     }
   end
 
+  # Allowlist of component name patterns safe for constantize
+  ALLOWED_COMPONENT_PATTERNS = [
+    /\A[A-Z][a-zA-Z0-9]*Component\z/,                    # SimpleComponent
+    /\ASwiftUIRails::[A-Z][a-zA-Z0-9:]*Component\z/,     # SwiftUIRails::*Component
+    /\ASwiftUIRails::Component::[A-Z][a-zA-Z0-9:]*\z/,   # SwiftUIRails::Component::*
+    /\A[A-Z][a-zA-Z0-9]*::[A-Z][a-zA-Z0-9]*Component\z/  # Namespace::SimpleComponent
+  ].freeze
+
   def component_schema
     component_name = params[:component]
-    
-    # Security: whitelist allowed components or check inheritance
-    # For playground, checking inheritance from SwiftUIRails::Component::Base is reasonable
+
+    # Security: Validate component name against allowlist BEFORE constantize
+    unless component_name.present? && ALLOWED_COMPONENT_PATTERNS.any? { |pattern| pattern.match?(component_name) }
+      render json: { error: "Invalid component name format" }, status: :bad_request
+      return
+    end
+
     begin
       klass = component_name.constantize
-      
+
+      # Double-check inheritance after constantize
       unless klass < SwiftUIRails::Component::Base || klass < ViewComponent::Base
         render json: { error: "Invalid component class" }, status: :bad_request
         return
@@ -278,7 +293,12 @@ class PlaygroundController < ApplicationController
     return if Rails.env.development? || Rails.env.test?
 
     origin = request.headers["Origin"] || request.headers["Referer"]
-    return if origin.blank?
+
+    # Reject requests with no origin header in production (potential CSRF)
+    if origin.blank?
+      render json: { error: "Origin header required" }, status: :forbidden
+      return
+    end
 
     uri = URI.parse(origin)
     expected_host = request.host
@@ -320,7 +340,7 @@ class PlaygroundController < ApplicationController
   def render_error(message)
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("preview-container-v2",
+        render turbo_stream: turbo_stream.update("preview-container",
           render_to_string(partial: "error", locals: { error: SecurityError.new(message) }))
       end
       format.html { render partial: "error", locals: { error: SecurityError.new(message) } }
