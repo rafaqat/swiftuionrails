@@ -4,6 +4,24 @@ require_relative '../introspection'
 
 module SwiftUIRails
   module Components
+    # OmniBrowserComponent provides a Miller column interface for browsing
+    # and editing ActiveRecord models. It displays three columns:
+    # 1. Model list - shows available models with search filtering
+    # 2. Record list - shows records for the selected model
+    # 3. Editor - auto-generated form for editing selected record
+    #
+    # @example Basic usage with automatic model discovery
+    #   render SwiftUIRails::Components::OmniBrowserComponent.new
+    #
+    # @example With explicit model list
+    #   render SwiftUIRails::Components::OmniBrowserComponent.new(
+    #     models: ["User", "Post", "Comment"]
+    #   )
+    #
+    # Props:
+    #   models - Array of model class names as strings. If empty, discovers
+    #            all ActiveRecord models automatically.
+    #
     class OmniBrowserComponent < Component::Base
       # Props
       prop :models, default: [] # List of model class names as strings ["User", "Post"]
@@ -149,7 +167,7 @@ module SwiftUIRails
                     Spacer()
                     Button("Save")
                       .bg(:blue).fg(:white).padding(:x, 3).padding(:y, 1).rounded
-                      # Form submit handles this, but button can too if outside form
+                      .on_server_click(:save_record)
                   end
 
                   # Auto-Generated Form
@@ -172,9 +190,10 @@ module SwiftUIRails
                           when :integer, :float, :decimal
                             create_element(:input, type: "number", name: col.name, value: value, class: "border p-2 rounded w-full")
                           when :text
-                            create_element(:textarea, value, name: col.name, class: "border p-2 rounded w-full h-24")
+                            create_element(:textarea, name: col.name, class: "border p-2 rounded w-full h-24") { value.to_s }
                           when :datetime, :date
-                            create_element(:input, type: "date", name: col.name, value: value.to_s.split(" ").first, class: "border p-2 rounded w-full")
+                            formatted_date = format_date_value(value)
+                            create_element(:input, type: "date", name: col.name, value: formatted_date, class: "border p-2 rounded w-full")
                           else
                             # Default String
                             create_element(:input, type: "text", name: col.name, value: value, class: "border p-2 rounded w-full")
@@ -199,6 +218,17 @@ module SwiftUIRails
             end
           end
         end
+      end
+
+      private
+
+      # Safely format date values for input fields
+      # @param value [Date, DateTime, String, nil] the value to format
+      # @return [String, nil] formatted date string or nil
+      def format_date_value(value)
+        return nil if value.nil?
+        return value.strftime("%Y-%m-%d") if value.respond_to?(:strftime)
+        value.to_s.split(" ").first
       end
     end
   end
