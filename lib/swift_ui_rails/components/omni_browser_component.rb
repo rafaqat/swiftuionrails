@@ -48,6 +48,9 @@ module SwiftUIRails
 
       def current_model_class
         return nil unless selected_model_name.present?
+        # Security: Validate model name against available_models allowlist before constantize
+        # This prevents arbitrary class instantiation (RCE) attacks
+        return nil unless available_models.include?(selected_model_name)
         selected_model_name.constantize
       rescue NameError
         nil
@@ -65,23 +68,31 @@ module SwiftUIRails
         @selected_model_name = name
         @selected_record_id = nil
         @editing_attributes = {}
+        @reflector = nil  # Clear cached reflector when model changes
       end
 
       def select_record(id)
         @selected_record_id = id
-        record = current_model_class&.find(id)
+        # Use find_by to return nil instead of raising RecordNotFound
+        record = current_model_class&.find_by(id: id)
         @editing_attributes = record&.attributes&.symbolize_keys || {}
       end
 
       def save_record(form_data)
-        record = current_model_class&.find(@selected_record_id)
+        # Use find_by to return nil instead of raising RecordNotFound
+        record = current_model_class&.find_by(id: @selected_record_id)
         return unless record
 
         form_data.each do |k, v|
           record.send("#{k}=", v) if record.respond_to?("#{k}=")
         end
-        record.save
-        @flash_message = "Saved!"
+
+        # Check save result before setting success message
+        if record.save
+          @flash_message = "Saved!"
+        else
+          @flash_message = "Save failed: #{record.errors.full_messages.join(', ')}"
+        end
       end
 
       swift_ui do
