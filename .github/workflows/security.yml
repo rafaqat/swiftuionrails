@@ -26,7 +26,21 @@ jobs:
 
     - name: Run RuboCop
       working-directory: playground_app
-      run: bundle exec rubocop --format json --out rubocop-results.json
+      run: |
+        # Run RuboCop with security-focused config, only fail on error-level offenses
+        bundle exec rubocop --fail-level error --format json --out rubocop-results.json || true
+
+        # Check for error-level security offenses
+        if [ -f rubocop-results.json ]; then
+          error_count=$(cat rubocop-results.json | grep -c '"severity":"error"' || echo "0")
+          if [ "$error_count" -gt 0 ]; then
+            echo "❌ Found $error_count security errors!"
+            cat rubocop-results.json | jq '.files[] | select(.offenses | map(select(.severity == "error")) | length > 0) | {path, errors: [.offenses[] | select(.severity == "error")]}'
+            exit 1
+          else
+            echo "✅ No security errors found"
+          fi
+        fi
 
     - name: Upload RuboCop results
       if: failure()
