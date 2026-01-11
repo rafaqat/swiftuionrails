@@ -50,7 +50,8 @@ module ModernCrudDemo
         user = ModernCrudDemo::User.new(name: @name, email: @email, role: @role)
         
         if user.valid?
-          # Save to "DB"
+          # Save to "DB" - assign ID before saving
+          user.id = (ModernCrudDemo::User.all.max_by(&:id)&.id || 0) + 1
           ModernCrudDemo::User.all << user
           
           # Optimistic UI Update
@@ -71,7 +72,8 @@ module ModernCrudDemo
       end
       
       def delete_user(id)
-        ModernCrudDemo::User.all.reject! { |u| u.id == id }
+        # Ensure id is an integer for comparison
+        ModernCrudDemo::User.all.reject! { |u| u.id == id.to_i }
         @users = ModernCrudDemo::User.all
         @flash_message = "User deleted."
         @flash_type = :success

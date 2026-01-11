@@ -9,18 +9,21 @@ Rails.application.routes.draw do
   
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Playground V2 routes
-  get "v2/playground", to: "playground_v2#index"
-  post "v2/playground/preview", to: "playground_v2#preview"
-  post "v2/playground/completions", to: "playground_v2#completions"
-  get "v2/playground/signatures", to: "playground_v2#signatures"
-  get "v2/playground/component_schema", to: "playground_v2#component_schema"
-  post "v2/playground/parse_component", to: "playground_v2#parse_component"
-  post "v2/playground/form_submit_demo", to: "playground_v2#form_submit_demo"
+  # Playground routes
+  get "playground", to: "playground#index"
+  post "playground/preview", to: "playground#preview"
+  post "playground/completions", to: "playground#completions"
+  get "playground/signatures", to: "playground#signatures"
+  get "playground/component_schema", to: "playground#component_schema"
+  post "playground/parse_component", to: "playground#parse_component"
+  post "playground/form_submit_demo", to: "playground#form_submit_demo"
 
   # Mount the engine for server actions
   mount SwiftUIRails::Engine => "/swift_ui"
 
+  # Set root to the playground
+  root "playground#index"
+  
   # Commenting out original Playground routes for now, for V2 development
   # root "playground#index"
   

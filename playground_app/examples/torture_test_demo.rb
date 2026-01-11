@@ -28,10 +28,13 @@ module TortureTestDemo
       end
 
       def select_coin(idx)
-        # We need to find the coin from the list. 
+        # We need to find the coin from the list.
         # For demo simplicity, we rebuild the list or access constant.
         # In real app, this would be a DB lookup.
-        coin = TortureTestDemo::COINS[idx.to_i]
+        index = idx.to_i
+        return unless index >= 0 && index < TortureTestDemo::COINS.length
+
+        coin = TortureTestDemo::COINS[index]
         @selected_coin = coin
       end
 
@@ -210,8 +213,10 @@ module TortureTestDemo
       }
       
       def move_card(card, to_col)
-        # Simplified move logic
-        @tasks.each { |k, v| v.delete(card) }
+        # Simplified move logic with validation
+        return unless @tasks.key?(to_col)
+
+        @tasks.each { |_k, v| v.delete(card) }
         @tasks[to_col] << card
       end
 

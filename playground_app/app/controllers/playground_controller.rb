@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "../../examples/playground_dogfood_examples"
+
 class PlaygroundController < ApplicationController
-  layout "playground"
-  
-  # Skip CSRF for IntelliSense API endpoints and preview
-  skip_before_action :verify_authenticity_token, only: [:completions, :signatures, :preview]
+  # Skip CSRF for read-only endpoints only. Preview still requires CSRF or Origin validation.
+  skip_before_action :verify_authenticity_token, only: [:completions, :signatures]
+  before_action :validate_same_origin, only: [:preview]
 
   def index
     @playground = PlaygroundComponent.new(
@@ -104,6 +105,7 @@ class PlaygroundController < ApplicationController
     }
     
     begin
+      # We assume Playground::CompletionService exists from the V1 implementation
       service = Playground::CompletionService.new(context, position)
       completions = service.generate_completions
       
@@ -165,18 +167,151 @@ class PlaygroundController < ApplicationController
     }
   end
 
+  def component_schema
+    component_name = params[:component]
+    
+    # Security: whitelist allowed components or check inheritance
+    # For playground, checking inheritance from SwiftUIRails::Component::Base is reasonable
+    begin
+      klass = component_name.constantize
+      
+      unless klass < SwiftUIRails::Component::Base || klass < ViewComponent::Base
+        render json: { error: "Invalid component class" }, status: :bad_request
+        return
+      end
+      
+      # Extract props
+      props = if klass.respond_to?(:swift_props)
+                klass.swift_props.map do |name, config|
+                  {
+                    name: name,
+                    type: config[:type].to_s,
+                    required: config[:required],
+                    default: config[:default]
+                  }
+                end
+              else
+                []
+              end
+              
+      # Render preview if available
+      preview_html = if klass.respond_to?(:render_preview)
+                       begin
+                         klass.render_preview
+                       rescue => e
+                         "Preview error: #{e.message}"
+                       end
+                     else
+                       nil
+                     end
+              
+      render json: {
+        name: klass.name,
+        props: props,
+        preview_html: preview_html
+      }
+    rescue NameError
+      render json: { error: "Component not found" }, status: :not_found
+    end
+  end
+
+  def parse_component
+    code = params[:code]
+    component_name = params[:component_name]
+    
+    # Simple parser to extract props from Component.new(...)
+    # This is an MVP implementation using Regex
+    # A production version would use Ripper or the Parser gem
+    
+    props = {}
+    
+    # Find the component instantiation
+    # Matches: ComponentName.new( arg1: val1, arg2: val2 )
+    if code =~ /#{Regexp.escape(component_name)}\.new\s*\((.*?)\)/m
+      args_string = $1
+      
+      # Split by comma, handling potential commas inside quotes
+      # This is a naive split, but works for simple cases
+      # A better regex would be: /,\s*(?=(?:[^"]*"[^"]*")*[^"]*$)/
+      args = args_string.scan(/([a-z_0-9]+):\s*(.*?)(?:,|$)/m)
+      
+      args.each do |key, value|
+        value = value.strip
+        
+        # Parse value type
+        parsed_value = case value
+                       when /^"(.*)"$/ then $1 # String
+                       when /^'(.*)'$/ then $1 # String
+                       when /^:(\w+)$/ then $1 # Symbol
+                       when "true" then true
+                       when "false" then false
+                       when /^\d+$/ then value.to_i # Integer
+                       when /^\d+\.\d+$/ then value.to_f # Float
+                       else value # Fallback/Complex expression
+                       end
+                       
+        props[key] = parsed_value
+      end
+    end
+    
+    render json: { props: props }
+  end
+
+  def form_submit_demo
+    # Standard Rails Controller Action
+    name = ERB::Util.html_escape(params[:name])
+    email = ERB::Util.html_escape(params[:email])
+
+    # Render a success message via Turbo Stream
+    render turbo_stream: turbo_stream.update("form-feedback", html: <<~HTML.html_safe)
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Success!</strong>
+        <span class="block sm:inline">Controller received: #{name} (#{email})</span>
+      </div>
+    HTML
+  end
+
   private
 
+  # Validates that the request originates from the same origin to prevent CSRF
+  def validate_same_origin
+    return if Rails.env.development? || Rails.env.test?
+
+    origin = request.headers["Origin"] || request.headers["Referer"]
+    return if origin.blank?
+
+    uri = URI.parse(origin)
+    expected_host = request.host
+
+    unless uri.host == expected_host
+      render json: { error: "Invalid origin" }, status: :forbidden
+    end
+  rescue URI::InvalidURIError
+    render json: { error: "Invalid origin" }, status: :forbidden
+  end
+
   def contains_dangerous_code?(code)
+    # Limit input length to prevent ReDoS
+    return true if code.length > 10_000
+
     dangerous_patterns = [
-      /\b(eval|exec|system|backticks|%x|spawn|fork|load|require|open|File|Dir|IO)\b/,
-      /`.*`/,
-      /%x\{.*\}/,
+      /\b(eval|exec|system|backticks|spawn|fork|load|require|open|File|Dir|IO)\b/,
+      /`[^`]*`/,           # Fixed: non-greedy backtick matching
+      /%x\{[^}]*\}/,       # Fixed: non-greedy %x{} matching
+      /%x\[[^\]]*\]/,      # %x[] variant
+      /%x\([^)]*\)/,       # %x() variant
       /\$\w+/,
       /@@\w+/,
-      /\:\:/,
-      /\.send/,
-      /\.public_send/
+      /::/,
+      /\.send\b/,
+      /\.public_send\b/,
+      /\.instance_eval\b/,
+      /\.class_eval\b/,
+      /\.module_eval\b/,
+      /Kernel\./,
+      /Object\./,
+      /Module\./,
+      /Class\./
     ]
 
     dangerous_patterns.any? { |pattern| code =~ pattern }
@@ -185,7 +320,7 @@ class PlaygroundController < ApplicationController
   def render_error(message)
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("preview-container",
+        render turbo_stream: turbo_stream.update("preview-container-v2",
           render_to_string(partial: "error", locals: { error: SecurityError.new(message) }))
       end
       format.html { render partial: "error", locals: { error: SecurityError.new(message) } }
@@ -194,12 +329,12 @@ class PlaygroundController < ApplicationController
 
   def format_syntax_error(error, code)
     # Extract line number from error message
-    if error.message =~ /:(\\d+):/
+    if error.message =~ /:(\d+):/
       line_number = $1.to_i
-      lines = code.split("\\n")
+      lines = code.split("\n")
 
       # Build a nice error message with context
-      message = "Syntax error on line #{line_number}\\n\\n"
+      message = "Syntax error on line #{line_number}\n\n"
 
       # Show 2 lines before and after the error
       start_line = [ line_number - 3, 0 ].max
@@ -208,10 +343,10 @@ class PlaygroundController < ApplicationController
       (start_line..end_line).each do |i|
         line_num = i + 1
         prefix = line_num == line_number ? "→ " : "  "
-        message += "#{prefix}#{line_num.to_s.rjust(3)}: #{lines[i]}\\n" if lines[i]
+        message += "#{prefix}#{line_num.to_s.rjust(3)}: #{lines[i]}\n" if lines[i]
       end
 
-      message += "\\n#{error.message}"
+      message += "\n#{error.message}"
     else
       error.message
     end
@@ -221,52 +356,29 @@ class PlaygroundController < ApplicationController
     <<~RUBY
       swift_ui do
         vstack(spacing: 16) do
-          text("Welcome to SwiftUI Rails Playground!")
-            .font_size("2xl")
+          text("Welcome to SwiftUI Rails Playground V2!")
+            .font_size("3xl")
             .font_weight("bold")
             .text_color("blue-600")
-      #{'    '}
-          text("Built with our own DSL 🎉")
+      
+          text("This entire UI is built with the DSL.")
             .text_color("gray-600")
-      #{'    '}
-          # Test justify: :between layout
-          text("Layout Test: justify: :between")
-            .font_weight("semibold")
-            .text_color("gray-800")
-      #{'    '}
-          hstack(justify: :between) do
-            text("Left Text")
-              .font_weight("bold")
-              .text_color("blue-600")
-            text("Right Text")
-              .font_weight("bold")
-              .text_color("red-600")
-          end
-      #{'    '}
-          hstack(spacing: 8) do
-            button("Click Me")
-              .bg("blue-500")
-              .text_color("white")
-              .px(4).py(2)
-              .rounded("lg")
-              .hover("bg-blue-600")
-              .data(action: "click->playground#handleClick")
-      #{'      '}
-            button("Reset")
-              .bg("gray-500")
-              .text_color("white")
-              .px(4).py(2)
-              .rounded("lg")
-              .hover("bg-gray-600")
-          end
-      #{'    '}
+            .font_size("lg")
+      
           card(elevation: 2) do
             vstack(spacing: 8) do
-              text("Built with SwiftUI Rails DSL")
-                .font_weight("semibold")
-              text("100% built with SwiftUI Rails DSL")
-                .text_sm
-                .text_color("gray-600")
+              hstack(justify: :between) do
+                text("Status")
+                  .font_weight("medium")
+                badge("Live")
+                  .bg("green-100")
+                  .text_color("green-800")
+              end
+              
+              divider
+              
+              text("Edit the code on the left to see changes instantly.")
+                .text_color("gray-500")
             end
           end
         end
@@ -274,231 +386,112 @@ class PlaygroundController < ApplicationController
     RUBY
   end
 
-  def available_components
-    [
-      { 
-        name: "Text", 
-        category: "Basic", 
-        code: 'text("Your text here")
-  .font_size("xl")
-  .font_weight("semibold")
-  .text_color("gray-800")
-  .text_align("left")
-  .leading("relaxed")' 
-      },
-      { 
-        name: "Button", 
-        category: "Basic", 
-        code: 'button("Click Me")
-  .bg("blue-500")
-  .text_color("white")
-  .px(4).py(2)
-  .rounded("lg")
-  .data(action: "click->controller#method")' 
-      },
-      { name: "Image", category: "Basic", code: 'image(src: "https://images.unsplash.com/photo-1470509037663-253afd7f0f51?w=400&h=300&fit=crop", alt: "Beautiful sunflower")' },
-      { 
-        name: "VStack", 
-        category: "Layout", 
-        code: <<~'RUBY'
-          vstack(spacing: 16) do
-            text("First Item")
-            text("Second Item")
-            text("Third Item")
-          end
-        RUBY
-      },
-      { 
-        name: "HStack", 
-        category: "Layout", 
-        code: <<~'RUBY'
-          hstack(justify: :between) do
-            text("Left")
-            text("Right")
-          end
-        RUBY
-      },
-      { 
-        name: "Card", 
-        category: "Components", 
-        code: <<~'RUBY'
-          card(elevation: 2) do
-            text("Card Title")
-              .font_size("xl")
-              .font_weight("bold")
-            text("Card content goes here")
-              .text_color("gray-600")
-          end
-        RUBY
-      },
-      { 
-        name: "List", 
-        category: "Components", 
-        code: <<~'RUBY'
-          vstack(spacing: 8) do
-            (1..5).each do |i|
-              button("Click Me Item #{i}")
-                .bg("blue")
-                .text_color("white")
-                .px(4).py(2)
-                .rounded("lg")
-                .hover("bg-blue-600")
-                .data(action: "click->controller#method")
+    def available_components
+      [
+        { 
+          name: "Text", 
+          category: "Basic", 
+          class_name: "SwiftUIRails::Component::TextComponent", # Example if it existed
+          code: 'text("Your text here")
+    .font_size("xl")
+    .font_weight("semibold")
+    .text_color("gray-800")' 
+        },
+        # ... (Update others if they have real classes)
+        { 
+          name: "Card", 
+          category: "Components", 
+          class_name: "CardComponent", # Assuming this exists in the app or lib
+          code: <<~'RUBY'
+            card(elevation: 2) do
+              text("Card Title").font_weight("bold")
+              text("Card content")
             end
-          end
-        RUBY
-      },
-      { 
-        name: "Grid", 
-        category: "Layout", 
-        code: <<~'RUBY'
-          grid(columns: 3, spacing: 16) do
-            (1..6).each do |i|
-              card(elevation: 1) do
-                text("Grid Item #{i}")
-              end
-            end
-          end
-        RUBY
-      },
-      { 
-        name: "Form", 
-        category: "Forms", 
-        code: <<~'RUBY'
-          form(action: "#", method: :post) do
-            textfield(name: "email", placeholder: "Enter email")
-              .w("full")
-              .mb(4)
-            button("Submit", type: "submit")
-              .bg("blue-500")
-              .text_color("white")
-              .px(4).py(2)
-              .rounded("lg")
-          end
-        RUBY
-      },
-      { name: "TextField", category: "Forms", code: 'textfield(name: "email", placeholder: "Enter email")' },
-      { 
-        name: "Simple Table", 
-        category: "Tables", 
-        code: <<~'RUBY'
-          table do
-            thead do
-              tr do
-                th.px(4).py(2).text_left { text("Name") }
-                th.px(4).py(2).text_left { text("Role") }
-                th.px(4).py(2).text_left { text("Status") }
-              end
-            end
-            tbody do
-              tr.border_t do
-                td.px(4).py(2) { text("John Doe") }
-                td.px(4).py(2) { text("Admin") }
-                td.px(4).py(2) { text("Active") }
-              end
-              tr.border_t do
-                td.px(4).py(2) { text("Jane Smith") }
-                td.px(4).py(2) { text("User") }
-                td.px(4).py(2) { text("Inactive") }
-              end
-            end
-          end
-        RUBY
-      },
-      { 
-        name: "Data Table", 
-        category: "Tables", 
-        code: <<~'RUBY'
-          data_table(
-            title: "Users",
-            data: [
-              { name: "John", role: "Admin", status: "Active" },
-              { name: "Jane", role: "User", status: "Inactive" }
-            ],
-            columns: [
-              { key: :name, label: "Name" },
-              { key: :role, label: "Role", format: :badge },
-              { key: :status, label: "Status", format: :badge }
-            ]
-          )
-        RUBY
-      },
-      { 
-        name: "Table", 
-        category: "Tables", 
-        code: <<~'RUBY'
-          table do
-            thead do
-              tr do
-                th { text("Header") }
-              end
-            end
-            tbody do
-              tr do
-                td { text("Data") }
-              end
-            end
-          end
-        RUBY
-      }
-    ]
-  end
-
+          RUBY
+        },
+        # ...
+      ]
+    end
   def code_examples
-    # Load dogfood examples
-    require Rails.root.join("examples/playground_dogfood_examples.rb")
+    require_relative "../../examples/playground_dogfood_examples"
+    require_relative "../../examples/composite_form_example"
+    require_relative "../../examples/world_class_demo"
+    require_relative "../../examples/reactive_gallery_demo"
+    require_relative "../../examples/standard_rails_form_demo"
+    require_relative "../../examples/modern_crud_demo"
+    require_relative "../../examples/torture_test_demo"
     dogfood_examples = PlaygroundDogfoodExamples.all_examples
     
     [
       {
-        name: "Layout Demo",
-        description: "HStack justification examples (start, center, between, etc.)",
-        code: dogfood_examples[:layout_demo]
+        name: "Crypto Trader",
+        description: "Complex Dashboard & Charts",
+        code: TortureTestDemo::CRYPTO_UI
+      },
+      {
+        name: "Kanban Board",
+        description: "Horizontal Scroll & Drag Logic",
+        code: TortureTestDemo::KANBAN_UI
+      },
+      {
+        name: "Modern CRUD",
+        description: "Reactive Form + Database Logic",
+        code: ModernCrudDemo::APP_UI
+      },
+      {
+        name: "Reactive Gallery",
+        description: "Live State Binding Demo",
+        code: ReactiveGalleryDemo::APP_UI
+      },
+      {
+        name: "Standard Rails Form",
+        description: "Submit to Rails Controller",
+        code: StandardRailsFormDemo::APP_UI
+      },
+      {
+        name: "World Class App",
+        description: "Navigation, Virtualization, and Context",
+        code: WorldClassDemo::APP_UI
+      },
+      {
+        name: "Settings UI (Composite)",
+        description: "iOS-style Settings with List and Section",
+        code: CompositeFormExample::SETTINGS_UI
       },
       {
         name: "Product Grid",
-        description: "E-commerce product grid with hover effects",
+        description: "E-commerce product grid",
         code: dogfood_examples[:product_grid]
       },
       {
         name: "Dashboard Stats",
-        description: "Analytics dashboard with stat cards",
+        description: "Analytics dashboard",
         code: dogfood_examples[:dashboard_stats]
       },
       {
         name: "Pricing Cards",
-        description: "Interactive pricing table with popular badge",
+        description: "Interactive pricing table",
         code: dogfood_examples[:pricing_cards]
       },
       {
         name: "Todo List",
-        description: "Interactive todo list with Stimulus",
+        description: "Interactive todo list",
         code: dogfood_examples[:todo_list]
       },
       {
         name: "Navigation Bar",
-        description: "Responsive navbar with dropdown menus",
+        description: "Responsive navbar",
         code: dogfood_examples[:navbar]
       },
       {
-        name: "Simple Table",
-        description: "Basic table with headers and rows",
-        code: dogfood_examples[:simple_table]
+        name: "Layout Demo",
+        description: "Justification examples",
+        code: dogfood_examples[:layout_demo]
       },
       {
         name: "Data Table",
-        description: "Advanced table with sorting, search, and rich formatting",
+        description: "Advanced table with sorting",
         code: dogfood_examples[:data_table]
-      },
-      {
-        name: "Sales Report",
-        description: "Sales table with currency formatting and growth indicators",
-        code: dogfood_examples[:sales_table]
-      },
-      {
-        name: "Employee Directory",
-        description: "Employee table with avatars, badges, and pagination",
-        code: dogfood_examples[:employee_table]
       }
     ]
   end

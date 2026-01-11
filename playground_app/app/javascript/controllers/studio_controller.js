@@ -21,22 +21,46 @@ export default class extends Controller {
     this.previewSectionTarget.classList.add("hidden")
 
     try {
-      const response = await fetch(`/v2/playground/component_schema?component=${componentName}`)
+      const response = await fetch(`/playground/component_schema?component=${encodeURIComponent(componentName)}`)
       if (!response.ok) throw new Error("Failed to load schema")
-      
+
       const schema = await response.json()
       this.renderControls(schema)
-      
-      // Render Preview if available
+
+      // Render Preview if available - sanitize HTML to prevent XSS
       if (schema.preview_html && schema.preview_html !== "No preview defined") {
         this.previewSectionTarget.classList.remove("hidden")
-        this.previewContainerTarget.innerHTML = schema.preview_html
+        // Use textContent for plain text or sanitize HTML
+        // Since preview_html comes from trusted server-side rendering, we trust it
+        // but add a basic sanitization layer
+        this.previewContainerTarget.innerHTML = this.sanitizeHtml(schema.preview_html)
       }
-      
+
     } catch (error) {
       console.error(error)
       this.propsContainerTarget.innerHTML = `<div class="text-red-500 text-sm">Error loading component schema</div>`
     }
+  }
+
+  // Basic HTML sanitizer - removes script tags and event handlers
+  sanitizeHtml(html) {
+    const template = document.createElement('template')
+    template.innerHTML = html
+    const content = template.content
+
+    // Remove script tags
+    content.querySelectorAll('script').forEach(el => el.remove())
+
+    // Remove event handlers from all elements
+    content.querySelectorAll('*').forEach(el => {
+      Array.from(el.attributes).forEach(attr => {
+        if (attr.name.startsWith('on')) {
+          el.removeAttribute(attr.name)
+        }
+      })
+    })
+
+    return template.innerHTML
   }
 
   renderControls(schema) {
@@ -111,7 +135,7 @@ export default class extends Controller {
     const code = event.detail.code
     
     try {
-      const response = await fetch("/v2/playground/parse_component", {
+      const response = await fetch("/playground/parse_component", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

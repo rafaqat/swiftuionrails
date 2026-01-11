@@ -1,51 +1,322 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["preview", "form", "codeInput", "monacoContainer"]
-  
+  static targets = ["monacoContainer", "preview", "form", "codeInput", "searchInput", "themeSelect", "favoritesList", "studioSidebar"]
+
   connect() {
     console.log("Playground controller connected")
+    this.initializeMonaco()
+    this.loadFavorites()
     
-    // Set up debounced update
-    this.debouncedUpdate = this.debounce(this.updatePreview.bind(this), 500)
+    // Listen for Studio code updates
+    window.addEventListener("studio:code-update", (e) => {
+      if (this.editor) {
+        this.editor.setValue(e.detail.code)
+      }
+    })
     
-    // Wait for Monaco Editor to be ready
-    if (window.monacoEditorInstance) {
-      console.log("Monaco already initialized")
-      this.initializeEditor()
-    } else {
-      console.log("Waiting for Monaco to initialize")
-      window.addEventListener('monaco-editor-ready', (event) => {
-        console.log("Monaco editor ready event received")
-        this.initializeEditor()
-      })
-    }
+    // Inject X-Ray styles
+    this.injectXRayStyles()
   }
   
-  initializeEditor() {
-    this.editor = window.monacoEditorInstance
-    console.log("Editor initialized:", this.editor)
+  injectXRayStyles() {
+    if (document.getElementById("xray-styles")) return
     
+    const style = document.createElement("style")
+    style.id = "xray-styles"
+    style.textContent = `
+      .xray-active [data-dsl-node] {
+        outline: 1px dashed rgba(59, 130, 246, 0.5) !important;
+        position: relative !important;
+      }
+      .xray-active [data-dsl-node]:hover {
+        outline: 2px solid #2563eb !important;
+        background-color: rgba(59, 130, 246, 0.05) !important;
+      }
+      .xray-active [data-dsl-node]:hover::after {
+        content: attr(data-dsl-node);
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #2563eb;
+        color: white;
+        font-size: 10px;
+        padding: 2px 4px;
+        z-index: 9999;
+        pointer-events: none;
+        border-radius: 0 0 4px 0;
+        font-family: monospace;
+      }
+    `
+    document.head.appendChild(style)
+  }
+
+  toggleXRay() {
+    this.previewTarget.classList.toggle("xray-active")
+  }
+
+  toggleStudio() {
+    this.studioSidebarTarget.classList.toggle("hidden")
+    // Resize editor if needed
     if (this.editor) {
-      // Monaco editor initialized successfully
-      // Set up change listener
-      this.editor.onDidChangeModelContent(() => {
-        // Update hidden form input
-        if (this.hasCodeInputTarget) {
-          this.codeInputTarget.value = this.editor.getValue()
-        }
-        // Trigger preview update
-        this.debouncedUpdate()
+      setTimeout(() => this.editor.layout(), 300)
+    }
+  }
+
+  initializeMonaco() {
+    const container = this.monacoContainerTarget
+    const initialCode = container.dataset.initialCode
+
+    require(['vs/editor/editor.main'], () => {
+      this.editor = monaco.editor.create(container, {
+        value: initialCode,
+        language: 'ruby',
+        theme: 'vs-light',
+        minimap: { enabled: false },
+        fontSize: 14,
+        automaticLayout: true,
+        scrollBeyondLastLine: false,
+        padding: { top: 16, bottom: 16 }
       })
-    } else {
-      console.error("Monaco editor not available")
+
+      // Set up auto-preview
+      this.editor.onDidChangeModelContent(() => {
+        this.debouncedPreview()
+        
+        // Emit event for Studio sync
+        const event = new CustomEvent("monaco:change", { 
+          detail: { code: this.editor.getValue() } 
+        })
+        window.dispatchEvent(event)
+      })
+
+      // Initial preview
+      this.updatePreview()
+
+      // Setup completion provider
+      this.setupCompletionProvider()
+    })
+  }
+
+  setupCompletionProvider() {
+    monaco.languages.registerCompletionItemProvider('ruby', {
+      provideCompletionItems: async (model, position) => {
+        const textUntilPosition = model.getValueInRange({
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column
+        });
+        
+        const response = await fetch('/playground/completions', { // Updated path
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          },
+          body: JSON.stringify({
+            context: textUntilPosition,
+            line: position.lineNumber,
+            column: position.column
+          })
+        });
+        
+        const data = await response.json();
+        return { suggestions: data.completions };
+      }
+    });
+  }
+
+  // V2-specific features
+  filterComponents(event) {
+    const query = event.target.value.toLowerCase() // Fixed typo
+    const categories = document.querySelectorAll('[data-category-name]')
+    
+    categories.forEach(category => {
+      let hasVisibleItems = false
+      const items = category.querySelectorAll('[data-component-name]')
+      
+      items.forEach(item => {
+        const name = item.dataset.componentName
+        if (name.includes(query)) {
+          item.style.display = 'block'
+          hasVisibleItems = true
+        } else {
+          item.style.display = 'none'
+        }
+      })
+      
+      category.style.display = hasVisibleItems ? 'block' : 'none'
+    })
+  }
+
+  changeTheme(event) {
+    const theme = event.target.value
+    if (this.editor) {
+      monaco.editor.setTheme(theme)
+    }
+  }
+
+  switchDevice(event) {
+    const device = event.params.device
+    const preview = this.previewTarget
+    
+    // Reset classes
+    preview.style.maxWidth = '100%'
+    preview.style.border = 'none'
+    preview.style.borderRadius = '0'
+    
+    if (device === 'mobile') {
+      preview.style.maxWidth = '375px'
+      preview.style.border = '1px solid #e5e7eb'
+      preview.style.borderRadius = '2rem'
+    } else if (device === 'tablet') {
+      preview.style.maxWidth = '768px'
+      preview.style.border = '1px solid #e5e7eb'
+      preview.style.borderRadius = '1rem'
+    }
+    
+    // Animate change
+    preview.animate([
+      { opacity: 0.5 },
+      { opacity: 1 }
+    ], {
+      duration: 300,
+      easing: 'ease-out'
+    })
+  }
+
+  exportCode() {
+    if (!this.editor) return
+    
+    const code = this.editor.getValue()
+    const blob = new Blob([code], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'playground_export.rb'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  saveFavorite() {
+    if (!this.editor) return
+
+    const code = this.editor.getValue()
+    const name = prompt('Name this snippet:')
+    
+    if (name) {
+      const favorites = JSON.parse(localStorage.getItem('playground-favorites') || '[]')
+      favorites.push({
+        id: Date.now(),
+        code: code,
+        name: name,
+        timestamp: Date.now()
+      })
+      localStorage.setItem('playground-favorites', JSON.stringify(favorites))
+      this.loadFavorites()
+    }
+  }
+
+  loadFavorites() {
+    if (!this.favoritesListTarget) return
+    
+    const favorites = JSON.parse(localStorage.getItem('playground-favorites') || '[]')
+    const container = this.favoritesListTarget
+    
+    if (favorites.length === 0) {
+      container.innerHTML = '<div class="text-xs text-gray-500 italic">No favorites yet</div>'
       return
     }
     
-    // Initial preview
+    container.innerHTML = ''
+    favorites.forEach(fav => {
+      const div = document.createElement('div')
+      div.className = 'flex justify-between items-center group py-1'
+      div.innerHTML = `
+        <button class="text-sm text-gray-700 hover:text-blue-600 text-left truncate flex-1" data-action="click->playground#loadExample" data-playground-code-param="${this.escapeHtml(fav.code)}">
+          ${this.escapeHtml(fav.name)}
+        </button>
+        <button class="text-xs text-red-500 opacity-0 group-hover:opacity-100 px-2" onclick="this.parentElement.remove(); const favs = JSON.parse(localStorage.getItem('playground-favorites')); const newFavs = favs.filter(f => f.id !== ${fav.id}); localStorage.setItem('playground-favorites', JSON.stringify(newFavs));">
+          ×
+        </button>
+      `
+      container.appendChild(div)
+    })
+  }
+
+  // Standard Actions
+  updatePreview() {
+    if (!this.editor) return
+    
+    const code = this.editor.getValue()
+    this.codeInputTarget.value = code
+    this.formTarget.requestSubmit()
+  }
+
+  runCode() {
     this.updatePreview()
   }
-  
+
+  insertComponent(event) {
+    if (!this.editor) return
+    
+    const code = event.params.code
+    const position = this.editor.getPosition()
+
+    this.editor.executeEdits('insert', [{
+      range: {
+        startLineNumber: position.lineNumber,
+        startColumn: position.column,
+        endLineNumber: position.lineNumber,
+        endColumn: position.column
+      },
+      text: code
+    }])
+    
+    this.editor.focus()
+  }
+
+  loadExample(event) {
+    if (!this.editor) return
+    
+    const code = event.params.code
+    this.editor.setValue(code)
+  }
+
+  formatCode() {
+    if (this.editor) {
+      this.editor.getAction('editor.action.formatDocument').run()
+    }
+  }
+
+  clearCode() {
+    if (this.editor) {
+      this.editor.setValue('')
+    }
+  }
+
+  shareCode() {
+    if (!this.editor) return
+
+    const code = this.editor.getValue()
+    // Use encodeURIComponent for Unicode-safe base64 encoding
+    const encoded = btoa(unescape(encodeURIComponent(code)))
+    const url = `${window.location.origin}/playground?code=${encoded}`
+
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Playground link copied to clipboard!')
+    })
+  }
+
+  // Utilities
+  debouncedPreview = this.debounce(() => {
+    this.updatePreview()
+  }, 1000) // 1 second delay
+
   debounce(func, wait) {
     let timeout
     return function executedFunction(...args) {
@@ -58,128 +329,12 @@ export default class extends Controller {
     }
   }
   
-  runCode(event) {
-    event.preventDefault()
-    this.updatePreview()
-  }
-  
-  updatePreview() {
-    if (!this.editor) {
-      console.error("Monaco editor not available")
-      return
-    }
-    
-    const code = this.editor.getValue()
-    if (this.hasCodeInputTarget) {
-      this.codeInputTarget.value = code
-    }
-    
-    // Submit the form via Turbo
-    this.formTarget.requestSubmit()
-  }
-  
-  insertComponent(event) {
-    console.log("Insert component clicked", event.params.code)
-    
-    if (!this.editor) {
-      console.error("Monaco editor not available")
-      return
-    }
-    
-    const code = event.params.code
-    const currentCode = this.editor.getValue().trim()
-    
-    // Check if we're inside a swift_ui block
-    const hasSwiftUIWrapper = currentCode.startsWith('swift_ui do')
-    
-    if (hasSwiftUIWrapper) {
-      // Find a good place to insert (before the last 'end')
-      const lines = currentCode.split('\n')
-      let lastEndLineIndex = -1
-      
-      // Find last 'end' line (findLastIndex might not be supported in all browsers)
-      for (let i = lines.length - 1; i >= 0; i--) {
-        if (lines[i].trim() === 'end') {
-          lastEndLineIndex = i
-          break
-        }
-      }
-      
-      if (lastEndLineIndex > 0) {
-        lines.splice(lastEndLineIndex, 0, '  ' + code)
-        const newCode = lines.join('\n')
-        this.editor.setValue(newCode)
-      } else {
-        // Just append
-        const newCode = currentCode + '\n' + code
-        this.editor.setValue(newCode)
-      }
-    } else {
-      // Insert at cursor position
-      const position = this.editor.getPosition()
-      const selection = {
-        startLineNumber: position.lineNumber,
-        startColumn: position.column,
-        endLineNumber: position.lineNumber,
-        endColumn: position.column
-      }
-      
-      this.editor.executeEdits('insert', [{
-        range: selection,
-        text: code,
-        forceMoveMarkers: true
-      }])
-    }
-    
-    this.editor.focus()
-  }
-  
-  loadExample(event) {
-    if (!this.editor) return
-    
-    const code = event.params.code
-    this.editor.setValue(code)
-    this.editor.focus()
-  }
-  
-  clearCode() {
-    if (!this.editor) return
-    
-    this.editor.setValue('')
-    this.editor.focus()
-  }
-  
-  formatCode() {
-    if (!this.editor) return
-    
-    // Use Monaco's built-in formatting
-    this.editor.getAction('editor.action.formatDocument').run()
-  }
-  
-  shareCode() {
-    if (!this.editor) return
-    
-    const code = this.editor.getValue()
-    const encoded = btoa(code)
-    const url = `${window.location.origin}${window.location.pathname}?code=${encoded}`
-    
-    navigator.clipboard.writeText(url).then(() => {
-      alert('Shareable link copied to clipboard!')
-    })
-  }
-  
-  toggleDevice() {
-    // Toggle between desktop and mobile view
-    this.previewTarget.classList.toggle('max-w-sm')
-    this.previewTarget.classList.toggle('mx-auto')
-  }
-  
-  refreshPreview() {
-    this.updatePreview()
-  }
-  
-  handleClick(event) {
-    console.log('Button clicked in preview!', event)
-    alert('Button clicked! This is handled by Stimulus.')
+  escapeHtml(unsafe) {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 }

@@ -19,7 +19,8 @@ export class PlaygroundDataManager {
       // Fallback: Try base64 decoding without compression
       if (compressedBase64 && typeof compressedBase64 === 'string') {
         try {
-          const decoded = atob(compressedBase64);
+          // Use decodeURIComponent(escape()) for Unicode-safe base64 decoding
+          const decoded = decodeURIComponent(escape(atob(compressedBase64)));
           return JSON.parse(decoded);
         } catch (e) {
           console.warn('Base64 decode failed, using server data');
