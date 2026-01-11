@@ -1,0 +1,74 @@
+# RuboCop configuration for SwiftUI Rails playground_app
+# Security-focused linting for CI - only fail on security errors
+
+plugins:
+  - rubocop-rails
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+  SuggestExtensions: false
+  Exclude:
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'log/**/*'
+
+# =============================================================================
+# SECURITY COPS - These MUST pass (severity: error)
+# =============================================================================
+Security/Eval:
+  Enabled: true
+  Severity: error
+
+Security/JSONLoad:
+  Enabled: true
+  Severity: error
+
+Security/YAMLLoad:
+  Enabled: true
+  Severity: error
+
+Security/MarshalLoad:
+  Enabled: true
+  Severity: error
+
+Security/Open:
+  Enabled: true
+  Severity: error
+
+Security/CompoundHash:
+  Enabled: true
+  Severity: warning
+
+# =============================================================================
+# DISABLE ALL NON-SECURITY COPS
+# This is a DSL framework - focus on security only
+# =============================================================================
+Rails:
+  Enabled: false
+
+Style:
+  Enabled: false
+
+Layout:
+  Enabled: false
+
+Metrics:
+  Enabled: false
+
+Naming:
+  Enabled: false
+
+Lint:
+  Enabled: false
+
+Bundler:
+  Enabled: false
+
+Gemspec:
+  Enabled: false

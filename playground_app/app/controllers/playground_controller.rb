@@ -440,9 +440,15 @@ class PlaygroundController < ApplicationController
     require_relative "../../examples/standard_rails_form_demo"
     require_relative "../../examples/modern_crud_demo"
     require_relative "../../examples/torture_test_demo"
+    require_relative "../../examples/omni_browser_demo"
     dogfood_examples = PlaygroundDogfoodExamples.all_examples
     
     [
+      {
+        name: "OmniBrowser",
+        description: "Universal CRUD (Miller Columns)",
+        code: OmniBrowserDemo::APP_UI
+      },
       {
         name: "Crypto Trader",
         description: "Complex Dashboard & Charts",

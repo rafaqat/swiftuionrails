@@ -127,7 +127,12 @@ module SwiftUIRails
                                       'Grid',
                                       'Divider',
                                       'Spacer',
-                                      'SimpleButton'
+                                      'SimpleButton',
+                                      'SwiftUIRails::Components::OmniBrowserComponent',
+                                      'CreateUserView', # For the demo
+                                      'ReactiveGallery', # For the demo
+                                      'CryptoDashboard', # For the demo
+                                      'KanbanBoard' # For the demo
                                       # Add new components here after security review
                                     ])
     end
