@@ -34,10 +34,15 @@ module SwiftUIRails
       state :available_models, []
       state :model_search, ""
 
+      # Initializes the component state on first render.
+      # Populates available_models from props or auto-discovers all ActiveRecord models.
+      # @return [void]
       def mount
         @available_models = models.presence || Introspection::SystemScanner.all_models
       end
 
+      # Returns models filtered by the current search query.
+      # @return [Array<String>] Array of model class names matching the search
       def filtered_models
         if model_search.blank?
           available_models
@@ -46,24 +51,34 @@ module SwiftUIRails
         end
       end
 
+      # Returns the ActiveRecord class for the currently selected model.
+      # Validates the model name against available_models allowlist before constantize
+      # to prevent arbitrary class instantiation (RCE) attacks.
+      # @return [Class, nil] The model class or nil if invalid/not found
       def current_model_class
         return nil unless selected_model_name.present?
-        # Security: Validate model name against available_models allowlist before constantize
-        # This prevents arbitrary class instantiation (RCE) attacks
         return nil unless available_models.include?(selected_model_name)
         selected_model_name.constantize
       rescue NameError
         nil
       end
 
+      # Returns all records for the currently selected model.
+      # @return [ActiveRecord::Relation, Array] Collection of records or empty array
       def current_records
         current_model_class&.all || []
       end
 
+      # Returns a ModelReflector for the current model, memoized for performance.
+      # @return [Introspection::ModelReflector, nil] Reflector instance or nil
       def reflector
         @reflector ||= current_model_class ? Introspection::ModelReflector.new(current_model_class) : nil
       end
 
+      # Selects a model by name and resets record selection.
+      # Clears the memoized reflector to prevent stale cache issues.
+      # @param name [String] The model class name to select
+      # @return [void]
       def select_model(name)
         @selected_model_name = name
         @selected_record_id = nil
@@ -71,13 +86,20 @@ module SwiftUIRails
         @reflector = nil  # Clear cached reflector when model changes
       end
 
+      # Selects a record by ID and loads its attributes for editing.
+      # Uses find_by to gracefully handle missing records instead of raising.
+      # @param id [Integer, String] The record ID to select
+      # @return [void]
       def select_record(id)
         @selected_record_id = id
-        # Use find_by to return nil instead of raising RecordNotFound
         record = current_model_class&.find_by(id: id)
         @editing_attributes = record&.attributes&.symbolize_keys || {}
       end
 
+      # Saves the selected record with form data updates.
+      # Sets a flash message indicating success or validation errors.
+      # @param form_data [Hash] Hash of attribute name to value pairs
+      # @return [void]
       def save_record(form_data)
         # Use find_by to return nil instead of raising RecordNotFound
         record = current_model_class&.find_by(id: @selected_record_id)
