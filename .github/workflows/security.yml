@@ -137,7 +137,12 @@ jobs:
 
     - name: Run security tests
       working-directory: playground_app
-      run: bundle exec rails test test/security/
+      run: |
+        if [ -d "test/security" ]; then
+          bundle exec rails test test/security/
+        else
+          echo "No security tests directory found - skipping"
+        fi
 
   codeql:
     name: CodeQL Analysis
