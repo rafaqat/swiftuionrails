@@ -20,7 +20,7 @@ module SwiftUIRails
           prop :brand_emoji, type: String, default: "🌊"
           prop :headline, type: String, default: "Data to enrich your"
           prop :headline_accent, type: String, default: "online business"
-          prop :description, type: String, default: "Anim qute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat."
+          prop :description, type: String, default: "Build modern Rails applications with SwiftUI-inspired components. Create beautiful, responsive interfaces with our comprehensive component library."
           prop :announcement, type: String, default: "Announcing our next round of funding."
           prop :announcement_link_text, type: String, default: "Read more →"
           prop :announcement_link_url, type: String, default: "#"

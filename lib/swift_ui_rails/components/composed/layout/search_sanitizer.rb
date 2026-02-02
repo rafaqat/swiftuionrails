@@ -18,9 +18,8 @@ module SwiftUIRails
           SAFE_PATTERN = /\A[a-zA-Z0-9\s\-_.,!?'"()]*\z/
           
           # Safe keyword-based detection instead of complex regex to prevent ReDoS
-          FORBIDDEN_KEYWORDS = %w[
-            <script javascript: select union insert delete drop exec
-          ].freeze
+          SCRIPT_KEYWORDS = %w[<script javascript:].freeze
+          # Note: SQL keywords removed from search filtering as they're legitimate search terms
           
           # Only simple, safe regex patterns without quantifiers that could cause ReDoS
           SIMPLE_PATTERNS = [
@@ -96,11 +95,11 @@ module SwiftUIRails
           def sanitize_characters(input)
             # Use allowlist approach - only keep explicitly safe characters
             input
-              .gsub(/[<>]/, '')                    # Remove angle brackets
-              .gsub(/javascript\s*:/i, '')         # Handle optional spaces after javascript
-              .gsub(/java\s*script\s*:/i, '')      # Handle spaced variations
-              .gsub(/[^\w\s\-_.,!?'"()]/, '')     # Keep only safe characters
-              .gsub(/\s+/, ' ')                   # Normalize whitespace
+              .gsub(/[<>]/, '')                           # Remove angle brackets
+              .gsub(/(?:javascript|vbscript|data)\s*:/i, '') # Handle common script protocols
+              .gsub(/javascript\s*\/\//i, '')             # Handle javascript:// variants
+              .gsub(/[^\w\s\-_.,!?'"()]/, '')            # Keep only safe characters
+              .gsub(/\s+/, ' ')                          # Normalize whitespace
               .strip
           end
           
@@ -109,7 +108,7 @@ module SwiftUIRails
             lower_input = input.downcase
             
             # Check forbidden keywords
-            return true if FORBIDDEN_KEYWORDS.any? { |keyword| lower_input.include?(keyword) }
+            return true if SCRIPT_KEYWORDS.any? { |keyword| lower_input.include?(keyword) }
             
             # Check simple patterns that don't cause ReDoS
             return true if SIMPLE_PATTERNS.any? { |pattern| pattern.match?(input) }
@@ -123,26 +122,29 @@ module SwiftUIRails
           def contains_event_handler?(input)
             # Simple string-based detection to avoid ReDoS
             lower_input = input.downcase
-            # Use multiple checks to avoid bypasses
-            lower_input.include?('on') && (
-              lower_input.match?(/\bon[a-z]+\s*=/i) || # Allow optional spaces before '='
-              lower_input.match?(/\bon[A-Z]+\s*=/i)    # Handle mixed-case event names
-            )
+            lower_input.include?('on') && lower_input.match?(/\bon[a-z]+\s*=/i)
           end
           
           def remove_suspicious_patterns(input)
             result = input.dup
             
             # Remove forbidden keywords using simple string replacement
-            FORBIDDEN_KEYWORDS.each do |keyword|
+            SCRIPT_KEYWORDS.each do |keyword|
               result.gsub!(keyword, '')
             end
             
             # Remove complete script blocks safely to prevent HTML injection
-            # Remove complete script blocks with content
-            while result.match?(/<script/i)
-              result.gsub!(/<script[^>]*>.*?<\/script\s*>/mi, '')
-              result.gsub!(/<script[^>]*>/i, '') # Handle unclosed script tags
+            loop do
+              start_pos = result.downcase.index('<script')
+              break unless start_pos
+
+              end_pos = result.downcase.index('</script>', start_pos)
+              if end_pos
+                result[start_pos..end_pos + 8] = ''
+              else
+                result[start_pos..-1] = ''
+                break
+              end
             end
             
             # Remove all (including overlapping) occurrences of 'javascript:' (case-insensitive)
@@ -165,11 +167,10 @@ module SwiftUIRails
           end
           
           def remove_event_handlers_safely(input)
-            # Simple approach: remove any "on" followed by letters and "="
-            # Split into words and filter out event handler patterns
+            # Simple approach: remove any "on" followed by letters and optional spaces before '='
             words = input.split(/\s+/)
             clean_words = words.reject do |word|
-              word.downcase.match?(/\bon[a-z]+=/)
+              word.downcase.match?(/\bon[a-z]+\s*=/)
             end
             clean_words.join(' ')
           end
