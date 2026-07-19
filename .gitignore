@@ -11,7 +11,10 @@
 /tmp/
 
 # Used by dotenv library to load environment variables.
-# .env
+.env
+.env.*
+!.env.example
+!.env.test
 
 # Ignore Byebug command history file.
 .byebug_history
@@ -49,6 +52,28 @@ Gemfile.lock
 .ruby-version
 .ruby-gemset
 
+# The embedded Rails application is the executable test harness. Keep its
+# runtime and dependency graph reproducible in clean checkouts and CI.
+!test_app/Gemfile.lock
+!test_app/.ruby-version
+
+# Runtime-only output from the embedded Rails test application.
+/test_app/tmp/*
+!/test_app/tmp/.keep
+!/test_app/tmp/pids/
+/test_app/tmp/pids/*
+!/test_app/tmp/pids/.keep
+!/test_app/tmp/storage/
+/test_app/tmp/storage/*
+!/test_app/tmp/storage/.keep
+/test_app/tmp/local_secret.txt
+/test_app/coverage/
+/test_app/brakeman-report.json
+/test_app/brakeman-report.html
+
+# Stray browser-automation captures from MCP tooling.
+.playwright-mcp/
+
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
 
@@ -59,3 +84,14 @@ Gemfile.lock
 /tmp/
 *.pid
 *.log
+
+# Security: Never commit secrets
+config/master.key
+test_app/config/master.key
+config/credentials/*.key
+.env
+.env.*
+*.pem
+*.key
+/test_app/log/*
+!/test_app/log/.keep

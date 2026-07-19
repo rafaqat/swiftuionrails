@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PARALLEL_WORKERS: 1
+      RAILS_ENV: test
+    defaults:
+      run:
+        working-directory: test_app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4.4"
+          working-directory: test_app
+          bundler-cache: true
+
+      - name: Run Rails tests
+        run: bin/rails test
+
+      - name: Run system tests
+        run: bin/rails test:system
+
+      - name: Verify Zeitwerk autoloading
+        run: bin/rails zeitwerk:check
+
+      - name: Audit import map packages
+        run: bin/importmap audit

@@ -1,0 +1,86 @@
+# RuboCop configuration for SwiftUI Rails
+# Focuses on security and Rails best practices
+
+plugins:
+  - rubocop-rails
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.0
+  Exclude:
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+    - 'test_app/bin/**/*'
+    - 'test_app/db/**/*'
+    - 'test_app/vendor/**/*'
+    - 'test_app/node_modules/**/*'
+    - 'test_app/tmp/**/*'
+    - 'test_app/log/**/*'
+
+# Security-focused cops
+Security/Eval:
+  Enabled: true
+  Severity: error
+
+Security/JSONLoad:
+  Enabled: true
+  Severity: error
+
+Security/YAMLLoad:
+  Enabled: true
+  Severity: error
+
+Security/MarshalLoad:
+  Enabled: true
+  Severity: error
+
+Security/Open:
+  Enabled: true
+  Severity: error
+
+# Rails security cops
+Rails/OutputSafety:
+  Enabled: true
+  Severity: error
+
+Rails/DynamicFindBy:
+  Enabled: true
+  Whitelist:
+    - find_by_sql
+
+# SQL injection detection is handled by Brakeman
+
+# Style customizations for SwiftUI DSL
+Style/ClassAndModuleChildren:
+  Enabled: false # Allow nested module style for DSL
+
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'lib/swift_ui_rails/dsl/**/*' # DSL methods can be longer
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+    - 'lib/swift_ui_rails/dsl/**/*' # DSL blocks can be longer
+
+# Allow DSL-style naming
+Naming/MethodName:
+  Exclude:
+    - 'lib/swift_ui_rails/dsl/**/*' # Allow SwiftUI-style method names
+
+# Documentation
+Style/Documentation:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+
+# Thread safety
+Lint/UselessAssignment:
+  Enabled: true

@@ -1,0 +1,81 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  application-security:
+    name: Application Security
+    runs-on: ubuntu-latest
+    env:
+      PARALLEL_WORKERS: 1
+      RAILS_ENV: test
+    defaults:
+      run:
+        working-directory: test_app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4.4"
+          working-directory: test_app
+          bundler-cache: true
+
+      - name: Run security regression tests
+        run: bin/rails test test/security
+
+      - name: Run Brakeman
+        run: >-
+          bundle exec brakeman
+          --confidence-level 2
+          --no-pager
+          --output brakeman-report.json
+          --output brakeman-report.html
+
+      - name: Upload Brakeman results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brakeman-results
+          path: |
+            test_app/brakeman-report.json
+            test_app/brakeman-report.html
+
+      - name: Audit Ruby dependencies
+        run: bundle exec bundle-audit check --update
+
+      - name: Audit import map packages
+        run: bin/importmap audit
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ruby
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
