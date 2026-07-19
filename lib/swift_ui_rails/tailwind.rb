@@ -1,25 +1,30 @@
 # frozen_string_literal: true
 
+require_relative 'security/css_validator'
+
 module SwiftUIRails
   module Tailwind
     module Modifiers
-      # Spacing utilities
+      # Spacing utilities with SECURITY validation
       %i[p px py pt pr pb pl m mx my mt mr mb ml].each do |method|
         define_method method do |value, &block|
-          add_class("#{method}-#{value}", &block)
+          safe_class = Security::CSSValidator.safe_spacing_class(method.to_s, value)
+          add_class(safe_class, &block)
           self
         end
       end
       
-      # Alias for padding
+      # Alias for padding with SECURITY validation
       def padding(value, &block)
-        add_class("p-#{value}", &block)
+        safe_class = Security::CSSValidator.safe_spacing_class('p', value)
+        add_class(safe_class, &block)
         self
       end
       
-      # Alias for margin
+      # Alias for margin with SECURITY validation
       def margin(value, &block)
-        add_class("m-#{value}", &block)
+        safe_class = Security::CSSValidator.safe_spacing_class('m', value)
+        add_class(safe_class, &block)
         self
       end
 
@@ -55,19 +60,23 @@ module SwiftUIRails
         self
       end
       
-      def background(color, &block)
-        add_class("bg-#{color}", &block)
+      # SECURITY: Validated color methods
+      def background(color, shade = nil, &block)
+        safe_class = Security::CSSValidator.safe_bg_class(color, shade)
+        add_class(safe_class, &block)
         self
       end
 
-      def text_color(color, &block)
-        add_class("text-#{color}", &block)
+      def text_color(color, shade = nil, &block)
+        safe_class = Security::CSSValidator.safe_text_class(color, shade)
+        add_class(safe_class, &block)
         self
       end
 
-      # Typography
+      # Typography with SECURITY validation
       def text_size(size, &block)
-        add_class("text-#{size}", &block)
+        safe_class = Security::CSSValidator.safe_text_size_class(size)
+        add_class(safe_class, &block)
         self
       end
 
@@ -97,43 +106,47 @@ module SwiftUIRails
       end
 
       def font_weight(weight, &block)
-        add_class("font-#{weight}", &block)
+        safe_class = Security::CSSValidator.safe_font_weight_class(weight)
+        add_class(safe_class, &block)
         self
       end
 
       # Borders
-      def border(width = nil)
-        add_class(width ? "border-#{width}" : "border")
+      def border(width = nil, &block)
+        add_class(width ? "border-#{width}" : "border", &block)
         self
       end
 
-      def border_t(width = nil)
-        add_class(width ? "border-t-#{width}" : "border-t")
+      def border_t(width = nil, &block)
+        add_class(width ? "border-t-#{width}" : "border-t", &block)
         self
       end
 
-      def border_b(width = nil)
-        add_class(width ? "border-b-#{width}" : "border-b")
+      def border_b(width = nil, &block)
+        add_class(width ? "border-b-#{width}" : "border-b", &block)
         self
       end
 
-      def border_l(width = nil)
-        add_class(width ? "border-l-#{width}" : "border-l")
+      def border_l(width = nil, &block)
+        add_class(width ? "border-l-#{width}" : "border-l", &block)
         self
       end
 
-      def border_r(width = nil)
-        add_class(width ? "border-r-#{width}" : "border-r")
+      def border_r(width = nil, &block)
+        add_class(width ? "border-r-#{width}" : "border-r", &block)
         self
       end
 
-      def border_color(color, &block)
-        add_class("border-#{color}", &block)
+      def border_color(color, shade = nil, &block)
+        # Reuse text color validator for border colors
+        safe_class = Security::CSSValidator.safe_text_class(color, shade).gsub('text-', 'border-')
+        add_class(safe_class, &block)
         self
       end
 
       def rounded(size = nil, &block)
-        add_class(size ? "rounded-#{size}" : "rounded", &block)
+        safe_class = size ? Security::CSSValidator.safe_rounded_class(size) : "rounded"
+        add_class(safe_class, &block)
         self
       end
 
@@ -143,13 +156,15 @@ module SwiftUIRails
       end
       
       def corner_radius(size = nil, &block)
-        add_class(size ? "rounded-#{size}" : "rounded", &block)
+        safe_class = size ? Security::CSSValidator.safe_rounded_class(size) : "rounded"
+        add_class(safe_class, &block)
         self
       end
 
-      # Effects
+      # Effects with SECURITY validation
       def shadow(size = nil, &block)
-        add_class(size ? "shadow-#{size}" : "shadow", &block)
+        safe_class = size ? Security::CSSValidator.safe_shadow_class(size) : "shadow"
+        add_class(safe_class, &block)
         self
       end
 
@@ -283,8 +298,8 @@ module SwiftUIRails
         self
       end
 
-      def flex_1
-        add_class("flex-1")
+      def flex_1(&block)
+        add_class("flex-1", &block)
         self
       end
 
@@ -429,11 +444,6 @@ module SwiftUIRails
         self
       end
       
-      def hover_background(color, &block)
-        add_class("hover:bg-#{color}", &block)
-        self
-      end
-
       def hover_text_color(color)
         add_class("hover:text-#{color}")
         self
@@ -665,10 +675,6 @@ module SwiftUIRails
         self
       end
       
-      def full_width
-        add_class("w-full")
-        self
-      end
 
       def h_full
         add_class("h-full")

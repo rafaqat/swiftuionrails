@@ -107,18 +107,32 @@ module SwiftUIRails
             .camelize
           
           class_name.constantize
-        rescue
+        rescue NameError => e
+          Rails.logger.debug "[LiveReload] Failed to constantize component: #{class_name} - #{e.message}"
           nil
         end
         
         def broadcast_reload(changed_files)
           return unless defined?(ActionCable)
           
+          # SECURITY: Only send component names instead of full paths to prevent information disclosure
+          component_names = changed_files.filter_map do |file|
+            if file.include?("component")
+              component_class_from_file(file)&.name
+            elsif file.include?("stories")
+              # Extract story name from file path
+              File.basename(file, ".rb").camelize
+            else
+              # For other files, just send the type
+              "view_file"
+            end
+          end.uniq
+          
           ActionCable.server.broadcast(
             "swift_ui_live_reload",
             {
               type: "reload",
-              files: changed_files.map { |f| f.sub(Rails.root.to_s + "/", "") },
+              components: component_names,
               timestamp: Time.current.to_i
             }
           )

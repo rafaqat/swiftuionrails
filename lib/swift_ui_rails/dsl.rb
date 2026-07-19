@@ -1,18 +1,64 @@
 # frozen_string_literal: true
 
 require_relative "dsl/element"
+require_relative "dsl/raw_element"
 require_relative "dsl/safe_element"
 require_relative "dsl/context"
+require_relative "dsl/advanced_content"
+require_relative "security/css_validator"
+require_relative "security/form_helpers"
+require_relative "security/url_validator"
 
 module SwiftUIRails
   module DSL
     extend ActiveSupport::Concern
+    include Security::FormHelpers
+
+    # Curated single-codepoint glyphs rendered as text inside a fixed-size
+    # span. Names outside this allowlist raise; custom artwork should use
+    # image() with an SVG asset instead of extending this table ad hoc.
+    ICON_GLYPHS = {
+      "search" => "⌕",
+      "star" => "★",
+      "x" => "×",
+      "check" => "✓",
+      "plus" => "+",
+      "minus" => "−",
+      "chevron_left" => "‹",
+      "chevron_right" => "›",
+      "chevron_up" => "⌃",
+      "chevron_down" => "⌄",
+      "arrow_left" => "←",
+      "arrow_right" => "→",
+      "arrow_up" => "↑",
+      "arrow_down" => "↓",
+      "heart" => "♥",
+      "circle" => "●",
+      "square" => "■",
+      "warning" => "⚠",
+      "info" => "ℹ",
+      "gear" => "⚙",
+      "menu" => "☰",
+      "sun" => "☀",
+      "moon" => "☾",
+      "play" => "▶",
+      "pause" => "⏸",
+      "refresh" => "↻",
+      "mail" => "✉",
+      "pencil" => "✎",
+      "trash" => "⌫",
+      "clock" => "◷",
+      "bolt" => "⚡",
+      "dot" => "•",
+      "ellipsis" => "…"
+    }.freeze
 
     # Layout Components
     def vstack(alignment: :center, spacing: 8, **attrs, &block)
       attrs[:class] = class_names("flex flex-col", attrs[:class])
       attrs[:class] += " items-#{alignment_class(alignment)}"
-      attrs[:class] += " space-y-#{spacing}" if spacing > 0
+      attrs[:style] = merge_inline_styles(attrs[:style], stack_gap_style(spacing))
+      attrs[:data] = merge_data_attributes(attrs[:data], swift_ui_layout_axis: "vertical")
       
       # Create element with special handling for collecting children
       element = create_element(:div, nil, **attrs) do
@@ -44,13 +90,15 @@ module SwiftUIRails
         end
       end
       
+      element.child_layout_axis = :vertical
       element
     end
 
     def hstack(alignment: :center, spacing: 8, **attrs, &block)
       attrs[:class] = class_names("flex flex-row", attrs[:class])
       attrs[:class] += " items-#{alignment_class(alignment)}"
-      attrs[:class] += " space-x-#{spacing}" if spacing > 0
+      attrs[:style] = merge_inline_styles(attrs[:style], stack_gap_style(spacing))
+      attrs[:data] = merge_data_attributes(attrs[:data], swift_ui_layout_axis: "horizontal")
       
       # Create element with special handling for collecting children
       element = create_element(:div, nil, **attrs) do
@@ -86,12 +134,16 @@ module SwiftUIRails
         end
       end
       
+      element.child_layout_axis = :horizontal
       element
     end
 
-    def zstack(**attrs, &block)
-      attrs[:class] = class_names("relative", attrs[:class])
-      create_element(:div, nil, **attrs, &block)
+    def zstack(alignment: :center, **attrs, &block)
+      attrs[:class] = class_names("relative grid", zstack_alignment_classes(alignment), attrs[:class])
+      attrs[:data] = merge_data_attributes(attrs[:data], swift_ui_layout_axis: "overlay")
+      element = create_element(:div, nil, **attrs, &block)
+      element.child_layout_axis = :overlay
+      element
     end
 
     def grid(columns: 2, spacing: 8, **attrs, &block)
@@ -108,6 +160,14 @@ module SwiftUIRails
       auto_rows = attrs.delete(:auto_rows)
       auto_flow = attrs.delete(:auto_flow)
       masonry = attrs.delete(:masonry) { false }
+
+      # cols:/gap: are the docs' historic misspellings of this signature and
+      # would otherwise pass through silently as HTML attributes. Name the
+      # correct keyword in the error so the fix needs no second lookup.
+      if attrs.key?(:cols) || attrs.key?(:gap)
+        raise ArgumentError,
+              "grid takes columns:/spacing: (not cols:/gap:) — e.g. grid(columns: 3, spacing: 12)"
+      end
       
       Rails.logger.debug "DSL.grid min_item_width: #{min_item_width.inspect}"
       
@@ -122,9 +182,10 @@ module SwiftUIRails
         # Support responsive object like { base: 1, sm: 2, lg: 3 }
         columns.each do |breakpoint, cols|
           if breakpoint == :base
-            grid_classes << "grid-cols-#{cols}"
+            grid_classes << Security::CSSValidator.safe_grid_cols_class(cols)
           else
-            grid_classes << "#{breakpoint}:grid-cols-#{cols}"
+            safe_cols = Security::CSSValidator.safe_grid_cols_class(cols)
+            grid_classes << "#{breakpoint}:#{safe_cols}"
           end
         end
       elsif responsive && columns.is_a?(Integer)
@@ -142,10 +203,10 @@ module SwiftUIRails
         when 6
           grid_classes << "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
         else
-          grid_classes << "grid-cols-#{columns}"
+          grid_classes << Security::CSSValidator.safe_grid_cols_class(columns)
         end
       else
-        grid_classes << "grid-cols-#{columns}"
+        grid_classes << Security::CSSValidator.safe_grid_cols_class(columns)
       end
       
       # Handle gap/spacing
@@ -193,7 +254,7 @@ module SwiftUIRails
         when :fr
           grid_classes << "auto-rows-fr"
         else
-          grid_classes << "auto-rows-[#{auto_rows}]" if auto_rows.is_a?(String)
+          grid_classes << "auto-rows-[#{normalize_grid_auto_rows(auto_rows)}]" if auto_rows.is_a?(String)
         end
       end
       
@@ -217,7 +278,6 @@ module SwiftUIRails
       if masonry
         attrs[:data] ||= {}
         attrs[:data][:masonry] = "true"
-        grid_classes << "masonry-grid"
       end
       
       attrs[:class] = class_names(grid_classes.join(" "), attrs[:class])
@@ -227,30 +287,72 @@ module SwiftUIRails
     
     # SwiftUI-inspired grid components
     def grid_item(size_type = :flexible, **options)
-      case size_type
+      type = size_type.to_sym
+      minimum = options.key?(:minimum) ? options[:minimum] : options[:min]
+      maximum = options.key?(:maximum) ? options[:maximum] : options[:max]
+      alignment = options[:alignment]
+      item_spacing = options[:spacing]
+
+      case type
       when :fixed
-        { type: :fixed, size: options[:size] || 100 }
+        {
+          type: :fixed,
+          size: grid_length(options.fetch(:size, 100), name: "fixed grid item size"),
+          alignment: alignment,
+          spacing: item_spacing
+        }.compact
       when :flexible
-        { type: :flexible, min: options[:min], max: options[:max] }
+        min = grid_length(minimum || 0, name: "flexible grid item minimum")
+        max = maximum.nil? ? nil : grid_length(maximum, name: "flexible grid item maximum")
+        validate_grid_bounds!(min, max)
+        { type: :flexible, min: min, max: max, alignment: alignment, spacing: item_spacing }.compact
       when :adaptive
-        { type: :adaptive, min: options[:min] || 80, max: options[:max] }
+        min = grid_length(minimum || 80, name: "adaptive grid item minimum")
+        max = maximum.nil? ? nil : grid_length(maximum, name: "adaptive grid item maximum")
+        validate_grid_bounds!(min, max)
+        { type: :adaptive, min: min, max: max, alignment: alignment, spacing: item_spacing }.compact
       else
-        { type: :flexible }
+        raise ArgumentError, "unknown grid item type: #{type.inspect}"
       end
     end
     
     def lazy_vgrid(columns:, spacing: 20, **attrs, &block)
-      # Calculate responsive grid classes based on GridItem specs
-      grid_classes = calculate_grid_classes(columns)
-      
-      # Main grid container with isolation
+      build_vertical_grid(columns: columns, spacing: spacing, lazy: true, attrs: attrs, &block)
+    end
+
+    # Explicit eager counterpart for callers that do not want browser-level
+    # rendering deferral.
+    def vgrid(columns:, spacing: 20, **attrs, &block)
+      build_vertical_grid(columns: columns, spacing: spacing, lazy: false, attrs: attrs, &block)
+    end
+
+    def build_vertical_grid(columns:, spacing:, lazy:, attrs:, &block)
+      template = grid_template_columns(columns)
+
       attrs[:class] = class_names("swift-ui-grid", attrs[:class])
-      attrs[:data] ||= {}
-      attrs[:data][:grid_type] = "lazy-vgrid"
+      attrs[:data] = merge_data_attributes(
+        attrs[:data],
+        grid_type: lazy ? "lazy-vgrid" : "vgrid",
+        lazy_strategy: lazy ? "content-visibility" : "none"
+      )
+      if lazy
+        # Rails still creates the HTML on the server. content-visibility gives
+        # lazy_vgrid honest browser-rendering laziness without pretending that
+        # it virtualizes or defers Ruby block evaluation.
+        attrs[:style] = merge_inline_styles(
+          attrs[:style],
+          "content-visibility: auto; contain-intrinsic-size: auto 500px"
+        )
+      end
       
       div(**attrs) do
-        # Grid implementation with proper isolation
-        inner_attrs = { class: "grid gap-#{spacing} #{grid_classes}" }
+        inner_attrs = {
+          class: "grid",
+          style: merge_inline_styles(
+            "grid-template-columns: #{template}",
+            stack_gap_style(spacing)
+          )
+        }
         div(**inner_attrs, &block)
       end
     end
@@ -285,7 +387,18 @@ module SwiftUIRails
 
     # Control Components
     def button(title = nil, **attrs, &block)
-      # Pure structure - no behavior. Behavior is handled by Stimulus
+      # A button nested in a form submits by default in HTML. DSL actions are
+      # ordinarily independent controls, so make that safe behavior explicit
+      # unless the caller deliberately opts into form submission or reset.
+      requested_type = if attrs.key?(:type)
+        attrs.delete(:type)
+      elsif attrs.key?("type")
+        attrs.delete("type")
+      end
+      normalized_type = requested_type.to_s.downcase
+      attrs[:type] = %w[submit reset].include?(normalized_type) ? normalized_type : "button"
+
+      # Pure structure. Ruby action modifiers add semantic event descriptors.
       element = if block_given?
         create_element(:button, nil, **attrs, &block)
       else
@@ -304,8 +417,16 @@ module SwiftUIRails
       create_element(:input, nil, **attrs, &block)
     end
 
+    def textarea(content = nil, **attrs, &block)
+      if block
+        create_element(:textarea, nil, **attrs, &block)
+      else
+        create_element(:textarea, content, **attrs)
+      end
+    end
+
     def link(title = nil, destination: "#", **attrs, &block)
-      attrs[:href] = destination
+      attrs[:href] = Security::URLValidator.validate_link_href(destination.to_s) || "#"
       if block_given?
         create_element(:a, nil, **attrs, &block)
       else
@@ -339,12 +460,28 @@ module SwiftUIRails
     def select(name: nil, selected: nil, **attrs, &block)
       attrs[:name] = name if name
       attrs[:value] = selected if selected
-      create_element(:select, nil, **attrs, &block)
+
+      select_block = if block
+        proc do
+          previous_selection = @swift_ui_selected_option
+          @swift_ui_selected_option = selected
+          instance_exec(&block)
+        ensure
+          @swift_ui_selected_option = previous_selection
+        end
+      end
+
+      create_element(:select, nil, **attrs, &select_block)
     end
 
-    def option(value, text_content = nil, selected: false, **attrs)
+    def option(value, text_content = nil, selected: nil, **attrs)
       attrs[:value] = value
-      attrs[:selected] = selected if selected
+      option_selected = if selected.nil?
+        !@swift_ui_selected_option.nil? && value.to_s == @swift_ui_selected_option.to_s
+      else
+        selected
+      end
+      attrs[:selected] = true if option_selected
       content = text_content || value
       create_element(:option, content, **attrs)
     end
@@ -448,7 +585,13 @@ module SwiftUIRails
       
       # Create a wrapper element that can be chained
       create_element(:div, nil, **attrs) do
-        if defined?(::ProductListComponent) && view_context.respond_to?(:render)
+        rendering_available = if view_context.respond_to?(:render_available?)
+          view_context.render_available?
+        else
+          view_context.respond_to?(:render, true)
+        end
+
+        if defined?(::ProductListComponent) && rendering_available
           view_context.render(::ProductListComponent.new(**component_props))
         else
           # Fallback for testing or when component not available
@@ -479,7 +622,7 @@ module SwiftUIRails
     
     # E-commerce Components with ViewComponent 2.0 Collection Optimization
     # Generic list method - composition-based approach
-    def list(items:, **attrs, &block)
+    def item_list(items:, **attrs, &block)
       # Pure structure for listing items - behavior comes from the block
       attrs[:class] = class_names("space-y-4", attrs[:class])
       
@@ -582,7 +725,7 @@ module SwiftUIRails
       end
       
       # Simple card container - just structure and styling
-      attrs[:class] = class_names("rounded-lg", shadow_class, attrs[:class])
+      attrs[:class] = class_names("bg-white rounded-lg", shadow_class, attrs[:class])
       
       # For slots, we need to ensure they render properly
       if header_slot || content_slot || actions_slot
@@ -666,7 +809,9 @@ module SwiftUIRails
       create_element(:div, nil, **attrs, &block)
     end
 
-    def list(**attrs, &block)
+    def list(items: nil, **attrs, &block)
+      return item_list(items: items, **attrs, &block) if items
+
       create_element(:ul, nil, **attrs, &block)
     end
 
@@ -679,96 +824,181 @@ module SwiftUIRails
       create_element(:div, nil, **attrs, &block)
     end
 
-    # Media Components
-    def image(src: nil, alt: "", **attrs)
-      raise ArgumentError, "image requires src attribute" unless src
-      attrs[:src] = src
+    # Media Components with SECURITY validation
+    def image(source = nil, src: nil, alt: "", **attrs)
+      source = src || source
+      raise ArgumentError, "image requires src attribute" unless source
+      
+      # SECURITY: Validate image source URL
+      safe_src = Security::URLValidator.validate_image_src(source)
+      unless safe_src
+        Rails.logger.warn "Invalid image source blocked: #{source}"
+        safe_src = '/images/placeholder.png'
+      end
+      
+      attrs[:src] = safe_src
       attrs[:alt] = alt
+      attrs[:loading] ||= "lazy" # Default to lazy loading
       create_element(:img, nil, **attrs)
     end
 
     def icon(name, size: 16, **attrs)
-      # For now, just return a placeholder span
-      # In a real implementation, this would render an SVG icon
+      pixel_size = Integer(size)
+      unless pixel_size.between?(1, 256)
+        raise ArgumentError, "icon size must be between 1 and 256 pixels"
+      end
+
+      glyph = ICON_GLYPHS.fetch(name.to_s) do
+        raise ArgumentError, "unknown icon: #{name}; expected one of: #{ICON_GLYPHS.keys.join(', ')}"
+      end
+
       attrs[:class] = class_names("inline-block", attrs[:class])
-      attrs[:style] = "width: #{size}px; height: #{size}px;"
-      create_element(:span, "", **attrs)
+      attrs[:style] = [attrs[:style], "width: #{pixel_size}px; height: #{pixel_size}px; line-height: 1;"].compact.join(" ")
+      attrs[:aria] = { hidden: true }.merge(attrs.fetch(:aria, {}))
+      create_element(:span, glyph, **attrs)
     end
 
     # Layout Helpers
-    def spacer(min_length: nil)
-      attrs = { class: "flex-1" }
-      attrs[:style] = "min-height: #{min_length}px" if min_length
+    def spacer(min_length: nil, **attrs)
+      axis = current_layout_axis
+      axis_class = axis == :horizontal ? "min-w-0" : "min-h-0"
+      attrs[:class] = class_names("flex-1 #{axis_class}", attrs[:class])
+      attrs[:aria] = { hidden: true }.merge(attrs.fetch(:aria, {}))
+      attrs[:data] = merge_data_attributes(attrs[:data], spacer_axis: axis || "unspecified")
+
+      if min_length
+        property = axis == :horizontal ? "min-width" : "min-height"
+        attrs[:style] = merge_inline_styles(
+          attrs[:style],
+          "#{property}: #{css_point_length(min_length, name: "spacer min_length")}"
+        )
+      end
+
       create_element(:div, "", **attrs)
     end
 
     def divider(**attrs)
-      attrs[:class] = class_names("border-t", attrs[:class])
-      create_element(:hr, nil, **attrs)
+      if current_layout_axis == :horizontal
+        attrs[:class] = class_names("self-stretch w-0 border-0 border-l border-gray-300", attrs[:class])
+        attrs[:role] ||= "separator"
+        attrs[:aria] = { orientation: "vertical" }.merge(attrs.fetch(:aria, {}))
+        create_element(:div, nil, **attrs)
+      else
+        attrs[:class] = class_names("self-stretch h-0 border-0 border-t border-gray-300", attrs[:class])
+        attrs[:aria] = { orientation: "horizontal" }.merge(attrs.fetch(:aria, {}))
+        create_element(:hr, nil, **attrs)
+      end
     end
 
-    def div(**attrs, &block)
+    def div(content = nil, **attrs, &block)
       Rails.logger.debug "DSL.div called with block: #{block_given?}"
-      create_element(:div, nil, **attrs, &block)
+      create_element(:div, content, **attrs, &block)
     end
     
-    def span(**attrs, &block)
-      create_element(:span, nil, **attrs, &block)
+    def span(content = nil, **attrs, &block)
+      create_element(:span, content, **attrs, &block)
     end
     
-    def section(**attrs, &block)
+    def section(content = nil, **attrs, &block)
       Rails.logger.debug "DSL.section called with block: #{block_given?}, attrs: #{attrs.inspect}"
-      create_element(:section, nil, **attrs, &block)
+      create_element(:section, content, **attrs, &block)
     end
     
-    def article(**attrs, &block)
-      create_element(:article, nil, **attrs, &block)
+    def article(content = nil, **attrs, &block)
+      create_element(:article, content, **attrs, &block)
     end
     
-    def header(**attrs, &block)
-      create_element(:header, nil, **attrs, &block)
+    def header(content = nil, **attrs, &block)
+      create_element(:header, content, **attrs, &block)
     end
     
-    def footer(**attrs, &block)
-      create_element(:footer, nil, **attrs, &block)
+    def footer(content = nil, **attrs, &block)
+      create_element(:footer, content, **attrs, &block)
     end
     
-    def nav(**attrs, &block)
-      create_element(:nav, nil, **attrs, &block)
+    def nav(content = nil, **attrs, &block)
+      create_element(:nav, content, **attrs, &block)
+    end
+
+    def main(content = nil, **attrs, &block)
+      create_element(:main, content, **attrs, &block)
+    end
+
+    def aside(content = nil, **attrs, &block)
+      create_element(:aside, content, **attrs, &block)
     end
     
-    def a(**attrs, &block)
-      create_element(:a, nil, **attrs, &block)
+    def a(content = nil, **attrs, &block)
+      create_element(:a, content, **attrs, &block)
     end
     
-    def h1(**attrs, &block)
-      create_element(:h1, nil, **attrs, &block)
+    def h1(content = nil, **attrs, &block)
+      create_element(:h1, content, **attrs, &block)
     end
     
-    def h2(**attrs, &block)
-      create_element(:h2, nil, **attrs, &block)
+    def h2(content = nil, **attrs, &block)
+      create_element(:h2, content, **attrs, &block)
     end
     
-    def h3(**attrs, &block)
-      create_element(:h3, nil, **attrs, &block)
+    def h3(content = nil, **attrs, &block)
+      create_element(:h3, content, **attrs, &block)
     end
     
-    def h4(**attrs, &block)
-      create_element(:h4, nil, **attrs, &block)
+    def h4(content = nil, **attrs, &block)
+      create_element(:h4, content, **attrs, &block)
     end
     
-    def h5(**attrs, &block)
-      create_element(:h5, nil, **attrs, &block)
+    def h5(content = nil, **attrs, &block)
+      create_element(:h5, content, **attrs, &block)
     end
     
-    def h6(**attrs, &block)
-      create_element(:h6, nil, **attrs, &block)
+    def h6(content = nil, **attrs, &block)
+      create_element(:h6, content, **attrs, &block)
     end
     
-    def p(**attrs, &block)
-      create_element(:p, nil, **attrs, &block)
+    def p(content = nil, **attrs, &block)
+      create_element(:p, content, **attrs, &block)
     end
-    
+
+    # Tabular data elements. Semantic passthroughs like div/section — table
+    # structure stays native HTML so screen readers get real row/column
+    # semantics instead of a div grid.
+    def table(content = nil, **attrs, &block)
+      create_element(:table, content, **attrs, &block)
+    end
+
+    def thead(content = nil, **attrs, &block)
+      create_element(:thead, content, **attrs, &block)
+    end
+
+    def tbody(content = nil, **attrs, &block)
+      create_element(:tbody, content, **attrs, &block)
+    end
+
+    def tr(content = nil, **attrs, &block)
+      create_element(:tr, content, **attrs, &block)
+    end
+
+    def th(content = nil, **attrs, &block)
+      attrs[:scope] ||= "col"
+      create_element(:th, content, **attrs, &block)
+    end
+
+    def td(content = nil, **attrs, &block)
+      create_element(:td, content, **attrs, &block)
+    end
+
+    def caption(content = nil, **attrs, &block)
+      create_element(:caption, content, **attrs, &block)
+    end
+
+    # Native <dialog> passthrough for custom modal surfaces. Prefer sheet()
+    # for standard presentations — this exists for cases like command
+    # palettes where the presentation chrome is bespoke.
+    def dialog(content = nil, **attrs, &block)
+      create_element(:dialog, content, **attrs, &block)
+    end
+
     # Loading Components
     def spinner(size: :md, border_color: nil, spinner_color: nil)
       size_classes = {
@@ -789,40 +1019,118 @@ module SwiftUIRails
 
     private
     
-    def calculate_grid_classes(grid_items)
-      return "" unless grid_items.is_a?(Array)
-      
-      if grid_items.all? { |item| item[:type] == :flexible }
-        # Fixed number of columns
-        count = grid_items.size
-        case count
-        when 1 then "grid-cols-1"
-        when 2 then "grid-cols-1 sm:grid-cols-2"
-        when 3 then "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        when 4 then "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-        when 6 then "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
-        else "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-        end
-      elsif grid_items.any? { |item| item[:type] == :adaptive }
-        # Adaptive grid based on minimum size
-        min_size = grid_items.find { |i| i[:type] == :adaptive }[:min]
-        case min_size
-        when 0..150 then "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
-        when 151..250 then "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        else "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        end
-      else
-        # Mixed or fixed - default responsive
-        "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+    def grid_template_columns(grid_items)
+      unless grid_items.is_a?(Array) && grid_items.any?
+        raise ArgumentError, "columns must be a non-empty array of grid_item values"
       end
+
+      adaptive_count = grid_items.count { |item| item.is_a?(Hash) && item[:type] == :adaptive }
+      if adaptive_count > 1
+        raise ArgumentError, "only one adaptive grid_item can be represented by a CSS auto-repeat track"
+      end
+
+      grid_items.map do |item|
+        unless item.is_a?(Hash) && %i[fixed flexible adaptive].include?(item[:type])
+          raise ArgumentError, "columns must contain values returned by grid_item"
+        end
+
+        case item[:type]
+        when :fixed
+          css_grid_length(item.fetch(:size))
+        when :flexible
+          minimum = css_grid_length(item.fetch(:min, 0))
+          maximum = item[:max] ? css_grid_length(item[:max]) : "1fr"
+          "minmax(#{minimum}, #{maximum})"
+        when :adaptive
+          minimum = css_grid_length(item.fetch(:min))
+          maximum = item[:max] ? css_grid_length(item[:max]) : "1fr"
+          "repeat(auto-fit, minmax(min(100%, #{minimum}), #{maximum}))"
+        end
+      end.join(" ")
+    end
+
+    def normalize_grid_auto_rows(value)
+      normalized = value.strip.gsub(/\s+/, "_")
+      length = /(?:0|\d+(?:\.\d+)?(?:px|rem|em|%|fr))/
+      endpoint = /(?:auto|min-content|max-content|#{length})/
+      return normalized if normalized.match?(/\Aminmax\(#{length},_#{endpoint}\)\z/)
+
+      raise ArgumentError, "auto_rows must be :min, :max, :fr, or a safe minmax CSS track"
     end
 
     def alignment_class(alignment)
       case alignment
-      when :top, :start then "start"
+      when :top, :start, :leading then "start"
       when :center then "center"
-      when :bottom, :end then "end"
+      when :bottom, :end, :trailing then "end"
       else "center"
+      end
+    end
+
+    def zstack_alignment_classes(alignment)
+      normalized = alignment.to_s
+        .gsub(/([a-z])([A-Z])/, '\\1_\\2')
+        .tr("-", "_")
+        .downcase
+
+      {
+        "center" => "items-center justify-items-center",
+        "leading" => "items-center justify-items-start",
+        "trailing" => "items-center justify-items-end",
+        "top" => "items-start justify-items-center",
+        "bottom" => "items-end justify-items-center",
+        "top_leading" => "items-start justify-items-start",
+        "top_trailing" => "items-start justify-items-end",
+        "bottom_leading" => "items-end justify-items-start",
+        "bottom_trailing" => "items-end justify-items-end"
+      }.fetch(normalized) do
+        raise ArgumentError, "unknown ZStack alignment: #{alignment.inspect}"
+      end
+    end
+
+    def stack_gap_style(spacing)
+      "gap: #{css_point_length(spacing, name: "stack spacing")}"
+    end
+
+    def css_point_length(value, name: "length")
+      number = Float(value)
+      unless number.finite? && number >= 0
+        raise ArgumentError, "#{name} must be a finite, non-negative number"
+      end
+
+      formatted = number == number.to_i ? number.to_i.to_s : number.to_s
+      "#{formatted}px"
+    rescue ArgumentError, TypeError
+      raise ArgumentError, "#{name} must be a finite, non-negative number"
+    end
+
+    def grid_length(value, name:)
+      Float(css_point_length(value, name: name).delete_suffix("px"))
+    end
+
+    def css_grid_length(value)
+      css_point_length(value, name: "grid track size")
+    end
+
+    def validate_grid_bounds!(minimum, maximum)
+      return unless maximum && maximum < minimum
+
+      raise ArgumentError, "grid item maximum must be greater than or equal to its minimum"
+    end
+
+    def merge_inline_styles(*styles)
+      styles.compact.map(&:to_s).map { |style| style.strip.sub(/;\z/, "") }.reject(&:empty?).join("; ")
+    end
+
+    def merge_data_attributes(existing, additions)
+      (existing || {}).merge(additions) { |_key, original, _new_value| original }
+    end
+
+    def current_layout_axis
+      if is_a?(SwiftUIRails::DSLContext)
+        layout_axis
+      elsif instance_variable_defined?(:@_swift_ui_dsl_context)
+        instance_variable_get(:@_swift_ui_dsl_context)&.layout_axis
       end
     end
 
@@ -839,31 +1147,44 @@ module SwiftUIRails
     
     # Create a chainable element
     def create_element(tag_name, content = nil, options = {}, &block)
-      # Always use the current DSL context if we're in one
-      dsl_context = self.is_a?(SwiftUIRails::DSLContext) ? self : nil
+      # Component helper methods execute on the component rather than on the
+      # DSLContext. DSLContext temporarily exposes the active nested context so
+      # elements created by those helpers remain children of the right parent.
+      dsl_context = if is_a?(SwiftUIRails::DSLContext)
+        self
+      elsif instance_variable_defined?(:@_swift_ui_dsl_context)
+        instance_variable_get(:@_swift_ui_dsl_context)
+      end
       element = Element.new(tag_name, content, options, dsl_context, &block)
+
+      # CSS Grid does not overlap auto-placed children by default. Direct
+      # ZStack children explicitly share the first grid cell, so the largest
+      # child establishes the container's size and the rest genuinely overlay.
+      if dsl_context&.layout_axis == :overlay
+        element.add_class("col-start-1 row-start-1")
+      end
       
       # Set the view context for Rails helper access
-      if self.is_a?(SwiftUIRails::DSLContext)
-        element.view_context = @view_context
+      if dsl_context
+        element.view_context = dsl_context.view_context
       else
         element.view_context = self
       end
       
       # Store component reference for event handling
-      if self.respond_to?(:component_id)
+      if !is_a?(SwiftUIRails::DSLContext) && respond_to?(:component_id)
         Rails.logger.debug "Storing component on element: #{self.class.name}, component_id=#{self.component_id}"
         element.instance_variable_set(:@component, self)
-      elsif self.is_a?(DSLContext) && @component
-        Rails.logger.debug "Storing component from context: #{@component.class.name}, component_id=#{@component.component_id if @component}"
-        element.instance_variable_set(:@component, @component)
+      elsif dsl_context&.component
+        Rails.logger.debug "Storing component from context: #{dsl_context.component.class.name}, component_id=#{dsl_context.component.component_id}"
+        element.instance_variable_set(:@component, dsl_context.component)
       end
       
       # Register the element only if we're in a DSL context
       # This prevents double registration when blocks return elements
-      if self.is_a?(SwiftUIRails::DSLContext)
+      if dsl_context
         Rails.logger.debug "[DSL] Registering element #{tag_name} to context #{self.object_id}"
-        register_element(element)
+        dsl_context.register_element(element)
       else
         Rails.logger.debug "[DSL] Created element #{tag_name} outside DSL context - not registering"
       end

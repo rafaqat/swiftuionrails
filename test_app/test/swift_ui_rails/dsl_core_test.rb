@@ -23,7 +23,8 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
       vstack(spacing: 16) { text("Item") }
     end
     
-    assert_includes result, "space-y-16"
+    assert_includes result, 'style="gap: 16px"'
+    refute_includes result, "space-y-16"
   end
   
   test "vstack with alignment options" do
@@ -63,7 +64,8 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
       end
     end
     
-    assert_includes result, "space-x-12"
+    assert_includes result, 'style="gap: 12px"'
+    refute_includes result, "space-x-12"
     assert_includes result, "items-start"
   end
   
@@ -142,7 +144,7 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
       button("Click Me")
     end
     
-    assert_includes result, '<button>Click Me</button>'
+    assert_includes result, '<button type="button">Click Me</button>'
   end
   
   test "button with block content" do
@@ -239,14 +241,143 @@ class SwiftUIRails::DSLCoreTest < ActiveSupport::TestCase
     assert_includes result, 'alt="Photo"'
   end
   
-  test "icon creates icon placeholder" do
+  test "icon renders a bounded, decorative glyph" do
     result = @view.swift_ui do
       icon("star")
     end
     
     assert_includes result, '<span'
     assert_includes result, 'class="inline-block"'
-    assert_includes result, 'style="width: 16px; height: 16px;"'
+    assert_includes result, 'style="width: 16px; height: 16px; line-height: 1;"'
+    assert_includes result, 'aria-hidden="true"'
+    assert_includes result, '★'
+  end
+
+  test "icon rejects unknown names and unsafe sizes" do
+    assert_raises(ArgumentError) { @view.swift_ui { icon("not-registered") } }
+    assert_raises(ArgumentError) { @view.swift_ui { icon("star", size: "1; color: red") } }
+    assert_raises(ArgumentError) { @view.swift_ui { icon("star", size: 0) } }
+  end
+
+  test "every registered icon glyph renders as a single decorative character" do
+    SwiftUIRails::DSL::ICON_GLYPHS.each do |name, glyph|
+      result = @view.swift_ui { icon(name) }
+
+      assert_includes result, glyph, "icon(#{name.inspect}) should render #{glyph.inspect}"
+      assert_includes result, 'aria-hidden="true"'
+      assert glyph.grapheme_clusters.length == 1,
+             "ICON_GLYPHS[#{name.inspect}] must stay a single visual glyph"
+    end
+  end
+
+  test "strict css rejects hallucinated palette values with enumerated errors" do
+    error = assert_raises(ArgumentError) { @view.swift_ui { div("x").bg("cerulean-500") } }
+    assert_match(/unknown background color "cerulean-500"/, error.message)
+    assert_match(/blue/, error.message)
+
+    error = assert_raises(ArgumentError) { @view.swift_ui { text("x").text_color("bluish") } }
+    assert_match(/unknown text color/, error.message)
+
+    assert_raises(ArgumentError) { @view.swift_ui { div("x").p("huge") } }
+    assert_raises(ArgumentError) { @view.swift_ui { text("x").font_weight("chunky") } }
+    assert_raises(ArgumentError) { @view.swift_ui { div("x").rounded("blob") } }
+  end
+
+  test "strict css accepts the validated vocabulary and escape hatches" do
+    result = @view.swift_ui do
+      div("x").bg("blue-500").text_color("slate-900/10").p(4).rounded("2xl").font_weight("bold")
+    end
+    assert_includes result, "bg-blue-500"
+
+    assert_includes @view.swift_ui { div("x").bg("[--brand]") }, "bg-[--brand]"
+    assert_includes @view.swift_ui { div("x").tw("bg-anything-goes") }, "bg-anything-goes"
+  end
+
+  test "strict css is inert when disabled" do
+    SwiftUIRails.configuration.strict_css = false
+    result = @view.swift_ui { div("x").bg("cerulean-500") }
+    assert_includes result, "bg-cerulean-500"
+  ensure
+    SwiftUIRails.configuration.strict_css = true
+  end
+
+  test "unknown modifiers raise a domain error with a did-you-mean suggestion" do
+    error = assert_raises(NoMethodError) { @view.swift_ui { text("x").font_wieght("bold") } }
+    assert_match(/unknown modifier `.font_wieght`/, error.message)
+    assert_match(/did you mean `.font_weight`\?/, error.message)
+  end
+
+  test "grid rejects the docs' historic cols and gap keywords" do
+    error = assert_raises(ArgumentError) { @view.swift_ui { grid(cols: 3) { text("x") } } }
+    assert_match(/grid takes columns:\/spacing:/, error.message)
+
+    assert_raises(ArgumentError) { @view.swift_ui { grid(columns: 3, gap: 12) { text("x") } } }
+  end
+
+  test "transition keeps its Tailwind utility behavior without keywords" do
+    result = @view.swift_ui { div("x").transition }
+    assert_includes result, "transition"
+
+    result = @view.swift_ui { div("x").transition("colors") }
+    assert_includes result, "transition-colors"
+  end
+
+  test "transition declares SwiftUI-style insertion and removal animations" do
+    result = @view.swift_ui do
+      div("Toast").transition(insertion: :move_up, removal: :opacity)
+    end
+
+    assert_includes result, "motion-enter-move-up"
+    assert_includes result, 'data-motion-exit="motion-exit-opacity"'
+  end
+
+  test "transition rejects unknown names and mixed usage" do
+    assert_raises(ArgumentError) { @view.swift_ui { div("x").transition(insertion: :teleport) } }
+    assert_raises(ArgumentError) { @view.swift_ui { div("x").transition(removal: "constantize") } }
+    assert_raises(ArgumentError) { @view.swift_ui { div("x").transition("colors", insertion: :scale) } }
+  end
+
+  test "springy button style carries the pressed-feedback class" do
+    result = @view.swift_ui { button("Press").button_style(:springy) }
+
+    assert_includes result, "btn-springy"
+    assert_includes result, "rounded-full"
+  end
+
+  test "table elements render native tabular markup" do
+    result = @view.swift_ui do
+      table do
+        caption("Invoices")
+        thead do
+          tr do
+            th("Customer")
+            th("Amount")
+          end
+        end
+        tbody do
+          tr do
+            td("Acme")
+            td("$120.00")
+          end
+        end
+      end
+    end
+
+    assert_includes result, "<table"
+    assert_includes result, "<caption"
+    assert_includes result, "<thead"
+    assert_includes result, "<tbody"
+    assert_includes result, '<th scope="col"'
+    assert_includes result, "<td"
+    assert_includes result, "Acme"
+  end
+
+  test "icon glyph table covers the common interface vocabulary" do
+    %w[check plus minus chevron_left chevron_right chevron_up chevron_down
+       arrow_left arrow_right arrow_up arrow_down heart warning info gear
+       menu sun moon play pause refresh mail pencil trash clock bolt].each do |name|
+      assert SwiftUIRails::DSL::ICON_GLYPHS.key?(name), "expected icon #{name} to be registered"
+    end
   end
   
   test "spinner creates loading spinner" do

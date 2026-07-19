@@ -146,10 +146,11 @@ class SwiftUIRails::EdgeCasesTest < ActiveSupport::TestCase
   
   test "handles special characters in attributes" do
     result = @view.swift_ui do
-      div.attr("data-value", "test\"value'here")
+      div.attr(:title, "test\"value'here")
     end
-    
-    assert_includes result, "data-value"
+
+    element = Nokogiri::HTML.fragment(result).at_css("div")
+    assert_equal "test\"value'here", element["title"]
   end
   
   test "handles nil attributes" do

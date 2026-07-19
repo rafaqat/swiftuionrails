@@ -21,7 +21,6 @@ class SwiftUIRails::SimpleSlotsTest < ViewComponent::TestCase
       c.with_main_content { "Hello World" }
     end
     
-    puts "Rendered HTML: #{html.to_s}"
     
     assert_text "Hello World"
     assert_selector "div.wrapper"

@@ -169,7 +169,8 @@ class SwiftUIRails::DSLModifiersTest < ActiveSupport::TestCase
     assert_includes result, 'class="flex"'
     assert_includes result, 'class="block"'
     assert_includes result, 'class="inline"'
-    assert_includes result, 'class="hidden"'
+    assert_includes result, 'class="invisible"'
+    assert_includes result, 'aria-hidden="true"'
   end
   
   test "flex modifier with tw for additional classes" do
@@ -248,13 +249,19 @@ class SwiftUIRails::DSLModifiersTest < ActiveSupport::TestCase
     result = @view.swift_ui do
       div
         .attr(:id, "my-div")
-        .attr("data-value", "123")
-        .attr(:onclick, "handleClick()")
+        .attr(:title, "Semantic container")
     end
     
     assert_includes result, 'id="my-div"'
-    assert_includes result, 'data-value="123"'
-    assert_includes result, 'onclick="handleClick()"'
+    assert_includes result, 'title="Semantic container"'
+  end
+
+  test "attr rejects inline JavaScript event handlers at the IR boundary" do
+    error = assert_raises(SwiftUIRails::RenderIR::InvalidStructure) do
+      @view.swift_ui { div.attr(:onclick, "handleClick()") }
+    end
+
+    assert_match(/attribute name is invalid or unsafe/, error.message)
   end
   
   test "disabled modifier" do

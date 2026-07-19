@@ -113,7 +113,9 @@ class SwiftUIRails::ErrorHandlingTest < ViewComponent::TestCase
   test "component errors are raised properly" do
     component = InvalidMethodComponent.new
     
-    assert_raises(NoMethodError) do
+    # Ruby may report an unresolved bare call as NameError or its
+    # NoMethodError subclass depending on parser/runtime version.
+    assert_raises(NameError) do
       render_inline(component)
     end
   end
@@ -216,16 +218,27 @@ class SwiftUIRails::ErrorHandlingTest < ViewComponent::TestCase
   
   # Test invalid CSS classes
   
-  test "modifiers handle invalid values gracefully" do
+  test "modifiers reject invalid values with domain errors in strict mode" do
     view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
     view.extend(SwiftUIRails::Helpers)
-    
+
+    error = assert_raises(ArgumentError) { view.swift_ui { div.p(nil) } }
+    assert_match(/unknown spacing value for .p/, error.message)
+  end
+
+  test "modifiers degrade silently when strict mode is off (untrusted-input posture)" do
+    SwiftUIRails.configuration.strict_css = false
+    view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
+    view.extend(SwiftUIRails::Helpers)
+
     result = view.swift_ui do
       div.p(nil).m("").bg(false)
     end
-    
+
     # Should still render, just with potentially invalid classes
     assert_includes result, "<div"
+  ensure
+    SwiftUIRails.configuration.strict_css = true
   end
   
   private

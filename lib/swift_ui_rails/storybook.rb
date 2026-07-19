@@ -5,11 +5,18 @@ require "view_component/storybook/stories"
 module SwiftUIRails
   # A SwiftUI-like base class for component stories that uses the DSL directly
   class Storybook < ViewComponent::Storybook::Stories
-    include ActionView::Helpers::TagHelper
-    include ActionView::Helpers::TextHelper
-    include ActionView::Context
-    include SwiftUIRails::DSL
-    include SwiftUIRails::Helpers
+    # A module form of the integration is exposed for host initializers. Ruby
+    # classes cannot be included, which made the previously generated
+    # initializer fail as soon as Storybook was installed.
+    module Helpers
+      include ActionView::Helpers::TagHelper
+      include ActionView::Helpers::TextHelper
+      include ActionView::Context
+      include SwiftUIRails::DSL
+      include SwiftUIRails::Helpers
+    end
+
+    include Helpers
     
     class << self
       # The main entry point for the SwiftUI-like preview DSL
@@ -55,3 +62,5 @@ module SwiftUIRails
     end
   end
 end
+
+require_relative "storybook/stories"

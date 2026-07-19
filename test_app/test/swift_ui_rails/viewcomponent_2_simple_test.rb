@@ -37,7 +37,7 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
     
     html = result.to_s
     assert_includes html, "flex flex-col"
-    assert_includes html, "space-y-16"
+    assert_includes html, 'style="gap: 16px"'
     assert_includes html, "Item 1"
     assert_includes html, "Item 2"
     assert_includes html, "Item 3"
@@ -119,13 +119,16 @@ class ViewComponent2SimpleTest < ViewComponent::TestCase
 
   # Test error handling
   def test_dsl_error_handling
-    # Should handle nil values gracefully
+    # nil content renders; invalid scale values raise domain errors in
+    # strict mode ("md" is not a Tailwind text size — "base" is).
     result = swift_ui do
-      text(nil)
-        .font_size("md")
+      text(nil).font_size("base")
     end
-    
-    # Should not crash
     assert_not_nil result.to_s
+
+    error = assert_raises(ArgumentError) do
+      swift_ui { text(nil).font_size("md") }
+    end
+    assert_match(/unknown value for .font_size/, error.message)
   end
 end
